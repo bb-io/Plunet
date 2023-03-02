@@ -124,30 +124,34 @@ public class OrderActions
 
 
     [Action]
-    public PriceLineResponse AddPriceLineToItem(string userName, string password,
+    public PriceLineListResponse AddPriceLinesToItem(string userName, string password,
         AuthenticationCredentialsProvider authProvider, [ActionParameter] PriceLineRequest request)
     {
         using var itemClient = new DataItem30Client();
         var priceUnitListResult = itemClient.getPriceUnit_ListAsync(request.UUID, "en", "Translation").GetAwaiter()
             .GetResult();
-        var priceUnit = priceUnitListResult.data.FirstOrDefault(x =>
+        var priceUnits = priceUnitListResult.data.Where(x =>
             x.description.Contains("Words Translation", StringComparison.OrdinalIgnoreCase));
-        if (priceUnit == null)
+        if (priceUnits == null || !priceUnits.Any())
         {
-            return MapPriceLineResponse(null);
+            return new PriceLineListResponse();
         }
 
-        var priceLine = new PriceLineIN
+        foreach (var priceUnit in priceUnits)
         {
-            amount = request.Amount,
-            amount_perUnit = request.AmountPerUnit,
-            priceUnitID = priceUnit.priceUnitID,
-            taxType = 0,
-            unit_price = request.UnitPrice
-        };
-        var response = itemClient.insertPriceLineAsync(request.UUID, request.ItemId, 3, priceLine, true).GetAwaiter()
-            .GetResult();
-        return MapPriceLineResponse(response.data);
+            var priceLine = new PriceLineIN
+            {
+                amount = request.Amount,
+                priceUnitID = priceUnit.priceUnitID,
+                taxType = 0,
+                unit_price = request.UnitPrice
+            };
+            itemClient.insertPriceLineAsync(request.UUID, request.ItemId, 3, priceLine, priceUnit.description.Contains("New", StringComparison.OrdinalIgnoreCase)).GetAwaiter()
+                .GetResult();
+        }
+
+        var priceListResult = itemClient.getPriceLine_ListAsync(request.UUID, request.ItemId, 3).GetAwaiter().GetResult();
+        return new PriceLineListResponse {PriceLines = priceListResult.data.Select(MapPriceLineResponse)};
     }
 
     [Action]

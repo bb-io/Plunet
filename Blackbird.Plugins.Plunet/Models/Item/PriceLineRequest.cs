@@ -8,7 +8,5 @@ public class PriceLineRequest
     
     public double Amount { get; set; }
 
-    public double AmountPerUnit { get; set; }
-
     public double UnitPrice { get; set; }
 }
