@@ -1,0 +1,15 @@
+﻿{
+  "communicationWrapperType": "HttpWrapper",
+  "authenticationType": "",
+  "definition": [
+    {
+      "name": "username",
+      "description": "Your Plunet username"
+    },
+    {
+      "name": "password",
+      "description": "Your Plunet password"
+    }
+  ],
+  "authenticationResponseMapping": {}
+}

@@ -13,5 +13,5 @@ public class ConnectionProvider : IConnectionProvider
     public string ConnectionName  =>  "Plunet connection";
 
     
-    public IEnumerable<string> ConnectionProperties  => new [] {"userName", "password"};
+    public IEnumerable<string> ConnectionProperties  => new [] {"username", "password"};
 }
