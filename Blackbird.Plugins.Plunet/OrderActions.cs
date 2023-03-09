@@ -7,6 +7,7 @@ using Blackbird.Plugins.Plunet.DataOrder30Service;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Item;
 using Blackbird.Plugins.Plunet.Models.Order;
+using System.Security.Policy;
 
 namespace Blackbird.Plugins.Plunet;
 
@@ -14,21 +15,26 @@ namespace Blackbird.Plugins.Plunet;
 public class OrderActions
 {
     [Action]
-    public OrderResponse GetOrder(string userName, string password, AuthenticationCredentialsProvider authProvider,
-        [ActionParameter] string token, [ActionParameter] int orderId)
+    public OrderResponse GetOrder(string url, string username, string password, AuthenticationCredentialsProvider authProvider,
+        [ActionParameter] int orderId)
     {
-        using var orderClient = new DataOrder30Client();
-        var orderResult = orderClient.getOrderObjectAsync(token, orderId).GetAwaiter().GetResult();
+        using var authClient = Clients.GetAuthClient(url);
+        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
+        using var orderClient = Clients.GetOrderClient(url);
+        var orderResult = orderClient.getOrderObjectAsync(uuid, orderId).GetAwaiter().GetResult();
         var response = orderResult.data ?? null;
+        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
         return MapOrderResponse(response);
     }
 
     [Action]
-    public CreateOrderResponse CreateOrder(string userName, string password,
+    public CreateOrderResponse CreateOrder(string url, string username, string password,
         AuthenticationCredentialsProvider authProvider, [ActionParameter] CreateOrderRequest request)
     {
-        using var orderClient = new DataOrder30Client();
-        var orderIdResult = orderClient.insert2Async(request.UUID, new OrderIN
+        using var authClient = Clients.GetAuthClient(url);
+        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
+        using var orderClient = Clients.GetOrderClient(url);
+        var orderIdResult = orderClient.insert2Async(uuid, new OrderIN
         {
             projectName = request.ProjectName,
             customerID = request.CustomerId,
@@ -37,15 +43,18 @@ public class OrderActions
             orderDate = DateTime.Now,
             deliveryDeadline = request.Deadline,
         }).GetAwaiter().GetResult();
+        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
         return new CreateOrderResponse {OrderId = orderIdResult.data};
     }
 
     [Action]
-    public CreateItemResponse AddItemToOrder(string userName, string password,
+    public CreateItemResponse AddItemToOrder(string url, string username, string password,
         AuthenticationCredentialsProvider authProvider, [ActionParameter] CreateItemRequest request)
     {
-        using var itemClient = new DataItem30Client();
-        var itemIdResult = itemClient.insert2Async(request.UUID, new ItemIN
+        using var authClient = Clients.GetAuthClient(url);
+        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
+        using var itemClient = Clients.GetItemClient(url);
+        var itemIdResult = itemClient.insert2Async(uuid, new ItemIN
         {
             briefDescription = request.ItemName,
             projectID = request.OrderId,
@@ -53,16 +62,19 @@ public class OrderActions
             projectType = 3,
             deliveryDeadline = request.DeadlineDateTime,
         }).GetAwaiter().GetResult();
+        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
         return new CreateItemResponse {ItemId = itemIdResult.data};
     }
 
 
     [Action]
-    public CreateOrderResponse CreateOrderBasedOnTemplate(string userName, string password,
+    public CreateOrderResponse CreateOrderBasedOnTemplate(string url, string username, string password,
         AuthenticationCredentialsProvider authProvider, [ActionParameter] CreateOrderRequest request,
         [ActionParameter] string templateName)
     {
-        using var orderClient = new DataOrder30Client();
+        using var authClient = Clients.GetAuthClient(url);
+        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
+        using var orderClient = Clients.GetOrderClient(url);
         var order = new OrderIN
         {
             projectName = request.ProjectName,
@@ -72,7 +84,7 @@ public class OrderActions
             orderDate = DateTime.Now,
             deliveryDeadline = request.Deadline
         };
-        var templates = orderClient.getTemplateListAsync(request.UUID).GetAwaiter().GetResult();
+        var templates = orderClient.getTemplateListAsync(uuid).GetAwaiter().GetResult();
         if (templates == null || !templates.data.Any())
         {
             return new CreateOrderResponse();
@@ -85,37 +97,44 @@ public class OrderActions
             return new CreateOrderResponse();
         }
 
-        var orderIdResult = orderClient.insert_byTemplateAsync(request.UUID, order, template.templateID).GetAwaiter()
+        var orderIdResult = orderClient.insert_byTemplateAsync(uuid, order, template.templateID).GetAwaiter()
             .GetResult();
+        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
         return new CreateOrderResponse {OrderId = orderIdResult.data};
     }
 
     [Action]
-    public AddLanguageCombinationResponse AddLanguageCombinationToOrder(string userName, string password,
+    public AddLanguageCombinationResponse AddLanguageCombinationToOrder(string url, string username, string password,
         AuthenticationCredentialsProvider authProvider, [ActionParameter] AddLanguageCombinationRequest request)
     {
-        using var orderClient = new DataOrder30Client();
+        using var authClient = Clients.GetAuthClient(url);
+        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
+        using var orderClient = Clients.GetOrderClient(url);
         var langCombination =
-            GetLanguageNamesCombinationByLanguageCodeIso(request.UUID, request.SourceLanguageCode,
+            GetLanguageNamesCombinationByLanguageCodeIso(url, uuid, request.SourceLanguageCode,
                 request.TargetLanguageCode);
         if (string.IsNullOrEmpty(langCombination.TargetLanguageName))
         {
             return new AddLanguageCombinationResponse();
         }
 
-        var result = orderClient.addLanguageCombinationAsync(request.UUID, langCombination.SourceLanguageName,
+        var result = orderClient.addLanguageCombinationAsync(uuid, langCombination.SourceLanguageName,
             langCombination.TargetLanguageName, request.OrderId).GetAwaiter().GetResult();
+        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
         return new AddLanguageCombinationResponse {LanguageCombinationId = result.data};
     }
 
     [Action]
-    public BaseResponse SetLanguageCombinationToItem(string userName, string password,
+    public BaseResponse SetLanguageCombinationToItem(string url, string username, string password,
         AuthenticationCredentialsProvider authProvider, [ActionParameter] SetLanguageCombinationRequest request)
     {
-        using var itemClient = new DataItem30Client();
+        using var authClient = Clients.GetAuthClient(url);
+        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
+        using var itemClient = Clients.GetItemClient(url);
         var response = itemClient
-            .setLanguageCombinationIDAsync(request.UUID, request.LanguageCombinationId, 3, request.ItemId).GetAwaiter()
+            .setLanguageCombinationIDAsync(uuid, request.LanguageCombinationId, 3, request.ItemId).GetAwaiter()
             .GetResult();
+        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
         return new BaseResponse
         {
             StatusCode = response.statusCode
@@ -124,11 +143,13 @@ public class OrderActions
 
 
     [Action]
-    public PriceLineListResponse AddPriceLinesToItem(string userName, string password,
+    public PriceLineListResponse AddPriceLinesToItem(string url, string username, string password,
         AuthenticationCredentialsProvider authProvider, [ActionParameter] PriceLineRequest request)
     {
-        using var itemClient = new DataItem30Client();
-        var priceUnitListResult = itemClient.getPriceUnit_ListAsync(request.UUID, "en", "Translation").GetAwaiter()
+        using var authClient = Clients.GetAuthClient(url);
+        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
+        using var itemClient = Clients.GetItemClient(url);
+        var priceUnitListResult = itemClient.getPriceUnit_ListAsync(uuid, "en", "Translation").GetAwaiter()
             .GetResult();
         var priceUnits = priceUnitListResult.data.Where(x =>
             x.description.Contains("Words Translation", StringComparison.OrdinalIgnoreCase));
@@ -146,29 +167,33 @@ public class OrderActions
                 taxType = 0,
                 unit_price = request.UnitPrice
             };
-            itemClient.insertPriceLineAsync(request.UUID, request.ItemId, 3, priceLine, priceUnit.description.Contains("New", StringComparison.OrdinalIgnoreCase)).GetAwaiter()
+            itemClient.insertPriceLineAsync(uuid, request.ItemId, 3, priceLine, priceUnit.description.Contains("New", StringComparison.OrdinalIgnoreCase)).GetAwaiter()
                 .GetResult();
         }
 
-        var priceListResult = itemClient.getPriceLine_ListAsync(request.UUID, request.ItemId, 3).GetAwaiter().GetResult();
+        var priceListResult = itemClient.getPriceLine_ListAsync(uuid, request.ItemId, 3).GetAwaiter().GetResult();
+        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
         return new PriceLineListResponse {PriceLines = priceListResult.data.Select(MapPriceLineResponse)};
     }
 
     [Action]
-    public BaseResponse UploadFile(string userName, string password,
+    public BaseResponse UploadFile(string url, string username, string password,
         AuthenticationCredentialsProvider authProvider, [ActionParameter] UploadDocumentRequest request)
     {
-        using var dataDocumentClient = new DataDocument30Client();
-        var response = dataDocumentClient.upload_DocumentAsync(request.UUID, request.OrderId, request.FolderType,
+        using var authClient = Clients.GetAuthClient(url);
+        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
+        using var dataDocumentClient = Clients.GetDocumentClient(url);
+        var response = dataDocumentClient.upload_DocumentAsync(uuid, request.OrderId, request.FolderType,
             request.FileContentBytes, request.FilePath, request.FileSize).GetAwaiter().GetResult();
+        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
         return new BaseResponse {StatusCode = response.Result.statusCode};
     }
 
     private (string SourceLanguageName, string TargetLanguageName)
-        GetLanguageNamesCombinationByLanguageCodeIso(string token, string sourceLanguageCode, string targetLanguageCode)
+        GetLanguageNamesCombinationByLanguageCodeIso(string url, string uuid, string sourceLanguageCode, string targetLanguageCode)
     {
-        using var adminClient = new DataAdmin30Client();
-        var availableLanguagesResult = adminClient.getAvailableLanguagesAsync(token, "en").GetAwaiter().GetResult();
+        using var adminClient = Clients.GetAdminClient(url);
+        var availableLanguagesResult = adminClient.getAvailableLanguagesAsync(uuid, "en").GetAwaiter().GetResult();
         if (availableLanguagesResult.data == null || availableLanguagesResult.data.Length == 0)
         {
             return new ValueTuple<string, string>();

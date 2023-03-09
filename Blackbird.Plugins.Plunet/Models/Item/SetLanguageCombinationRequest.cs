@@ -6,5 +6,4 @@ public class SetLanguageCombinationRequest
 
     public int LanguageCombinationId { get; set; }
 
-    public string UUID { get; set; }
 }

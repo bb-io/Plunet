@@ -2,7 +2,6 @@
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using Blackbird.Plugins.Plunet.Models.Customer;
-using Blackbird.Plugins.Plunet.Models.Item;
 
 namespace Blackbird.Plugins.Plunet;
 
@@ -10,26 +9,32 @@ namespace Blackbird.Plugins.Plunet;
 public class CustomerActions
 {
     [Action]
-    public GetCustomerResponse GetCustomerByName(string userName, string password, AuthenticationCredentialsProvider authProvider, [ActionParameter] GetCustomerRequest request)
+    public GetCustomerResponse GetCustomerByName(string url, string username, string password, AuthenticationCredentialsProvider authProvider, [ActionParameter]string customerName)
     {
-        var customerClient = new DataCustomer30Client();
-        var result = customerClient.searchAsync(request.UUID, new SearchFilter_Customer
+        using var authClient = Clients.GetAuthClient(url);
+        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
+        using var customerClient = Clients.GetCustomerClient(url);
+        var result = customerClient.searchAsync(uuid, new SearchFilter_Customer
         {
-            name1 = request.CustomerName
+            name1 = customerName
         }).GetAwaiter().GetResult().data.FirstOrDefault();
         if (!result.HasValue)
         {
             return MapCustomerResponse(null);
         }
-        var customer = customerClient.getCustomerObjectAsync(request.UUID, result.Value).GetAwaiter().GetResult();
+        var customer = customerClient.getCustomerObjectAsync(uuid, result.Value).GetAwaiter().GetResult();
+        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
         return MapCustomerResponse(customer.data);
     }
     
     [Action]
-    public GetCustomerResponse GetCustomerById(string userName, string password, AuthenticationCredentialsProvider authProvider, [ActionParameter] string uuid, [ActionParameter]int customerId)
+    public GetCustomerResponse GetCustomerById(string url, string username, string password, AuthenticationCredentialsProvider authProvider, [ActionParameter]int customerId)
     {
-        var customerClient = new DataCustomer30Client();
+        using var authClient = Clients.GetAuthClient(url);
+        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
+        using var customerClient = Clients.GetCustomerClient(url);
         var customer = customerClient.getCustomerObjectAsync(uuid, customerId).GetAwaiter().GetResult();
+        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
         return MapCustomerResponse(customer.data);
     }
 
