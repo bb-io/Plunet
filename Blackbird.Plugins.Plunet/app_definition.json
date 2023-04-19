@@ -1,0 +1,19 @@
+﻿{
+  "communicationWrapperType": "HttpWrapper",
+  "authenticationType": "",
+  "definition": [
+    {
+      "name": "url",
+      "description": "The url to your Plunet instance (https://<your company name>.plunet.com)"
+    },
+    {
+      "name": "username",
+      "description": "Your Plunet username"
+    },
+    {
+      "name": "password",
+      "description": "Your Plunet password"
+    }
+  ],
+  "authenticationResponseMapping": {}
+}
