@@ -2,7 +2,6 @@
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Plugins.Plunet.DataAdmin30Service;
-using Blackbird.Plugins.Plunet.DataDocument30Service;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
 using Blackbird.Plugins.Plunet.Extensions;
@@ -16,20 +15,21 @@ namespace Blackbird.Plugins.Plunet.Actions;
 public class OrderActions
 {
     [Action]
-    public async Task<OrderResponse> GetOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int orderId)
+    public async Task<OrderResponse> GetOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int orderId)
     {
         var uuid = authProviders.GetAuthToken();
-        using var orderClient = new DataOrder30Client();
+        using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
         var orderResult = await orderClient.getOrderObjectAsync(uuid, orderId);
         var response = orderResult.data ?? null;
+        await authProviders.Logout();
         return MapOrderResponse(response);
     }
 
     [Action]
-    public async Task<CreateOrderResponse> CreateOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateOrderRequest request)
+    public async Task<CreateOrderResponse> CreateOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateOrderRequest request)
     {
         var uuid = authProviders.GetAuthToken();
-        using var orderClient = new DataOrder30Client();
+        using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
         var orderIdResult = await orderClient.insert2Async(uuid, new OrderIN
         {
             projectName = request.ProjectName,
@@ -39,14 +39,15 @@ public class OrderActions
             orderDate = DateTime.Now,
             deliveryDeadline = request.Deadline,
         });
+        await authProviders.Logout();
         return new CreateOrderResponse {OrderId = orderIdResult.data};
     }
 
     [Action]
-    public async Task<CreateItemResponse> AddItemToOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateItemRequest request)
+    public async Task<CreateItemResponse> AddItemToOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateItemRequest request)
     {
         var uuid = authProviders.GetAuthToken();
-        using var itemClient = new DataItem30Client();
+        using var itemClient = Clients.GetItemClient(authProviders.GetInstanceUrl());
         var itemIdResult = await itemClient.insert2Async(uuid, new ItemIN
         {
             briefDescription = request.ItemName,
@@ -55,16 +56,17 @@ public class OrderActions
             projectType = 3,
             deliveryDeadline = request.DeadlineDateTime,
         });
+        await authProviders.Logout();
         return new CreateItemResponse {ItemId = itemIdResult.data};
     }
 
 
     [Action]
-    public async Task<CreateOrderResponse> CreateOrderBasedOnTemplate(IEnumerable<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] CreateOrderRequest request,
+    public async Task<CreateOrderResponse> CreateOrderBasedOnTemplate(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] CreateOrderRequest request,
         [ActionParameter] string templateName)
     {
         var uuid = authProviders.GetAuthToken();
-        using var orderClient = new DataOrder30Client();
+        using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
         var order = new OrderIN
         {
             projectName = request.ProjectName,
@@ -77,6 +79,7 @@ public class OrderActions
         var templates = await orderClient.getTemplateListAsync(uuid);
         if (templates == null || !templates.data.Any())
         {
+            await authProviders.Logout();
             return new CreateOrderResponse();
         }
 
@@ -84,38 +87,43 @@ public class OrderActions
             t.templateName.Contains(templateName, StringComparison.OrdinalIgnoreCase));
         if (template == null)
         {
+            await authProviders.Logout();
             return new CreateOrderResponse();
         }
 
         var orderIdResult = await orderClient.insert_byTemplateAsync(uuid, order, template.templateID);
+        await authProviders.Logout();
         return new CreateOrderResponse {OrderId = orderIdResult.data};
     }
 
     [Action]
-    public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] AddLanguageCombinationRequest request)
+    public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] AddLanguageCombinationRequest request)
     {
         var uuid = authProviders.GetAuthToken();
-        using var orderClient = new DataOrder30Client();
+        using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
         var langCombination =
             GetLanguageNamesCombinationByLanguageCodeIso(uuid, request.SourceLanguageCode,
                 request.TargetLanguageCode);
         if (string.IsNullOrEmpty(langCombination.TargetLanguageName))
         {
+            await authProviders.Logout();
             return new AddLanguageCombinationResponse();
         }
 
         var result = await orderClient.addLanguageCombinationAsync(uuid, langCombination.SourceLanguageName,
             langCombination.TargetLanguageName, request.OrderId);
+        await authProviders.Logout();
         return new AddLanguageCombinationResponse {LanguageCombinationId = result.data};
     }
 
     [Action]
-    public async Task<BaseResponse> SetLanguageCombinationToItem(IEnumerable<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] SetLanguageCombinationRequest request)
+    public async Task<BaseResponse> SetLanguageCombinationToItem(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] SetLanguageCombinationRequest request)
     {
         var uuid = authProviders.GetAuthToken();
-        using var itemClient = new DataItem30Client();
+        using var itemClient = Clients.GetItemClient(authProviders.GetInstanceUrl());
         var response = await itemClient
             .setLanguageCombinationIDAsync(uuid, request.LanguageCombinationId, 3, request.ItemId);
+        await authProviders.Logout();
         return new BaseResponse
         {
             StatusCode = response.statusCode
@@ -124,15 +132,16 @@ public class OrderActions
 
 
     [Action]
-    public async Task<PriceLineListResponse> AddPriceLinesToItem(IEnumerable<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] PriceLineRequest request)
+    public async Task<PriceLineListResponse> AddPriceLinesToItem(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] PriceLineRequest request)
     {
         var uuid = authProviders.GetAuthToken();
-        using var itemClient = new DataItem30Client();
+        using var itemClient = Clients.GetItemClient(authProviders.GetInstanceUrl());
         var priceUnitListResult = await itemClient.getPriceUnit_ListAsync(uuid, "en", "Translation");
         var priceUnits = priceUnitListResult.data.Where(x =>
             x.description.Contains("Words Translation", StringComparison.OrdinalIgnoreCase));
         if (priceUnits == null || !priceUnits.Any())
         {
+            await authProviders.Logout();
             return new PriceLineListResponse();
         }
 
@@ -150,16 +159,18 @@ public class OrderActions
         }
 
         var priceListResult = await itemClient.getPriceLine_ListAsync(uuid, request.ItemId, 3);
+        await authProviders.Logout();
         return new PriceLineListResponse {PriceLines = priceListResult.data.Select(MapPriceLineResponse)};
     }
 
     [Action]
-    public async Task<BaseResponse> UploadFile(IEnumerable<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] UploadDocumentRequest request)
+    public async Task<BaseResponse> UploadFile(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] UploadDocumentRequest request)
     {
         var uuid = authProviders.GetAuthToken();
-        using var dataDocumentClient = new DataDocument30Client();
+        using var dataDocumentClient = Clients.GetDocumentClient(authProviders.GetInstanceUrl());
         var response = await dataDocumentClient.upload_DocumentAsync(uuid, request.OrderId, request.FolderType,
             request.FileContentBytes, request.FilePath, request.FileSize);
+        await authProviders.Logout();
         return new BaseResponse {StatusCode = response.Result.statusCode};
     }
 

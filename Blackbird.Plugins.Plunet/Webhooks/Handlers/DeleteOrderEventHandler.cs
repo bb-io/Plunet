@@ -15,7 +15,7 @@ public class DeleteOrderEventHandler : IWebhookEventHandler
     {
         var uuid = authenticationCredentialsProviders.FirstOrDefault(x => x.KeyName == ApiKeyName)?.Value;
         using var orderClient = new DataOrder30Client();
-        await orderClient.registerCallback_NotifyAsync(uuid, "bbTestPlugin", values["url"]+"?wsdl", 3);
+        await orderClient.registerCallback_NotifyAsync(uuid, "bbTestPlugin", values["payloadUrl"]+"?wsdl", 3);
     }
 
     public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)

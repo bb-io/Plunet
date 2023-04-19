@@ -4,7 +4,6 @@ using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models.Contacts;
-using System.Security.Policy;
 
 namespace Blackbird.Plugins.Plunet.Actions;
 
@@ -12,11 +11,12 @@ namespace Blackbird.Plugins.Plunet.Actions;
 public class ContactActions
 {
     [Action]
-    public async Task<GetContactsResponse> GetCustomerContacts(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter] GetContactRequest request)
+    public async Task<GetContactsResponse> GetCustomerContacts(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
     {
         var uuid = authProviders.GetAuthToken();
-        using var dataCustomerContactClient = new DataCustomerContact30Client();
-        var contacts = await dataCustomerContactClient.getAllContactObjectsAsync(uuid, request.CustomerId);
+        using var dataCustomerContactClient = Clients.GetContactClient(authProviders.GetInstanceUrl());
+        var contacts = await dataCustomerContactClient.getAllContactObjectsAsync(uuid, customerId);
+        await authProviders.Logout();
         return new GetContactsResponse {CustomerContacts = contacts.data.Select(MapContactResponse)};
     }
 

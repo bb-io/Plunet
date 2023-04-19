@@ -11,28 +11,31 @@ namespace Blackbird.Plugins.Plunet.Actions;
 public class CustomerActions
 {
     [Action]
-    public async Task<GetCustomerResponse> GetCustomerByName(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter] GetCustomerRequest request)
+    public async Task<GetCustomerResponse> GetCustomerByName(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter]string customerName)
     {
         var uuid = authProviders.GetAuthToken();
-        var customerClient = new DataCustomer30Client();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
         var result = (await customerClient.searchAsync(uuid, new SearchFilter_Customer
         {
-            name1 = request.CustomerName
+            name1 = customerName
         })).data.FirstOrDefault();
         if (!result.HasValue)
         {
+            await authProviders.Logout();
             return MapCustomerResponse(null);
         }
         var customer = await customerClient.getCustomerObjectAsync(uuid, result.Value);
+        await authProviders.Logout();
         return MapCustomerResponse(customer.data);
     }
     
     [Action]
-    public async Task<GetCustomerResponse> GetCustomerById(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter]int customerId)
+    public async Task<GetCustomerResponse> GetCustomerById(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter]int customerId)
     {
         var uuid = authProviders.GetAuthToken();
-        var customerClient = new DataCustomer30Client();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
         var customer = await customerClient.getCustomerObjectAsync(uuid, customerId);
+        await authProviders.Logout();
         return MapCustomerResponse(customer.data);
     }
 

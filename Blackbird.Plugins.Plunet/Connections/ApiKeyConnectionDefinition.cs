@@ -6,20 +6,23 @@ namespace Blackbird.Plugins.Plunet.Connections;
 
 public class ApiKeyConnectionDefinition : IConnectionDefinition
 {
-    private const string ApiKeyName = "UUID";
-    private const string UserNameKey = "userName";
-    private const string PasswordKey = "password";
-
     public static IEnumerable<ConnectionProperty> ConnectionProperties => new[]
     {
-        new ConnectionProperty(UserNameKey) {DisplayName = "User name"},
-        new ConnectionProperty(PasswordKey) {DisplayName = "Password", Sensitive = true}
+        new ConnectionProperty(AppConstants.UrlNameKey) { DisplayName = "Url", Description = "The url to your Plunet instance (https://<your company name>.plunet.com)"},
+        new ConnectionProperty(AppConstants.UserNameKey) { DisplayName = "User name", Description = "Your Plunet username"},
+        new ConnectionProperty(AppConstants.PasswordKey) { DisplayName = "Password", Description = "Your Plunet password", Sensitive = true}
     };
     
     public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(
         Dictionary<string, string> values)
     {
-        return new[] {CreateAuthorizationCredentialsProvider(values)};
+        return new[]
+        {
+            CreateAuthorizationCredentialsProvider(values),
+            new AuthenticationCredentialsProvider(AuthenticationCredentialsRequestLocation.None, AppConstants.UrlNameKey,
+                values[AppConstants
+                    .UrlNameKey])
+        };
     }
 
     public IEnumerable<ConnectionPropertyGroup> ConnectionPropertyGroups => new List<ConnectionPropertyGroup>
@@ -36,11 +39,11 @@ public class ApiKeyConnectionDefinition : IConnectionDefinition
     private AuthenticationCredentialsProvider CreateAuthorizationCredentialsProvider(Dictionary<string, string> values)
     {
         string uuid;
-        using var plunetApiClient = new PlunetAPIService.PlunetAPIClient();
+        using var plunetApiClient = Clients.GetAuthClient(values[AppConstants.UrlNameKey]);
         {
-            uuid = plunetApiClient.loginAsync(values[UserNameKey], values[PasswordKey]).GetAwaiter().GetResult();
+            uuid = plunetApiClient.loginAsync(values[AppConstants.UserNameKey], values[AppConstants.PasswordKey]).GetAwaiter().GetResult();
         }
 
-        return new AuthenticationCredentialsProvider(AuthenticationCredentialsRequestLocation.None, ApiKeyName, uuid);
+        return new AuthenticationCredentialsProvider(AuthenticationCredentialsRequestLocation.None, AppConstants.ApiKeyName, uuid);
     }
 }
