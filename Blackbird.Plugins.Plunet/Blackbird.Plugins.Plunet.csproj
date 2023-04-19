@@ -6,13 +6,15 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="1.0.1" />
+    <PackageReference Include="RestSharp" Version="110.2.0" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="4.8.*" />
     <PackageReference Include="System.ServiceModel.Http" Version="4.8.*" />
     <PackageReference Include="System.ServiceModel.NetTcp" Version="4.8.*" />
     <PackageReference Include="System.ServiceModel.Security" Version="4.8.*" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Models\Admin" />
+    <Reference Include="Blackbird.Applications.Sdk.Common">
+      <HintPath>..\..\..\Sdk.common.webhook\Applications_SDK\Applications_SDK\Blackbird.Applications.Sdk.Common\bin\Release\net6.0\Blackbird.Applications.Sdk.Common.dll</HintPath>
+    </Reference>
   </ItemGroup>
 </Project>

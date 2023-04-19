@@ -2,8 +2,6 @@
 
 public class CreateOrderRequest
 {
-    public string UUID { get; set; }
-    
     public int CustomerId { get; set; }
 
     public string ProjectName { get; set; }

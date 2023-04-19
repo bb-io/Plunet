@@ -2,7 +2,7 @@
 
 public class CreateItemRequest
 {
-    public string UUID { get; set; }
+   // public string UUID { get; set; }
 
     public int OrderId { get; set; }
 

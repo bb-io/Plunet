@@ -2,8 +2,6 @@
 
 public class UploadDocumentRequest
 {
-    public string UUID { get; set; }
-
     public int OrderId { get; set; }
 
     public int FolderType { get; set; }
