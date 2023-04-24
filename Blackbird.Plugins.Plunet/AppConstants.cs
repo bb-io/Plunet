@@ -1,6 +1,4 @@
-﻿using System.Reflection.Metadata;
-
-namespace Blackbird.Plugins.Plunet;
+﻿namespace Blackbird.Plugins.Plunet;
 
 public static class AppConstants
 {

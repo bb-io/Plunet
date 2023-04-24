@@ -6,7 +6,7 @@ public class PlunetApplication : IApplication
 {
     public T GetInstance<T>()
     {
-        throw new NotImplementedException();
+        return default;
     }
 
     public string Name { get => "Plunet plugin"; set{} }
