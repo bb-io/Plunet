@@ -1,40 +1,41 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
+using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models.Customer;
 
-namespace Blackbird.Plugins.Plunet;
+namespace Blackbird.Plugins.Plunet.Actions;
 
 [ActionList]
 public class CustomerActions
 {
     [Action]
-    public GetCustomerResponse GetCustomerByName(string url, string username, string password, AuthenticationCredentialsProvider authProvider, [ActionParameter]string customerName)
+    public async Task<GetCustomerResponse> GetCustomerByName(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter]string customerName)
     {
-        using var authClient = Clients.GetAuthClient(url);
-        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
-        using var customerClient = Clients.GetCustomerClient(url);
-        var result = customerClient.searchAsync(uuid, new SearchFilter_Customer
+        var uuid = authProviders.GetAuthToken();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+        var result = (await customerClient.searchAsync(uuid, new SearchFilter_Customer
         {
             name1 = customerName
-        }).GetAwaiter().GetResult().data.FirstOrDefault();
+        })).data.FirstOrDefault();
         if (!result.HasValue)
         {
+            await authProviders.Logout();
             return MapCustomerResponse(null);
         }
-        var customer = customerClient.getCustomerObjectAsync(uuid, result.Value).GetAwaiter().GetResult();
-        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
+        var customer = await customerClient.getCustomerObjectAsync(uuid, result.Value);
+        await authProviders.Logout();
         return MapCustomerResponse(customer.data);
     }
     
     [Action]
-    public GetCustomerResponse GetCustomerById(string url, string username, string password, AuthenticationCredentialsProvider authProvider, [ActionParameter]int customerId)
+    public async Task<GetCustomerResponse> GetCustomerById(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter]int customerId)
     {
-        using var authClient = Clients.GetAuthClient(url);
-        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
-        using var customerClient = Clients.GetCustomerClient(url);
-        var customer = customerClient.getCustomerObjectAsync(uuid, customerId).GetAwaiter().GetResult();
-        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
+        var uuid = authProviders.GetAuthToken();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+        var customer = await customerClient.getCustomerObjectAsync(uuid, customerId);
+        await authProviders.Logout();
         return MapCustomerResponse(customer.data);
     }
 

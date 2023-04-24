@@ -1,22 +1,22 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
+using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models.Contacts;
-using System.Security.Policy;
 
-namespace Blackbird.Plugins.Plunet;
+namespace Blackbird.Plugins.Plunet.Actions;
 
 [ActionList]
 public class ContactActions
 {
     [Action]
-    public GetContactsResponse GetCustomerContacts(string url, string username, string password, AuthenticationCredentialsProvider authProvider, [ActionParameter]int customerId)
+    public async Task<GetContactsResponse> GetCustomerContacts(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
     {
-        using var authClient = Clients.GetAuthClient(url);
-        var uuid = authClient.loginAsync(username, password).GetAwaiter().GetResult();
-        using var dataCustomerContactClient = Clients.GetContactClient(url);
-        var contacts = dataCustomerContactClient.getAllContactObjectsAsync(uuid, customerId).GetAwaiter().GetResult();
-        authClient.logoutAsync(uuid).GetAwaiter().GetResult();
+        var uuid = authProviders.GetAuthToken();
+        using var dataCustomerContactClient = Clients.GetContactClient(authProviders.GetInstanceUrl());
+        var contacts = await dataCustomerContactClient.getAllContactObjectsAsync(uuid, customerId);
+        await authProviders.Logout();
         return new GetContactsResponse {CustomerContacts = contacts.data.Select(MapContactResponse)};
     }
 
