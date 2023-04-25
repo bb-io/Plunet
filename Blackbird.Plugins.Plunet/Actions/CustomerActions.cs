@@ -10,7 +10,7 @@ namespace Blackbird.Plugins.Plunet.Actions;
 [ActionList]
 public class CustomerActions
 {
-    [Action]
+    [Action("Get customer by name", Description = "Get the Plunet customer by name")]
     public async Task<GetCustomerResponse> GetCustomerByName(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter]string customerName)
     {
         var uuid = authProviders.GetAuthToken();
@@ -29,7 +29,7 @@ public class CustomerActions
         return MapCustomerResponse(customer.data);
     }
     
-    [Action]
+    [Action("Get customer by ID", Description = "Get the Plunet customer by ID")]
     public async Task<GetCustomerResponse> GetCustomerById(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter]int customerId)
     {
         var uuid = authProviders.GetAuthToken();

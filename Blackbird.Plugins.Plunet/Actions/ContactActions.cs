@@ -10,7 +10,7 @@ namespace Blackbird.Plugins.Plunet.Actions;
 [ActionList]
 public class ContactActions
 {
-    [Action]
+    [Action("Get customer contacts", Description = "Get all the contacts of the customer")]
     public async Task<GetContactsResponse> GetCustomerContacts(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
     {
         var uuid = authProviders.GetAuthToken();

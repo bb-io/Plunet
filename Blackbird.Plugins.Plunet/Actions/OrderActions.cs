@@ -14,7 +14,7 @@ namespace Blackbird.Plugins.Plunet.Actions;
 [ActionList]
 public class OrderActions
 {
-    [Action]
+    [Action("Get order", Description = "Get details for a Plunet order")]
     public async Task<OrderResponse> GetOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int orderId)
     {
         var uuid = authProviders.GetAuthToken();
@@ -25,7 +25,7 @@ public class OrderActions
         return MapOrderResponse(response);
     }
 
-    [Action]
+    [Action("Create order", Description = "Create a new order in Plunet")]
     public async Task<CreateOrderResponse> CreateOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateOrderRequest request)
     {
         var uuid = authProviders.GetAuthToken();
@@ -43,7 +43,7 @@ public class OrderActions
         return new CreateOrderResponse {OrderId = orderIdResult.data};
     }
 
-    [Action]
+    [Action("Add item to order", Description = "Add a new item to an order")]
     public async Task<CreateItemResponse> AddItemToOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateItemRequest request)
     {
         var uuid = authProviders.GetAuthToken();
@@ -61,7 +61,7 @@ public class OrderActions
     }
 
 
-    [Action]
+    [Action("Create order based on template", Description = "Create a new order based on a template")]
     public async Task<CreateOrderResponse> CreateOrderBasedOnTemplate(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] CreateOrderRequest request,
         [ActionParameter] string templateName)
     {
@@ -96,7 +96,7 @@ public class OrderActions
         return new CreateOrderResponse {OrderId = orderIdResult.data};
     }
 
-    [Action]
+    [Action("Add language combination to order", Description = "Add a new language combination to an existing order")]
     public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] AddLanguageCombinationRequest request)
     {
         var uuid = authProviders.GetAuthToken();
@@ -116,7 +116,7 @@ public class OrderActions
         return new AddLanguageCombinationResponse {LanguageCombinationId = result.data};
     }
 
-    [Action]
+    [Action("Set language combination to item", Description = "Set the language combination to an item")]
     public async Task<BaseResponse> SetLanguageCombinationToItem(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] SetLanguageCombinationRequest request)
     {
         var uuid = authProviders.GetAuthToken();
@@ -131,7 +131,7 @@ public class OrderActions
     }
 
 
-    [Action]
+    [Action("Add priceline to item", Description = "Adds a new priceline")]
     public async Task<PriceLineListResponse> AddPriceLinesToItem(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] PriceLineRequest request)
     {
         var uuid = authProviders.GetAuthToken();
@@ -163,7 +163,7 @@ public class OrderActions
         return new PriceLineListResponse {PriceLines = priceListResult.data.Select(MapPriceLineResponse)};
     }
 
-    [Action]
+    [Action("Upload file", Description = "Upload a file to Plunet")]
     public async Task<BaseResponse> UploadFile(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] UploadDocumentRequest request)
     {
         var uuid = authProviders.GetAuthToken();
