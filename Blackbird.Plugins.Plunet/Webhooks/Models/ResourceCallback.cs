@@ -3,14 +3,16 @@
 namespace Blackbird.Plugins.Plunet.Webhooks.Models;
 
 [XmlRoot(Namespace = "http://API.Integration/")]
-public class ReceiveNotifyCallback
+public class ResourceCallback : ITriggerableCallback
 {
     [XmlElement(Namespace = "")]
-    public long OrderID { get; set; }
+    public long ResourceID { get; set; }
     
     [XmlElement(Namespace = "")]
     public long EventType { get; set; }
 
     [XmlElement(Namespace = "")]
     public string Authenticationcode { get; set; }
+
+    public TriggerContent GetTriggerContent() { return new TriggerContent() { ID = ResourceID }; }
 }
