@@ -19,7 +19,7 @@ namespace Blackbird.Plugins.Plunet.Webhooks.Utils
         private string _serviceName;
         private const string blackbirdPlunetUrl = "https://test71.plunet.com/";
 
-        private string WsdlServiceUrl => $"{blackbirdPlunetUrl}${_serviceName}";
+        private string WsdlServiceUrl => $"{blackbirdPlunetUrl}{_serviceName}";
 
         public CallbackServiceEmulator(string serviceName)
         {
