@@ -13,25 +13,28 @@ namespace Blackbird.Plugins.Plunet.Webhooks;
 
 [WebhookList]
 public class OrderHooks
-{    
+{
+    private const string ServiceName = "CallbackOrder30";
+    private const string XmlTagName = "OrderID";
+
     [Webhook("On order deleted", typeof(OrderDeleteEventHandler), Description = "Triggered when an order is deleted")]
     public async Task<WebhookResponse<TriggerContent>> OrderDeleted(WebhookRequest webhookRequest)
     {
-        var callbackService = new CallbackServiceEmulator<OrderCallback>("CallbackOrder30");
+        var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
 
     [Webhook("On order created", typeof(OrderCreatedEventHandler), Description = "Triggered when an order is created")]
     public async Task<WebhookResponse<TriggerContent>> OrderCreated(WebhookRequest webhookRequest)
     {
-        var callbackService = new CallbackServiceEmulator<OrderCallback>("CallbackOrder30");
+        var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
 
     [Webhook("On order status changed", typeof(OrderChangedEventHandler), Description = "Triggered when an order status is changed")]
     public async Task<WebhookResponse<TriggerContent>> OrderStatusChanged(WebhookRequest webhookRequest)
     {
-        var callbackService = new CallbackServiceEmulator<OrderCallback>("CallbackOrder30");
+        var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
 
