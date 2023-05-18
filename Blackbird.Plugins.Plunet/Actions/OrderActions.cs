@@ -174,6 +174,16 @@ public class OrderActions
         return new BaseResponse {StatusCode = response.Result.statusCode};
     }
 
+    [Action("Delete order", Description = "Delete a Plunet order")]
+    public async Task<BaseResponse> DeleteOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int orderId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
+        var response = await orderClient.deleteAsync(uuid, orderId);
+        await authProviders.Logout();
+        return new BaseResponse { StatusCode = response.statusCode };
+    }
+
     private (string SourceLanguageName, string TargetLanguageName)
         GetLanguageNamesCombinationByLanguageCodeIso(string token, string sourceLanguageCode, string targetLanguageCode)
     {
