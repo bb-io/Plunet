@@ -20,6 +20,16 @@ public class ContactActions
         return new GetContactsResponse {CustomerContacts = contacts.data.Select(MapContactResponse)};
     }
 
+    [Action("Get contact by ID", Description = "Get the Plunet contact by ID")]
+    public async Task<ContactObjectResponse> GetContactById(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int contactId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var dataCustomerContactClient = Clients.GetContactClient(authProviders.GetInstanceUrl());
+        var contact = await dataCustomerContactClient.getContactObjectAsync(uuid, contactId);
+        await authProviders.Logout();
+        return MapContactResponse(contact.data);
+    }
+
     private ContactObjectResponse MapContactResponse(CustomerContact customerContact)
     {
         return new ContactObjectResponse

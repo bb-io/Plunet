@@ -3,6 +3,7 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using Blackbird.Plugins.Plunet.Extensions;
+using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Customer;
 
 namespace Blackbird.Plugins.Plunet.Actions;
@@ -39,7 +40,36 @@ public class CustomerActions
         return MapCustomerResponse(customer.data);
     }
 
-    
+    [Action("Delete customer by name", Description = "Delete the Plunet customer by name")]
+    public async Task<BaseResponse> DeleteCustomerByName(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] string customerName)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+        var result = (await customerClient.searchAsync(uuid, new SearchFilter_Customer
+        {
+            name1 = customerName
+        })).data.FirstOrDefault();
+        if (!result.HasValue)
+        {
+            await authProviders.Logout();
+            return new BaseResponse();
+        }
+        var response = await customerClient.deleteAsync(uuid, result.Value);
+        await authProviders.Logout();
+        return new BaseResponse { StatusCode = response.statusCode };
+    }
+
+    [Action("Delete customer by ID", Description = "Delete a Plunet customer by ID")]
+    public async Task<BaseResponse> DeleteCustomerById(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+        var response = await customerClient.deleteAsync(uuid, customerId);
+        await authProviders.Logout();
+        return new BaseResponse { StatusCode = response.statusCode };
+    }
+
+
     private GetCustomerResponse MapCustomerResponse(Customer? customer)
     {
         return customer == null
