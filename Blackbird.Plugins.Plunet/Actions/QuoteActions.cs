@@ -6,12 +6,14 @@ using Blackbird.Plugins.Plunet.DataQuote30Service;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Order;
+using Blackbird.Plugins.Plunet.Models.Quote;
 
 namespace Blackbird.Plugins.Plunet.Actions;
 
 [ActionList]
 public class QuoteActions
 {
+    [Display("Quotes")]
     [Action("Get quote", Description = "Get details for a Plunet quote")]
     public async Task<QuoteResponse> GetQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int quoteId)
     {
@@ -23,6 +25,7 @@ public class QuoteActions
         return MapQuoteResponse(response);
     }
 
+    [Display("Quotes")]
     [Action("Create quote", Description = "Create a new quote in Plunet")]
     public async Task<CreateQuoteResponse> CreateQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateQuoteRequest request)
     {
@@ -39,6 +42,7 @@ public class QuoteActions
         return new CreateQuoteResponse { QuoteId = quoteIdResult.data};
     }
 
+    [Display("Quotes")]
     [Action("Create quote based on template", Description = "Create a new quote based on a template")]
     public async Task<CreateQuoteResponse> CreateQuoteBasedOnTemplate(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateQuoteRequest request,
         [ActionParameter] string templateName)
@@ -72,6 +76,7 @@ public class QuoteActions
         return new CreateQuoteResponse { QuoteId = quoteIdResult.data };
     }
 
+    [Display("Quotes")]
     [Action("Add language combination to quote", Description = "Add a new language combination to an existing quote")]
     public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] AddLanguageCombinationToQuoteRequest request)
     {
@@ -92,6 +97,7 @@ public class QuoteActions
         return new AddLanguageCombinationResponse { LanguageCombinationId = result.data };
     }
 
+    [Display("Quotes")]
     [Action("Request order to quote", Description = "Request order to a Plunet quote")]
     public async Task<BaseResponse> RequestOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int quoteId)
     {
@@ -102,6 +108,7 @@ public class QuoteActions
         return new BaseResponse { StatusCode = response.statusCode };
     }
 
+    [Display("Quotes")]
     [Action("Delete quote", Description = "Delete a Plunet quote")]
     public async Task<BaseResponse> DeleteQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int quoteId)
     {

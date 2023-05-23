@@ -14,6 +14,7 @@ namespace Blackbird.Plugins.Plunet.Actions;
 [ActionList]
 public class OrderActions
 {
+    [Display("Orders")]
     [Action("Get order", Description = "Get details for a Plunet order")]
     public async Task<OrderResponse> GetOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int orderId)
     {
@@ -25,6 +26,7 @@ public class OrderActions
         return MapOrderResponse(response);
     }
 
+    [Display("Orders")]
     [Action("Create order", Description = "Create a new order in Plunet")]
     public async Task<CreateOrderResponse> CreateOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateOrderRequest request)
     {
@@ -43,6 +45,7 @@ public class OrderActions
         return new CreateOrderResponse {OrderId = orderIdResult.data};
     }
 
+    [Display("Orders")]
     [Action("Add item to order", Description = "Add a new item to an order")]
     public async Task<CreateItemResponse> AddItemToOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateItemRequest request)
     {
@@ -60,7 +63,7 @@ public class OrderActions
         return new CreateItemResponse {ItemId = itemIdResult.data};
     }
 
-
+    [Display("Orders")]
     [Action("Create order based on template", Description = "Create a new order based on a template")]
     public async Task<CreateOrderResponse> CreateOrderBasedOnTemplate(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] CreateOrderRequest request,
         [ActionParameter] string templateName)
@@ -96,6 +99,7 @@ public class OrderActions
         return new CreateOrderResponse {OrderId = orderIdResult.data};
     }
 
+    [Display("Orders")]
     [Action("Add language combination to order", Description = "Add a new language combination to an existing order")]
     public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] AddLanguageCombinationRequest request)
     {
@@ -116,6 +120,7 @@ public class OrderActions
         return new AddLanguageCombinationResponse {LanguageCombinationId = result.data};
     }
 
+    [Display("Orders")]
     [Action("Set language combination to item", Description = "Set the language combination to an item")]
     public async Task<BaseResponse> SetLanguageCombinationToItem(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] SetLanguageCombinationRequest request)
     {
@@ -130,7 +135,7 @@ public class OrderActions
         };
     }
 
-
+    [Display("Orders")]
     [Action("Add priceline to item", Description = "Adds a new priceline")]
     public async Task<PriceLineListResponse> AddPriceLinesToItem(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] PriceLineRequest request)
     {
@@ -163,6 +168,7 @@ public class OrderActions
         return new PriceLineListResponse {PriceLines = priceListResult.data.Select(MapPriceLineResponse)};
     }
 
+    [Display("Orders")]
     [Action("Upload file", Description = "Upload a file to Plunet")]
     public async Task<BaseResponse> UploadFile(List<AuthenticationCredentialsProvider> authProviders,  [ActionParameter] UploadDocumentRequest request)
     {
@@ -174,6 +180,7 @@ public class OrderActions
         return new BaseResponse {StatusCode = response.Result.statusCode};
     }
 
+    [Display("Orders")]
     [Action("Delete order", Description = "Delete a Plunet order")]
     public async Task<BaseResponse> DeleteOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int orderId)
     {

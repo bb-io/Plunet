@@ -1,4 +1,4 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Order;
+﻿namespace Blackbird.Plugins.Plunet.Models.Quote;
 
 public class CreateQuoteResponse
 {
