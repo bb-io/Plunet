@@ -2,7 +2,6 @@
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
-using Blackbird.Plugins.Plunet.DataRequest30Service;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Contacts;
@@ -134,6 +133,83 @@ public class CustomerActions
         return new BaseResponse { StatusCode = response.statusCode };
     }
 
+    [Display("Customers")]
+    [Action("Get payment information by customer ID", Description = "Get payment information by Plunet customer ID")]
+    public async Task<GetPaymentInfoResponse> GetPaymentInfoByCustomerId(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+        var paymentInfo = await customerClient.getPaymentInformationAsync(uuid, customerId);
+        await authProviders.Logout();
+        return MapPaymentInfoResponse(paymentInfo.data);
+    }
+
+    //[Display("Customers")]
+    //[Action("Set customer status", Description = "Set Plunet customer status")]
+    //public async Task<BaseResponse> SetCustomerStatus(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId, [ActionParameter] int status)
+    //{
+    //    var uuid = authProviders.GetAuthToken();
+    //    var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+    //    var response = await customerClient.setStatusAsync(uuid, status, customerId);
+    //    await authProviders.Logout();
+    //    return new BaseResponse { StatusCode = response.statusCode };
+    //}
+
+    [Display("Customers")]
+    [Action("Get customer status", Description = "Get Plunet customer status")]
+    public async Task<GetCustomerStatusResponse> GetCustomerStatus(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+        var statusResult = await customerClient.getStatusAsync(uuid, customerId);
+        await authProviders.Logout();
+        return new GetCustomerStatusResponse { Status = statusResult.data };
+    }
+
+    [Display("Customers")]
+    [Action("Get customer email", Description = "Get Plunet customer email")]
+    public async Task<GetCustomerEmailResponse> GetCustomerEmail(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+        var emailResult = await customerClient.getEmailAsync(uuid, customerId);
+        await authProviders.Logout();
+        return new GetCustomerEmailResponse { Email = emailResult.data };
+    }
+
+    [Display("Customers")]
+    [Action("Get customer full name", Description = "Get Plunet customer full name")]
+    public async Task<GetCustomerFullNameResponse> GetCustomerFullName(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+        var fullNameResult = await customerClient.getFullNameAsync(uuid, customerId);
+        await authProviders.Logout();
+        return new GetCustomerFullNameResponse { FullName = fullNameResult.data };
+    }
+
+    //[Display("Customers")]
+    //[Action("Set payment information by customer ID", Description = "Set payment information by Plunet customer ID")]
+    //public async Task<BaseResponse> SetPaymentInfoByCustomerId(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId, [ActionParameter] GetPaymentInfoResponse request)
+    //{
+    //    var uuid = authProviders.GetAuthToken();
+    //    var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+    //    var response = await customerClient.setPaymentInformationAsync(uuid, customerId, new PaymentInfo
+    //    {
+    //        accountHolder = request.AccountHolder,
+    //        //accountID = request.AccountId,
+    //        //BIC = request.BIC,
+    //        //contractNumber = request.ContractNumber,
+    //        //debitAccount = request.DebitAccount,
+    //        IBAN = request.IBAN,
+    //        //paymentMethodID = request.PaymentMethodId,
+    //        //preselectedTaxID = request.PreselectedTaxId,
+    //        //salesTaxID = request.SalesTaxId
+    //    });
+    //    await authProviders.Logout();
+    //    return new BaseResponse { StatusCode = response.statusCode };
+    //}
+
     private GetCustomerResponse MapCustomerResponse(Customer? customer)
     {
         return customer == null
@@ -155,6 +231,24 @@ public class CustomerActions
                 Status = customer.status,
                 UserId = customer.userId,
                 Website = customer.website
+            };
+    }
+
+    private GetPaymentInfoResponse MapPaymentInfoResponse(PaymentInfo? paymentInfo)
+    {
+        return paymentInfo == null
+            ? new GetPaymentInfoResponse()
+            : new GetPaymentInfoResponse
+            {
+                AccountHolder = paymentInfo.accountHolder,
+                AccountId = paymentInfo.accountID,
+                BIC = paymentInfo.BIC,
+                ContractNumber = paymentInfo.contractNumber,
+                DebitAccount = paymentInfo.debitAccount,
+                IBAN = paymentInfo.IBAN,
+                PaymentMethodId = paymentInfo.paymentMethodID,
+                PreselectedTaxId = paymentInfo.preselectedTaxID,
+                SalesTaxId = paymentInfo.salesTaxID
             };
     }
 }
