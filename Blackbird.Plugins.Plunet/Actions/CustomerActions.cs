@@ -84,9 +84,12 @@ public class CustomerActions
         {
             name1 = request.FirstName,
             name2 = request.LastName,
+            website = request.Website,
+            //formOfAddress = request.FormOfAddress,
             email = request.Email,
-            phone = request.Phone,
-            costCenter = request.CostCenter
+            phone = request.HeadOfficePhone,
+            mobilePhone = request.MobilePhone
+            //costCenter = request.CostCenter
         });
         await authProviders.Logout();
         return new CreateCustomerResponse { CustomerId = customerIdResult.data };
@@ -144,16 +147,16 @@ public class CustomerActions
         return MapPaymentInfoResponse(paymentInfo.data);
     }
 
-    //[Display("Customers")]
-    //[Action("Set customer status", Description = "Set Plunet customer status")]
-    //public async Task<BaseResponse> SetCustomerStatus(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId, [ActionParameter] int status)
-    //{
-    //    var uuid = authProviders.GetAuthToken();
-    //    var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
-    //    var response = await customerClient.setStatusAsync(uuid, status, customerId);
-    //    await authProviders.Logout();
-    //    return new BaseResponse { StatusCode = response.statusCode };
-    //}
+    [Display("Customers")]
+    [Action("Set customer status", Description = "Set Plunet customer status")]
+    public async Task<BaseResponse> SetCustomerStatus(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int status, [ActionParameter] int customerId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+        var response = await customerClient.setStatusAsync(uuid, status, customerId);
+        await authProviders.Logout();
+        return new BaseResponse { StatusCode = response.statusCode };
+    }
 
     [Display("Customers")]
     [Action("Get customer status", Description = "Get Plunet customer status")]
@@ -186,6 +189,17 @@ public class CustomerActions
         var fullNameResult = await customerClient.getFullNameAsync(uuid, customerId);
         await authProviders.Logout();
         return new GetCustomerFullNameResponse { FullName = fullNameResult.data };
+    }
+
+    [Display("Customers")]
+    [Action("Set customer email", Description = "Set Plunet customer email")]
+    public async Task<BaseResponse> SetCustomerEmail(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] string email, [ActionParameter] int customerId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+        var response = await customerClient.setEmailAsync(uuid, email, customerId);
+        await authProviders.Logout();
+        return new BaseResponse { StatusCode = response.statusCode };
     }
 
     //[Display("Customers")]
