@@ -11,7 +11,7 @@ namespace Blackbird.Plugins.Plunet.Actions;
 [ActionList]
 public class ContactActions
 {
-    [Display("Contacts")]
+    
     [Action("Get customer contacts", Description = "Get all the contacts of the customer")]
     public async Task<GetContactsResponse> GetCustomerContacts(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
     {
@@ -22,7 +22,6 @@ public class ContactActions
         return new GetContactsResponse {CustomerContacts = contacts.data.Select(MapContactResponse)};
     }
 
-    [Display("Contacts")]
     [Action("Get contact by ID", Description = "Get the Plunet contact by ID")]
     public async Task<ContactObjectResponse> GetContactById(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int contactId)
     {
@@ -51,7 +50,6 @@ public class ContactActions
     //    return new CreateContactResponse { ContactId = contactIdResult.data };
     //}
 
-    [Display("Contacts")]
     [Action("Get contact external ID", Description = "Get Plunet contact external ID")]
     public async Task<GetContactExternalIdResponse> GetContactExternalId(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int contactId)
     {
@@ -62,7 +60,6 @@ public class ContactActions
         return new GetContactExternalIdResponse { ContactExternalId = contactExternalId.data };
     }
 
-    [Display("Contacts")]
     [Action("Set contact external ID", Description = "Set Plunet contact external ID")]
     public async Task<BaseResponse> SetContactExternalId(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] string externalId, [ActionParameter] int contactId)
     {

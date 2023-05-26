@@ -13,7 +13,6 @@ namespace Blackbird.Plugins.Plunet.Actions;
 [ActionList]
 public class QuoteActions
 {
-    [Display("Quotes")]
     [Action("Get quote", Description = "Get details for a Plunet quote")]
     public async Task<QuoteResponse> GetQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int quoteId)
     {
@@ -25,7 +24,6 @@ public class QuoteActions
         return MapQuoteResponse(response);
     }
 
-    [Display("Quotes")]
     [Action("Create quote", Description = "Create a new quote in Plunet")]
     public async Task<CreateQuoteResponse> CreateQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateQuoteRequest request)
     {
@@ -108,7 +106,6 @@ public class QuoteActions
     //    return new BaseResponse { StatusCode = response.statusCode };
     //}
 
-    [Display("Quotes")]
     [Action("Delete quote", Description = "Delete a Plunet quote")]
     public async Task<BaseResponse> DeleteQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int quoteId)
     {
