@@ -5,6 +5,7 @@ using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Contacts;
+using DataResourceAddress30Service;
 
 namespace Blackbird.Plugins.Plunet.Actions;
 
@@ -33,23 +34,29 @@ public class ContactActions
         return MapContactResponse(contact.data);
     }
 
-    //[Display("Contacts")]
-    //[Action("Create contact", Description = "Create a new contact in Plunet")]
-    //public async Task<CreateContactResponse> CreateContact(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateContactRequest request)
-    //{
-    //    var uuid = authProviders.GetAuthToken();
-    //    var dataCustomerContactClient = Clients.GetContactClient(authProviders.GetInstanceUrl());
-    //    var contactIdResult = await dataCustomerContactClient.insert2Async(uuid, new CustomerContactIN
-    //    {
-    //        name1 = request.FirstName,
-    //        name2 = request.LastName,
-    //        email = request.Email,
-    //        phone = request.Phone,
-    //        costCenter = request.CostCenter
-    //    });
-    //    await authProviders.Logout();
-    //    return new CreateContactResponse { ContactId = contactIdResult.data };
-    //}
+    [Action("Create contact", Description = "Create a new contact in Plunet")]
+    public async Task<CreateContactResponse> CreateContact(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateContactRequest request)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var dataCustomerContactClient = Clients.GetContactClient(authProviders.GetInstanceUrl());
+        //var contactIdResult = await dataCustomerContactClient.insert2Async(uuid, new CustomerContactIN
+        //{
+        //    customerID = request.CustomerId,
+        //    name1 = request.LastName,
+        //    name2 = request.FirstName,
+        //    email = request.Email
+        //});
+        var contactIdResult = await dataCustomerContactClient.insertAsync(uuid, request.CustomerId);
+        dataCustomerContactClient.setName2Async(uuid, request.FirstName, contactIdResult.data);
+        dataCustomerContactClient.setName1Async(uuid, request.LastName, contactIdResult.data);
+        dataCustomerContactClient.setEmailAsync(uuid, request.Email, contactIdResult.data);
+        dataCustomerContactClient.setEmailAsync(uuid, request.Email, contactIdResult.data);
+        dataCustomerContactClient.setMobilePhoneAsync(uuid, request.MobilePhone, contactIdResult.data);
+
+        await authProviders.Logout();
+
+        return new CreateContactResponse { ContactId = contactIdResult.data };
+    }
 
     [Display("Contacts")]
     [Action("Get contact external ID", Description = "Get Plunet contact external ID")]
@@ -73,7 +80,73 @@ public class ContactActions
         return new BaseResponse { StatusCode = response.statusCode };
     }
 
-    //[Display("Contacts")]
+    [Action("Set contact first name", Description = "Set Plunet contact first name")]
+    public async Task<BaseResponse> SetContactFirstName(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] string firstName, [ActionParameter] int contactId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var dataCustomerContactClient = Clients.GetContactClient(authProviders.GetInstanceUrl());
+        var response = await dataCustomerContactClient.setName2Async(uuid, firstName, contactId);
+        await authProviders.Logout();
+        return new BaseResponse { StatusCode = response.statusCode };
+    }
+
+    [Action("Set contact last name", Description = "Set Plunet contact last name")]
+    public async Task<BaseResponse> SetContactLastName(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] string lastName, [ActionParameter] int contactId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var dataCustomerContactClient = Clients.GetContactClient(authProviders.GetInstanceUrl());
+        var response = await dataCustomerContactClient.setName1Async(uuid, lastName, contactId);
+        await authProviders.Logout();
+        return new BaseResponse { StatusCode = response.statusCode };
+    }
+
+    [Action("Set contact email", Description = "Set Plunet contact email")]
+    public async Task<BaseResponse> SetContactEmail(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] string email, [ActionParameter] int contactId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var dataCustomerContactClient = Clients.GetContactClient(authProviders.GetInstanceUrl());
+        var response = await dataCustomerContactClient.setEmailAsync(uuid, email, contactId);
+        await authProviders.Logout();
+        return new BaseResponse { StatusCode = response.statusCode };
+    }
+
+    [Action("Set contact mobile phone", Description = "Set Plunet contact mobile phone")]
+    public async Task<BaseResponse> SetContactMobilePhone(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] string mobilePhone, [ActionParameter] int contactId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var dataCustomerContactClient = Clients.GetContactClient(authProviders.GetInstanceUrl());
+        var response = await dataCustomerContactClient.setMobilePhoneAsync(uuid, mobilePhone, contactId);
+        await authProviders.Logout();
+        return new BaseResponse { StatusCode = response.statusCode };
+    }
+
+    [Action("Set contact telephone number", Description = "Set Plunet contact telephone number")]
+    public async Task<BaseResponse> SetContactTelephone(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] string phoneNumber, [ActionParameter] int contactId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var dataCustomerContactClient = Clients.GetContactClient(authProviders.GetInstanceUrl());
+        var response = await dataCustomerContactClient.setPhoneAsync(uuid, phoneNumber, contactId);
+        await authProviders.Logout();
+        return new BaseResponse { StatusCode = response.statusCode };
+    }
+
+    //[Display("Address ID")]
+    //[Action("Set contact address", Description = "Set Plunet contact address")]
+    //public async Task<int> SetContactAddress(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int resourceId)
+    //{
+    //    var uuid = authProviders.GetAuthToken();
+    //    var addressClient = Clients.GetResourceAddressClient(authProviders.GetInstanceUrl());
+    //    var response = await addressClient.insert2Async(uuid, resourceId, new AddressIN 
+    //    {
+    //        name1 = "address",
+    //        city = "Paris",
+    //        addressType = 1,
+
+    //    });
+    //    await authProviders.Logout();
+    //    return  response.data;
+    //}
+
     //[Action("Update contact", Description = "Update Plunet contact")]
     //public async Task<BaseResponse> UpdateContact(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] UpdateContactRequest request)
     //{

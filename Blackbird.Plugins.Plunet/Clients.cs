@@ -9,6 +9,8 @@ using Blackbird.Plugins.Plunet.DataResource30Service;
 using Blackbird.Plugins.Plunet.DataRequest30Service;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
 using Blackbird.Plugins.Plunet.DataJob30Service;
+using DataResourceAddress30Service;
+using DataCustomerAddress30Service;
 
 namespace Blackbird.Plugins.Plunet
 {
@@ -25,5 +27,8 @@ namespace Blackbird.Plugins.Plunet
         public static DataRequest30Client GetRequestClient(string url) => new DataRequest30Client(DataRequest30Client.EndpointConfiguration.DataRequest30Port, url + "/DataRequest30");
         public static DataQuote30Client GetQuoteClient(string url) => new DataQuote30Client(DataQuote30Client.EndpointConfiguration.DataQuote30Port, url + "/DataQuote30");
         public static DataJob30Client GetJobClient(string url) => new DataJob30Client(DataJob30Client.EndpointConfiguration.DataJob30Port, url + "/DataJob30");
+        public static DataResourceAddress30Client GetResourceAddressClient(string url) => new DataResourceAddress30Client(DataResourceAddress30Client.EndpointConfiguration.DataResourceAddress30Port, url + "/DataResourceAddress30");
+        public static DataCustomerAddress30Client GetCustomerAddressClient(string url) => new DataCustomerAddress30Client(DataCustomerAddress30Client.EndpointConfiguration.DataCustomerAddress30Port, url + "/DataCustomerAddress30");
+
     }
 }
