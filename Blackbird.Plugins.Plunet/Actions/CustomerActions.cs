@@ -243,7 +243,7 @@ public class CustomerActions
     }
 
     [Action("Set customer website", Description = "Set Plunet customer website")]
-    public async Task<BaseResponse> SetContact(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] string website, [ActionParameter] int customerId)
+    public async Task<BaseResponse> SetCustomerWebsite(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] string website, [ActionParameter] int customerId)
     {
         var uuid = authProviders.GetAuthToken();
         var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
