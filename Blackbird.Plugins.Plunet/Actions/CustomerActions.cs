@@ -122,8 +122,9 @@ public class CustomerActions
             name1 = request.FirstName,
             name2 = request.LastName,
             email = request.Email,
-            phone = request.Phone,
-            costCenter = request.CostCenter
+            mobilePhone = request.MobilePhone,
+            phone = request.Telephone,
+            website = request.Website
         }, true);
         await authProviders.Logout();
         return new BaseResponse { StatusCode = response.statusCode };
