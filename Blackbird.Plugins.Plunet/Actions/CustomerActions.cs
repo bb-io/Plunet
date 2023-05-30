@@ -13,7 +13,6 @@ namespace Blackbird.Plugins.Plunet.Actions;
 [ActionList]
 public class CustomerActions
 {
-    [Display("Customers")]
     [Action("Get customer by name", Description = "Get the Plunet customer by name")]
     public async Task<GetCustomerResponse> GetCustomerByName(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter]string customerName)
     {
@@ -33,7 +32,6 @@ public class CustomerActions
         return MapCustomerResponse(customer.data);
     }
 
-    [Display("Customers")]
     [Action("Get customer by ID", Description = "Get the Plunet customer by ID")]
     public async Task<GetCustomerResponse> GetCustomerById(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
     {
@@ -44,7 +42,6 @@ public class CustomerActions
         return MapCustomerResponse(customer.data);
     }
 
-    [Display("Customers")]
     [Action("Delete customer by name", Description = "Delete the Plunet customer by name")]
     public async Task<BaseResponse> DeleteCustomerByName(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] string customerName)
     {
@@ -63,8 +60,7 @@ public class CustomerActions
         await authProviders.Logout();
         return new BaseResponse { StatusCode = response.statusCode };
     }
-
-    [Display("Customers")]
+  
     [Action("Delete customer by ID", Description = "Delete a Plunet customer by ID")]
     public async Task<BaseResponse> DeleteCustomerById(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
     {
@@ -75,7 +71,6 @@ public class CustomerActions
         return new BaseResponse { StatusCode = response.statusCode };
     }
 
-    [Display("Customers")]
     [Action("Create customer", Description = "Create a new customer in Plunet")]
     public async Task<CreateCustomerResponse> CreateCustomer(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateCustomerRequest request)
     {
@@ -95,8 +90,7 @@ public class CustomerActions
         await authProviders.Logout();
         return new CreateCustomerResponse { CustomerId = customerIdResult.data };
     }
-
-    [Display("Customers")]
+    
     [Action("Get customer external ID", Description = "Get Plunet customer external ID")]
     public async Task<GetCustomerExternalIdResponse> GetCustomerExternalId(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
     {
@@ -106,8 +100,7 @@ public class CustomerActions
         await authProviders.Logout();
         return new GetCustomerExternalIdResponse { CustomerExternalId = customerExternalId.data };
     }
-
-    [Display("Customers")]
+    
     [Action("Set customer external ID", Description = "Set Plunet customer external ID")]
     public async Task<BaseResponse> SetCustomerExternalId(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] string externalId, [ActionParameter] int customerId)
     {
@@ -117,8 +110,7 @@ public class CustomerActions
         await authProviders.Logout();
         return new BaseResponse { StatusCode = response.statusCode };
     }
-
-    [Display("Customers")]
+    
     [Action("Update customer", Description = "Update Plunet customer")]
     public async Task<BaseResponse> UpdateCustomer(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] UpdateCustomerRequest request)
     {
@@ -136,8 +128,7 @@ public class CustomerActions
         await authProviders.Logout();
         return new BaseResponse { StatusCode = response.statusCode };
     }
-
-    [Display("Customers")]
+    
     [Action("Get payment information by customer ID", Description = "Get payment information by Plunet customer ID")]
     public async Task<GetPaymentInfoResponse> GetPaymentInfoByCustomerId(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
     {
@@ -147,8 +138,7 @@ public class CustomerActions
         await authProviders.Logout();
         return MapPaymentInfoResponse(paymentInfo.data);
     }
-
-    [Display("Customers")]
+  
     [Action("Set customer status", Description = "Set Plunet customer status")]
     public async Task<BaseResponse> SetCustomerStatus(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int status, [ActionParameter] int customerId)
     {
@@ -158,8 +148,7 @@ public class CustomerActions
         await authProviders.Logout();
         return new BaseResponse { StatusCode = response.statusCode };
     }
-
-    [Display("Customers")]
+  
     [Action("Get customer status", Description = "Get Plunet customer status")]
     public async Task<GetCustomerStatusResponse> GetCustomerStatus(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
     {
@@ -170,7 +159,6 @@ public class CustomerActions
         return new GetCustomerStatusResponse { Status = statusResult.data };
     }
 
-    [Display("Customers")]
     [Action("Get customer email", Description = "Get Plunet customer email")]
     public async Task<GetCustomerEmailResponse> GetCustomerEmail(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
     {
@@ -180,8 +168,7 @@ public class CustomerActions
         await authProviders.Logout();
         return new GetCustomerEmailResponse { Email = emailResult.data };
     }
-
-    [Display("Customers")]
+   
     [Action("Get customer full name", Description = "Get Plunet customer full name")]
     public async Task<GetCustomerFullNameResponse> GetCustomerFullName(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
     {
@@ -252,19 +239,21 @@ public class CustomerActions
         return new BaseResponse { StatusCode = response.statusCode };
     }
 
-    //[Action("Set customer address", Description = "Set Plunet cocustomer address")]
-    //public async Task<CreateContactResponse> SetCustomerAddress(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
-    //{
-    //    var uuid = authProviders.GetAuthToken();
-    //    var addressClient = Clients.GetCustomerAddressClient(authProviders.GetInstanceUrl());
-    //    var response = await addressClient.insert2Async(uuid, customerId, new AddressIN
-    //    {
-    //        name1 = "address",
-    //        city = "Paris"
-    //    });
-    //    await authProviders.Logout();
-    //    return new CreateContactResponse { ContactId = response.data };
-    //}
+    [Display("Address ID")]
+    [Action("Set customer address", Description = "Set Plunet cocustomer address")]
+    public async Task<int> SetCustomerAddress(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var addressClient = Clients.GetCustomerAddressClient(authProviders.GetInstanceUrl());
+        var response = await addressClient.insert2Async(uuid, customerId, new AddressIN
+        {
+            name1 = "address",
+            city = "Paris",
+            addressType = 1
+        });
+        await authProviders.Logout();
+        return  response.data;
+    }
 
     //[Action("Set payment information by customer ID", Description = "Set payment information by Plunet customer ID")]
     //public async Task<BaseResponse> SetPaymentInfoByCustomerId(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId, [ActionParameter] GetPaymentInfoResponse request)
