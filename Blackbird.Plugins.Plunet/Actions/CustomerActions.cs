@@ -239,20 +239,30 @@ public class CustomerActions
         return new BaseResponse { StatusCode = response.statusCode };
     }
 
-    [Display("Address ID")]
     [Action("Set customer address", Description = "Set Plunet cocustomer address")]
-    public async Task<int> SetCustomerAddress(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId)
+    public async Task<SetCustomerAddressResponse> SetCustomerAddress(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] SetCustomerAddressRequest request)
     {
         var uuid = authProviders.GetAuthToken();
         var addressClient = Clients.GetCustomerAddressClient(authProviders.GetInstanceUrl());
-        var response = await addressClient.insert2Async(uuid, customerId, new AddressIN
-        {
-            name1 = "address",
-            city = "Paris",
-            addressType = 1
-        });
+        //var response = await addressClient.insert2Async(uuid, customerId, new AddressIN
+        //{
+        //    name1 = request.FirstAddressName,
+        //    city = request.City,
+        //    addressType = request.AddressType
+        //});
+        var response = await addressClient.insertAsync(uuid, request.CustomerId);
+
+        addressClient.setAddressTypeAsync(uuid, request.AddressType, response.data);
+        addressClient.setName1Async(uuid, request.FirstAddressName, response.data);
+        addressClient.setName2Async(uuid, request.SecondAddressName, response.data);       
+        addressClient.setStreetAsync(uuid, request.Street, response.data);
+        addressClient.setStreet2Async(uuid, request.Street2, response.data);
+        addressClient.setZipAsync(uuid, request.ZIPCode, response.data);
+        addressClient.setCityAsync(uuid, request.City, response.data);
+        addressClient.setStateAsync(uuid, request.State, response.data);
+
         await authProviders.Logout();
-        return  response.data;
+        return new SetCustomerAddressResponse { AddressId = response.data };
     }
 
     //[Action("Set payment information by customer ID", Description = "Set payment information by Plunet customer ID")]
