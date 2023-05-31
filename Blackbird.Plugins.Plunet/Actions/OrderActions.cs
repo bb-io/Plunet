@@ -8,6 +8,7 @@ using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Item;
 using Blackbird.Plugins.Plunet.Models.Order;
+using Blackbird.Plugins.Plunet.Models.Quote;
 
 namespace Blackbird.Plugins.Plunet.Actions;
 
@@ -178,6 +179,27 @@ public class OrderActions
         var uuid = authProviders.GetAuthToken();
         using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
         var response = await orderClient.deleteAsync(uuid, orderId);
+        await authProviders.Logout();
+        return new BaseResponse { StatusCode = response.statusCode };
+    }
+
+    [Action("Update order", Description = "Update Plunet order")]
+    public async Task<BaseResponse> UpdateOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] UpdateOrderRequest request)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
+        var response = await orderClient.updateAsync(uuid, new OrderIN
+        {
+            orderID = request.OrderId,
+            currency = request.Currency,
+            customerID = request.CustomerId,
+            projectManagerMemo = request.ProjectManagerMemo,
+            projectName = request.ProjectName,
+            referenceNumber = request.ReferenceNumber,
+            subject = request.Subject,
+            projectManagerID = 7,
+            deliveryDeadline = request.DeliveryDeadline
+        }, true);
         await authProviders.Logout();
         return new BaseResponse { StatusCode = response.statusCode };
     }

@@ -34,6 +34,10 @@ public class QuoteActions
             customerID = request.CustomerId,
             subject = request.ProjectName,
             creationDate = DateTime.Now,
+            currency = request.Currency,
+            projectManagerMemo = request.ProjectManagerMemo,
+            referenceNumber = request.ReferenceNumber,
+            status = request.Status
         });
         await authProviders.Logout();
         return new CreateQuoteResponse { QuoteId = quoteIdResult.data};
@@ -108,6 +112,26 @@ public class QuoteActions
         var uuid = authProviders.GetAuthToken();
         using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
         var response = await quoteClient.deleteAsync(uuid, quoteId);
+        await authProviders.Logout();
+        return new BaseResponse { StatusCode = response.statusCode };
+    }
+
+    [Action("Update quote", Description = "Update Plunet quote")]
+    public async Task<BaseResponse> UpdateQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] UpdateQuoteRequest request)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
+        var response = await quoteClient.updateAsync(uuid, new QuoteIN
+        {
+            quoteID = request.QuoteId,
+            currency = request.Currency,
+            customerID = request.CustomerId,
+            projectManagerMemo = request.ProjectManagerMemo,
+            projectName = request.ProjectName,
+            referenceNumber = request.ReferenceNumber,
+            subject = request.Subject,
+            status = request.Status,
+        }, true);
         await authProviders.Logout();
         return new BaseResponse { StatusCode = response.statusCode };
     }

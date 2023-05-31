@@ -1,13 +1,9 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
-using Blackbird.Plugins.Plunet.DataAdmin30Service;
-using Blackbird.Plugins.Plunet.DataCustomer30Service;
-using Blackbird.Plugins.Plunet.DataQuote30Service;
 using Blackbird.Plugins.Plunet.DataRequest30Service;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
-using Blackbird.Plugins.Plunet.Models.Customer;
 using Blackbird.Plugins.Plunet.Models.Request;
 
 namespace Blackbird.Plugins.Plunet.Actions;

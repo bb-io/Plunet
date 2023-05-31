@@ -1,9 +1,14 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using System.ComponentModel.DataAnnotations;
+using DisplayAttribute = Blackbird.Applications.Sdk.Common.DisplayAttribute;
 
 namespace Blackbird.Plugins.Plunet.Models.Quote;
 
-public class CreateQuoteRequest
+public class UpdateOrderRequest
 {
+    [Display("Order ID")]
+    public int OrderId { get; set; }
+
     [Display("Currency")]
     public string Currency { get; set; }
 
@@ -24,5 +29,8 @@ public class CreateQuoteRequest
 
     [Display("Status")]
     public int Status { get; set; }
+
+    [Display("Delivery deadline date")]
+    public DateTime DeliveryDeadline { get; set; }
 
 }
