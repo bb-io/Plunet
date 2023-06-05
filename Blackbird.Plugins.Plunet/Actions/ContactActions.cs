@@ -2,6 +2,7 @@
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
+using Blackbird.Plugins.Plunet.DataJob30Service;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Contacts;
@@ -47,7 +48,6 @@ public class ContactActions
         var contactIdResult = await dataCustomerContactClient.insertAsync(uuid, request.CustomerId);
         dataCustomerContactClient.setName2Async(uuid, request.FirstName, contactIdResult.data);
         dataCustomerContactClient.setName1Async(uuid, request.LastName, contactIdResult.data);
-        dataCustomerContactClient.setEmailAsync(uuid, request.Email, contactIdResult.data);
         dataCustomerContactClient.setEmailAsync(uuid, request.Email, contactIdResult.data);
         dataCustomerContactClient.setMobilePhoneAsync(uuid, request.MobilePhone, contactIdResult.data);
 

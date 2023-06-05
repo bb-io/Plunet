@@ -78,12 +78,11 @@ public class CustomerActions
         var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
         var customerIdResult = await customerClient.insert2Async(uuid, new CustomerIN
         {
-            name1 = request.FirstName,
-            name2 = request.LastName,
+            name1 = request.CompanyName,
             website = request.Website,
             //formOfAddress = request.FormOfAddress,
+            status = request.Status,
             email = request.Email,
-            phone = request.HeadOfficePhone,
             mobilePhone = request.MobilePhone
             //costCenter = request.CostCenter
         });
@@ -255,12 +254,12 @@ public class CustomerActions
 
         addressClient.setAddressTypeAsync(uuid, request.AddressType, response.data);
         addressClient.setName1Async(uuid, request.FirstAddressName, response.data);
-        addressClient.setName2Async(uuid, request.SecondAddressName, response.data);       
         addressClient.setStreetAsync(uuid, request.Street, response.data);
         addressClient.setStreet2Async(uuid, request.Street2, response.data);
         addressClient.setZipAsync(uuid, request.ZIPCode, response.data);
         addressClient.setCityAsync(uuid, request.City, response.data);
         addressClient.setStateAsync(uuid, request.State, response.data);
+        addressClient.setCountryAsync(uuid, request.Country, response.data);
 
         await authProviders.Logout();
         return new SetCustomerAddressResponse { AddressId = response.data };
