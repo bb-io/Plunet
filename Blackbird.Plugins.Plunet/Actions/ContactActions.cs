@@ -46,10 +46,10 @@ public class ContactActions
         //    email = request.Email
         //});
         var contactIdResult = await dataCustomerContactClient.insertAsync(uuid, request.CustomerId);
-        dataCustomerContactClient.setName2Async(uuid, request.FirstName, contactIdResult.data);
-        dataCustomerContactClient.setName1Async(uuid, request.LastName, contactIdResult.data);
-        dataCustomerContactClient.setEmailAsync(uuid, request.Email, contactIdResult.data);
-        dataCustomerContactClient.setMobilePhoneAsync(uuid, request.MobilePhone, contactIdResult.data);
+        await dataCustomerContactClient.setName2Async(uuid, request.FirstName, contactIdResult.data);
+        await dataCustomerContactClient.setName1Async(uuid, request.LastName, contactIdResult.data);
+        await dataCustomerContactClient.setEmailAsync(uuid, request.Email, contactIdResult.data);
+        await dataCustomerContactClient.setMobilePhoneAsync(uuid, request.MobilePhone, contactIdResult.data);
 
         await authProviders.Logout();
 

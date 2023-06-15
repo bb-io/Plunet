@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.0.6" />
+    <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.0.7" />
     <PackageReference Include="RestSharp" Version="110.2.0" />
     <PackageReference Include="System.ServiceModel.Duplex" Version="4.10.2" />
     <PackageReference Include="System.ServiceModel.Federation" Version="4.10.*" />
