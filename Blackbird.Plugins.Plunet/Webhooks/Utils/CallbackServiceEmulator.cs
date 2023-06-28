@@ -42,10 +42,14 @@ namespace Blackbird.Plugins.Plunet.Webhooks.Utils
             var doc = XDocument.Parse(webhookRequest.Body.ToString() ?? string.Empty);
 
             var value = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == _tagName)?.Value;
+            var httpResponseMessage = new HttpResponseMessage();
+            httpResponseMessage.Content = new StringContent("<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:api=\"http://API.Integration/\"><soap:Header/><soap:Body><api:receiveNotifyCallbackResponse/></soap:Body></soap:Envelope>");
+            httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Soap);
             return new WebhookResponse<TriggerContent>
             {
-                HttpResponseMessage = null,
-                Result = value == null ? null : new TriggerContent { ID = long.Parse(value) }
+                HttpResponseMessage = httpResponseMessage,
+                Result = value == null ? null : new TriggerContent { ID = long.Parse(value) },
+                ReceivedWebhookRequestType = WebhookRequestType.Default
             };
         }
           
@@ -70,7 +74,8 @@ namespace Blackbird.Plugins.Plunet.Webhooks.Utils
             return new WebhookResponse<TriggerContent>
             {
                 HttpResponseMessage = httpResponseMessage,
-                Result = null
+                Result = null,
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
             };
         }
 

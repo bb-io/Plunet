@@ -252,14 +252,14 @@ public class CustomerActions
         //});
         var response = await addressClient.insertAsync(uuid, request.CustomerId);
 
-        addressClient.setAddressTypeAsync(uuid, request.AddressType, response.data);
-        addressClient.setName1Async(uuid, request.FirstAddressName, response.data);
-        addressClient.setStreetAsync(uuid, request.Street, response.data);
-        addressClient.setStreet2Async(uuid, request.Street2, response.data);
-        addressClient.setZipAsync(uuid, request.ZIPCode, response.data);
-        addressClient.setCityAsync(uuid, request.City, response.data);
-        addressClient.setStateAsync(uuid, request.State, response.data);
-        addressClient.setCountryAsync(uuid, request.Country, response.data);
+        await addressClient.setAddressTypeAsync(uuid, request.AddressType, response.data);
+        await addressClient.setName1Async(uuid, request.FirstAddressName, response.data);
+        await addressClient.setStreetAsync(uuid, request.Street, response.data);
+        await addressClient.setStreet2Async(uuid, request.Street2, response.data);
+        await addressClient.setZipAsync(uuid, request.ZIPCode, response.data);
+        await addressClient.setCityAsync(uuid, request.City, response.data);
+        await addressClient.setStateAsync(uuid, request.State, response.data);
+        await addressClient.setCountryAsync(uuid, request.Country, response.data);
 
         await authProviders.Logout();
         return new SetCustomerAddressResponse { AddressId = response.data };
