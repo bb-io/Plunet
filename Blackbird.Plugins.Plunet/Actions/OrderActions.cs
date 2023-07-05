@@ -168,9 +168,37 @@ public class OrderActions
         var uuid = authProviders.GetAuthToken();
         using var dataDocumentClient = Clients.GetDocumentClient(authProviders.GetInstanceUrl());
         var response = await dataDocumentClient.upload_DocumentAsync(uuid, request.OrderId, request.FolderType,
-            request.FileContentBytes, request.FilePath, request.FileSize);
+            request.FileContentBytes, request.FilePath, request.FileContentBytes.Length);
         await authProviders.Logout();
         return new BaseResponse {StatusCode = response.Result.statusCode};
+    }    
+    
+    [Action("Download file", Description = "Download a file from Plunet")]
+    public async Task<FileResponse> DownloadFile(List<AuthenticationCredentialsProvider> authProviders, 
+        [ActionParameter] DownloadDocumentRequest request)
+    {
+        var uuid = authProviders.GetAuthToken();
+        
+        using var dataDocumentClient = Clients.GetDocumentClient(authProviders.GetInstanceUrl());
+        var response = await dataDocumentClient.download_DocumentAsync(uuid, request.OrderId, request.FolderType, request.FilePathName);
+        
+        await authProviders.Logout();
+        
+        return new(response.fileContent);
+    }    
+    
+    [Action("List files", Description = "List files from Plunet")]
+    public async Task<ListFilesResponse> ListFiles(List<AuthenticationCredentialsProvider> authProviders, 
+        [ActionParameter] ListFilesRequest request)
+    {
+        var uuid = authProviders.GetAuthToken();
+        
+        using var dataDocumentClient = Clients.GetDocumentClient(authProviders.GetInstanceUrl());
+        var response = await dataDocumentClient.getFileListAsync(uuid, request.OrderId, request.FolderType);
+        
+        await authProviders.Logout();
+        
+        return new(response.data);
     }
 
     [Action("Delete order", Description = "Delete a Plunet order")]

@@ -9,6 +9,4 @@ public class UploadDocumentRequest
     public byte[] FileContentBytes { get; set; }
 
     public string FilePath { get; set; }
-
-    public long FileSize { get; set; }
 }
