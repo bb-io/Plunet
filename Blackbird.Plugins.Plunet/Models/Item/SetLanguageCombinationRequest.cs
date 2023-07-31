@@ -1,8 +1,12 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Item;
+﻿using Blackbird.Applications.Sdk.Common;
+
+namespace Blackbird.Plugins.Plunet.Models.Item;
 
 public class SetLanguageCombinationRequest
 {
-    public int ItemId { get; set; }
+    [Display("Item ID")]
+    public string ItemId { get; set; }
 
-    public int LanguageCombinationId { get; set; }
+    [Display("Language combination ID")]
+    public string LanguageCombinationId { get; set; }
 }

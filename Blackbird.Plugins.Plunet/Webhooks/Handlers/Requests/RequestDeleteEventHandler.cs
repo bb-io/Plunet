@@ -1,6 +1,5 @@
 ﻿using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Webhooks;
-using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Webhooks.CallbackClients;
 using Blackbird.Plugins.Plunet.Webhooks.Utils;
 
@@ -10,11 +9,11 @@ public class RequestDeleteEventHandler : IWebhookEventHandler
 {
     public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
     {
-        await RequestClient.RegisterCallback(authenticationCredentialsProviders, values, EventType.ENTRY_DELETED);
+        await RequestClient.RegisterCallback(authenticationCredentialsProviders, values, EventType.EntryDeleted);
     }
 
     public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
     {
-        await RequestClient.DeregisterCallback(authenticationCredentialsProviders, EventType.ENTRY_DELETED);
+        await RequestClient.DeregisterCallback(authenticationCredentialsProviders, EventType.EntryDeleted);
     }
 }

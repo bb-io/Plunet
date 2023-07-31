@@ -1,13 +1,47 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Customer;
+﻿using Blackbird.Applications.Sdk.Common;
+
+namespace Blackbird.Plugins.Plunet.Models.Customer;
 
 public class CreateCustomerRequest
 {
-    public string CompanyName { get; set; }
-    public string Website { get; set; }
-    public string Email { get; set; }
-    public string MobilePhone { get; set; }
+    [Display("First name")]
+    public string? FirstName { get; set; }
+    
+    [Display("Last name")]
+    public string? LastName { get; set; }
+    public string? Website { get; set; }
+    public string? Email { get; set; }
+    
+    [Display("Mobile phone")]
+    public string? MobilePhone { get; set; }
 
-    public int Status { get; set; }
-    //public int FormOfAddress { get; set; }
-    //public string CostCenter { get; set; }
+    public int? Status { get; set; }
+    
+    [Display("Form of address")]
+    public int? FormOfAddress { get; set; }
+    
+    [Display("Cost center")]
+    public string? CostCenter { get; set; }
+
+    [Display("Academic title")]
+    public string? AcademicTitle { get; set; }
+    
+    public string? Currency { get; set; }
+    
+    public string? Fax { get; set; }
+    
+    public string? Opening { get; set; }
+    
+    [Display("Full name")]
+    public string? FullName { get; set; }
+
+    [Display("External ID")]
+    public string? ExternalId { get; set; }
+
+    [Display("Skype ID")]
+    public string? SkypeId { get; set; }
+
+    [Display("User ID")]
+    public string? UserId { get; set; }
+    
 }

@@ -17,7 +17,7 @@ public static class AuthProvidersExtension
     public static async Task Logout(this IEnumerable<AuthenticationCredentialsProvider> source)
     {
         var uuid = source.GetAuthToken();
-        using var plunetApiClient = new PlunetAPIService.PlunetAPIClient();
+        await using var plunetApiClient = new PlunetAPIService.PlunetAPIClient();
         await plunetApiClient.logoutAsync(uuid);
     }
 }

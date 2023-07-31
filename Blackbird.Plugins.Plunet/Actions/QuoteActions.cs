@@ -1,11 +1,11 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
-using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Quote;
+using Blackbird.Plugins.Plunet.Utils;
 
 namespace Blackbird.Plugins.Plunet.Actions;
 
@@ -13,34 +13,46 @@ namespace Blackbird.Plugins.Plunet.Actions;
 public class QuoteActions
 {
     [Action("Get quote", Description = "Get details for a Plunet quote")]
-    public async Task<QuoteResponse> GetQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int quoteId)
+    public async Task<QuoteResponse> GetQuote(
+        List<AuthenticationCredentialsProvider> authProviders,
+        [ActionParameter] [Display("Quote ID")] string quoteId)
     {
+        var intQuoteId = IntParser.Parse(quoteId, nameof(quoteId))!.Value;
         var uuid = authProviders.GetAuthToken();
-        using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
-        var quoteResult = await quoteClient.getQuoteObjectAsync(uuid, quoteId);
-        var response = quoteResult.data ?? null;
+        
+        await using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
+        var quoteResult = await quoteClient.getQuoteObjectAsync(uuid, intQuoteId);
         await authProviders.Logout();
-        return MapQuoteResponse(response);
+
+        if (quoteResult.data is null)
+            throw new(quoteResult.statusMessage);
+        
+        return new(quoteResult.data);
     }
 
     [Action("Create quote", Description = "Create a new quote in Plunet")]
-    public async Task<CreateQuoteResponse> CreateQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateQuoteRequest request)
+    public async Task<CreateQuoteResponse> CreateQuote(
+        List<AuthenticationCredentialsProvider> authProviders,
+        [ActionParameter] CreateQuoteRequest request)
     {
         var uuid = authProviders.GetAuthToken();
-        using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
+        
+        await using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
         var quoteIdResult = await quoteClient.insert2Async(uuid, new QuoteIN
         {
             projectName = request.ProjectName,
-            customerID = request.CustomerId,
+            customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
             subject = request.ProjectName,
             creationDate = DateTime.Now,
             currency = request.Currency,
             projectManagerMemo = request.ProjectManagerMemo,
             referenceNumber = request.ReferenceNumber,
-            status = request.Status
+            status = request.Status ?? default
         });
+       
         await authProviders.Logout();
-        return new CreateQuoteResponse { QuoteId = quoteIdResult.data};
+        
+        return new CreateQuoteResponse { QuoteId = quoteIdResult.data.ToString() };
     }
 
     //[Action("Create quote based on template", Description = "Create a new quote based on a template")]
@@ -107,66 +119,43 @@ public class QuoteActions
     //}
 
     [Action("Delete quote", Description = "Delete a Plunet quote")]
-    public async Task<BaseResponse> DeleteQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int quoteId)
+    public async Task<BaseResponse> DeleteQuote(
+        List<AuthenticationCredentialsProvider> authProviders,
+        [ActionParameter] [Display("Quote ID")] string quoteId)
     {
+        var intQuoteId = IntParser.Parse(quoteId, nameof(quoteId))!.Value;
         var uuid = authProviders.GetAuthToken();
-        using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
-        var response = await quoteClient.deleteAsync(uuid, quoteId);
+        
+        await using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
+        var response = await quoteClient.deleteAsync(uuid, intQuoteId);
         await authProviders.Logout();
+        
         return new BaseResponse { StatusCode = response.statusCode };
     }
 
     [Action("Update quote", Description = "Update Plunet quote")]
-    public async Task<BaseResponse> UpdateQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] UpdateQuoteRequest request)
+    public async Task<BaseResponse> UpdateQuote(
+        List<AuthenticationCredentialsProvider> authProviders,
+        [ActionParameter] UpdateQuoteRequest request)
     {
         var uuid = authProviders.GetAuthToken();
+        
         var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
         var response = await quoteClient.updateAsync(uuid, new QuoteIN
         {
-            quoteID = request.QuoteId,
-            currency = request.Currency,
-            customerID = request.CustomerId,
-            projectManagerMemo = request.ProjectManagerMemo,
+            quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId))!.Value,
             projectName = request.ProjectName,
+            customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
+            subject = request.ProjectName,
+            creationDate = DateTime.Now,
+            currency = request.Currency,
+            projectManagerMemo = request.ProjectManagerMemo,
             referenceNumber = request.ReferenceNumber,
-            subject = request.Subject,
-            status = request.Status,
-        }, true);
+            status = request.Status ?? default
+        }, false);
+        
         await authProviders.Logout();
+        
         return new BaseResponse { StatusCode = response.statusCode };
-    }
-
-    private (string SourceLanguageName, string TargetLanguageName)
-        GetLanguageNamesCombinationByLanguageCodeIso(string token, string sourceLanguageCode, string targetLanguageCode)
-    {
-        using var adminClient = new DataAdmin30Client();
-        var availableLanguagesResult = adminClient.getAvailableLanguagesAsync(token, "en").GetAwaiter().GetResult();
-        if (availableLanguagesResult.data == null || availableLanguagesResult.data.Length == 0)
-        {
-            return new ValueTuple<string, string>();
-        }
-
-        var sourceLanguage = availableLanguagesResult.data.FirstOrDefault(x =>
-                                 x.isoCode.Equals(sourceLanguageCode, StringComparison.OrdinalIgnoreCase) ||
-                                 x.folderName.Equals(sourceLanguageCode, StringComparison.OrdinalIgnoreCase)) ??
-                             availableLanguagesResult.data.FirstOrDefault(x => x.isoCode.ToUpper() == "ENG");
-        var targetLanguage = availableLanguagesResult.data.FirstOrDefault(x =>
-            x.isoCode.Equals(targetLanguageCode, StringComparison.OrdinalIgnoreCase) ||
-            x.folderName.Equals(targetLanguageCode, StringComparison.OrdinalIgnoreCase));
-        return targetLanguage == null
-            ? new ValueTuple<string, string>()
-            : new ValueTuple<string, string>(sourceLanguage?.name, targetLanguage.name);
-    }
-
-    private QuoteResponse MapQuoteResponse(Quote? quote)
-    {
-        return quote == null
-            ? new QuoteResponse()
-            : new QuoteResponse
-            {
-                Currency = quote.currency,
-                ProjectName = quote.projectName,
-                Rate = quote.rate
-            };
     }
 }

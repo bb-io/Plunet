@@ -1,13 +1,7 @@
-﻿using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Mime;
-using System.Xml.Linq;
-using System.Xml.Serialization;
-using Blackbird.Applications.Sdk.Common.Webhooks;
+﻿using Blackbird.Applications.Sdk.Common.Webhooks;
 using Blackbird.Plugins.Plunet.Webhooks.Handlers.Orders;
 using Blackbird.Plugins.Plunet.Webhooks.Models;
 using Blackbird.Plugins.Plunet.Webhooks.Utils;
-using RestSharp;
 
 namespace Blackbird.Plugins.Plunet.Webhooks;
 

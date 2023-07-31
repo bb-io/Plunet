@@ -1,6 +1,9 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Contacts;
+﻿using Blackbird.Applications.Sdk.Common;
+
+namespace Blackbird.Plugins.Plunet.Models.Contacts;
 
 public class CreateContactResponse
 {
-    public int ContactId { get; set; }
+    [Display("Contact ID")]
+    public string ContactId { get; set; }
 }

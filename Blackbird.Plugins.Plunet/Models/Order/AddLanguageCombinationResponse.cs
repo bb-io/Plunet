@@ -1,6 +1,9 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Order;
+﻿using Blackbird.Applications.Sdk.Common;
+
+namespace Blackbird.Plugins.Plunet.Models.Order;
 
 public class AddLanguageCombinationResponse
 {
-    public int LanguageCombinationId { get; set; }
+    [Display("Language combination ID")]
+    public string LanguageCombinationId { get; set; }
 }

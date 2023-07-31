@@ -1,10 +1,14 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Item;
+﻿using Blackbird.Applications.Sdk.Common;
+
+namespace Blackbird.Plugins.Plunet.Models.Item;
 
 public class PriceLineRequest
 {
-    public int ItemId { get; set; }
+    [Display("Item ID")]
+    public string ItemId { get; set; }
     
     public double Amount { get; set; }
 
+    [Display("Unit price")]
     public double UnitPrice { get; set; }
 }

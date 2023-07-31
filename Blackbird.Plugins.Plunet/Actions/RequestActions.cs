@@ -5,6 +5,7 @@ using Blackbird.Plugins.Plunet.DataRequest30Service;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Request;
+using Blackbird.Plugins.Plunet.Utils;
 
 namespace Blackbird.Plugins.Plunet.Actions;
 
@@ -12,81 +13,87 @@ namespace Blackbird.Plugins.Plunet.Actions;
 public class RequestActions
 {
     [Action("Get request", Description = "Get details for a Plunet request")]
-    public async Task<RequestResponse> GetQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int requestId)
+    public async Task<RequestResponse> GetRequest(
+        List<AuthenticationCredentialsProvider> authProviders,
+        [ActionParameter] [Display("Request ID")] string requestId)
     {
+        var intRequestId = IntParser.Parse(requestId, nameof(requestId))!.Value;
         var uuid = authProviders.GetAuthToken();
-        using var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
-        var requestResult = await requestClient.getRequestObjectAsync(uuid, requestId);
-        var response = requestResult.data ?? null;
+        
+        await using var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
+        var requestResult = await requestClient.getRequestObjectAsync(uuid, intRequestId);
+        
         await authProviders.Logout();
-        return MapRequestResponse(response);
+
+        if (requestResult.data is null)
+            throw new(requestResult.statusMessage);
+        
+        return new(requestResult.data);
     }
 
     [Action("Create request", Description = "Create a new request in Plunet")]
-    public async Task<CreatеRequestResponse> CreateQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreatеRequestRequest request)
+    public async Task<CreatеRequestResponse> CreateRequest(
+        List<AuthenticationCredentialsProvider> authProviders,
+        [ActionParameter] CreatеRequestRequest request)
     {
         var uuid = authProviders.GetAuthToken();
-        using var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
-        var requestIdResult = await requestClient.insert2Async(uuid, new RequestIN
+        
+        await using var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
+        var requestIdResult = await requestClient.insert2Async(uuid, new()
         {
             briefDescription = request.BriefDescription,
             creationDate = DateTime.Now,
-            deliveryDate = request.DeliveryDate,
-            orderID = request.OrderId,
+            deliveryDate = request.DeliveryDate ?? default,
+            orderID = IntParser.Parse(request.OrderId, nameof(request.OrderId)) ?? default,
             subject = request.Subject,
-            quotationDate = request.QuotationDate,
-            status = request.Status,
-            quoteID = request.QuoteId
+            quotationDate = request.QuotationDate ?? default,
+            status = request.Status ?? default,
+            quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId)) ?? default
         });
+        
         await authProviders.Logout();
-        return new CreatеRequestResponse { RequestId = requestIdResult.data };
+        
+        return new CreatеRequestResponse { RequestId = requestIdResult.data.ToString() };
     }
 
     [Action("Update request", Description = "Update Plunet request")]
-    public async Task<BaseResponse> UpdateRequest(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] UpdateRequestRequest request)
+    public async Task<BaseResponse> UpdateRequest(
+        List<AuthenticationCredentialsProvider> authProviders,
+        [ActionParameter] UpdateRequestRequest request)
     {
         var uuid = authProviders.GetAuthToken();
+        
         var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
         var response = await requestClient.updateAsync(uuid, new RequestIN
         {
-            requestID = request.RequestId,
+            requestID = IntParser.Parse(request.RequestId, nameof(request.RequestId))!.Value,
             briefDescription = request.BriefDescription,
-            deliveryDate = request.DeliveryDate,
-            orderID = request.OrderId,
+            creationDate = DateTime.Now,
+            deliveryDate = request.DeliveryDate ?? default,
+            orderID = IntParser.Parse(request.OrderId, nameof(request.OrderId)) ?? default,
             subject = request.Subject,
-            quotationDate = request.QuotationDate,
-            status = request.Status,
-            quoteID = request.QuoteId
-        }, true);
+            quotationDate = request.QuotationDate ?? default,
+            status = request.Status ?? default,
+            quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId)) ?? default
+        }, false);
+        
         await authProviders.Logout();
+        
         return new BaseResponse { StatusCode = response.statusCode };
     }
 
     [Action("Delete request", Description = "Delete a Plunet request")]
-    public async Task<BaseResponse> DeleteRequest(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int requestId)
+    public async Task<BaseResponse> DeleteRequest(
+        List<AuthenticationCredentialsProvider> authProviders,
+        [ActionParameter] [Display("Request ID")] string requestId)
     {
+        var intRequestId = IntParser.Parse(requestId, nameof(requestId))!.Value;
         var uuid = authProviders.GetAuthToken();
-        using var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
-        var response = await requestClient.deleteAsync(uuid, requestId);
+        
+        await using var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
+        var response = await requestClient.deleteAsync(uuid, intRequestId);
         await authProviders.Logout();
+        
         return new BaseResponse { StatusCode = response.statusCode };
-    }
-
-    private RequestResponse MapRequestResponse(Request? request)
-    {
-        return request == null
-            ? new RequestResponse()
-            : new RequestResponse
-            {
-                BriefDescription = request.briefDescription,
-                CreationDate = request.creationDate,
-                DeliveryDate = request.deliveryDate,
-                OrderId = request.orderID,
-                QuotationDate = request.quotationDate,
-                QuoteId = request.quoteID,
-                RequestId = request.requestID,
-                Status = request.status,
-                Subject = request.subject
-            };
     }
 }

@@ -1,10 +1,15 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Order;
+﻿using Blackbird.Applications.Sdk.Common;
+
+namespace Blackbird.Plugins.Plunet.Models.Order;
 
 public class AddLanguageCombinationRequest
 {
-    public int OrderId { get; set; }
+    [Display("Order ID")]
+    public string OrderId { get; set; }
 
+    [Display("Source language code")]
     public string SourceLanguageCode { get; set; }
 
+    [Display("Target language code")]
     public string TargetLanguageCode { get; set; }
 }

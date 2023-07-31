@@ -1,12 +1,25 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Item;
+﻿using Blackbird.Applications.Sdk.Common;
+
+namespace Blackbird.Plugins.Plunet.Models.Item;
 
 public class CreateItemRequest
 {
-    public int OrderId { get; set; }
+    [Display("Project ID")]
+    public string ProjectId { get; set; }
+    
+    [Display("Project type")]
+    public int ProjectType { get; set; }
+    
+    [Display("Item name")]
+    public string? ItemName { get; set; }
 
-    public string ItemName { get; set; }
+    [Display("Deadline date and time")]
+    public DateTime? DeadlineDateTime { get; set; }
 
-    public DateTime DeadlineDateTime { get; set; }
-
-    public double TotalPrice { get; set; }
+    [Display("Total price")]
+    public double? TotalPrice { get; set; }
+    
+    public string? Reference { get; set; }
+    
+    public int? Status { get; set; }
 }

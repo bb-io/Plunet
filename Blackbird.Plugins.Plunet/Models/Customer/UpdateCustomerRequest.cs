@@ -1,12 +1,8 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Customer;
+﻿using Blackbird.Applications.Sdk.Common;
 
-public class UpdateCustomerRequest
+namespace Blackbird.Plugins.Plunet.Models.Customer;
+
+public class UpdateCustomerRequest : CreateCustomerRequest
 {
-    public int CustomerId { get; set; }
-    public string FirstName { get; set; }
-    public string LastName { get; set; }
-    public string Email { get; set; }
-    public string MobilePhone { get; set; }
-    public string Telephone { get; set; }
-    public string Website { get; set; }
+    [Display("Customer ID")] public string CustomerId { get; set; }
 }

@@ -4,7 +4,7 @@ namespace Blackbird.Plugins.Plunet.Models.Order;
 
 public class ListFilesRequest
 {
-    [Display("Order id")] public int OrderId { get; set; }
+    [Display("Order id")] public string OrderId { get; set; }
 
-    [Display("Folder type")] public int FolderType { get; set; }
+    [Display("Folder type")] public string FolderType { get; set; }
 }

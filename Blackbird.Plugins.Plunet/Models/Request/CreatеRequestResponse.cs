@@ -1,6 +1,9 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Request;
+﻿using Blackbird.Applications.Sdk.Common;
+
+namespace Blackbird.Plugins.Plunet.Models.Request;
 
 public class CreatеRequestResponse
 {
-    public int RequestId { get; set; }
+    [Display("Request ID")]
+    public string RequestId { get; set; }
 }

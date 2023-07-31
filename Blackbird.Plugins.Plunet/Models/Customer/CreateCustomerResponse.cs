@@ -1,6 +1,9 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Customer;
+﻿using Blackbird.Applications.Sdk.Common;
+
+namespace Blackbird.Plugins.Plunet.Models.Customer;
 
 public class CreateCustomerResponse
 {
-    public int CustomerId { get; set; }
+    [Display("Customer ID")]
+    public string CustomerId { get; set; }
 }
