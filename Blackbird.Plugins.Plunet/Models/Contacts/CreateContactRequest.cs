@@ -26,7 +26,7 @@ public class CreateContactRequest
 
     [Display("Address ID")] public string? AddressId { get; set; }
     
-    [Display("Cost center")] public string CostCenter { get; set; }
+    [Display("Cost center")] public string? CostCenter { get; set; }
     
-    public string Fax { get; set; }
+    public string? Fax { get; set; }
 }

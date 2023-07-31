@@ -42,7 +42,7 @@ public class QuoteActions
         {
             projectName = request.ProjectName,
             customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
-            subject = request.ProjectName,
+            subject = request.Subject,
             creationDate = DateTime.Now,
             currency = request.Currency,
             projectManagerMemo = request.ProjectManagerMemo,
@@ -146,7 +146,7 @@ public class QuoteActions
             quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId))!.Value,
             projectName = request.ProjectName,
             customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
-            subject = request.ProjectName,
+            subject = request.Subject,
             creationDate = DateTime.Now,
             currency = request.Currency,
             projectManagerMemo = request.ProjectManagerMemo,

@@ -4,11 +4,11 @@ namespace Blackbird.Plugins.Plunet.Models.Customer;
 
 public class CreateCustomerRequest
 {
-    [Display("First name")]
-    public string? FirstName { get; set; }
+    [Display("Name 1")]
+    public string? Name1 { get; set; }
     
-    [Display("Last name")]
-    public string? LastName { get; set; }
+    [Display("Name 2")]
+    public string? Name2 { get; set; }
     public string? Website { get; set; }
     public string? Email { get; set; }
     

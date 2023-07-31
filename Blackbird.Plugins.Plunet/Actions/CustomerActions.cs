@@ -110,8 +110,8 @@ public class CustomerActions
         var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
         var customerIdResult = await customerClient.insert2Async(uuid, new()
         {
-            name1 = request.FirstName,
-            name2 = request.LastName,
+            name1 = request.Name1,
+            name2 = request.Name2,
             website = request.Website,
             formOfAddress = request.FormOfAddress ?? default,
             status = request.Status ?? default,
@@ -144,8 +144,8 @@ public class CustomerActions
         var response = await customerClient.updateAsync(uuid, new CustomerIN
         {
             customerID = intCustomerId,
-            name1 = request.FirstName,
-            name2 = request.LastName,
+            name1 = request.Name1,
+            name2 = request.Name2,
             website = request.Website,
             formOfAddress = request.FormOfAddress ?? default,
             status = request.Status ?? default,
