@@ -10,7 +10,7 @@ public static class IntParser
             return null;
         
         if (!int.TryParse(input, out var intValue))
-            throw new Exception($"{errorName.ToPascalCase()} should be a number");
+            throw new Exception($"{errorName.ToPascalCase()} should be an integer number (from -2147483648 to 2147483647)");
 
         return intValue;
     } 
