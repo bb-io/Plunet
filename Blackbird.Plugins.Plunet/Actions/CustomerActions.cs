@@ -28,6 +28,22 @@ public class CustomerActions
         var customers = resposne.CustomerListResult.data
             .Select(x => new GetCustomerResponse(x)).ToArray();
         return new(customers);
+    }  
+    
+    [Action("Does customer exist", Description = "Checks if the customer with the specified name exists")]
+    public async Task<bool> DoesCustomerExists(
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
+        [ActionParameter] [Display("Customer name")]
+        string customerName)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+        var response = await customerClient.searchAsync(uuid, new SearchFilter_Customer
+        {
+            name1 = customerName
+        });
+
+        return response.data?.Any() is true;
     }
 
     [Action("Get customer by name", Description = "Get the Plunet customer by name")]
