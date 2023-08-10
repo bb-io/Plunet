@@ -1,10 +1,14 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+﻿//using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+
+using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
 
-public class FolderTypeDataHandler : EnumDataHandler
+public class FolderTypeDataHandler : BaseInvocable, IDataSourceHandler /*: EnumDataHandler*/
 {
-    protected override Dictionary<string, string> EnumValues => new()
+    protected Dictionary<string, string> EnumValues => new()
     {
         { "1", "Request reference" },
         { "2", "Request source" },
@@ -33,4 +37,13 @@ public class FolderTypeDataHandler : EnumDataHandler
         { "25", "Order prm" },
         { "26", "Payable" }
     };
+
+    public FolderTypeDataHandler(InvocationContext invocationContext) : base(invocationContext)
+    {
+    }
+
+    public Dictionary<string, string> GetData(DataSourceContext context)
+    {
+        return EnumValues;
+    }
 }
