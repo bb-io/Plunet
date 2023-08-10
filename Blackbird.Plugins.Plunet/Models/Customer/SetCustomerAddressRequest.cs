@@ -1,14 +1,14 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
 
 namespace Blackbird.Plugins.Plunet.Models.Customer;
 
-public class SetCustomerAddressRequest
+public class SetCustomerAddressRequest : CustomerRequest
 {
-    [Display("Customer ID")]
-    public string CustomerId { get; set; }
-
     [Display("Address type")]
-    public int? AddressType { get; set; } // 1 - Shipping address, 2 - Billing address, 3 - Other
+    [DataSource(typeof(AddressTypeDataHandler))]
+    public string? AddressType { get; set; }
 
     [Display("First address name")]
     public string? FirstAddressName { get; set; }

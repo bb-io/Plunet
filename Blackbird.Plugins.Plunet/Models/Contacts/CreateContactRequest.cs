@@ -1,11 +1,10 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Blackbird.Plugins.Plunet.Models.Customer;
 
 namespace Blackbird.Plugins.Plunet.Models.Contacts;
 
-public class CreateContactRequest
+public class CreateContactRequest : CustomerRequest
 {
-    [Display("Customer ID")] public string CustomerId { get; set; }
-
     [Display("First name")] public string? FirstName { get; set; }
 
     [Display("Last name")] public string? LastName { get; set; }

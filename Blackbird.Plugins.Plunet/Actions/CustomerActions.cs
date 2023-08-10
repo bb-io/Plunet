@@ -12,6 +12,24 @@ namespace Blackbird.Plugins.Plunet.Actions;
 [ActionList]
 public class CustomerActions
 {
+    [Action("List customer", Description = "List all customers")]
+    public async Task<ListCustomersResponse> ListCustomers(
+        List<AuthenticationCredentialsProvider> authProviders)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+
+        var allStatuses = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+        var resposne = await customerClient
+            .getAllCustomerObjects2Async(uuid, Array.ConvertAll(allStatuses, i => (int?)i));
+
+        await authProviders.Logout();
+
+        var customers = resposne.CustomerListResult.data
+            .Select(x => new GetCustomerResponse(x)).ToArray();
+        return new(customers);
+    }
+
     [Action("Get customer by name", Description = "Get the Plunet customer by name")]
     public async Task<GetCustomerResponse> GetCustomerByName(
         List<AuthenticationCredentialsProvider> authProviders,
@@ -46,10 +64,9 @@ public class CustomerActions
     [Action("Get customer by ID", Description = "Get the Plunet customer by ID")]
     public async Task<GetCustomerResponse> GetCustomerById(
         List<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Customer ID")]
-        string customerId)
+        [ActionParameter] CustomerRequest input)
     {
-        var intCustomerId = IntParser.Parse(customerId, nameof(customerId))!.Value;
+        var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
         var uuid = authProviders.GetAuthToken();
 
         var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
@@ -58,7 +75,7 @@ public class CustomerActions
 
         if (customer.data is null)
             throw new(customer.statusMessage);
-        
+
         return new(customer.data);
     }
 
@@ -90,10 +107,9 @@ public class CustomerActions
 
     [Action("Delete customer by ID", Description = "Delete a Plunet customer by ID")]
     public async Task<BaseResponse> DeleteCustomerById(List<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Customer ID")]
-        string customerId)
+        [ActionParameter] CustomerRequest input)
     {
-        var intCustomerId = IntParser.Parse(customerId, nameof(customerId))!.Value;
+        var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
         var uuid = authProviders.GetAuthToken();
 
         var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
@@ -127,9 +143,9 @@ public class CustomerActions
             skypeID = request.SkypeId,
             userId = IntParser.Parse(request.UserId, nameof(request.UserId)) ?? default,
         });
-        
+
         await authProviders.Logout();
-        
+
         return new CreateCustomerResponse { CustomerId = customerIdResult.data.ToString() };
     }
 
@@ -139,7 +155,7 @@ public class CustomerActions
     {
         var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
         var uuid = authProviders.GetAuthToken();
-        
+
         var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
         var response = await customerClient.updateAsync(uuid, new CustomerIN
         {
@@ -161,27 +177,27 @@ public class CustomerActions
             skypeID = request.SkypeId,
             userId = IntParser.Parse(request.UserId, nameof(request.UserId)) ?? default,
         }, false);
-        
+
         await authProviders.Logout();
-        
+
         return new BaseResponse { StatusCode = response.statusCode };
     }
 
     [Action("Get payment information by customer ID", Description = "Get payment information by Plunet customer ID")]
     public async Task<GetPaymentInfoResponse> GetPaymentInfoByCustomerId(
         List<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Customer ID")] string customerId)
+        [ActionParameter] CustomerRequest input)
     {
-        var intCustomerId = IntParser.Parse(customerId, nameof(customerId))!.Value;
+        var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
         var uuid = authProviders.GetAuthToken();
-            
+
         var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
         var paymentInfo = await customerClient.getPaymentInformationAsync(uuid, intCustomerId);
         await authProviders.Logout();
 
         if (paymentInfo.data is null)
             throw new(paymentInfo.statusMessage);
-        
+
         return new(paymentInfo.data);
     }
 
@@ -192,13 +208,13 @@ public class CustomerActions
     {
         var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
         var uuid = authProviders.GetAuthToken();
-        
+
         var addressClient = Clients.GetCustomerAddressClient(authProviders.GetInstanceUrl());
         var response = await addressClient.insert2Async(uuid, intCustomerId, new()
         {
             name1 = request.FirstAddressName,
             city = request.City,
-            addressType = request.AddressType ?? default,
+            addressType = IntParser.Parse(request.AddressType, nameof(request.AddressType)) ?? default,
             street = request.Street,
             street2 = request.Street2,
             zip = request.ZipCode,
@@ -208,7 +224,7 @@ public class CustomerActions
         });
 
         await authProviders.Logout();
-        
+
         return new SetCustomerAddressResponse { AddressId = response.data.ToString() };
     }
 

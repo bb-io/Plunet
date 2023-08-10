@@ -1,8 +1,10 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
+using Blackbird.Plugins.Plunet.DataSourceHandlers;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Item;
@@ -83,50 +85,50 @@ public class OrderActions
         return new CreateItemResponse { ItemId = itemIdResult.data.ToString() };
     }
 
+    [Action("List templates", Description = "List all templates")]
+    public async Task<ListTemplatesResponse> ListTemplates(
+        IEnumerable<AuthenticationCredentialsProvider> authProviders)
+    {
+        var uuid = authProviders.GetAuthToken();
+
+        await using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
+        var response = await orderClient.getTemplateListAsync(uuid);
+
+        await authProviders.Logout();
+
+        var templates = response.data.Select(x => new TemplateResponse(x)).ToArray();
+        return new(templates);
+    }
+
     [Action("Create order based on template", Description = "Create a new order based on a template")]
     public async Task<CreateOrderResponse> CreateOrderBasedOnTemplate(
         List<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CreateOrderRequest request,
-        [ActionParameter] [Display("Template name")]
-        string templateName)
+        [ActionParameter] [DataSource(typeof(TemplateDataHandler))] [Display("Template")]
+        string templateId)
     {
-        try
+        var uuid = authProviders.GetAuthToken();
+
+        await using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
+        var order = new OrderIN
         {
-            var uuid = authProviders.GetAuthToken();
+            projectName = request.ProjectName,
+            customerContactID = IntParser.Parse(request.ContactId, nameof(request.ContactId)) ?? default,
+            customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
+            subject = request.Subject,
+            projectManagerID = IntParser.Parse(request.ProjectManagerId, nameof(request.ProjectManagerId))!.Value,
+            orderDate = DateTime.Now,
+            deliveryDeadline = request.Deadline ?? default,
+            currency = request.Currency,
+            projectManagerMemo = request.ProjectManagerMemo,
+            rate = request.Rate ?? default,
+            referenceNumber = request.ReferenceNumber
+        };
 
-            await using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
-            var order = new OrderIN
-            {
-                projectName = request.ProjectName,
-                customerContactID = IntParser.Parse(request.ContactId, nameof(request.ContactId)) ?? default,
-                customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
-                subject = request.Subject,
-                projectManagerID = IntParser.Parse(request.ProjectManagerId, nameof(request.ProjectManagerId))!.Value,
-                orderDate = DateTime.Now,
-                deliveryDeadline = request.Deadline ?? default,
-                currency = request.Currency,
-                projectManagerMemo = request.ProjectManagerMemo,
-                rate = request.Rate ?? default,
-                referenceNumber = request.ReferenceNumber
-            };
-            var templates = await orderClient.getTemplateListAsync(uuid);
+        var orderIdResult = await orderClient.insert_byTemplateAsync(uuid, order, int.Parse(templateId));
+        await authProviders.Logout();
 
-            if (templates == null || !templates.data.Any())
-                throw new("Not templates found");
-
-            var template = templates.data.FirstOrDefault(t =>
-                t.templateName.Contains(templateName, StringComparison.OrdinalIgnoreCase));
-
-            if (template == null)
-                throw new("No template found with the provided name");
-
-            var orderIdResult = await orderClient.insert_byTemplateAsync(uuid, order, template.templateID);
-            return new CreateOrderResponse { OrderId = orderIdResult.data.ToString() };
-        }
-        finally
-        {
-            await authProviders.Logout();
-        }
+        return new CreateOrderResponse { OrderId = orderIdResult.data.ToString() };
     }
 
     [Action("Add language combination to order", Description = "Add a new language combination to an existing order")]

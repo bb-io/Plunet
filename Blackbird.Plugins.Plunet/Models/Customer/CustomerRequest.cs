@@ -4,7 +4,7 @@ using Blackbird.Plugins.Plunet.DataSourceHandlers;
 
 namespace Blackbird.Plugins.Plunet.Models.Customer;
 
-public class UpdateCustomerRequest : CreateCustomerRequest
+public class CustomerRequest
 {
     [Display("Customer")]
     [DataSource(typeof(CustomerIdDataHandler))]

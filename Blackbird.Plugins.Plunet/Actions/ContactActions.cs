@@ -4,6 +4,7 @@ using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Contacts;
+using Blackbird.Plugins.Plunet.Models.Customer;
 using Blackbird.Plugins.Plunet.Utils;
 
 namespace Blackbird.Plugins.Plunet.Actions;
@@ -14,9 +15,9 @@ public class ContactActions
     [Action("Get customer contacts", Description = "Get all the contacts of the customer")]
     public async Task<GetContactsResponse> GetCustomerContacts(
         List<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Customer ID")] string customerId)
+        [ActionParameter] CustomerRequest input)
     {
-        var intCustomerId = IntParser.Parse(customerId, nameof(customerId))!.Value;
+        var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
         var uuid = authProviders.GetAuthToken();
         
         await using var dataCustomerContactClient = Clients.GetContactClient(authProviders.GetInstanceUrl());

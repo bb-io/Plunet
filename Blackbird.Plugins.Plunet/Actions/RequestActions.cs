@@ -15,19 +15,20 @@ public class RequestActions
     [Action("Get request", Description = "Get details for a Plunet request")]
     public async Task<RequestResponse> GetRequest(
         List<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Request ID")] string requestId)
+        [ActionParameter] [Display("Request ID")]
+        string requestId)
     {
         var intRequestId = IntParser.Parse(requestId, nameof(requestId))!.Value;
         var uuid = authProviders.GetAuthToken();
-        
+
         await using var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
         var requestResult = await requestClient.getRequestObjectAsync(uuid, intRequestId);
-        
+
         await authProviders.Logout();
 
         if (requestResult.data is null)
             throw new(requestResult.statusMessage);
-        
+
         return new(requestResult.data);
     }
 
@@ -37,7 +38,7 @@ public class RequestActions
         [ActionParameter] CreatеRequestRequest request)
     {
         var uuid = authProviders.GetAuthToken();
-        
+
         await using var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
         var requestIdResult = await requestClient.insert2Async(uuid, new()
         {
@@ -47,12 +48,12 @@ public class RequestActions
             orderID = IntParser.Parse(request.OrderId, nameof(request.OrderId)) ?? default,
             subject = request.Subject,
             quotationDate = request.QuotationDate ?? default,
-            status = request.Status ?? default,
+            status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default,
             quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId)) ?? default
         });
-        
+
         await authProviders.Logout();
-        
+
         return new CreatеRequestResponse { RequestId = requestIdResult.data.ToString() };
     }
 
@@ -62,7 +63,7 @@ public class RequestActions
         [ActionParameter] UpdateRequestRequest request)
     {
         var uuid = authProviders.GetAuthToken();
-        
+
         var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
         var response = await requestClient.updateAsync(uuid, new RequestIN
         {
@@ -73,27 +74,28 @@ public class RequestActions
             orderID = IntParser.Parse(request.OrderId, nameof(request.OrderId)) ?? default,
             subject = request.Subject,
             quotationDate = request.QuotationDate ?? default,
-            status = request.Status ?? default,
+            status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default,
             quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId)) ?? default
         }, false);
-        
+
         await authProviders.Logout();
-        
+
         return new BaseResponse { StatusCode = response.statusCode };
     }
 
     [Action("Delete request", Description = "Delete a Plunet request")]
     public async Task<BaseResponse> DeleteRequest(
         List<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Request ID")] string requestId)
+        [ActionParameter] [Display("Request ID")]
+        string requestId)
     {
         var intRequestId = IntParser.Parse(requestId, nameof(requestId))!.Value;
         var uuid = authProviders.GetAuthToken();
-        
+
         await using var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
         var response = await requestClient.deleteAsync(uuid, intRequestId);
         await authProviders.Logout();
-        
+
         return new BaseResponse { StatusCode = response.statusCode };
     }
 }

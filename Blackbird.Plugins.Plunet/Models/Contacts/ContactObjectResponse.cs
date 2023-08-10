@@ -1,15 +1,14 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
+using Blackbird.Plugins.Plunet.Models.Customer;
 
 namespace Blackbird.Plugins.Plunet.Models.Contacts;
 
-public class ContactObjectResponse
+public class ContactObjectResponse : CustomerRequest
 {
     [Display("Cost center")] public string CostCenter { get; set; }
 
     [Display("Customer contact ID")] public string CustomerContactId { get; set; }
-
-    [Display("Customer ID")] public string CustomerId { get; set; }
 
     [Display("Email")] public string Email { get; set; }
 
