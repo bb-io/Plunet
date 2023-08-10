@@ -12,9 +12,9 @@ namespace Blackbird.Plugins.Plunet.Actions;
 [ActionList]
 public class CustomerActions
 {
-    [Action("List customer", Description = "List all customers")]
+    [Action("List customers", Description = "List all customers")]
     public async Task<ListCustomersResponse> ListCustomers(
-        List<AuthenticationCredentialsProvider> authProviders)
+        IEnumerable<AuthenticationCredentialsProvider> authProviders)
     {
         var uuid = authProviders.GetAuthToken();
         var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
@@ -32,7 +32,7 @@ public class CustomerActions
 
     [Action("Get customer by name", Description = "Get the Plunet customer by name")]
     public async Task<GetCustomerResponse> GetCustomerByName(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] [Display("Customer name")]
         string customerName)
     {
@@ -40,10 +40,12 @@ public class CustomerActions
         {
             var uuid = authProviders.GetAuthToken();
             var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
-            var result = (await customerClient.searchAsync(uuid, new SearchFilter_Customer
+            var response = await customerClient.searchAsync(uuid, new SearchFilter_Customer
             {
                 name1 = customerName
-            })).data.FirstOrDefault();
+            });
+
+            var result = response.data?.FirstOrDefault();
 
             if (!result.HasValue)
                 throw new("No customer found");
@@ -63,7 +65,7 @@ public class CustomerActions
 
     [Action("Get customer by ID", Description = "Get the Plunet customer by ID")]
     public async Task<GetCustomerResponse> GetCustomerById(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CustomerRequest input)
     {
         var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
@@ -81,7 +83,7 @@ public class CustomerActions
 
     [Action("Delete customer by name", Description = "Delete the Plunet customer by name")]
     public async Task<BaseResponse> DeleteCustomerByName(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] string customerName)
     {
         try
@@ -106,7 +108,7 @@ public class CustomerActions
     }
 
     [Action("Delete customer by ID", Description = "Delete a Plunet customer by ID")]
-    public async Task<BaseResponse> DeleteCustomerById(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<BaseResponse> DeleteCustomerById(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CustomerRequest input)
     {
         var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
@@ -119,7 +121,7 @@ public class CustomerActions
     }
 
     [Action("Create customer", Description = "Create a new customer in Plunet")]
-    public async Task<CreateCustomerResponse> CreateCustomer(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<CreateCustomerResponse> CreateCustomer(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CreateCustomerRequest request)
     {
         var uuid = authProviders.GetAuthToken();
@@ -150,7 +152,7 @@ public class CustomerActions
     }
 
     [Action("Update customer", Description = "Update Plunet customer")]
-    public async Task<BaseResponse> UpdateCustomer(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<BaseResponse> UpdateCustomer(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] UpdateCustomerRequest request)
     {
         var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
@@ -185,7 +187,7 @@ public class CustomerActions
 
     [Action("Get payment information by customer ID", Description = "Get payment information by Plunet customer ID")]
     public async Task<GetPaymentInfoResponse> GetPaymentInfoByCustomerId(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CustomerRequest input)
     {
         var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
@@ -203,7 +205,7 @@ public class CustomerActions
 
     [Action("Set customer address", Description = "Set Plunet cocustomer address")]
     public async Task<SetCustomerAddressResponse> SetCustomerAddress(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] SetCustomerAddressRequest request)
     {
         var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
@@ -229,7 +231,7 @@ public class CustomerActions
     }
 
     // [Action("Set payment information by customer ID", Description = "Set payment information by Plunet customer ID")]
-    // public async Task<BaseResponse> SetPaymentInfoByCustomerId(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId, [ActionParameter] GetPaymentInfoResponse request)
+    // public async Task<BaseResponse> SetPaymentInfoByCustomerId(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int customerId, [ActionParameter] GetPaymentInfoResponse request)
     // {
     //     var uuid = authProviders.GetAuthToken();
     //     var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());

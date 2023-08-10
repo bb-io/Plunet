@@ -14,7 +14,7 @@ public class RequestActions
 {
     [Action("Get request", Description = "Get details for a Plunet request")]
     public async Task<RequestResponse> GetRequest(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] [Display("Request ID")]
         string requestId)
     {
@@ -34,7 +34,7 @@ public class RequestActions
 
     [Action("Create request", Description = "Create a new request in Plunet")]
     public async Task<CreatеRequestResponse> CreateRequest(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CreatеRequestRequest request)
     {
         var uuid = authProviders.GetAuthToken();
@@ -59,7 +59,7 @@ public class RequestActions
 
     [Action("Update request", Description = "Update Plunet request")]
     public async Task<BaseResponse> UpdateRequest(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] UpdateRequestRequest request)
     {
         var uuid = authProviders.GetAuthToken();
@@ -85,7 +85,7 @@ public class RequestActions
 
     [Action("Delete request", Description = "Delete a Plunet request")]
     public async Task<BaseResponse> DeleteRequest(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] [Display("Request ID")]
         string requestId)
     {

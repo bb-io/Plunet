@@ -8,7 +8,7 @@ namespace Blackbird.Plugins.Plunet.DataSourceHandlers;
 
 public class CustomerIdDataHandler : BaseInvocable, IAsyncDataSourceHandler
 {
-    private List<AuthenticationCredentialsProvider> Creds =>
+    private IEnumerable<AuthenticationCredentialsProvider> Creds =>
         InvocationContext.AuthenticationCredentialsProviders.ToList();
 
     public CustomerIdDataHandler(InvocationContext invocationContext) : base(invocationContext)

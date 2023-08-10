@@ -14,7 +14,7 @@ public class QuoteActions
 {
     [Action("Get quote", Description = "Get details for a Plunet quote")]
     public async Task<QuoteResponse> GetQuote(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] [Display("Quote ID")] string quoteId)
     {
         var intQuoteId = IntParser.Parse(quoteId, nameof(quoteId))!.Value;
@@ -32,7 +32,7 @@ public class QuoteActions
 
     [Action("Create quote", Description = "Create a new quote in Plunet")]
     public async Task<CreateQuoteResponse> CreateQuote(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CreateQuoteRequest request)
     {
         var uuid = authProviders.GetAuthToken();
@@ -56,7 +56,7 @@ public class QuoteActions
     }
 
     //[Action("Create quote based on template", Description = "Create a new quote based on a template")]
-    //public async Task<CreateQuoteResponse> CreateQuoteBasedOnTemplate(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateQuoteRequest request,
+    //public async Task<CreateQuoteResponse> CreateQuoteBasedOnTemplate(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateQuoteRequest request,
     //    [ActionParameter] string templateName)
     //{
     //    var uuid = authProviders.GetAuthToken();
@@ -89,7 +89,7 @@ public class QuoteActions
     //}
 
     //[Action("Add language combination to quote", Description = "Add a new language combination to an existing quote")]
-    //public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToQuote(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] AddLanguageCombinationToQuoteRequest request)
+    //public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToQuote(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter] AddLanguageCombinationToQuoteRequest request)
     //{
     //    var uuid = authProviders.GetAuthToken();
     //    using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
@@ -109,7 +109,7 @@ public class QuoteActions
     //}
 
     //[Action("Request order to quote", Description = "Request order to a Plunet quote")]
-    //public async Task<BaseResponse> RequestOrder(List<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int quoteId)
+    //public async Task<BaseResponse> RequestOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int quoteId)
     //{
     //    var uuid = authProviders.GetAuthToken();
     //    using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
@@ -120,7 +120,7 @@ public class QuoteActions
 
     [Action("Delete quote", Description = "Delete a Plunet quote")]
     public async Task<BaseResponse> DeleteQuote(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] [Display("Quote ID")] string quoteId)
     {
         var intQuoteId = IntParser.Parse(quoteId, nameof(quoteId))!.Value;
@@ -135,7 +135,7 @@ public class QuoteActions
 
     [Action("Update quote", Description = "Update Plunet quote")]
     public async Task<BaseResponse> UpdateQuote(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] UpdateQuoteRequest request)
     {
         var uuid = authProviders.GetAuthToken();

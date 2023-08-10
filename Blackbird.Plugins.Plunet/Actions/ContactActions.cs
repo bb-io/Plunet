@@ -14,7 +14,7 @@ public class ContactActions
 {
     [Action("Get customer contacts", Description = "Get all the contacts of the customer")]
     public async Task<GetContactsResponse> GetCustomerContacts(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CustomerRequest input)
     {
         var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
@@ -28,7 +28,7 @@ public class ContactActions
     }
 
     [Action("Get contact by ID", Description = "Get the Plunet contact by ID")]
-    public async Task<ContactObjectResponse> GetContactById(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<ContactObjectResponse> GetContactById(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] [Display("Contact ID")] string contactId)
     {
         var intContactId = IntParser.Parse(contactId, nameof(contactId))!.Value;
@@ -45,7 +45,7 @@ public class ContactActions
     }
 
     [Action("Create contact", Description = "Create a new contact in Plunet")]
-    public async Task<CreateContactResponse> CreateContact(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<CreateContactResponse> CreateContact(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CreateContactRequest request)
     {
         var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
@@ -77,7 +77,7 @@ public class ContactActions
 
     [Action("Get contact external ID", Description = "Get Plunet contact external ID")]
     public async Task<GetContactExternalIdResponse> GetContactExternalId(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] [Display("Contact ID")] string contactId)
     {
         var intContactId = IntParser.Parse(contactId, nameof(contactId))!.Value;
@@ -91,7 +91,7 @@ public class ContactActions
 
     [Action("Update contact", Description = "Update Plunet contact")]
     public async Task<BaseResponse> UpdateContact(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] UpdateContactRequest request)
     {
         var intContactId = IntParser.Parse(request.ContactId, nameof(request.ContactId))!.Value;

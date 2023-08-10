@@ -18,7 +18,7 @@ public class OrderActions
 {
     [Action("Get order", Description = "Get details for a Plunet order")]
     public async Task<OrderResponse> GetOrder(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] [Display("Order ID")]
         string orderId)
     {
@@ -36,7 +36,7 @@ public class OrderActions
     }
 
     [Action("Create order", Description = "Create a new order in Plunet")]
-    public async Task<CreateOrderResponse> CreateOrder(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<CreateOrderResponse> CreateOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CreateOrderRequest request)
     {
         var uuid = authProviders.GetAuthToken();
@@ -63,7 +63,7 @@ public class OrderActions
     }
 
     [Action("Add item to order", Description = "Add a new item to an order")]
-    public async Task<CreateItemResponse> AddItemToOrder(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<CreateItemResponse> AddItemToOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CreateItemRequest request)
     {
         var uuid = authProviders.GetAuthToken();
@@ -102,7 +102,7 @@ public class OrderActions
 
     [Action("Create order based on template", Description = "Create a new order based on a template")]
     public async Task<CreateOrderResponse> CreateOrderBasedOnTemplate(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CreateOrderRequest request,
         [ActionParameter] [DataSource(typeof(TemplateDataHandler))] [Display("Template")]
         string templateId)
@@ -133,7 +133,7 @@ public class OrderActions
 
     [Action("Add language combination to order", Description = "Add a new language combination to an existing order")]
     public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] AddLanguageCombinationRequest request)
     {
         try
@@ -158,7 +158,7 @@ public class OrderActions
     }
 
     [Action("Set language combination to item", Description = "Set the language combination to an item")]
-    public async Task<BaseResponse> SetLanguageCombinationToItem(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<BaseResponse> SetLanguageCombinationToItem(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] SetLanguageCombinationRequest request)
     {
         var intLangCombId = IntParser.Parse(request.LanguageCombinationId, nameof(request.LanguageCombinationId))!
@@ -179,7 +179,7 @@ public class OrderActions
 
     [Action("Add priceline to item", Description = "Adds a new priceline")]
     public async Task<PriceLineListResponse> AddPriceLinesToItem(
-        List<AuthenticationCredentialsProvider> authProviders,
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] PriceLineRequest request)
     {
         try
@@ -222,7 +222,7 @@ public class OrderActions
     }
 
     [Action("Upload file", Description = "Upload a file to Plunet")]
-    public async Task<BaseResponse> UploadFile(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<BaseResponse> UploadFile(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] UploadDocumentRequest request)
     {
         var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
@@ -238,7 +238,7 @@ public class OrderActions
     }
 
     [Action("Download file", Description = "Download a file from Plunet")]
-    public async Task<FileResponse> DownloadFile(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<FileResponse> DownloadFile(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] DownloadDocumentRequest request)
     {
         var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
@@ -256,7 +256,7 @@ public class OrderActions
     }
 
     [Action("List files", Description = "List files from Plunet")]
-    public async Task<ListFilesResponse> ListFiles(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<ListFilesResponse> ListFiles(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] ListFilesRequest request)
     {
         var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
@@ -272,7 +272,7 @@ public class OrderActions
     }
 
     [Action("Delete order", Description = "Delete a Plunet order")]
-    public async Task<BaseResponse> DeleteOrder(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<BaseResponse> DeleteOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] [Display("Order ID")]
         string orderId)
     {
@@ -287,7 +287,7 @@ public class OrderActions
     }
 
     [Action("Update order", Description = "Update Plunet order")]
-    public async Task<BaseResponse> UpdateOrder(List<AuthenticationCredentialsProvider> authProviders,
+    public async Task<BaseResponse> UpdateOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] UpdateOrderRequest request)
     {
         var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
