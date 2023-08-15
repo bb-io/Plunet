@@ -5,8 +5,11 @@ using Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
 
 namespace Blackbird.Plugins.Plunet.Models.Customer;
 
-public class SetCustomerAddressRequest : CustomerRequest
+public class UpdateCustomerAddressRequest
 {
+    [Display("Address ID")]
+    public string AddressId { get; set; }
+    
     [Display("Address type")]
     [DataSource(typeof(AddressTypeDataHandler))]
     public string AddressType { get; set; }
@@ -31,7 +34,7 @@ public class SetCustomerAddressRequest : CustomerRequest
 
     [Display("Country")]
     [DataSource(typeof(CountryDataSourceHandler))]
-    public string Country { get; set; }
+    public string? Country { get; set; }
     
     public string? Description { get; set; }
 }

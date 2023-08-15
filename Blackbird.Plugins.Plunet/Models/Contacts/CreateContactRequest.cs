@@ -1,4 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Plugins.Plunet.Models.Customer;
 
 namespace Blackbird.Plugins.Plunet.Models.Contacts;
@@ -28,4 +30,7 @@ public class CreateContactRequest : CustomerRequest
     [Display("Cost center")] public string? CostCenter { get; set; }
     
     public string? Fax { get; set; }
+    
+    [DataSource(typeof(ContanctStatusDataHandler))]
+    public string? Status { get; set; }
 }

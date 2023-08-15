@@ -43,5 +43,4 @@ public class CreateCustomerRequest
 
     [Display("User ID")]
     public string? UserId { get; set; }
-    
 }

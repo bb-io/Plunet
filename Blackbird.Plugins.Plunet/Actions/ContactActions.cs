@@ -68,6 +68,7 @@ public class ContactActions
             userId = IntParser.Parse(request.UserId, nameof(request.UserId)) ?? default,
             supervisor1 = request.Supervisor1,
             supervisor2 = request.Supervisor2,
+            status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default
         });
 
         await authProviders.Logout();

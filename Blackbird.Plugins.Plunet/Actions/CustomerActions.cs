@@ -1,6 +1,7 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Plugins.Plunet.Constants;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
@@ -219,7 +220,7 @@ public class CustomerActions
         return new(paymentInfo.data);
     }
 
-    [Action("Set customer address", Description = "Set Plunet cocustomer address")]
+    [Action("Set customer address", Description = "Set Plunet customer address")]
     public async Task<SetCustomerAddressResponse> SetCustomerAddress(
         IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] SetCustomerAddressRequest request)
@@ -242,8 +243,62 @@ public class CustomerActions
         });
 
         await authProviders.Logout();
+        
+        if (response.statusMessage != ApiResponses.Ok)
+            throw new(response.statusMessage);
 
         return new SetCustomerAddressResponse { AddressId = response.data.ToString() };
+    }
+
+    [Action("Update customer address", Description = "Update Plunet customer address")]
+    public async Task<SetCustomerAddressResponse> UpdateCustomerAddress(
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
+        [ActionParameter] UpdateCustomerAddressRequest request)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var addressId = int.Parse(request.AddressId);
+        
+        var addressClient = Clients.GetCustomerAddressClient(authProviders.GetInstanceUrl());
+
+        var response = await addressClient.updateAsync(uuid, new()
+        {
+            addressID = addressId,
+            name1 = request.FirstAddressName,
+            city = request.City,
+            addressType = IntParser.Parse(request.AddressType, nameof(request.AddressType)) ?? default,
+            street = request.Street,
+            street2 = request.Street2,
+            zip = request.ZipCode,
+            country = request.Country,
+            state = request.State,
+            description = request.Description
+        }, false);
+
+        await authProviders.Logout();
+        
+        if (response.statusMessage != ApiResponses.Ok)
+            throw new(response.statusMessage);
+
+        return new SetCustomerAddressResponse { AddressId = addressId.ToString() };
+    }
+
+    [Action("Get customer addresses", Description = "Get all Plunet customer address IDs")]
+    public async Task<ListAddressesResponse> GetAllAddresses(
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
+        [ActionParameter] CustomerRequest request)
+    {
+        var uuid = authProviders.GetAuthToken();
+        var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
+        
+        var addressClient = Clients.GetCustomerAddressClient(authProviders.GetInstanceUrl());
+        var response = await addressClient.getAllAddressesAsync(uuid, intCustomerId);
+
+        await authProviders.Logout();
+        
+        if (response.statusMessage != ApiResponses.Ok)
+            throw new(response.statusMessage);
+
+        return new(response.data);
     }
 
     // [Action("Set payment information by customer ID", Description = "Set payment information by Plunet customer ID")]

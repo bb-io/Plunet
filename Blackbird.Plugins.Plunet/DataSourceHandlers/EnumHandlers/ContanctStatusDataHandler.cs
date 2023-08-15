@@ -2,12 +2,13 @@
 
 namespace Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
 
-public class AddressTypeDataHandler : EnumDataHandler
+public class ContanctStatusDataHandler : EnumDataHandler
 {
     protected override Dictionary<string, string> EnumValues => new()
     {
-        { "1", "Shipping address" },
-        { "2", "Billing address" },
-        { "3", "Other" },
+        { "1", "Active" },
+        { "2", "Not active" },
+        { "3", "Contacted" },
+        { "4", "Deletion requested" },
     };
 }
