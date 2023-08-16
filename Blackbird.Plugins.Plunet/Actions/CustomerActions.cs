@@ -316,7 +316,12 @@ public class CustomerActions
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
-        return new(response.data);
+        var addresses = response.data
+            .Where(x => x is not null)
+            .Select(x => x.Value)
+            .ToList();
+        
+        return new(addresses);
     }
 
     // [Action("Set payment information by customer ID", Description = "Set payment information by Plunet customer ID")]
