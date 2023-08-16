@@ -318,7 +318,7 @@ public class CustomerActions
 
         var addresses = response.data
             .Where(x => x is not null)
-            .Select(x => x.Value)
+            .Select(x => x.Value.ToString())
             .ToList();
         
         return new(addresses);

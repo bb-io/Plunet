@@ -1,3 +1,3 @@
 ﻿namespace Blackbird.Plugins.Plunet.Models.Customer;
 
-public record ListAddressesResponse(List<int> Addresses);
+public record ListAddressesResponse(List<string> Addresses);
