@@ -29,8 +29,8 @@ public class CustomerActions
         var customers = resposne.CustomerListResult.data
             .Select(x => new GetCustomerResponse(x)).ToArray();
         return new(customers);
-    }  
-    
+    }
+
     [Action("Does customer exist", Description = "Checks if the customer with the specified name exists")]
     public async Task<bool> DoesCustomerExists(
         IEnumerable<AuthenticationCredentialsProvider> authProviders,
@@ -138,9 +138,14 @@ public class CustomerActions
     }
 
     [Action("Create customer", Description = "Create a new customer in Plunet")]
-    public async Task<CreateCustomerResponse> CreateCustomer(IEnumerable<AuthenticationCredentialsProvider> authProviders,
+    public async Task<CreateCustomerResponse> CreateCustomer(
+        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] CreateCustomerRequest request)
     {
+        if (request.AddressType == null ^ request.Country == null)
+            throw new(
+                "Both address type and country must be specified to create customer with address or not specified at all");
+
         var uuid = authProviders.GetAuthToken();
         var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
         var customerIdResult = await customerClient.insert2Async(uuid, new()
@@ -163,9 +168,21 @@ public class CustomerActions
             userId = IntParser.Parse(request.UserId, nameof(request.UserId)) ?? default,
         });
 
+        var customerId = customerIdResult.data.ToString();
+        var address = request.AddressType is null
+            ? null
+            : await SetCustomerAddress(authProviders, new()
+            {
+                CustomerId = customerId
+            }, new(request));
+
         await authProviders.Logout();
 
-        return new CreateCustomerResponse { CustomerId = customerIdResult.data.ToString() };
+        return new CreateCustomerResponse
+        {
+            CustomerId = customerId,
+            AddressId = address?.AddressId
+        };
     }
 
     [Action("Update customer", Description = "Update Plunet customer")]
@@ -223,9 +240,10 @@ public class CustomerActions
     [Action("Set customer address", Description = "Set Plunet customer address")]
     public async Task<SetCustomerAddressResponse> SetCustomerAddress(
         IEnumerable<AuthenticationCredentialsProvider> authProviders,
+        [ActionParameter] CustomerRequest customer,
         [ActionParameter] SetCustomerAddressRequest request)
     {
-        var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
+        var intCustomerId = IntParser.Parse(customer.CustomerId, nameof(customer.CustomerId))!.Value;
         var uuid = authProviders.GetAuthToken();
 
         var addressClient = Clients.GetCustomerAddressClient(authProviders.GetInstanceUrl());
@@ -243,7 +261,7 @@ public class CustomerActions
         });
 
         await authProviders.Logout();
-        
+
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
@@ -257,7 +275,7 @@ public class CustomerActions
     {
         var uuid = authProviders.GetAuthToken();
         var addressId = int.Parse(request.AddressId);
-        
+
         var addressClient = Clients.GetCustomerAddressClient(authProviders.GetInstanceUrl());
 
         var response = await addressClient.updateAsync(uuid, new()
@@ -275,7 +293,7 @@ public class CustomerActions
         }, false);
 
         await authProviders.Logout();
-        
+
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
@@ -289,12 +307,12 @@ public class CustomerActions
     {
         var uuid = authProviders.GetAuthToken();
         var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
-        
+
         var addressClient = Clients.GetCustomerAddressClient(authProviders.GetInstanceUrl());
         var response = await addressClient.getAllAddressesAsync(uuid, intCustomerId);
 
         await authProviders.Logout();
-        
+
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
