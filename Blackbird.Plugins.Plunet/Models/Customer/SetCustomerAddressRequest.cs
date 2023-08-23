@@ -38,14 +38,19 @@ public class SetCustomerAddressRequest
     
     public SetCustomerAddressRequest(CreateCustomerRequest createCustomer)
     {
-        AddressType = createCustomer.AddressType;
+        AddressType = createCustomer.AddressType ?? string.Empty;
         FirstAddressName = createCustomer.FirstAddressName;
         Street = createCustomer.Street;
         Street2 = createCustomer.Street2;
         ZipCode = createCustomer.ZipCode;
         City = createCustomer.City;
         State = createCustomer.State;
-        Country = createCustomer.Country;
+        Country = createCustomer.Country ?? string.Empty;
         Description = createCustomer.Description;
+    }    
+    
+    public SetCustomerAddressRequest()
+    {
+
     }
 }
