@@ -1,3 +1,5 @@
-﻿namespace Blackbird.Plugins.Plunet.Models;
+﻿using File = Blackbird.Applications.Sdk.Common.Files.File;
 
-public record FileResponse(byte[] File);
+namespace Blackbird.Plugins.Plunet.Models;
+
+public record FileResponse(File File);

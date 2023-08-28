@@ -1,6 +1,7 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
+using File = Blackbird.Applications.Sdk.Common.Files.File;
 
 namespace Blackbird.Plugins.Plunet.Models.Order;
 
@@ -13,8 +14,7 @@ public class UploadDocumentRequest
     [DataSource(typeof(FolderTypeDataHandler))]
     public string FolderType { get; set; }
 
-    [Display("File сontent bytes")]
-    public byte[] FileContentBytes { get; set; }
+    public File File { get; set; }
 
     [Display("File path")]
     public string FilePath { get; set; }

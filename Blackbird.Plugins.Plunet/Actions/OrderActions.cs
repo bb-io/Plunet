@@ -1,4 +1,5 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using System.Net.Mime;
+using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -231,7 +232,7 @@ public class OrderActions
 
         await using var dataDocumentClient = Clients.GetDocumentClient(authProviders.GetInstanceUrl());
         var response = await dataDocumentClient.upload_DocumentAsync(uuid, intOrderId, intFoldType,
-            request.FileContentBytes, request.FilePath, request.FileContentBytes.Length);
+            request.File.Bytes, request.FilePath, request.File.Bytes.Length);
         await authProviders.Logout();
 
         return new BaseResponse { StatusCode = response.Result.statusCode };
@@ -252,7 +253,11 @@ public class OrderActions
 
         await authProviders.Logout();
 
-        return new(response.fileContent);
+        return new(new(response.fileContent)
+        {
+            Name = response.filename,
+            ContentType = MediaTypeNames.Application.Octet
+        });
     }
 
     [Action("List files", Description = "List files from Plunet")]
