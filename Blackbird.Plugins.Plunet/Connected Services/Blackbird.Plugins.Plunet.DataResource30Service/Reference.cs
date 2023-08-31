@@ -2195,15 +2195,15 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
         /// <param name="clientCredentials">The client credentials</param>
         static partial void ConfigureEndpoint(System.ServiceModel.Description.ServiceEndpoint serviceEndpoint, System.ServiceModel.Description.ClientCredentials clientCredentials);
         
-        public DataResource30Client() : 
-                base(DataResource30Client.GetDefaultBinding(), DataResource30Client.GetDefaultEndpointAddress())
+        public DataResource30Client(Uri url) : 
+                base(DataResource30Client.GetDefaultBinding(), DataResource30Client.GetDefaultEndpointAddress(url.ToString().TrimEnd('/')))
         {
             this.Endpoint.Name = EndpointConfiguration.DataResource30Port.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
         
-        public DataResource30Client(EndpointConfiguration endpointConfiguration) : 
-                base(DataResource30Client.GetBindingForEndpoint(endpointConfiguration), DataResource30Client.GetEndpointAddress(endpointConfiguration))
+        public DataResource30Client(EndpointConfiguration endpointConfiguration, Uri url) : 
+                base(DataResource30Client.GetBindingForEndpoint(endpointConfiguration), DataResource30Client.GetEndpointAddress(endpointConfiguration, url.ToString().TrimEnd('/')))
         {
             this.Endpoint.Name = endpointConfiguration.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
@@ -2576,11 +2576,11 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
         
-        private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration)
+        private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration, string url)
         {
             if ((endpointConfiguration == EndpointConfiguration.DataResource30Port))
             {
-                return new System.ServiceModel.EndpointAddress("https://test71.plunet.com/DataResource30");
+                return new System.ServiceModel.EndpointAddress($"{url}/DataResource30");
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
@@ -2590,9 +2590,9 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
             return DataResource30Client.GetBindingForEndpoint(EndpointConfiguration.DataResource30Port);
         }
         
-        private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress()
+        private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress(string url)
         {
-            return DataResource30Client.GetEndpointAddress(EndpointConfiguration.DataResource30Port);
+            return DataResource30Client.GetEndpointAddress(EndpointConfiguration.DataResource30Port, url);
         }
         
         public enum EndpointConfiguration

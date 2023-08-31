@@ -633,15 +633,15 @@ namespace DataResourceAddress30Service
         /// <param name="clientCredentials">The client credentials</param>
         static partial void ConfigureEndpoint(System.ServiceModel.Description.ServiceEndpoint serviceEndpoint, System.ServiceModel.Description.ClientCredentials clientCredentials);
         
-        public DataResourceAddress30Client() : 
-                base(DataResourceAddress30Client.GetDefaultBinding(), DataResourceAddress30Client.GetDefaultEndpointAddress())
+        public DataResourceAddress30Client(Uri url) : 
+                base(DataResourceAddress30Client.GetDefaultBinding(), DataResourceAddress30Client.GetDefaultEndpointAddress(url.ToString().TrimEnd('/')))
         {
             this.Endpoint.Name = EndpointConfiguration.DataResourceAddress30Port.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
         
-        public DataResourceAddress30Client(EndpointConfiguration endpointConfiguration) : 
-                base(DataResourceAddress30Client.GetBindingForEndpoint(endpointConfiguration), DataResourceAddress30Client.GetEndpointAddress(endpointConfiguration))
+        public DataResourceAddress30Client(EndpointConfiguration endpointConfiguration, Uri url) : 
+                base(DataResourceAddress30Client.GetBindingForEndpoint(endpointConfiguration), DataResourceAddress30Client.GetEndpointAddress(endpointConfiguration, url.ToString().TrimEnd('/')))
         {
             this.Endpoint.Name = endpointConfiguration.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
@@ -969,11 +969,11 @@ namespace DataResourceAddress30Service
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
         
-        private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration)
+        private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration, string url)
         {
             if ((endpointConfiguration == EndpointConfiguration.DataResourceAddress30Port))
             {
-                return new System.ServiceModel.EndpointAddress("https://test71.plunet.com/DataResourceAddress30");
+                return new System.ServiceModel.EndpointAddress($"{url}/DataResourceAddress30");
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
@@ -983,9 +983,9 @@ namespace DataResourceAddress30Service
             return DataResourceAddress30Client.GetBindingForEndpoint(EndpointConfiguration.DataResourceAddress30Port);
         }
         
-        private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress()
+        private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress(string url)
         {
-            return DataResourceAddress30Client.GetEndpointAddress(EndpointConfiguration.DataResourceAddress30Port);
+            return DataResourceAddress30Client.GetEndpointAddress(EndpointConfiguration.DataResourceAddress30Port, url);
         }
         
         public enum EndpointConfiguration

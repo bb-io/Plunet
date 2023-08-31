@@ -2252,15 +2252,15 @@ namespace Blackbird.Plugins.Plunet.DataJob30Service
         /// <param name="clientCredentials">The client credentials</param>
         static partial void ConfigureEndpoint(System.ServiceModel.Description.ServiceEndpoint serviceEndpoint, System.ServiceModel.Description.ClientCredentials clientCredentials);
         
-        public DataJob30Client() : 
-                base(DataJob30Client.GetDefaultBinding(), DataJob30Client.GetDefaultEndpointAddress())
+        public DataJob30Client(Uri url) : 
+                base(DataJob30Client.GetDefaultBinding(), DataJob30Client.GetDefaultEndpointAddress(url.ToString().TrimEnd('/')))
         {
             this.Endpoint.Name = EndpointConfiguration.DataJob30Port.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
         
-        public DataJob30Client(EndpointConfiguration endpointConfiguration) : 
-                base(DataJob30Client.GetBindingForEndpoint(endpointConfiguration), DataJob30Client.GetEndpointAddress(endpointConfiguration))
+        public DataJob30Client(EndpointConfiguration endpointConfiguration, Uri url) : 
+                base(DataJob30Client.GetBindingForEndpoint(endpointConfiguration), DataJob30Client.GetEndpointAddress(endpointConfiguration, url.ToString().TrimEnd('/')))
         {
             this.Endpoint.Name = endpointConfiguration.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
@@ -2634,11 +2634,11 @@ namespace Blackbird.Plugins.Plunet.DataJob30Service
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
         
-        private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration)
+        private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration, string url)
         {
             if ((endpointConfiguration == EndpointConfiguration.DataJob30Port))
             {
-                return new System.ServiceModel.EndpointAddress("https://test71.plunet.com/DataJob30");
+                return new System.ServiceModel.EndpointAddress($"{url}/DataJob30");
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
@@ -2648,9 +2648,9 @@ namespace Blackbird.Plugins.Plunet.DataJob30Service
             return DataJob30Client.GetBindingForEndpoint(EndpointConfiguration.DataJob30Port);
         }
         
-        private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress()
+        private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress(string url)
         {
-            return DataJob30Client.GetEndpointAddress(EndpointConfiguration.DataJob30Port);
+            return DataJob30Client.GetEndpointAddress(EndpointConfiguration.DataJob30Port, url);
         }
         
         public enum EndpointConfiguration

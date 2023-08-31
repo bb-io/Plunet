@@ -4,6 +4,8 @@ using RestSharp;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Xml.Linq;
+using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
 
 namespace Blackbird.Plugins.Plunet.Webhooks.Utils
 {
@@ -11,14 +13,15 @@ namespace Blackbird.Plugins.Plunet.Webhooks.Utils
     {
         private readonly string _serviceName;
         private readonly string _tagName;
-        private const string BlackbirdPlunetUrl = "https://test71.plunet.com/";
+        private string Url { get; }
 
-        private string WsdlServiceUrl => $"{BlackbirdPlunetUrl}{_serviceName}";
+        private string WsdlServiceUrl => $"{Url}/{_serviceName}";
 
-        public CallbackServiceEmulator(string serviceName, string tagName)
+        public CallbackServiceEmulator(string serviceName, string tagName, IEnumerable<AuthenticationCredentialsProvider> creds)
         {
             _serviceName = serviceName;
             _tagName = tagName;
+            Url = creds.Get(AppConstants.UrlNameKey).Value;
         }
 
         public Task<WebhookResponse<TriggerContent>> HandleWsdlRequset(WebhookRequest webhookRequest)

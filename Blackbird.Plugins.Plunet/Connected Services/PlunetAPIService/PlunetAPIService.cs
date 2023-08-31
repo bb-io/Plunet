@@ -185,15 +185,15 @@ namespace Blackbird.Plugins.Plunet.PlunetAPIService
         /// <param name="clientCredentials">The client credentials</param>
         static partial void ConfigureEndpoint(System.ServiceModel.Description.ServiceEndpoint serviceEndpoint, System.ServiceModel.Description.ClientCredentials clientCredentials);
         
-        public PlunetAPIClient() : 
-                base(PlunetAPIClient.GetDefaultBinding(), PlunetAPIClient.GetDefaultEndpointAddress())
+        public PlunetAPIClient(Uri url) : 
+                base(PlunetAPIClient.GetDefaultBinding(), PlunetAPIClient.GetDefaultEndpointAddress(url.ToString().TrimEnd('/')))
         {
             this.Endpoint.Name = EndpointConfiguration.PlunetAPIPort.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
         
-        public PlunetAPIClient(EndpointConfiguration endpointConfiguration) : 
-                base(PlunetAPIClient.GetBindingForEndpoint(endpointConfiguration), PlunetAPIClient.GetEndpointAddress(endpointConfiguration))
+        public PlunetAPIClient(EndpointConfiguration endpointConfiguration, Uri url) : 
+                base(PlunetAPIClient.GetBindingForEndpoint(endpointConfiguration), PlunetAPIClient.GetEndpointAddress(endpointConfiguration, url.ToString().TrimEnd('/')))
         {
             this.Endpoint.Name = endpointConfiguration.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
@@ -271,11 +271,11 @@ namespace Blackbird.Plugins.Plunet.PlunetAPIService
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
         
-        private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration)
+        private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration, string url)
         {
             if ((endpointConfiguration == EndpointConfiguration.PlunetAPIPort))
             {
-                return new System.ServiceModel.EndpointAddress("https://test71.plunet.com/PlunetAPI");
+                return new System.ServiceModel.EndpointAddress($"{url}/PlunetAPI");
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
@@ -285,9 +285,9 @@ namespace Blackbird.Plugins.Plunet.PlunetAPIService
             return PlunetAPIClient.GetBindingForEndpoint(EndpointConfiguration.PlunetAPIPort);
         }
         
-        private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress()
+        private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress(string url)
         {
-            return PlunetAPIClient.GetEndpointAddress(EndpointConfiguration.PlunetAPIPort);
+            return PlunetAPIClient.GetEndpointAddress(EndpointConfiguration.PlunetAPIPort, url);
         }
         
         public enum EndpointConfiguration

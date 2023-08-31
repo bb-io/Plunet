@@ -144,8 +144,10 @@ public class OrderActions
 
             await using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
             var langCombination =
-                await ClientHelper.GetLanguageNamesCombinationByLanguageCodeIso(uuid,
-                    new(request.SourceLanguageCode, request.TargetLanguageCode));
+                await ClientHelper.GetLanguageNamesCombinationByLanguageCodeIso(
+                    uuid,
+                    new(request.SourceLanguageCode, request.TargetLanguageCode),
+                    authProviders);
 
             var result = await orderClient.addLanguageCombinationAsync(uuid, langCombination.Source,
                 langCombination.Target, intOrderId);

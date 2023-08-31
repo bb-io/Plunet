@@ -1,15 +1,17 @@
-﻿using Blackbird.Plugins.Plunet.DataAdmin30Service;
+﻿using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Plugins.Plunet.DataAdmin30Service;
+using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
 
 namespace Blackbird.Plugins.Plunet.Utils;
 
 public static class ClientHelper
 {
-    public static async Task<LanguageCombination> GetLanguageNamesCombinationByLanguageCodeIso(
-        string token,
-        LanguageCombination combination)
+    public static async Task<LanguageCombination> GetLanguageNamesCombinationByLanguageCodeIso(string token,
+        LanguageCombination combination,
+        IEnumerable<AuthenticationCredentialsProvider> creds)
     {
-        await using var adminClient = new DataAdmin30Client();
+        await using var adminClient = new DataAdmin30Client(creds.GetInstanceUri());
         var availableLanguagesResult = await adminClient.getAvailableLanguagesAsync(token, "en");
 
         if (availableLanguagesResult.data == null || availableLanguagesResult.data.Length == 0)

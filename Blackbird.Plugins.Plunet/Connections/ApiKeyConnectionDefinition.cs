@@ -28,7 +28,7 @@ public class ApiKeyConnectionDefinition : IConnectionDefinition
         {
             CreateAuthorizationCredentialsProvider(values),
             new(AuthenticationCredentialsRequestLocation.None,
-                AppConstants.UrlNameKey, values[AppConstants.UrlNameKey])
+                AppConstants.UrlNameKey, values[AppConstants.UrlNameKey].TrimEnd('/'))
         };
     }
 
