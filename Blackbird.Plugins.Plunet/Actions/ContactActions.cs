@@ -56,8 +56,8 @@ public class ContactActions
         var contactIdResult = await dataCustomerContactClient.insert2Async(uuid, new()
         {
             customerID = intCustomerId,
-            name1 = request.FirstName,
-            name2 = request.LastName,
+            name1 = request.LastName,
+            name2 = request.FirstName,
             email = request.Email,
             phone = request.Phone,
             mobilePhone = request.MobilePhone,
