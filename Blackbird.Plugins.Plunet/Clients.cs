@@ -9,6 +9,7 @@ using Blackbird.Plugins.Plunet.DataResource30Service;
 using Blackbird.Plugins.Plunet.DataRequest30Service;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
 using Blackbird.Plugins.Plunet.DataJob30Service;
+using Blackbird.Plugins.Plunet.DataPayable30Service;
 using DataResourceAddress30Service;
 using DataCustomerAddress30Service;
 
@@ -23,6 +24,7 @@ namespace Blackbird.Plugins.Plunet
         public static DataDocument30Client GetDocumentClient(string url) => new(DataDocument30Client.EndpointConfiguration.DataDocument30Port, url.TrimEnd('/') + "/DataDocument30");
         public static DataItem30Client GetItemClient(string url) => new(DataItem30Client.EndpointConfiguration.DataItem30Port, url.TrimEnd('/') + "/DataItem30");
         public static DataOrder30Client GetOrderClient(string url) => new(DataOrder30Client.EndpointConfiguration.DataOrder30Port, url.TrimEnd('/') + "/DataOrder30");
+        public static DataPayable30Client GetPayableClient(string url) => new(DataPayable30Client.EndpointConfiguration.DataPayable30Port, url.TrimEnd('/') + "/DataPayable30");
         public static DataResource30Client GetResourceClient(string url) => new(DataResource30Client.EndpointConfiguration.DataResource30Port, url.TrimEnd('/') + "/DataResource30");
         public static DataRequest30Client GetRequestClient(string url) => new(DataRequest30Client.EndpointConfiguration.DataRequest30Port, url.TrimEnd('/') + "/DataRequest30");
         public static DataQuote30Client GetQuoteClient(string url) => new(DataQuote30Client.EndpointConfiguration.DataQuote30Port, url.TrimEnd('/') + "/DataQuote30");
