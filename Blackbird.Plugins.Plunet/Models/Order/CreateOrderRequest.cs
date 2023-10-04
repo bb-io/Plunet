@@ -7,6 +7,7 @@ namespace Blackbird.Plugins.Plunet.Models.Order;
 public class CreateOrderRequest
 {
     [Display("Project manager ID")]
+    [DataSource(typeof(ProjectManagerIdDataHandler))]
     public string ProjectManagerId { get; set; }
     
     [Display("Customer")]

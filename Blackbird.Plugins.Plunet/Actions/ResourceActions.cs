@@ -1,9 +1,11 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Invocables;
+using Blackbird.Plugins.Plunet.Models.Customer;
 using Blackbird.Plugins.Plunet.Models.Resource.Response;
 
 namespace Blackbird.Plugins.Plunet.Actions;
@@ -14,7 +16,23 @@ public class ResourceActions : PlunetInvocable
     public ResourceActions(InvocationContext invocationContext) : base(invocationContext)
     {
     }
-    
+
+    [Action("List resources", Description = "List all resources")]
+    public async Task<ListResourceResponse> ListResources(
+        IEnumerable<AuthenticationCredentialsProvider> authProviders)
+    {
+        var uuid = Creds.GetAuthToken();
+        await using var client = Clients.GetResourceClient(Creds.GetInstanceUrl());
+        var statuses = new int?[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+        var resources = await client.getAllResourceObjects2Async(uuid, statuses, statuses);
+
+        await authProviders.Logout();
+
+        var customers = resources.ResourceListResult.data
+            .Select(x => new ResourceResponse(x)).ToArray();
+        return new(customers);
+    }
+
     [Action("Get payable resource", Description = "Get resource ID of a specific payable")]
     public async Task<ResourceResponse> GetPayableResource(
         [ActionParameter] [Display("Payable ID")] string payableId)
