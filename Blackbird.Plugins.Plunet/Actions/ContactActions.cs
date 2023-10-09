@@ -1,6 +1,8 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Plugins.Plunet.DataSourceHandlers;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Contacts;
@@ -27,9 +29,34 @@ public class ContactActions
         return new GetContactsResponse { CustomerContacts = contacts.data.Select(x => new ContactObjectResponse(x)) };
     }
 
+    [Action("List contacts", Description = "List contacts")]
+    public async Task<GetContactsResponse> GetCustomerContacts2(
+        IEnumerable<AuthenticationCredentialsProvider> authProviders)
+    {
+        var uuid = authProviders.GetAuthToken();
+        await using var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
+        await using var contactClient = Clients.GetContactClient(authProviders.GetInstanceUrl());
+
+        var allStatuses = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
+        var customers = await customerClient
+            .getAllCustomerObjects2Async(uuid, Array.ConvertAll(allStatuses, i => (int?)i));
+
+        var allContacts = new List<ContactObjectResponse>();
+        foreach (var customer in customers.CustomerListResult.data)
+        {
+            var contacts = await contactClient.getAllContactObjectsAsync(uuid, customer.customerID);
+            if(contacts.data != null)
+            {
+                allContacts.AddRange(contacts.data.Select(c => new ContactObjectResponse(c)));
+            }
+        }
+        await authProviders.Logout();
+        return new GetContactsResponse() { CustomerContacts = allContacts.DistinctBy(x => x.CustomerContactId) };
+    }
+
     [Action("Get contact by ID", Description = "Get the Plunet contact by ID")]
     public async Task<ContactObjectResponse> GetContactById(IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Contact ID")] string contactId)
+        [ActionParameter] [Display("Contact ID")] [DataSource(typeof(ContactIdDataHandler))] string contactId)
     {
         var intContactId = IntParser.Parse(contactId, nameof(contactId))!.Value;
         var uuid = authProviders.GetAuthToken();

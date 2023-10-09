@@ -22,6 +22,7 @@ public class CreateOrderRequest
     public DateTime? Deadline { get; set; }
 
     [Display("Contact ID")]
+    [DataSource(typeof(ContactIdDataHandler))]
     public string? ContactId { get; set; }
     
     public string? Currency { get; set; }
