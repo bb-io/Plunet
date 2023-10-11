@@ -20,7 +20,7 @@ public class OrderActions
     [Action("Get order", Description = "Get details for a Plunet order")]
     public async Task<OrderResponse> GetOrder(
         IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Order ID")]
+        [ActionParameter] [Display("Order ID")] [DataSource(typeof(OrderIdDataHandler))]
         string orderId)
     {
         var intOrderId = IntParser.Parse(orderId, nameof(orderId))!.Value;

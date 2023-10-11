@@ -1,5 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Plugins.Plunet.DataSourceHandlers;
 using Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
 
 namespace Blackbird.Plugins.Plunet.Models.Request;
@@ -20,6 +21,7 @@ public class CreatеRequestRequest
     public DateTime? DeliveryDate { get; set; }
 
     [Display("Order ID")]
+    [DataSource(typeof(OrderIdDataHandler))]
     public string? OrderId { get; set; }
 
     [Display("Quotation date")]
