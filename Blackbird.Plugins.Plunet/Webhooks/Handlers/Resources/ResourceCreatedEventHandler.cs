@@ -7,13 +7,13 @@ namespace Blackbird.Plugins.Plunet.Webhooks.Handlers.Resources;
 
 public class ResourceCreatedEventHandler : IWebhookEventHandler
 {
-    public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
+    public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds, Dictionary<string, string> values)
     {
-        await ResourceClient.RegisterCallback(authenticationCredentialsProviders, values, EventType.NewEntryCreated);
+        await ResourceClient.RegisterCallback(creds, values, EventType.NewEntryCreated);
     }
 
-    public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
+    public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds, Dictionary<string, string> values)
     {
-        await ResourceClient.DeregisterCallback(authenticationCredentialsProviders, EventType.NewEntryCreated);
+        await ResourceClient.DeregisterCallback(creds, EventType.NewEntryCreated);
     }
 }

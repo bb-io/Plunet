@@ -1,12 +1,14 @@
 ﻿using System.Net.Mime;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
 using Blackbird.Plugins.Plunet.DataSourceHandlers;
 using Blackbird.Plugins.Plunet.Extensions;
+using Blackbird.Plugins.Plunet.Invocables;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Item;
 using Blackbird.Plugins.Plunet.Models.Order;
@@ -15,20 +17,22 @@ using Blackbird.Plugins.Plunet.Utils;
 namespace Blackbird.Plugins.Plunet.Actions;
 
 [ActionList]
-public class OrderActions
+public class OrderActions : PlunetInvocable
 {
+    public OrderActions(InvocationContext invocationContext) : base(invocationContext)
+    {
+    }
+
     [Action("Get order", Description = "Get details for a Plunet order")]
-    public async Task<OrderResponse> GetOrder(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Order ID")] [DataSource(typeof(OrderIdDataHandler))]
-        string orderId)
+    public async Task<OrderResponse> GetOrder([ActionParameter] [Display("Order ID")] [DataSource(typeof(OrderIdDataHandler))] string orderId)
     {
         var intOrderId = IntParser.Parse(orderId, nameof(orderId))!.Value;
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
 
-        await using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
+        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
         var orderResult = await orderClient.getOrderObjectAsync(uuid, intOrderId);
-        await authProviders.Logout();
+
+        await Creds.Logout();
 
         if (orderResult.data is null)
             throw new(orderResult.statusMessage);
@@ -37,12 +41,11 @@ public class OrderActions
     }
 
     [Action("Create order", Description = "Create a new order in Plunet")]
-    public async Task<CreateOrderResponse> CreateOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] CreateOrderRequest request)
+    public async Task<CreateOrderResponse> CreateOrder([ActionParameter] CreateOrderRequest request)
     {
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
 
-        await using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
+        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
         var orderIdResult = await orderClient.insert2Async(uuid, new()
         {
             projectName = request.ProjectName,
@@ -58,18 +61,20 @@ public class OrderActions
             referenceNumber = request.ReferenceNumber
         });
 
-        await authProviders.Logout();
+        await Creds.Logout();
 
-        return new CreateOrderResponse { OrderId = orderIdResult.data.ToString() };
+        return new()
+        {
+            OrderId = orderIdResult.data.ToString()
+        };
     }
 
     [Action("Add item to order", Description = "Add a new item to an order")]
-    public async Task<CreateItemResponse> AddItemToOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] CreateItemRequest request)
+    public async Task<CreateItemResponse> AddItemToOrder([ActionParameter] CreateItemRequest request)
     {
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
 
-        await using var itemClient = Clients.GetItemClient(authProviders.GetInstanceUrl());
+        await using var itemClient = Clients.GetItemClient(Creds.GetInstanceUrl());
         var itemIdResult = await itemClient.insert2Async(uuid, new()
         {
             briefDescription = request.ItemName,
@@ -81,36 +86,36 @@ public class OrderActions
             status = request.Status ?? default,
         });
 
-        await authProviders.Logout();
+        await Creds.Logout();
 
-        return new CreateItemResponse { ItemId = itemIdResult.data.ToString() };
+        return new()
+        {
+            ItemId = itemIdResult.data.ToString()
+        };
     }
 
     [Action("List templates", Description = "List all templates")]
-    public async Task<ListTemplatesResponse> ListTemplates(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders)
+    public async Task<ListTemplatesResponse> ListTemplates()
     {
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
 
-        await using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
+        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
         var response = await orderClient.getTemplateListAsync(uuid);
 
-        await authProviders.Logout();
+        await Creds.Logout();
 
         var templates = response.data.Select(x => new TemplateResponse(x)).ToArray();
         return new(templates);
     }
 
     [Action("Create order based on template", Description = "Create a new order based on a template")]
-    public async Task<CreateOrderResponse> CreateOrderBasedOnTemplate(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] CreateOrderRequest request,
+    public async Task<CreateOrderResponse> CreateOrderBasedOnTemplate([ActionParameter] CreateOrderRequest request,
         [ActionParameter] [DataSource(typeof(TemplateDataHandler))] [Display("Template")]
         string templateId)
     {
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
 
-        await using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
+        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
         var order = new OrderIN
         {
             projectName = request.ProjectName,
@@ -127,70 +132,69 @@ public class OrderActions
         };
 
         var orderIdResult = await orderClient.insert_byTemplateAsync(uuid, order, int.Parse(templateId));
-        await authProviders.Logout();
+        await Creds.Logout();
 
-        return new CreateOrderResponse { OrderId = orderIdResult.data.ToString() };
+        return new()
+        {
+            OrderId = orderIdResult.data.ToString()
+        };
     }
 
     [Action("Add language combination to order", Description = "Add a new language combination to an existing order")]
     public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders,
         [ActionParameter] AddLanguageCombinationRequest request)
     {
         try
         {
             var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
-            var uuid = authProviders.GetAuthToken();
+            var uuid = Creds.GetAuthToken();
 
-            await using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
+            await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
             var langCombination =
                 await ClientHelper.GetLanguageNamesCombinationByLanguageCodeIso(
                     uuid,
                     new(request.SourceLanguageCode, request.TargetLanguageCode),
-                    authProviders);
+                    Creds);
 
             var result = await orderClient.addLanguageCombinationAsync(uuid, langCombination.Source,
                 langCombination.Target, intOrderId);
 
-            return new AddLanguageCombinationResponse { LanguageCombinationId = result.data.ToString() };
+            return new()
+            {
+                LanguageCombinationId = result.data.ToString()
+            };
         }
         finally
         {
-            await authProviders.Logout();
+            await Creds.Logout();
         }
     }
 
     [Action("Set language combination to item", Description = "Set the language combination to an item")]
-    public async Task<BaseResponse> SetLanguageCombinationToItem(IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] SetLanguageCombinationRequest request)
+    public async Task SetLanguageCombinationToItem([ActionParameter] SetLanguageCombinationRequest request)
     {
         var intLangCombId = IntParser.Parse(request.LanguageCombinationId, nameof(request.LanguageCombinationId))!
             .Value;
         var intItemId = IntParser.Parse(request.ItemId, nameof(request.ItemId))!.Value;
-        var uuid = authProviders.GetAuthToken();
 
-        await using var itemClient = Clients.GetItemClient(authProviders.GetInstanceUrl());
-        var response = await itemClient
-            .setLanguageCombinationIDAsync(uuid, intLangCombId, 3, intItemId);
-        await authProviders.Logout();
+        var uuid = Creds.GetAuthToken();
 
-        return new BaseResponse
-        {
-            StatusCode = response.statusCode
-        };
+        await using var itemClient = Clients.GetItemClient(Creds.GetInstanceUrl());
+        await itemClient.setLanguageCombinationIDAsync(uuid, intLangCombId, 3, intItemId);
+
+        await Creds.Logout();
     }
 
     [Action("Add priceline to item", Description = "Adds a new priceline")]
-    public async Task<PriceLineListResponse> AddPriceLinesToItem(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] PriceLineRequest request)
+    public async Task<PriceLineListResponse> AddPriceLinesToItem([ActionParameter] PriceLineRequest request)
     {
         try
         {
             var intItemId = IntParser.Parse(request.ItemId, nameof(request.ItemId))!.Value;
-            var uuid = authProviders.GetAuthToken();
+            var uuid = Creds.GetAuthToken();
 
-            await using var itemClient = Clients.GetItemClient(authProviders.GetInstanceUrl());
+            await using var itemClient = Clients.GetItemClient(Creds.GetInstanceUrl());
+           
             var priceUnitListResult = await itemClient.getPriceUnit_ListAsync(uuid, "en", "Translation");
             var priceUnits = priceUnitListResult.data?.Where(x =>
                 x.description.Contains("Words Translation", StringComparison.OrdinalIgnoreCase)).ToArray();
@@ -213,47 +217,46 @@ public class OrderActions
 
             var priceListResult = await itemClient.getPriceLine_ListAsync(uuid, intItemId, 3);
 
-            return new PriceLineListResponse
+            return new()
             {
                 PriceLines = priceListResult.data.Select(x => new PriceLineResponse(x))
             };
         }
         finally
         {
-            await authProviders.Logout();
+            await Creds.Logout();
         }
     }
 
     [Action("Upload file", Description = "Upload a file to Plunet")]
-    public async Task<BaseResponse> UploadFile(IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] UploadDocumentRequest request)
+    public async Task UploadFile([ActionParameter] UploadDocumentRequest request)
     {
         var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
         var intFoldType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
-        var uuid = authProviders.GetAuthToken();
+        
+        var uuid = Creds.GetAuthToken();
 
-        await using var dataDocumentClient = Clients.GetDocumentClient(authProviders.GetInstanceUrl());
-        var response = await dataDocumentClient.upload_DocumentAsync(uuid, intOrderId, intFoldType,
+        await using var dataDocumentClient = Clients.GetDocumentClient(Creds.GetInstanceUrl());
+        await dataDocumentClient.upload_DocumentAsync(uuid, intOrderId, intFoldType,
             request.File.Bytes, request.FilePath, request.File.Bytes.Length);
-        await authProviders.Logout();
-
-        return new BaseResponse { StatusCode = response.Result.statusCode };
+      
+        await Creds.Logout();
     }
 
     [Action("Download file", Description = "Download a file from Plunet")]
-    public async Task<FileResponse> DownloadFile(IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] DownloadDocumentRequest request)
+    public async Task<FileResponse> DownloadFile([ActionParameter] DownloadDocumentRequest request)
     {
         var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
         var intFoldType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
-        var uuid = authProviders.GetAuthToken();
+       
+        var uuid = Creds.GetAuthToken();
 
-        await using var dataDocumentClient = Clients.GetDocumentClient(authProviders.GetInstanceUrl());
+        await using var dataDocumentClient = Clients.GetDocumentClient(Creds.GetInstanceUrl());
         var response =
             await dataDocumentClient.download_DocumentAsync(uuid, intOrderId, intFoldType,
                 request.FilePathName);
 
-        await authProviders.Logout();
+        await Creds.Logout();
 
         return new(new(response.fileContent)
         {
@@ -263,45 +266,41 @@ public class OrderActions
     }
 
     [Action("List files", Description = "List files from Plunet")]
-    public async Task<ListFilesResponse> ListFiles(IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] ListFilesRequest request)
+    public async Task<ListFilesResponse> ListFiles([ActionParameter] ListFilesRequest request)
     {
         var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
         var intFoldType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
-        var uuid = authProviders.GetAuthToken();
+        
+        var uuid = Creds.GetAuthToken();
 
-        await using var dataDocumentClient = Clients.GetDocumentClient(authProviders.GetInstanceUrl());
+        await using var dataDocumentClient = Clients.GetDocumentClient(Creds.GetInstanceUrl());
         var response = await dataDocumentClient.getFileListAsync(uuid, intOrderId, intFoldType);
 
-        await authProviders.Logout();
+        await Creds.Logout();
 
         return new(response.data);
     }
 
     [Action("Delete order", Description = "Delete a Plunet order")]
-    public async Task<BaseResponse> DeleteOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Order ID")]
-        string orderId)
+    public async Task DeleteOrder([ActionParameter] [Display("Order ID")] string orderId)
     {
         var intOrderId = IntParser.Parse(orderId, nameof(orderId))!.Value;
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
 
-        await using var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
-        var response = await orderClient.deleteAsync(uuid, intOrderId);
-        await authProviders.Logout();
-
-        return new BaseResponse { StatusCode = response.statusCode };
+        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
+        await orderClient.deleteAsync(uuid, intOrderId);
+        
+        await Creds.Logout();
     }
 
     [Action("Update order", Description = "Update Plunet order")]
-    public async Task<BaseResponse> UpdateOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] UpdateOrderRequest request)
+    public async Task UpdateOrder([ActionParameter] UpdateOrderRequest request)
     {
         var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
 
-        var orderClient = Clients.GetOrderClient(authProviders.GetInstanceUrl());
-        var response = await orderClient.updateAsync(uuid, new OrderIN
+        var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
+        await orderClient.updateAsync(uuid, new OrderIN
         {
             orderID = intOrderId,
             projectName = request.ProjectName,
@@ -317,8 +316,6 @@ public class OrderActions
             referenceNumber = request.ReferenceNumber
         }, false);
 
-        await authProviders.Logout();
-
-        return new BaseResponse { StatusCode = response.statusCode };
+        await Creds.Logout();
     }
 }

@@ -1,28 +1,32 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
 using Blackbird.Plugins.Plunet.Extensions;
-using Blackbird.Plugins.Plunet.Models;
+using Blackbird.Plugins.Plunet.Invocables;
 using Blackbird.Plugins.Plunet.Models.Quote;
-using Blackbird.Plugins.Plunet.Utils;
 
 namespace Blackbird.Plugins.Plunet.Actions;
 
 [ActionList]
-public class QuoteActions
+public class QuoteActions : PlunetInvocable
 {
+    
+    public QuoteActions(InvocationContext invocationContext) : base(invocationContext)
+    {
+    }
+    
     [Action("Get quote", Description = "Get details for a Plunet quote")]
-    public async Task<QuoteResponse> GetQuote(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Quote ID")] string quoteId)
+    public async Task<QuoteResponse> GetQuote([ActionParameter] [Display("Quote ID")] string quoteId)
     {
         var intQuoteId = IntParser.Parse(quoteId, nameof(quoteId))!.Value;
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
         
-        await using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
+        await using var quoteClient = Clients.GetQuoteClient(Creds.GetInstanceUrl());
         var quoteResult = await quoteClient.getQuoteObjectAsync(uuid, intQuoteId);
-        await authProviders.Logout();
+       
+        await Creds.Logout();
 
         if (quoteResult.data is null)
             throw new(quoteResult.statusMessage);
@@ -31,13 +35,11 @@ public class QuoteActions
     }
 
     [Action("Create quote", Description = "Create a new quote in Plunet")]
-    public async Task<CreateQuoteResponse> CreateQuote(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] CreateQuoteRequest request)
+    public async Task<CreateQuoteResponse> CreateQuote([ActionParameter] CreateQuoteRequest request)
     {
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
         
-        await using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
+        await using var quoteClient = Clients.GetQuoteClient(Creds.GetInstanceUrl());
         var quoteIdResult = await quoteClient.insert2Async(uuid, new QuoteIN
         {
             projectName = request.ProjectName,
@@ -50,17 +52,20 @@ public class QuoteActions
             status = request.Status ?? default
         });
        
-        await authProviders.Logout();
+        await Creds.Logout();
         
-        return new CreateQuoteResponse { QuoteId = quoteIdResult.data.ToString() };
+        return new()
+        {
+            QuoteId = quoteIdResult.data.ToString()
+        };
     }
 
     //[Action("Create quote based on template", Description = "Create a new quote based on a template")]
-    //public async Task<CreateQuoteResponse> CreateQuoteBasedOnTemplate(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter] CreateQuoteRequest request,
+    //public async Task<CreateQuoteResponse> CreateQuoteBasedOnTemplate(IEnumerable<AuthenticationCredentialsProvider> Creds, [ActionParameter] CreateQuoteRequest request,
     //    [ActionParameter] string templateName)
     //{
-    //    var uuid = authProviders.GetAuthToken();
-    //    using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
+    //    var uuid = Creds.GetAuthToken();
+    //    using var quoteClient = Clients.GetQuoteClient(Creds.GetInstanceUrl());
     //    var quote = new QuoteIN
     //    {
     //        projectName = request.ProjectName,
@@ -71,7 +76,7 @@ public class QuoteActions
     //    var templates = await quoteClient.getTemplateListAsync(uuid);
     //    if (templates == null || !templates.data.Any())
     //    {
-    //        await authProviders.Logout();
+    //        await Creds.Logout();
     //        return new CreateQuoteResponse();
     //    }
 
@@ -79,69 +84,64 @@ public class QuoteActions
     //        t.templateName.Contains(templateName, StringComparison.OrdinalIgnoreCase));
     //    if (template == null)
     //    {
-    //        await authProviders.Logout();
+    //        await Creds.Logout();
     //        return new CreateQuoteResponse();
     //    }
 
     //    var quoteIdResult = await quoteClient.insert_byTemplateAsync(uuid, quote, template.templateID);
-    //    await authProviders.Logout();
+    //    await Creds.Logout();
     //    return new CreateQuoteResponse { QuoteId = quoteIdResult.data };
     //}
 
     //[Action("Add language combination to quote", Description = "Add a new language combination to an existing quote")]
-    //public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToQuote(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter] AddLanguageCombinationToQuoteRequest request)
+    //public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToQuote(IEnumerable<AuthenticationCredentialsProvider> Creds, [ActionParameter] AddLanguageCombinationToQuoteRequest request)
     //{
-    //    var uuid = authProviders.GetAuthToken();
-    //    using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
+    //    var uuid = Creds.GetAuthToken();
+    //    using var quoteClient = Clients.GetQuoteClient(Creds.GetInstanceUrl());
     //    var langCombination =
     //        GetLanguageNamesCombinationByLanguageCodeIso(uuid, request.SourceLanguageCode,
     //            request.TargetLanguageCode);
     //    if (string.IsNullOrEmpty(langCombination.TargetLanguageName))
     //    {
-    //        await authProviders.Logout();
+    //        await Creds.Logout();
     //        return new AddLanguageCombinationResponse();
     //    }
 
     //    var result = await quoteClient.addLanguageCombinationAsync(uuid, langCombination.SourceLanguageName,
     //        langCombination.TargetLanguageName, request.QuoteId);
-    //    await authProviders.Logout();
+    //    await Creds.Logout();
     //    return new AddLanguageCombinationResponse { LanguageCombinationId = result.data };
     //}
 
     //[Action("Request order to quote", Description = "Request order to a Plunet quote")]
-    //public async Task<BaseResponse> RequestOrder(IEnumerable<AuthenticationCredentialsProvider> authProviders, [ActionParameter] int quoteId)
+    //public async Task RequestOrder(IEnumerable<AuthenticationCredentialsProvider> Creds, [ActionParameter] int quoteId)
     //{
-    //    var uuid = authProviders.GetAuthToken();
-    //    using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
+    //    var uuid = Creds.GetAuthToken();
+    //    using var quoteClient = Clients.GetQuoteClient(Creds.GetInstanceUrl());
     //    var response = await quoteClient.requestOrderAsync(uuid, quoteId);
-    //    await authProviders.Logout();
+    //    await Creds.Logout();
     //    return new BaseResponse { StatusCode = response.statusCode };
     //}
 
     [Action("Delete quote", Description = "Delete a Plunet quote")]
-    public async Task<BaseResponse> DeleteQuote(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Quote ID")] string quoteId)
+    public async Task DeleteQuote([ActionParameter] [Display("Quote ID")] string quoteId)
     {
         var intQuoteId = IntParser.Parse(quoteId, nameof(quoteId))!.Value;
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
         
-        await using var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
-        var response = await quoteClient.deleteAsync(uuid, intQuoteId);
-        await authProviders.Logout();
+        await using var quoteClient = Clients.GetQuoteClient(Creds.GetInstanceUrl());
+        await quoteClient.deleteAsync(uuid, intQuoteId);
         
-        return new BaseResponse { StatusCode = response.statusCode };
+        await Creds.Logout();
     }
 
     [Action("Update quote", Description = "Update Plunet quote")]
-    public async Task<BaseResponse> UpdateQuote(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] UpdateQuoteRequest request)
+    public async Task UpdateQuote([ActionParameter] UpdateQuoteRequest request)
     {
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
         
-        var quoteClient = Clients.GetQuoteClient(authProviders.GetInstanceUrl());
-        var response = await quoteClient.updateAsync(uuid, new QuoteIN
+        var quoteClient = Clients.GetQuoteClient(Creds.GetInstanceUrl());
+        await quoteClient.updateAsync(uuid, new QuoteIN
         {
             quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId))!.Value,
             projectName = request.ProjectName,
@@ -154,8 +154,6 @@ public class QuoteActions
             status = request.Status ?? default
         }, false);
         
-        await authProviders.Logout();
-        
-        return new BaseResponse { StatusCode = response.statusCode };
+        await Creds.Logout();
     }
 }

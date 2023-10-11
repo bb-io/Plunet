@@ -1,30 +1,31 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common.Authentication;
+using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Plugins.Plunet.DataRequest30Service;
 using Blackbird.Plugins.Plunet.Extensions;
-using Blackbird.Plugins.Plunet.Models;
+using Blackbird.Plugins.Plunet.Invocables;
 using Blackbird.Plugins.Plunet.Models.Request;
-using Blackbird.Plugins.Plunet.Utils;
 
 namespace Blackbird.Plugins.Plunet.Actions;
 
 [ActionList]
-public class RequestActions
+public class RequestActions : PlunetInvocable
 {
+    public RequestActions(InvocationContext invocationContext) : base(invocationContext)
+    {
+    }
+
     [Action("Get request", Description = "Get details for a Plunet request")]
-    public async Task<RequestResponse> GetRequest(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Request ID")]
-        string requestId)
+    public async Task<RequestResponse> GetRequest([ActionParameter] [Display("Request ID")] string requestId)
     {
         var intRequestId = IntParser.Parse(requestId, nameof(requestId))!.Value;
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
 
-        await using var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
+        await using var requestClient = Clients.GetRequestClient(Creds.GetInstanceUrl());
         var requestResult = await requestClient.getRequestObjectAsync(uuid, intRequestId);
 
-        await authProviders.Logout();
+        await Creds.Logout();
 
         if (requestResult.data is null)
             throw new(requestResult.statusMessage);
@@ -33,13 +34,11 @@ public class RequestActions
     }
 
     [Action("Create request", Description = "Create a new request in Plunet")]
-    public async Task<CreatеRequestResponse> CreateRequest(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] CreatеRequestRequest request)
+    public async Task<CreatеRequestResponse> CreateRequest([ActionParameter] CreatеRequestRequest request)
     {
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
 
-        await using var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
+        await using var requestClient = Clients.GetRequestClient(Creds.GetInstanceUrl());
         var requestIdResult = await requestClient.insert2Async(uuid, new()
         {
             briefDescription = request.BriefDescription,
@@ -52,20 +51,21 @@ public class RequestActions
             quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId)) ?? default
         });
 
-        await authProviders.Logout();
+        await Creds.Logout();
 
-        return new CreatеRequestResponse { RequestId = requestIdResult.data.ToString() };
+        return new()
+        {
+            RequestId = requestIdResult.data.ToString()
+        };
     }
 
     [Action("Update request", Description = "Update Plunet request")]
-    public async Task<BaseResponse> UpdateRequest(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] UpdateRequestRequest request)
+    public async Task UpdateRequest([ActionParameter] UpdateRequestRequest request)
     {
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
 
-        var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
-        var response = await requestClient.updateAsync(uuid, new RequestIN
+        var requestClient = Clients.GetRequestClient(Creds.GetInstanceUrl());
+        await requestClient.updateAsync(uuid, new RequestIN
         {
             requestID = IntParser.Parse(request.RequestId, nameof(request.RequestId))!.Value,
             briefDescription = request.BriefDescription,
@@ -78,24 +78,18 @@ public class RequestActions
             quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId)) ?? default
         }, false);
 
-        await authProviders.Logout();
-
-        return new BaseResponse { StatusCode = response.statusCode };
+        await Creds.Logout();
     }
 
     [Action("Delete request", Description = "Delete a Plunet request")]
-    public async Task<BaseResponse> DeleteRequest(
-        IEnumerable<AuthenticationCredentialsProvider> authProviders,
-        [ActionParameter] [Display("Request ID")]
-        string requestId)
+    public async Task DeleteRequest([ActionParameter] [Display("Request ID")] string requestId)
     {
         var intRequestId = IntParser.Parse(requestId, nameof(requestId))!.Value;
-        var uuid = authProviders.GetAuthToken();
+        var uuid = Creds.GetAuthToken();
 
-        await using var requestClient = Clients.GetRequestClient(authProviders.GetInstanceUrl());
-        var response = await requestClient.deleteAsync(uuid, intRequestId);
-        await authProviders.Logout();
-
-        return new BaseResponse { StatusCode = response.statusCode };
+        await using var requestClient = Clients.GetRequestClient(Creds.GetInstanceUrl());
+        await requestClient.deleteAsync(uuid, intRequestId);
+       
+        await Creds.Logout();
     }
 }
