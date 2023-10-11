@@ -1,16 +1,12 @@
-﻿using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Authentication;
-using Blackbird.Applications.Sdk.Common.Dynamic;
+﻿using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.Extensions;
+using Blackbird.Plugins.Plunet.Invocables;
 
 namespace Blackbird.Plugins.Plunet.DataSourceHandlers;
 
-public class CountryDataSourceHandler : BaseInvocable, IAsyncDataSourceHandler
+public class CountryDataSourceHandler : PlunetInvocable, IAsyncDataSourceHandler
 {
-    private IEnumerable<AuthenticationCredentialsProvider> Creds =>
-        InvocationContext.AuthenticationCredentialsProviders;
-
     public CountryDataSourceHandler(InvocationContext invocationContext) : base(invocationContext)
     {
     }

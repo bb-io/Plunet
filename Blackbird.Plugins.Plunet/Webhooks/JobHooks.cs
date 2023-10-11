@@ -16,11 +16,11 @@ public class JobHooks : BaseInvocable
 
     private IEnumerable<AuthenticationCredentialsProvider> Creds =>
         InvocationContext.AuthenticationCredentialsProviders;
-    
+
     public JobHooks(InvocationContext invocationContext) : base(invocationContext)
     {
     }
-    
+
     [Webhook("On job deleted", typeof(JobDeleteEventHandler), Description = "Triggered when a job is deleted")]
     public async Task<WebhookResponse<TriggerContent>> JobDeleted(WebhookRequest webhookRequest)
     {
@@ -35,25 +35,27 @@ public class JobHooks : BaseInvocable
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
 
-    [Webhook("On job status changed", typeof(JobChangedEventHandler), Description = "Triggered when a job status is changed")]
+    [Webhook("On job status changed", typeof(JobChangedEventHandler),
+        Description = "Triggered when a job status is changed")]
     public async Task<WebhookResponse<TriggerContent>> JobStatusChanged(WebhookRequest webhookRequest)
     {
         var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName, Creds);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
 
-    [Webhook("On job delivery date changed", typeof(JobDeliveryDateChangedEventHandler), Description = "Triggered when a job delivery date is changed")]
+    [Webhook("On job delivery date changed", typeof(JobDeliveryDateChangedEventHandler),
+        Description = "Triggered when a job delivery date is changed")]
     public async Task<WebhookResponse<TriggerContent>> JobDeliveryDateChanged(WebhookRequest webhookRequest)
     {
         var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName, Creds);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
 
-    [Webhook("On job start date changed", typeof(JobStartDateChangedEventHandler), Description = "Triggered when a job start date is changed")]
+    [Webhook("On job start date changed", typeof(JobStartDateChangedEventHandler),
+        Description = "Triggered when a job start date is changed")]
     public async Task<WebhookResponse<TriggerContent>> JobStartDateChanged(WebhookRequest webhookRequest)
     {
         var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName, Creds);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
-
 }

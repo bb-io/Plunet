@@ -7,13 +7,9 @@ namespace Blackbird.Plugins.Plunet.Webhooks.Handlers.Customers;
 
 public class CustomerChangedEventHandler : IWebhookEventHandler
 {
-    public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
-    {
-        await CustomerClient.RegisterCallback(authenticationCredentialsProviders, values, EventType.StatusChanged);
-    }
+    public Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds, Dictionary<string, string> values)
+        => CustomerClient.RegisterCallback(creds, values, EventType.StatusChanged);
 
-    public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
-    {
-        await CustomerClient.DeregisterCallback(authenticationCredentialsProviders, EventType.StatusChanged);
-    }
+    public Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds, Dictionary<string, string> values)
+        => CustomerClient.DeregisterCallback(creds, EventType.StatusChanged);
 }

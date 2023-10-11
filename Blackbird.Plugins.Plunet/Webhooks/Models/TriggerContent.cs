@@ -1,10 +1,9 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Webhooks.Models
+namespace Blackbird.Plugins.Plunet.Webhooks.Models;
+
+public class TriggerContent
 {
-    public class TriggerContent
-    {
-        [Display("ID")]
-        public string Id { get; set; }
-    }
+    [Display("ID")]
+    public string Id { get; set; }
 }

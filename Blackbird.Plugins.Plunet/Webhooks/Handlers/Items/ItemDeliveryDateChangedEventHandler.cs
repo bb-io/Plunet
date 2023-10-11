@@ -7,13 +7,13 @@ namespace Blackbird.Plugins.Plunet.Webhooks.Handlers.Items;
 
 public class ItemDeliveryDateChangedEventHandler : IWebhookEventHandler
 {
-    public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
+    public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds, Dictionary<string, string> values)
     {
-        await ItemClient.RegisterCallback(authenticationCredentialsProviders, values, EventType.DeliveryDateChanged);
+        await ItemClient.RegisterCallback(creds, values, EventType.DeliveryDateChanged);
     }
 
-    public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
+    public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds, Dictionary<string, string> values)
     {
-        await ItemClient.DeregisterCallback(authenticationCredentialsProviders, EventType.DeliveryDateChanged);
+        await ItemClient.DeregisterCallback(creds, EventType.DeliveryDateChanged);
     }
 }

@@ -16,31 +16,32 @@ public class ResourceHooks : BaseInvocable
 
     private IEnumerable<AuthenticationCredentialsProvider> Creds =>
         InvocationContext.AuthenticationCredentialsProviders;
-    
+
     public ResourceHooks(InvocationContext invocationContext) : base(invocationContext)
     {
     }
-    
-    [Webhook("On resource deleted", typeof(ResourceDeleteEventHandler), Description = "Triggered when a resource is deleted")]
+
+    [Webhook("On resource deleted", typeof(ResourceDeleteEventHandler),
+        Description = "Triggered when a resource is deleted")]
     public async Task<WebhookResponse<TriggerContent>> ResourceDeleted(WebhookRequest webhookRequest)
     {
         var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName, Creds);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
 
-    [Webhook("On resource created", typeof(ResourceCreatedEventHandler), Description = "Triggered when a resource is created")]
+    [Webhook("On resource created", typeof(ResourceCreatedEventHandler),
+        Description = "Triggered when a resource is created")]
     public async Task<WebhookResponse<TriggerContent>> ResourceCreated(WebhookRequest webhookRequest)
     {
         var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName, Creds);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
 
-    [Webhook("On resource status changed", typeof(ResourceChangedEventHandler), Description = "Triggered when a resource status is changed")]
+    [Webhook("On resource status changed", typeof(ResourceChangedEventHandler),
+        Description = "Triggered when a resource status is changed")]
     public async Task<WebhookResponse<TriggerContent>> ResourceChanged(WebhookRequest webhookRequest)
     {
         var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName, Creds);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
-
-
 }

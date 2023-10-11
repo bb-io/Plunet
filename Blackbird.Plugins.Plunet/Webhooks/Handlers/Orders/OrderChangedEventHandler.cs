@@ -7,13 +7,13 @@ namespace Blackbird.Plugins.Plunet.Webhooks.Handlers.Orders;
 
 public class OrderChangedEventHandler : IWebhookEventHandler
 {
-    public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
+    public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds, Dictionary<string, string> values)
     {
-        await OrderClient.RegisterCallback(authenticationCredentialsProviders, values, EventType.StatusChanged);
+        await OrderClient.RegisterCallback(creds, values, EventType.StatusChanged);
     }
 
-    public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
+    public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds, Dictionary<string, string> values)
     {
-        await OrderClient.DeregisterCallback(authenticationCredentialsProviders, EventType.StatusChanged);
+        await OrderClient.DeregisterCallback(creds, EventType.StatusChanged);
     }
 }

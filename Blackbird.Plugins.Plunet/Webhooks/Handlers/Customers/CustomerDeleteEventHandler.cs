@@ -7,13 +7,10 @@ namespace Blackbird.Plugins.Plunet.Webhooks.Handlers.Customers;
 
 public class CustomerDeleteEventHandler : IWebhookEventHandler
 {
-    public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
-    {
-        await CustomerClient.RegisterCallback(authenticationCredentialsProviders, values, EventType.EntryDeleted);
-    }
+    public Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds, Dictionary<string, string> values)
+        => CustomerClient.RegisterCallback(creds, values, EventType.EntryDeleted);
 
-    public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
-    {
-        await CustomerClient.DeregisterCallback(authenticationCredentialsProviders, EventType.EntryDeleted);
-    }
+    public Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds,
+        Dictionary<string, string> values)
+        => CustomerClient.DeregisterCallback(creds, EventType.EntryDeleted);
 }

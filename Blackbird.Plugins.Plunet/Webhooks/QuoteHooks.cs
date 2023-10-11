@@ -16,11 +16,11 @@ public class QuoteHooks : BaseInvocable
 
     private IEnumerable<AuthenticationCredentialsProvider> Creds =>
         InvocationContext.AuthenticationCredentialsProviders;
-    
+
     public QuoteHooks(InvocationContext invocationContext) : base(invocationContext)
     {
     }
-    
+
     [Webhook("On quote deleted", typeof(QuoteDeleteEventHandler), Description = "Triggered when a quote is deleted")]
     public async Task<WebhookResponse<TriggerContent>> QuoteDeleted(WebhookRequest webhookRequest)
     {
@@ -35,11 +35,11 @@ public class QuoteHooks : BaseInvocable
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
 
-    [Webhook("On quote status changed", typeof(QuoteChangedEventHandler), Description = "Triggered when a quote status is changed")]
+    [Webhook("On quote status changed", typeof(QuoteChangedEventHandler),
+        Description = "Triggered when a quote status is changed")]
     public async Task<WebhookResponse<TriggerContent>> QuoteStatusChanged(WebhookRequest webhookRequest)
     {
         var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName, Creds);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
-
 }

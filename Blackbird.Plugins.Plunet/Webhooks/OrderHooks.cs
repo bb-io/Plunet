@@ -16,11 +16,11 @@ public class OrderHooks : BaseInvocable
 
     private IEnumerable<AuthenticationCredentialsProvider> Creds =>
         InvocationContext.AuthenticationCredentialsProviders;
-    
+
     public OrderHooks(InvocationContext invocationContext) : base(invocationContext)
     {
     }
-    
+
     [Webhook("On order deleted", typeof(OrderDeleteEventHandler), Description = "Triggered when an order is deleted")]
     public async Task<WebhookResponse<TriggerContent>> OrderDeleted(WebhookRequest webhookRequest)
     {
@@ -35,11 +35,11 @@ public class OrderHooks : BaseInvocable
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
 
-    [Webhook("On order status changed", typeof(OrderChangedEventHandler), Description = "Triggered when an order status is changed")]
+    [Webhook("On order status changed", typeof(OrderChangedEventHandler),
+        Description = "Triggered when an order status is changed")]
     public async Task<WebhookResponse<TriggerContent>> OrderStatusChanged(WebhookRequest webhookRequest)
     {
         var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName, Creds);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
-
 }

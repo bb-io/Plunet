@@ -13,10 +13,10 @@ public class ItemHooks : BaseInvocable
 {
     private const string ServiceName = "CallbackItem30";
     private const string XmlTagName = "ItemID";
-    
+
     private IEnumerable<AuthenticationCredentialsProvider> Creds =>
         InvocationContext.AuthenticationCredentialsProviders;
-    
+
     public ItemHooks(InvocationContext invocationContext) : base(invocationContext)
     {
     }
@@ -35,18 +35,19 @@ public class ItemHooks : BaseInvocable
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
 
-    [Webhook("On item status changed", typeof(ItemChangedEventHandler), Description = "Triggered when an item status is changed")]
+    [Webhook("On item status changed", typeof(ItemChangedEventHandler),
+        Description = "Triggered when an item status is changed")]
     public async Task<WebhookResponse<TriggerContent>> ItemStatusChanged(WebhookRequest webhookRequest)
     {
         var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName, Creds);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
 
-    [Webhook("On item delivery date changed", typeof(ItemDeliveryDateChangedEventHandler), Description = "Triggered when an item delivery date is changed")]
+    [Webhook("On item delivery date changed", typeof(ItemDeliveryDateChangedEventHandler),
+        Description = "Triggered when an item delivery date is changed")]
     public async Task<WebhookResponse<TriggerContent>> ItemDeliveryDateChanged(WebhookRequest webhookRequest)
     {
         var callbackService = new CallbackServiceEmulator(ServiceName, XmlTagName, Creds);
         return await callbackService.HandleWsdlRequset(webhookRequest);
     }
-
 }

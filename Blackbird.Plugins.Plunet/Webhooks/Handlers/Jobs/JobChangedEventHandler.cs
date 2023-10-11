@@ -7,13 +7,13 @@ namespace Blackbird.Plugins.Plunet.Webhooks.Handlers.Jobs;
 
 public class JobChangedEventHandler : IWebhookEventHandler
 {
-    public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
+    public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds, Dictionary<string, string> values)
     {
-        await JobClient.RegisterCallback(authenticationCredentialsProviders, values, EventType.StatusChanged);
+        await JobClient.RegisterCallback(creds, values, EventType.StatusChanged);
     }
 
-    public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> authenticationCredentialsProviders, Dictionary<string, string> values)
+    public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds, Dictionary<string, string> values)
     {
-        await JobClient.DeregisterCallback(authenticationCredentialsProviders, EventType.StatusChanged);
+        await JobClient.DeregisterCallback(creds, EventType.StatusChanged);
     }
 }
