@@ -1,13 +1,8 @@
 ﻿using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Plugins.Plunet.Actions;
+using Blackbird.Plugins.Plunet.Api;
 using Blackbird.Plugins.Plunet.Extensions;
 
 namespace Blackbird.Plugins.Plunet.DataSourceHandlers
@@ -25,9 +20,12 @@ namespace Blackbird.Plugins.Plunet.DataSourceHandlers
             CancellationToken cancellationToken)
         {
             var uuid = Creds.GetAuthToken();
+          
             await using var client = Clients.GetOrderClient(Creds.GetInstanceUrl());
+            
             var orderIds = await client.searchAsync(uuid, new DataOrder30Service.SearchFilter_Order());
             var orders = await client.getOrderObjectListAsync(uuid, orderIds.data);
+            
             await Creds.Logout();
 
             return orders.OrderListResult.data
