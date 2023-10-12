@@ -2,6 +2,7 @@
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Parsers;
+using Blackbird.Plugins.Plunet.Api;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Invocables;

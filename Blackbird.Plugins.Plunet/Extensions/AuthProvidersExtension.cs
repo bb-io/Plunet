@@ -1,22 +1,23 @@
 ﻿using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
+using Blackbird.Plugins.Plunet.Constants;
 
 namespace Blackbird.Plugins.Plunet.Extensions;
 
 public static class AuthProvidersExtension
 {
     public static string GetAuthToken(this IEnumerable<AuthenticationCredentialsProvider> source) =>
-        source.FirstOrDefault(x => x.KeyName == AppConstants.ApiKeyName)
+        source.FirstOrDefault(x => x.KeyName == CredsNames.ApiKeyName)
             ?.Value ?? string.Empty;
 
     public static string GetInstanceUrl(this IEnumerable<AuthenticationCredentialsProvider> source)
     {
-        return source.FirstOrDefault(x => x.KeyName == AppConstants.UrlNameKey)
+        return source.FirstOrDefault(x => x.KeyName == CredsNames.UrlNameKey)
             ?.Value ?? string.Empty;
     }
     public static Uri? GetInstanceUri(this IEnumerable<AuthenticationCredentialsProvider> source)
     {
-        return source.FirstOrDefault(x => x.KeyName == AppConstants.UrlNameKey)
+        return source.FirstOrDefault(x => x.KeyName == CredsNames.UrlNameKey)
             ?.Value.ToUri();
     }
     

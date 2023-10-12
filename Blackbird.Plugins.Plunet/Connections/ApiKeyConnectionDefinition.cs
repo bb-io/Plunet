@@ -1,5 +1,7 @@
 ﻿using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Connections;
+using Blackbird.Plugins.Plunet.Api;
+using Blackbird.Plugins.Plunet.Constants;
 
 namespace Blackbird.Plugins.Plunet.Connections;
 
@@ -7,15 +9,15 @@ public class ApiKeyConnectionDefinition : IConnectionDefinition
 {
     public static IEnumerable<ConnectionProperty> ConnectionProperties => new[]
     {
-        new ConnectionProperty(AppConstants.UrlNameKey)
+        new ConnectionProperty(CredsNames.UrlNameKey)
         {
             DisplayName = "Url", Description = "The url to your Plunet instance (https://<your company name>.plunet.com)"
         },
-        new(AppConstants.UserNameKey)
+        new(CredsNames.UserNameKey)
         {
             DisplayName = "User name", Description = "Your Plunet username"
         },
-        new(AppConstants.PasswordKey)
+        new(CredsNames.PasswordKey)
         {
             DisplayName = "Password", Description = "Your Plunet password", Sensitive = true
         }
@@ -28,7 +30,7 @@ public class ApiKeyConnectionDefinition : IConnectionDefinition
         {
             CreateAuthorizationCredentialsProvider(values),
             new(AuthenticationCredentialsRequestLocation.None,
-                AppConstants.UrlNameKey, values[AppConstants.UrlNameKey].TrimEnd('/'))
+                CredsNames.UrlNameKey, values[CredsNames.UrlNameKey].TrimEnd('/'))
         };
     }
 
@@ -45,11 +47,11 @@ public class ApiKeyConnectionDefinition : IConnectionDefinition
 
     private AuthenticationCredentialsProvider CreateAuthorizationCredentialsProvider(Dictionary<string, string> values)
     {
-        using var plunetApiClient = Clients.GetAuthClient(values[AppConstants.UrlNameKey]);
-        var uuid = plunetApiClient.loginAsync(values[AppConstants.UserNameKey], values[AppConstants.PasswordKey])
+        using var plunetApiClient = Clients.GetAuthClient(values[CredsNames.UrlNameKey]);
+        var uuid = plunetApiClient.loginAsync(values[CredsNames.UserNameKey], values[CredsNames.PasswordKey])
             .GetAwaiter().GetResult();
 
         return new AuthenticationCredentialsProvider(AuthenticationCredentialsRequestLocation.None,
-            AppConstants.ApiKeyName, uuid);
+            CredsNames.ApiKeyName, uuid);
     }
 }

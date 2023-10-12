@@ -1,5 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Connections;
+using Blackbird.Plugins.Plunet.Api;
 using Blackbird.Plugins.Plunet.Extensions;
 
 namespace Blackbird.Plugins.Plunet.Connections;

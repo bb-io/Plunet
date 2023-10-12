@@ -4,6 +4,7 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Parsers;
+using Blackbird.Plugins.Plunet.Api;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
 using Blackbird.Plugins.Plunet.DataSourceHandlers;
@@ -12,7 +13,6 @@ using Blackbird.Plugins.Plunet.Invocables;
 using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Item;
 using Blackbird.Plugins.Plunet.Models.Order;
-using Blackbird.Plugins.Plunet.Utils;
 
 namespace Blackbird.Plugins.Plunet.Actions;
 
@@ -150,11 +150,8 @@ public class OrderActions : PlunetInvocable
             var uuid = Creds.GetAuthToken();
 
             await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
-            var langCombination =
-                await ClientHelper.GetLanguageNamesCombinationByLanguageCodeIso(
-                    uuid,
-                    new(request.SourceLanguageCode, request.TargetLanguageCode),
-                    Creds);
+            var langCombination = await new LanguageCombination(request.SourceLanguageCode, request.TargetLanguageCode)
+                .GetLangNamesByLangIso(Creds);
 
             var result = await orderClient.addLanguageCombinationAsync(uuid, langCombination.Source,
                 langCombination.Target, intOrderId);
@@ -194,7 +191,7 @@ public class OrderActions : PlunetInvocable
             var uuid = Creds.GetAuthToken();
 
             await using var itemClient = Clients.GetItemClient(Creds.GetInstanceUrl());
-           
+
             var priceUnitListResult = await itemClient.getPriceUnit_ListAsync(uuid, "en", "Translation");
             var priceUnits = priceUnitListResult.data?.Where(x =>
                 x.description.Contains("Words Translation", StringComparison.OrdinalIgnoreCase)).ToArray();
@@ -233,13 +230,13 @@ public class OrderActions : PlunetInvocable
     {
         var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
         var intFoldType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
-        
+
         var uuid = Creds.GetAuthToken();
 
         await using var dataDocumentClient = Clients.GetDocumentClient(Creds.GetInstanceUrl());
         await dataDocumentClient.upload_DocumentAsync(uuid, intOrderId, intFoldType,
             request.File.Bytes, request.FilePath, request.File.Bytes.Length);
-      
+
         await Creds.Logout();
     }
 
@@ -248,7 +245,7 @@ public class OrderActions : PlunetInvocable
     {
         var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
         var intFoldType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
-       
+
         var uuid = Creds.GetAuthToken();
 
         await using var dataDocumentClient = Clients.GetDocumentClient(Creds.GetInstanceUrl());
@@ -270,7 +267,7 @@ public class OrderActions : PlunetInvocable
     {
         var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
         var intFoldType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
-        
+
         var uuid = Creds.GetAuthToken();
 
         await using var dataDocumentClient = Clients.GetDocumentClient(Creds.GetInstanceUrl());
@@ -289,7 +286,7 @@ public class OrderActions : PlunetInvocable
 
         await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
         await orderClient.deleteAsync(uuid, intOrderId);
-        
+
         await Creds.Logout();
     }
 

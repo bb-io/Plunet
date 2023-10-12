@@ -4,10 +4,14 @@ namespace Blackbird.Plugins.Plunet;
 
 public class PlunetApplication : IApplication
 {
-    public T GetInstance<T>()
+    public string Name
     {
-        return default;
+        get => "Plunet";
+        set { }
     }
 
-    public string Name { get => "Plunet plugin"; set{} }
+    public T GetInstance<T>()
+    {
+        throw new NotImplementedException();
+    }
 }
