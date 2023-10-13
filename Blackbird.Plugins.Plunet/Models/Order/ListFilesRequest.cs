@@ -14,4 +14,8 @@ public class ListFilesRequest
     [Display("Folder type")] 
     [DataSource(typeof(FolderTypeDataHandler))]
     public string FolderType { get; set; }
+    
+    [Display("Folder for language")]
+    [DataSource(typeof(LanguageDataHandler))]
+    public string? LanguageFolder { get; set; }
 }

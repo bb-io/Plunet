@@ -275,6 +275,9 @@ public class OrderActions : PlunetInvocable
 
         await Creds.Logout();
 
+        if (request.LanguageFolder != null)
+            response.data = response.data.Where(folder => folder.StartsWith($"\\{request.LanguageFolder.ToLower()}\\")).ToArray();
+        
         return new(response.data);
     }
 
