@@ -10,9 +10,11 @@ public class AddLanguageCombinationRequest
     [DataSource(typeof(OrderIdDataHandler))]
     public string OrderId { get; set; }
 
-    [Display("Source language code")]
+    [Display("Source language")]
+    [DataSource(typeof(LanguageDataHandler))]
     public string SourceLanguageCode { get; set; }
 
-    [Display("Target language code")]
+    [Display("Target language")]
+    [DataSource(typeof(LanguageDataHandler))]
     public string TargetLanguageCode { get; set; }
 }
