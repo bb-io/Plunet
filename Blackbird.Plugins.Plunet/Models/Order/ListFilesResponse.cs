@@ -1,3 +1,3 @@
 ﻿namespace Blackbird.Plugins.Plunet.Models.Order;
 
-public record ListFilesResponse(string[] Files);
+public record ListFilesResponse(IEnumerable<string> Files);

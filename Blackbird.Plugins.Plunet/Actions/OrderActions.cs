@@ -315,4 +315,32 @@ public class OrderActions : PlunetInvocable
 
         await Creds.Logout();
     }
+
+    [Action("Get language combinations for order", Description = "Get language combinations (source language - target " +
+                                                                 "language) for order.")]
+    public async Task<LanguageCombinationsResponse> GetLanguageCombinationsForOrder(
+        [ActionParameter] [Display("Order ID")] [DataSource(typeof(OrderIdDataHandler))] string orderId)
+    {
+        var intOrderId = IntParser.Parse(orderId, nameof(orderId))!.Value;
+        var uuid = Creds.GetAuthToken();
+
+        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
+        var languageCombinations = await orderClient.getLanguageCombinationAsync(uuid, intOrderId);
+        
+        if (languageCombinations.data is null)
+            throw new(languageCombinations.statusMessage);
+        
+        await using var client = Clients.GetAdminClient(Creds.GetInstanceUrl());
+        var languages = await client.getAvailableLanguagesAsync(uuid, "en");
+
+        var orderLanguageCombinations = languageCombinations.data
+            .Select(combination => new { source = combination.Split(" - ")[0], target = combination.Split(" - ")[1] })
+            .Select(combination =>
+                new LanguageCombination(languages.data.First(l => l.name == combination.source).folderName,
+                    languages.data.First(l => l.name == combination.target).folderName));
+        
+        await Creds.Logout();
+
+        return new() { LanguageCombinations = orderLanguageCombinations };
+    }
 }
