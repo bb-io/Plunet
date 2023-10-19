@@ -3,9 +3,11 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Plugins.Plunet.Api;
+using Blackbird.Plugins.Plunet.Constants;
 using Blackbird.Plugins.Plunet.DataRequest30Service;
 using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.Invocables;
+using Blackbird.Plugins.Plunet.Models;
 using Blackbird.Plugins.Plunet.Models.Request;
 
 namespace Blackbird.Plugins.Plunet.Actions;
@@ -90,7 +92,27 @@ public class RequestActions : PlunetInvocable
 
         await using var requestClient = Clients.GetRequestClient(Creds.GetInstanceUrl());
         await requestClient.deleteAsync(uuid, intRequestId);
-       
+
         await Creds.Logout();
+    }
+
+    [Action("Add language combination to request", Description = "Add a language combination to the specific request")]
+    public async Task AddLanguageCombination(
+        [ActionParameter] [Display("Request ID")]
+        string requestId,
+        [ActionParameter] LanguagesRequest langs)
+    {
+        var intRequestId = IntParser.Parse(requestId, nameof(requestId))!.Value;
+        var uuid = Creds.GetAuthToken();
+
+        await using var requestClient = Clients.GetRequestClient(Creds.GetInstanceUrl());
+        var response = await requestClient.addLanguageCombinationAsync(uuid, langs.SourceLanguageCode,
+            langs.TargetLanguageCode,
+            intRequestId);
+
+        await Creds.Logout();
+
+        if (response.statusMessage != ApiResponses.Ok)
+            throw new(response.statusMessage);
     }
 }
