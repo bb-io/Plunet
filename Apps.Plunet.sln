@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.5.33424.131
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Blackbird.Plugins.Plunet", "Blackbird.Plugins.Plunet\Blackbird.Plugins.Plunet.csproj", "{99619265-1A8F-4C0F-B035-82925C8F2125}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Apps.Plunet", "Apps.Plunet\Apps.Plunet.csproj", "{99619265-1A8F-4C0F-B035-82925C8F2125}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
