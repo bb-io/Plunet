@@ -4,8 +4,10 @@
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <Product>Blackbird Plunet</Product>
-        <Version>1.0.0</Version>
+		<Product>Plunet</Product>
+		<Description>The right translation management software</Description>
+		<Version>1.0.0</Version>
+		<AssemblyName>Apps.Plunet</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.2.0-alpha3" />
@@ -16,4 +18,7 @@
         <PackageReference Include="System.ServiceModel.NetTcp" Version="4.10.3" />
         <PackageReference Include="System.ServiceModel.Security" Version="4.10.3" />
     </ItemGroup>
+	<ItemGroup>
+		<EmbeddedResource CopyToOutputDirectory="Always" Include="image\icon.png" />
+	</ItemGroup>
 </Project>
