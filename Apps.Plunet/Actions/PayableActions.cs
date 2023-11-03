@@ -30,7 +30,6 @@ public class PayableActions : PlunetInvocable
         {
             exported = IntParser.Parse(input.Exported, nameof(input.Exported)) ?? 3,
             isoCodeCurrency = input.Currency,
-            languageCode = Language,
             resourceID = IntParser.Parse(input.ResourceId, nameof(input.ResourceId)) ?? -1,
             payableStatus = IntParser.Parse(input.Status, nameof(input.Status)) ?? -1,
             timeFrame = new()

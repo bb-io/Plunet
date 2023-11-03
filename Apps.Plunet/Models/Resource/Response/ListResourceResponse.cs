@@ -1,3 +1,9 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Resource.Response;
+﻿using Blackbird.Applications.Sdk.Common;
 
-public record ListResourceResponse(ResourceResponse[] Customers);
+namespace Blackbird.Plugins.Plunet.Models.Resource.Response;
+
+public class ListResourceResponse
+{
+    [Display("Resources")]
+    public IEnumerable<ResourceResponse> Resources { get; set; }
+}
