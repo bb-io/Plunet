@@ -15,7 +15,7 @@ public class ApiKeyConnectionDefinition : IConnectionDefinition
         },
         new(CredsNames.UserNameKey)
         {
-            DisplayName = "User name", Description = "Your Plunet username"
+            DisplayName = "Username", Description = "Your Plunet username"
         },
         new(CredsNames.PasswordKey)
         {

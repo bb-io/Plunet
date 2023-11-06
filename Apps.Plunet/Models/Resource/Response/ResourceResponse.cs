@@ -1,4 +1,5 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Plunet.Models.Resource.Response;
+using Blackbird.Applications.Sdk.Common;
 
 namespace Blackbird.Plugins.Plunet.Models.Resource.Response;
 
@@ -48,7 +49,9 @@ public class ResourceResponse
 
     [Display("Working status")] public string WorkingStatus { get; set; }
 
-    public ResourceResponse(DataResource30Service.Resource resource)
+    [Display("Payment")] public ResourcePaymentResponse Payment { get; set; }
+
+    public ResourceResponse(DataResource30Service.Resource resource, DataResource30Service.PaymentInfo paymentInfo)
     {
         AcademicTitle = resource.academicTitle;
         CostCenter = resource.costCenter;
@@ -72,5 +75,18 @@ public class ResourceResponse
         UserID = resource.userId.ToString();
         Website = resource.website;
         WorkingStatus = resource.workingStatus.ToString();
+        Payment = new ResourcePaymentResponse
+        {
+            AccountHolder = paymentInfo.accountHolder,
+            AccountId = paymentInfo.accountID.ToString(),
+            Bic = paymentInfo.BIC,
+            ContractNumber = paymentInfo.contractNumber,
+            DebitAccount = paymentInfo.debitAccount,
+            Iban = paymentInfo.IBAN,
+            PaymentMethodId = paymentInfo.paymentMethodID.ToString(),
+            PreselectdTaxId = paymentInfo.preselectedTaxID.ToString(),
+            SalesTaxId = paymentInfo.salesTaxID,
+        };
+
     }
 }
