@@ -12,6 +12,7 @@ using Blackbird.Plugins.Plunet.Constants;
 
 namespace Apps.Plunet.Actions
 {
+    [ActionList]
     public class DocumentActions : PlunetInvocable
     {
         public DocumentActions(InvocationContext invocationContext) : base(invocationContext)
