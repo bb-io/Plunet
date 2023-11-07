@@ -3,19 +3,17 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Plugins.Plunet.DataSourceHandlers;
 using Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
 
-namespace Blackbird.Plugins.Plunet.Models.Order;
+namespace Apps.Plunet.Models.Document;
 
 public class ListFilesRequest
 {
-    [Display("Order ID")]
-    [DataSource(typeof(OrderIdDataHandler))]
-    public string OrderId { get; set; }
+    [Display("Entity ID")]
+    public string MainId { get; set; }
 
-    [Display("Folder type")] 
+    [Display("Folder type")]
     [DataSource(typeof(FolderTypeDataHandler))]
     public string FolderType { get; set; }
-    
-    [Display("Folder for language")]
-    [DataSource(typeof(LanguageIsoDataHandler))]
-    public string? LanguageFolder { get; set; }
+
+    [Display("Subfolder")]
+    public string? Subfolder { get; set; }
 }

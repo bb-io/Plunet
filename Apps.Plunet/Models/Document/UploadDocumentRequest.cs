@@ -4,13 +4,12 @@ using Blackbird.Plugins.Plunet.DataSourceHandlers;
 using Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
 using File = Blackbird.Applications.Sdk.Common.Files.File;
 
-namespace Blackbird.Plugins.Plunet.Models.Order;
+namespace Apps.Plunet.Models.Document;
 
 public class UploadDocumentRequest
 {
-    [Display("Order ID")]
-    [DataSource(typeof(OrderIdDataHandler))]
-    public string OrderId { get; set; }
+    [Display("Entity ID")]
+    public string MainId { get; set; }
 
     [Display("Folder type")]
     [DataSource(typeof(FolderTypeDataHandler))]
@@ -18,6 +17,6 @@ public class UploadDocumentRequest
 
     public File File { get; set; }
 
-    [Display("File path")]
-    public string FilePath { get; set; }
+    [Display("Subfolder")]
+    public string? Subfolder { get; set; }
 }

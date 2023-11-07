@@ -1,4 +1,5 @@
 ﻿using System.Net.Mime;
+using Apps.Plunet.Models.Document;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -223,62 +224,6 @@ public class OrderActions : PlunetInvocable
         {
             await Creds.Logout();
         }
-    }
-
-    [Action("Upload file", Description = "Upload a file to Plunet")]
-    public async Task UploadFile([ActionParameter] UploadDocumentRequest request)
-    {
-        var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
-        var intFoldType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
-
-        var uuid = Creds.GetAuthToken();
-
-        await using var dataDocumentClient = Clients.GetDocumentClient(Creds.GetInstanceUrl());
-        await dataDocumentClient.upload_DocumentAsync(uuid, intOrderId, intFoldType,
-            request.File.Bytes, request.FilePath, request.File.Bytes.Length);
-
-        await Creds.Logout();
-    }
-
-    [Action("Download file", Description = "Download a file from Plunet")]
-    public async Task<FileResponse> DownloadFile([ActionParameter] DownloadDocumentRequest request)
-    {
-        var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
-        var intFoldType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
-
-        var uuid = Creds.GetAuthToken();
-
-        await using var dataDocumentClient = Clients.GetDocumentClient(Creds.GetInstanceUrl());
-        var response =
-            await dataDocumentClient.download_DocumentAsync(uuid, intOrderId, intFoldType,
-                request.FilePathName);
-
-        await Creds.Logout();
-
-        return new(new(response.fileContent)
-        {
-            Name = response.filename,
-            ContentType = MediaTypeNames.Application.Octet
-        });
-    }
-
-    [Action("List files", Description = "List files from Plunet")]
-    public async Task<ListFilesResponse> ListFiles([ActionParameter] ListFilesRequest request)
-    {
-        var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
-        var intFoldType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
-
-        var uuid = Creds.GetAuthToken();
-
-        await using var dataDocumentClient = Clients.GetDocumentClient(Creds.GetInstanceUrl());
-        var response = await dataDocumentClient.getFileListAsync(uuid, intOrderId, intFoldType);
-
-        await Creds.Logout();
-
-        if (request.LanguageFolder != null)
-            response.data = response.data.Where(folder => folder.StartsWith($"\\{request.LanguageFolder.ToLower()}\\")).ToArray();
-        
-        return new(response.data);
     }
 
     [Action("Delete order", Description = "Delete a Plunet order")]
