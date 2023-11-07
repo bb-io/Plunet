@@ -7,14 +7,14 @@ namespace Blackbird.Plugins.Plunet.Models.Order;
 
 public class DownloadDocumentRequest
 {
-    [Display("Order ID")]
-    [DataSource(typeof(OrderIdDataHandler))]
-    public string OrderId { get; set; }
+    [Display("Entity ID")]
+    public string MainId { get; set; }
 
     [Display("Folder type")] 
     [DataSource(typeof(FolderTypeDataHandler))]
     public string FolderType { get; set; }
 
-    [Display("File path name")] public string FilePathName { get; set; }
+    [Display("File path")]
+    public string FilePathName { get; set; }
 
 }

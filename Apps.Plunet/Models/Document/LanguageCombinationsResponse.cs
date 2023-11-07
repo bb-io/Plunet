@@ -1,6 +1,7 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Blackbird.Plugins.Plunet.Models;
 
-namespace Blackbird.Plugins.Plunet.Models.Order;
+namespace Apps.Plunet.Models.Document;
 
 public class LanguageCombinationsResponse
 {
