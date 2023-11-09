@@ -1,4 +1,4 @@
-﻿namespace Apps.Plunet.Models.Quote;
+﻿namespace Apps.Plunet.Models.Quote.Request;
 
 public class AddLanguageCombinationToQuoteRequest
 { 

@@ -6,7 +6,7 @@ namespace Apps.Plunet.Models.Order;
 
 public class CreateOrderRequest
 {
-    [Display("Project manager ID")]
+    [Display("Project manager")]
     [DataSource(typeof(ProjectManagerIdDataHandler))]
     public string ProjectManagerId { get; set; }
     

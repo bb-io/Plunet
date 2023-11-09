@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Apps.Plunet.Models.Request;
+namespace Apps.Plunet.Models.Request.Response;
 
 public class RequestResponse
 {

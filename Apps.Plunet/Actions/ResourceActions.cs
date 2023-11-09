@@ -16,7 +16,7 @@ public class ResourceActions : PlunetInvocable
     {
     }
 
-    [Action("Search resources", Description = "Search for specific reasources based on specific criteria")]
+    [Action("Search resources", Description = "Search for specific resources based on specific criteria")]
     public async Task<ListResourceResponse> SearchResources([ActionParameter] SearchResourcesRequest input)
     {
 
