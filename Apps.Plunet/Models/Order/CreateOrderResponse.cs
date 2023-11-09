@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Models.Order;
+namespace Apps.Plunet.Models.Order;
 
 public class CreateOrderResponse
 {

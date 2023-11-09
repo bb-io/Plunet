@@ -1,9 +1,9 @@
-﻿using Blackbird.Applications.Sdk.Common.Authentication;
+﻿using Apps.Plunet.Webhooks.CallbackClients.Base;
+using Apps.Plunet.Webhooks.Models;
+using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Webhooks;
-using Blackbird.Plugins.Plunet.Webhooks.CallbackClients.Base;
-using Blackbird.Plugins.Plunet.Webhooks.Models;
 
-namespace Blackbird.Plugins.Plunet.Webhooks.Handlers.Base;
+namespace Apps.Plunet.Webhooks.Handlers.Base;
 
 public abstract class PlunetWebhookHandler : IWebhookEventHandler
 {

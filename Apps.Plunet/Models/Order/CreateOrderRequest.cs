@@ -1,8 +1,8 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Plunet.DataSourceHandlers;
+using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
-using Blackbird.Plugins.Plunet.DataSourceHandlers;
 
-namespace Blackbird.Plugins.Plunet.Models.Order;
+namespace Apps.Plunet.Models.Order;
 
 public class CreateOrderRequest
 {

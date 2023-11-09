@@ -1,8 +1,8 @@
-﻿using Blackbird.Applications.Sdk.Common.Authentication;
+﻿using Apps.Plunet.Constants;
+using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Utils.Extensions.String;
-using Blackbird.Plugins.Plunet.Constants;
 
-namespace Blackbird.Plugins.Plunet.Extensions;
+namespace Apps.Plunet.Extensions;
 
 public static class AuthProvidersExtension
 {
@@ -25,7 +25,7 @@ public static class AuthProvidersExtension
     {
         var uuid = source.GetAuthToken();
       
-        await using var plunetApiClient = new PlunetAPIService.PlunetAPIClient(source.GetInstanceUri());
+        await using var plunetApiClient = new Blackbird.Plugins.Plunet.PlunetAPIService.PlunetAPIClient(source.GetInstanceUri());
         await plunetApiClient.logoutAsync(uuid);
     }
 }

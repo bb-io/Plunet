@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Models.Resource.Response;
+namespace Apps.Plunet.Models.Resource.Response;
 
 public class ListResourceResponse
 {

@@ -1,4 +1,4 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Quote;
+﻿namespace Apps.Plunet.Models.Quote;
 
 public class AddLanguageCombinationToQuoteRequest
 { 

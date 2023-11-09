@@ -1,4 +1,4 @@
-﻿namespace Blackbird.Plugins.Plunet.Constants;
+﻿namespace Apps.Plunet.Constants;
 
 public static class CredsNames
 {

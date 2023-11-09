@@ -1,10 +1,10 @@
-﻿using Blackbird.Applications.Sdk.Common.Invocation;
+﻿using Apps.Plunet.Webhooks.Handlers.Impl.Orders;
+using Apps.Plunet.Webhooks.Models;
+using Apps.Plunet.Webhooks.WebhookLists.Base;
+using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
-using Blackbird.Plugins.Plunet.Webhooks.Handlers.Impl.Orders;
-using Blackbird.Plugins.Plunet.Webhooks.Models;
-using Blackbird.Plugins.Plunet.Webhooks.WebhookLists.Base;
 
-namespace Blackbird.Plugins.Plunet.Webhooks.WebhookLists;
+namespace Apps.Plunet.Webhooks.WebhookLists;
 
 [WebhookList]
 public class OrderHooks : PlunetWebhookList

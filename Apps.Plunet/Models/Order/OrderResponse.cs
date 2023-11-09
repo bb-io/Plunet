@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Models.Order;
+namespace Apps.Plunet.Models.Order;
 
 public class OrderResponse
 {
@@ -34,7 +34,7 @@ public class OrderResponse
     [Display("Rate")]
     public double Rate { get; set; }
 
-    public OrderResponse(DataOrder30Service.Order order)
+    public OrderResponse(Blackbird.Plugins.Plunet.DataOrder30Service.Order order)
     {
         Currency = order.currency;
         CustomerId = order.customerID.ToString();

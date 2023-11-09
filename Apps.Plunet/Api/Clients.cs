@@ -13,7 +13,7 @@ using Blackbird.Plugins.Plunet.PlunetAPIService;
 using DataCustomerAddress30Service;
 using DataResourceAddress30Service;
 
-namespace Blackbird.Plugins.Plunet.Api;
+namespace Apps.Plunet.Api;
 
 public static class Clients
 {

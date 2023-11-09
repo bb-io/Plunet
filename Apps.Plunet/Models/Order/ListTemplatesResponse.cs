@@ -1,3 +1,3 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Order;
+﻿namespace Apps.Plunet.Models.Order;
 
 public record ListTemplatesResponse(TemplateResponse[] Templates);

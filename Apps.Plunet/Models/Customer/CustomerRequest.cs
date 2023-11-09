@@ -1,8 +1,8 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Plunet.DataSourceHandlers;
+using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
-using Blackbird.Plugins.Plunet.DataSourceHandlers;
 
-namespace Blackbird.Plugins.Plunet.Models.Customer;
+namespace Apps.Plunet.Models.Customer;
 
 public class CustomerRequest
 {

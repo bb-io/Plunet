@@ -1,7 +1,7 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 
-namespace Blackbird.Plugins.Plunet.Models.Customer;
+namespace Apps.Plunet.Models.Customer;
 
 public class GetPaymentInfoResponse
 {

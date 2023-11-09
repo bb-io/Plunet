@@ -1,9 +1,8 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
+using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
-using Blackbird.Plugins.Plunet.DataSourceHandlers;
-using Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
 
-namespace Blackbird.Plugins.Plunet.Models.Order;
+namespace Apps.Plunet.Models.Order;
 
 public class DownloadDocumentRequest
 {

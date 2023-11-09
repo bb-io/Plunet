@@ -1,7 +1,7 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 
-namespace Blackbird.Plugins.Plunet.Models.Item;
+namespace Apps.Plunet.Models.Item;
 
 public class PriceLineResponse
 {

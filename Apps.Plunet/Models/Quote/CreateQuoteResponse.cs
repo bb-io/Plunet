@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Models.Quote;
+namespace Apps.Plunet.Models.Quote;
 
 public class CreateQuoteResponse
 {

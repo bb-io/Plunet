@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Models.Customer;
+namespace Apps.Plunet.Models.Customer;
 
 public class GetCustomerResponse
 {
@@ -49,7 +49,7 @@ public class GetCustomerResponse
     [Display("Website")]
     public string Website { get; set; }
 
-    public GetCustomerResponse(DataCustomer30Service.Customer customer)
+    public GetCustomerResponse(Blackbird.Plugins.Plunet.DataCustomer30Service.Customer customer)
     {
         AcademicTitle = customer.academicTitle;
         CostCenter = customer.costCenter;

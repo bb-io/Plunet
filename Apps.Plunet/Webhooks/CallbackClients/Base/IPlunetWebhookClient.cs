@@ -1,7 +1,7 @@
-﻿using Blackbird.Applications.Sdk.Common.Authentication;
-using Blackbird.Plugins.Plunet.Webhooks.Models;
+﻿using Apps.Plunet.Webhooks.Models;
+using Blackbird.Applications.Sdk.Common.Authentication;
 
-namespace Blackbird.Plugins.Plunet.Webhooks.CallbackClients.Base;
+namespace Apps.Plunet.Webhooks.CallbackClients.Base;
 
 public interface IPlunetWebhookClient
 {

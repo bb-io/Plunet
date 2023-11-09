@@ -1,11 +1,11 @@
-﻿using Blackbird.Applications.Sdk.Common.Authentication;
-using Blackbird.Plugins.Plunet.Api;
-using Blackbird.Plugins.Plunet.Constants;
-using Blackbird.Plugins.Plunet.Extensions;
-using Blackbird.Plugins.Plunet.Webhooks.CallbackClients.Base;
-using Blackbird.Plugins.Plunet.Webhooks.Models;
+﻿using Apps.Plunet.Api;
+using Apps.Plunet.Constants;
+using Apps.Plunet.Extensions;
+using Apps.Plunet.Webhooks.CallbackClients.Base;
+using Apps.Plunet.Webhooks.Models;
+using Blackbird.Applications.Sdk.Common.Authentication;
 
-namespace Blackbird.Plugins.Plunet.Webhooks.CallbackClients;
+namespace Apps.Plunet.Webhooks.CallbackClients;
 
 public class OrderClient : IPlunetWebhookClient
 {

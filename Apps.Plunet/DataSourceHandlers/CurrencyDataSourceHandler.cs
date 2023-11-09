@@ -1,13 +1,13 @@
 ﻿using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Plugins.Plunet.Api;
-using Blackbird.Plugins.Plunet.Extensions;
-using Blackbird.Plugins.Plunet.Invocables;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Apps.Plunet.Api;
+using Apps.Plunet.Extensions;
+using Apps.Plunet.Invocables;
 
 namespace Apps.Plunet.DataSourceHandlers
 {

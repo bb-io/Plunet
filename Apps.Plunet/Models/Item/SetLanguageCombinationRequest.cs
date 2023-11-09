@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Models.Item;
+namespace Apps.Plunet.Models.Item;
 
 public class SetLanguageCombinationRequest
 {

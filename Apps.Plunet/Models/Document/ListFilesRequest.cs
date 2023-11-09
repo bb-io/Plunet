@@ -1,7 +1,6 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
+using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
-using Blackbird.Plugins.Plunet.DataSourceHandlers;
-using Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
 
 namespace Apps.Plunet.Models.Document;
 

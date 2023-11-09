@@ -1,8 +1,6 @@
-﻿using Apps.Plunet.Models.Payable.Response;
-using Blackbird.Applications.Sdk.Common;
-using Blackbird.Plugins.Plunet.DataPayable30Service;
+﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Models.Payable.Response;
+namespace Apps.Plunet.Models.Payable.Response;
 
 public class PayableResponse
 {
