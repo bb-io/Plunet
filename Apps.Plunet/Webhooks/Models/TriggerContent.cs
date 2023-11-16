@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Webhooks.Models;
+namespace Apps.Plunet.Webhooks.Models;
 
 public class TriggerContent
 {

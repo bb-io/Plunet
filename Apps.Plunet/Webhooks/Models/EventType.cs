@@ -1,4 +1,4 @@
-﻿namespace Blackbird.Plugins.Plunet.Webhooks.Models;
+﻿namespace Apps.Plunet.Webhooks.Models;
 
 public enum EventType
 {

@@ -1,12 +1,8 @@
-﻿using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Authentication;
+﻿using Apps.Plunet.Invocables;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Plugins.Plunet.Api;
-using Blackbird.Plugins.Plunet.Extensions;
-using Blackbird.Plugins.Plunet.Invocables;
 
-namespace Blackbird.Plugins.Plunet.DataSourceHandlers;
+namespace Apps.Plunet.DataSourceHandlers;
 
 public class LanguageIsoDataHandler : PlunetInvocable, IAsyncDataSourceHandler
 {

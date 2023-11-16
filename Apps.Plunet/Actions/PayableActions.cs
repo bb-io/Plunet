@@ -1,20 +1,14 @@
 ﻿using Apps.Plunet.Constants;
-using Apps.Plunet.Models;
+using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Payable.Request;
 using Apps.Plunet.Models.Payable.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Parsers;
-using Blackbird.Plugins.Plunet.Api;
-using Blackbird.Plugins.Plunet.Constants;
 using Blackbird.Plugins.Plunet.DataPayable30Service;
-using Blackbird.Plugins.Plunet.Extensions;
-using Blackbird.Plugins.Plunet.Invocables;
-using Blackbird.Plugins.Plunet.Models.Payable.Request;
-using Blackbird.Plugins.Plunet.Models.Payable.Response;
 
-namespace Blackbird.Plugins.Plunet.Actions;
+namespace Apps.Plunet.Actions;
 
 [ActionList]
 public class PayableActions : PlunetInvocable

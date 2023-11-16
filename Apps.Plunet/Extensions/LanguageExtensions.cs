@@ -1,8 +1,8 @@
-﻿using Blackbird.Applications.Sdk.Common.Authentication;
+﻿using Apps.Plunet.Models;
+using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Plugins.Plunet.DataAdmin30Service;
-using Blackbird.Plugins.Plunet.Models;
 
-namespace Blackbird.Plugins.Plunet.Extensions;
+namespace Apps.Plunet.Extensions;
 
 public static class LanguageExtensions
 {

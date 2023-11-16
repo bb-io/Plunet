@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet;
+namespace Apps.Plunet;
 
 public class PlunetApplication : IApplication
 {

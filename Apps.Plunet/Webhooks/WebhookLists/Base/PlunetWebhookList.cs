@@ -1,16 +1,16 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Xml.Linq;
+using Apps.Plunet.Constants;
+using Apps.Plunet.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
-using Blackbird.Plugins.Plunet.Constants;
-using Blackbird.Plugins.Plunet.Webhooks.Models;
 using RestSharp;
 
-namespace Blackbird.Plugins.Plunet.Webhooks.WebhookLists.Base;
+namespace Apps.Plunet.Webhooks.WebhookLists.Base;
 
 public abstract class PlunetWebhookList : BaseInvocable
 {

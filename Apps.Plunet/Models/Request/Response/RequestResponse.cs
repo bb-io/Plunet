@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Models.Request;
+namespace Apps.Plunet.Models.Request.Response;
 
 public class RequestResponse
 {
@@ -22,7 +22,7 @@ public class RequestResponse
 
     [Display("Status")] public int Status { get; set; }
 
-    public RequestResponse(DataRequest30Service.Request request)
+    public RequestResponse(Blackbird.Plugins.Plunet.DataRequest30Service.Request request)
     {
         BriefDescription = request.briefDescription;
         CreationDate = request.creationDate;

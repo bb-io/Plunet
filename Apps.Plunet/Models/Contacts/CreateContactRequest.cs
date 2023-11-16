@@ -1,9 +1,9 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
+using Apps.Plunet.Models.Customer;
+using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
-using Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
-using Blackbird.Plugins.Plunet.Models.Customer;
 
-namespace Blackbird.Plugins.Plunet.Models.Contacts;
+namespace Apps.Plunet.Models.Contacts;
 
 public class CreateContactRequest : CustomerRequest
 {

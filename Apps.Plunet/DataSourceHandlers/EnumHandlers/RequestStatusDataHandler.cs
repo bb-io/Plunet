@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
 
-namespace Blackbird.Plugins.Plunet.DataSourceHandlers.EnumHandlers;
+namespace Apps.Plunet.DataSourceHandlers.EnumHandlers;
 
 public class RequestStatusDataHandler : EnumDataHandler
 {

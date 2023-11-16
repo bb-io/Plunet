@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Constants;
+using Apps.Plunet.Extensions;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -13,12 +14,11 @@ using Blackbird.Plugins.Plunet.DataPayable30Service;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
 using Blackbird.Plugins.Plunet.DataRequest30Service;
 using Blackbird.Plugins.Plunet.DataResource30Service;
-using Blackbird.Plugins.Plunet.Extensions;
 using Blackbird.Plugins.Plunet.PlunetAPIService;
 using DataCustomerAddress30Service;
 using DataResourceAddress30Service;
 
-namespace Blackbird.Plugins.Plunet.Invocables;
+namespace Apps.Plunet.Invocables;
 
 public class PlunetInvocable : BaseInvocable
 {

@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Models.Quote;
+namespace Apps.Plunet.Models.Quote.Response;
 
 public class QuoteResponse
 {
@@ -10,7 +10,7 @@ public class QuoteResponse
 
     public double Rate { get; set; }
 
-    public QuoteResponse(DataQuote30Service.Quote quote)
+    public QuoteResponse(Blackbird.Plugins.Plunet.DataQuote30Service.Quote quote)
     {
         Currency = quote.currency;
         ProjectName = quote.projectName;

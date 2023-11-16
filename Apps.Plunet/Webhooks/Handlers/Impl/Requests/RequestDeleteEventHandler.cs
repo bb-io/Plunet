@@ -1,9 +1,9 @@
-﻿using Blackbird.Plugins.Plunet.Webhooks.CallbackClients;
-using Blackbird.Plugins.Plunet.Webhooks.CallbackClients.Base;
-using Blackbird.Plugins.Plunet.Webhooks.Handlers.Base;
-using Blackbird.Plugins.Plunet.Webhooks.Models;
+﻿using Apps.Plunet.Webhooks.CallbackClients;
+using Apps.Plunet.Webhooks.CallbackClients.Base;
+using Apps.Plunet.Webhooks.Handlers.Base;
+using Apps.Plunet.Webhooks.Models;
 
-namespace Blackbird.Plugins.Plunet.Webhooks.Handlers.Impl.Requests;
+namespace Apps.Plunet.Webhooks.Handlers.Impl.Requests;
 
 public class RequestDeleteEventHandler : PlunetWebhookHandler
 {

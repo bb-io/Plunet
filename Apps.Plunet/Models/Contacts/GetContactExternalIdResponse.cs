@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Models.Contacts;
+namespace Apps.Plunet.Models.Contacts;
 
 public class GetContactExternalIdResponse
 {

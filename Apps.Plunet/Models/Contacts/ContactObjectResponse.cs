@@ -1,8 +1,8 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Plunet.Models.Customer;
+using Blackbird.Applications.Sdk.Common;
 using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
-using Blackbird.Plugins.Plunet.Models.Customer;
 
-namespace Blackbird.Plugins.Plunet.Models.Contacts;
+namespace Apps.Plunet.Models.Contacts;
 
 public class ContactObjectResponse : CustomerRequest
 {

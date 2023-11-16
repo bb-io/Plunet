@@ -1,6 +1,6 @@
 ﻿using Blackbird.Plugins.Plunet.DataOrder30Service;
 
-namespace Blackbird.Plugins.Plunet.Models.Order;
+namespace Apps.Plunet.Models.Order;
 
 public class TemplateResponse
 {

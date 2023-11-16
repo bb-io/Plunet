@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Models.Customer;
+namespace Apps.Plunet.Models.Customer;
 
 public class CreateCustomerResponse
 {

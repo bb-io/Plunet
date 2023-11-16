@@ -1,7 +1,6 @@
-﻿using Apps.Plunet.Models.Resource.Response;
-using Blackbird.Applications.Sdk.Common;
+﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Blackbird.Plugins.Plunet.Models.Resource.Response;
+namespace Apps.Plunet.Models.Resource.Response;
 
 public class ResourceResponse
 {
@@ -51,7 +50,7 @@ public class ResourceResponse
 
     [Display("Payment")] public ResourcePaymentResponse Payment { get; set; }
 
-    public ResourceResponse(DataResource30Service.Resource resource, DataResource30Service.PaymentInfo paymentInfo)
+    public ResourceResponse(Blackbird.Plugins.Plunet.DataResource30Service.Resource resource, Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfo paymentInfo)
     {
         AcademicTitle = resource.academicTitle;
         CostCenter = resource.costCenter;

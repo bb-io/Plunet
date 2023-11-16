@@ -1,9 +1,9 @@
-﻿using Blackbird.Applications.Sdk.Common.Authentication;
+﻿using Apps.Plunet.Api;
+using Apps.Plunet.Extensions;
+using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Connections;
-using Blackbird.Plugins.Plunet.Api;
-using Blackbird.Plugins.Plunet.Extensions;
 
-namespace Blackbird.Plugins.Plunet.Connections;
+namespace Apps.Plunet.Connections;
 
 public class ConnectionValidator : IConnectionValidator
 {
@@ -20,14 +20,12 @@ public class ConnectionValidator : IConnectionValidator
                     IsValid = false,
                     Message = "Wrong username of password"
                 };
-            
+
             var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
 
             var allStatuses = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
             await customerClient
                 .getAllCustomerObjects2Async(uuid, Array.ConvertAll(allStatuses, i => (int?)i));
-            
-            await authProviders.Logout();
 
             return new()
             {
@@ -41,6 +39,10 @@ public class ConnectionValidator : IConnectionValidator
                 IsValid = false,
                 Message = ex.Message
             };
+        }
+        finally
+        {
+            await authProviders.Logout();
         }
     }
 }

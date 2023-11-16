@@ -1,4 +1,4 @@
-﻿namespace Blackbird.Plugins.Plunet.Models.Payable.Response;
+﻿namespace Apps.Plunet.Models.Payable.Response;
 
 public class SearchPayablesResponse
 {

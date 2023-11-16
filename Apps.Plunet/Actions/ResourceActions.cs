@@ -1,16 +1,13 @@
-﻿using Apps.Plunet.Models.Resource.Request;
+﻿using Apps.Plunet.Constants;
+using Apps.Plunet.Invocables;
+using Apps.Plunet.Models.Resource.Request;
+using Apps.Plunet.Models.Resource.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Parsers;
-using Blackbird.Plugins.Plunet.Api;
-using Blackbird.Plugins.Plunet.Constants;
-using Blackbird.Plugins.Plunet.Extensions;
-using Blackbird.Plugins.Plunet.Invocables;
-using Blackbird.Plugins.Plunet.Models.Payable.Response;
-using Blackbird.Plugins.Plunet.Models.Resource.Response;
 
-namespace Blackbird.Plugins.Plunet.Actions;
+namespace Apps.Plunet.Actions;
 
 [ActionList]
 public class ResourceActions : PlunetInvocable
@@ -19,12 +16,12 @@ public class ResourceActions : PlunetInvocable
     {
     }
 
-    [Action("Search resources", Description = "Search for specific reasources based on specific criteria")]
+    [Action("Search resources", Description = "Search for specific resources based on specific criteria")]
     public async Task<ListResourceResponse> SearchResources([ActionParameter] SearchResourcesRequest input)
     {
 
         var statuses = new int?[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        var response = await ResourceClient.searchAsync(Uuid, new DataResource30Service.SearchFilter_Resource() 
+        var response = await ResourceClient.searchAsync(Uuid, new Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource() 
         {
             contact_resourceID = IntParser.Parse(input.ContactId, nameof(input.ContactId)) ?? -1,
             email = input.Email ?? "",
