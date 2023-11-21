@@ -77,7 +77,7 @@ public class QuoteActions : PlunetInvocable
     [Action("Create quote", Description = "Create a new quote in Plunet")]
     public async Task<QuoteResponse> CreateQuote([ActionParameter] CreateQuoteRequest request)
     {
-        var quoteIdResult = await QuoteClient.insert2Async(Uuid, new QuoteIN
+        var quoteIn = new QuoteIN
         {
             projectName = request.ProjectName,
             customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
@@ -87,7 +87,11 @@ public class QuoteActions : PlunetInvocable
             projectManagerMemo = request.ProjectManagerMemo,
             referenceNumber = request.ReferenceNumber,
             status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default
-        });
+        };
+
+        var quoteIdResult = request.TemplateId == null ? 
+            await QuoteClient.insert2Async(Uuid,quoteIn) : 
+            await QuoteClient.insert_byTemplateAsync(Uuid, quoteIn, IntParser.Parse(request.TemplateId, nameof(request.TemplateId)) ?? default);
 
         if (quoteIdResult.statusMessage != ApiResponses.Ok)
             throw new(quoteIdResult.statusMessage);
@@ -115,39 +119,6 @@ public class QuoteActions : PlunetInvocable
 
         return await GetQuote(quoteId.ToString());
     }
-
-    //[Action("Create quote based on template", Description = "Create a new quote based on a template")]
-    //public async Task<CreateQuoteResponse> CreateQuoteBasedOnTemplate(IEnumerable<AuthenticationCredentialsProvider> Creds, [ActionParameter] CreateQuoteRequest request,
-    //    [ActionParameter] string templateName)
-    //{
-    //    var uuid = Creds.GetAuthToken();
-    //    using var quoteClient = Clients.GetQuoteClient(Creds.GetInstanceUrl());
-    //    var quote = new QuoteIN
-    //    {
-    //        projectName = request.ProjectName,
-    //        customerID = request.CustomerId,
-    //        subject = request.ProjectName,
-    //        creationDate = DateTime.Now,
-    //    };
-    //    var templates = await quoteClient.getTemplateListAsync(uuid);
-    //    if (templates == null || !templates.data.Any())
-    //    {
-    //        await Creds.Logout();
-    //        return new CreateQuoteResponse();
-    //    }
-
-    //    var template = templates.data.FirstOrDefault(t =>
-    //        t.templateName.Contains(templateName, StringComparison.OrdinalIgnoreCase));
-    //    if (template == null)
-    //    {
-    //        await Creds.Logout();
-    //        return new CreateQuoteResponse();
-    //    }
-
-    //    var quoteIdResult = await quoteClient.insert_byTemplateAsync(uuid, quote, template.templateID);
-    //    await Creds.Logout();
-    //    return new CreateQuoteResponse { QuoteId = quoteIdResult.data };
-    //}
 
     //[Action("Add language combination to quote", Description = "Add a new language combination to an existing quote")]
     //public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToQuote(IEnumerable<AuthenticationCredentialsProvider> Creds, [ActionParameter] AddLanguageCombinationToQuoteRequest request)
