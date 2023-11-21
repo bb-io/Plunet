@@ -25,9 +25,8 @@ public class QuoteActions : PlunetInvocable
     {
         var searchResult = await QuoteClient.searchAsync(Uuid, new()
         {
-            languageCode = input.LanguageCode ?? string.Empty,
-            sourceLanguage = input.SourceLanguage,
-            targetLanguage = input.TargetLanguage,
+            sourceLanguage = input.SourceLanguage ?? string.Empty,
+            targetLanguage = input.TargetLanguage ?? string.Empty,
             quoteStatus = IntParser.Parse(input.QuoteStatus, nameof(input.QuoteStatus)) ?? -1,
             timeFrame = input.DateFrom is not null || input.DateTo is not null
                 ? new()

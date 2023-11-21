@@ -25,13 +25,11 @@ public class CustomerActions : PlunetInvocable
         var response = await CustomerClient.searchAsync(Uuid, new SearchFilter_Customer
         {
             customerType = IntParser.Parse(input.CustomerType, nameof(input.CustomerType)) ?? -1,
-            email = input.Email,
-            languageCode = input.LanguageCode,
-            sourceLanguageCode = input.SourceLanguageCode,
-            name1 = input.Name1,
-            name2 = input.Name2,
+            email = input.Email ?? string.Empty,
+            sourceLanguageCode = input.SourceLanguageCode ?? string.Empty,
+            name1 = input.Name1 ?? string.Empty,
+            name2 = input.Name2 ?? string.Empty,
             customerStatus = IntParser.Parse(input.Status, nameof(input.Status)) ?? -1
-
         });
 
         if (response.statusMessage != ApiResponses.Ok)

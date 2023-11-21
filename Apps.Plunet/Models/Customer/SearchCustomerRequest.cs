@@ -19,10 +19,6 @@ namespace Apps.Plunet.Models.Customer
         [Display("Email")]
         public string? Email { get; set; }
 
-        [Display("Language")]
-        [DataSource(typeof(LanguageIsoDataHandler))]
-        public string? LanguageCode { get; set; }
-
         [Display("Source language")]
         [DataSource(typeof(LanguageIsoDataHandler))]
         public string? SourceLanguageCode { get; set; }

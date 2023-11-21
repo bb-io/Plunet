@@ -2,6 +2,7 @@
 using System.Net.Mime;
 using System.Xml.Linq;
 using Apps.Plunet.Constants;
+using Apps.Plunet.Invocables;
 using Apps.Plunet.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
@@ -12,7 +13,7 @@ using RestSharp;
 
 namespace Apps.Plunet.Webhooks.WebhookLists.Base;
 
-public abstract class PlunetWebhookList : BaseInvocable
+public abstract class PlunetWebhookList : PlunetInvocable
 {
     protected abstract string ServiceName { get; }
     protected abstract string XmlTagName { get; }

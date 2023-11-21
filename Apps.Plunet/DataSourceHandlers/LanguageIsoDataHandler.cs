@@ -12,15 +12,14 @@ public class LanguageIsoDataHandler : PlunetInvocable, IAsyncDataSourceHandler
 
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
         CancellationToken cancellationToken)
-    {
-            
+    {            
         var languages = await AdminClient.getAvailableLanguagesAsync(Uuid, Language);
-
 
         return languages.data
             .Where(language => context.SearchString == null ||
                                language.name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
             .Take(20)
-            .ToDictionary(language => language.isoCode, language => language.name);
+            .GroupBy(x => x.isoCode)
+            .ToDictionary(x => x.Key.ToString(), language => language.First().ToString()!);
     }
 }
