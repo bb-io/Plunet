@@ -24,16 +24,11 @@ public class OrderActions : PlunetInvocable
     {
     }
 
-    [Action("Get order", Description = "Get details for a Plunet order")]
-    public async Task<OrderResponse> GetOrder([ActionParameter] [Display("Order ID")] [DataSource(typeof(OrderIdDataHandler))] string orderId)
+    [Action("Get order", Description = "Get the Plunet order")]
+    public async Task<OrderResponse> GetOrder([ActionParameter] OrderRequest request)
     {
-        var intOrderId = IntParser.Parse(orderId, nameof(orderId))!.Value;
-        var uuid = Creds.GetAuthToken();
-
-        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
-        var orderResult = await orderClient.getOrderObjectAsync(uuid, intOrderId);
-
-        await Creds.Logout();
+        var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
+        var orderResult = await OrderClient.getOrderObjectAsync(Uuid, intOrderId);
 
         if (orderResult.data is null)
             throw new(orderResult.statusMessage);
@@ -44,10 +39,7 @@ public class OrderActions : PlunetInvocable
     [Action("Create order", Description = "Create a new order in Plunet")]
     public async Task<CreateOrderResponse> CreateOrder([ActionParameter] CreateOrderRequest request)
     {
-        var uuid = Creds.GetAuthToken();
-
-        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
-        var orderIdResult = await orderClient.insert2Async(uuid, new()
+        var orderIdResult = await OrderClient.insert2Async(Uuid, new()
         {
             projectName = request.ProjectName,
             customerContactID = IntParser.Parse(request.ContactId, nameof(request.ContactId)) ?? default,
@@ -62,21 +54,46 @@ public class OrderActions : PlunetInvocable
             referenceNumber = request.ReferenceNumber
         });
 
-        await Creds.Logout();
-
         return new()
         {
             OrderId = orderIdResult.data.ToString()
         };
     }
 
+    [Action("Delete order", Description = "Delete a Plunet order")]
+    public async Task DeleteOrder([ActionParameter] OrderRequest request)
+    {
+        var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
+        await OrderClient.deleteAsync(Uuid, intOrderId);
+    }
+
+    [Action("Update order", Description = "Update Plunet order")]
+    public async Task UpdateOrder([ActionParameter] UpdateOrderRequest request)
+    {
+        var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
+
+        await OrderClient.updateAsync(Uuid, new OrderIN
+        {
+            orderID = intOrderId,
+            projectName = request.ProjectName,
+            customerContactID = IntParser.Parse(request.ContactId, nameof(request.ContactId)) ?? default,
+            customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
+            subject = request.Subject,
+            projectManagerID = IntParser.Parse(request.ProjectManagerId, nameof(request.ProjectManagerId))!.Value,
+            orderDate = DateTime.Now,
+            deliveryDeadline = request.Deadline ?? default,
+            currency = request.Currency,
+            projectManagerMemo = request.ProjectManagerMemo,
+            rate = request.Rate ?? default,
+            referenceNumber = request.ReferenceNumber
+        }, false);
+    }
+
+
     [Action("Add item to order", Description = "Add a new item to an order")]
     public async Task<CreateItemResponse> AddItemToOrder([ActionParameter] CreateItemRequest request)
     {
-        var uuid = Creds.GetAuthToken();
-
-        await using var itemClient = Clients.GetItemClient(Creds.GetInstanceUrl());
-        var itemIdResult = await itemClient.insert2Async(uuid, new()
+        var itemIdResult = await ItemClient.insert2Async(Uuid, new()
         {
             briefDescription = request.ItemName,
             projectID = IntParser.Parse(request.ProjectId, nameof(request.ProjectId)) ?? default,
@@ -86,9 +103,6 @@ public class OrderActions : PlunetInvocable
             reference = request.Reference,
             status = request.Status ?? default,
         });
-
-        await Creds.Logout();
-
         return new()
         {
             ItemId = itemIdResult.data.ToString()
@@ -98,25 +112,15 @@ public class OrderActions : PlunetInvocable
     [Action("List templates", Description = "List all templates")]
     public async Task<ListTemplatesResponse> ListTemplates()
     {
-        var uuid = Creds.GetAuthToken();
-
-        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
-        var response = await orderClient.getTemplateListAsync(uuid);
-
-        await Creds.Logout();
-
+        var response = await OrderClient.getTemplateListAsync(Uuid);
         var templates = response.data.Select(x => new TemplateResponse(x)).ToArray();
         return new(templates);
     }
 
     [Action("Create order based on template", Description = "Create a new order based on a template")]
     public async Task<CreateOrderResponse> CreateOrderBasedOnTemplate([ActionParameter] CreateOrderRequest request,
-        [ActionParameter] [DataSource(typeof(TemplateDataHandler))] [Display("Template")]
-        string templateId)
+        [ActionParameter] OrderTemplateRequest templateRequest)
     {
-        var uuid = Creds.GetAuthToken();
-
-        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
         var order = new OrderIN
         {
             projectName = request.ProjectName,
@@ -132,9 +136,7 @@ public class OrderActions : PlunetInvocable
             referenceNumber = request.ReferenceNumber
         };
 
-        var orderIdResult = await orderClient.insert_byTemplateAsync(uuid, order, int.Parse(templateId));
-        await Creds.Logout();
-
+        var orderIdResult = await OrderClient.insert_byTemplateAsync(Uuid, order, int.Parse(templateRequest.TemplateId));
         return new()
         {
             OrderId = orderIdResult.data.ToString()
@@ -145,27 +147,17 @@ public class OrderActions : PlunetInvocable
     public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder(
         [ActionParameter] AddLanguageCombinationRequest request)
     {
-        try
+        var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
+        var langCombination = await new LanguageCombination(request.SourceLanguageCode, request.TargetLanguageCode)
+            .GetLangNamesByLangIso(Creds);
+
+        var result = await OrderClient.addLanguageCombinationAsync(Uuid, langCombination.Source,
+            langCombination.Target, intOrderId);
+
+        return new()
         {
-            var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
-            var uuid = Creds.GetAuthToken();
-
-            await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
-            var langCombination = await new LanguageCombination(request.SourceLanguageCode, request.TargetLanguageCode)
-                .GetLangNamesByLangIso(Creds);
-
-            var result = await orderClient.addLanguageCombinationAsync(uuid, langCombination.Source,
-                langCombination.Target, intOrderId);
-
-            return new()
-            {
-                LanguageCombinationId = result.data.ToString()
-            };
-        }
-        finally
-        {
-            await Creds.Logout();
-        }
+            LanguageCombinationId = result.data.ToString()
+        };
     }
 
     [Action("Set language combination to item", Description = "Set the language combination to an item")]
@@ -174,120 +166,59 @@ public class OrderActions : PlunetInvocable
         var intLangCombId = IntParser.Parse(request.LanguageCombinationId, nameof(request.LanguageCombinationId))!
             .Value;
         var intItemId = IntParser.Parse(request.ItemId, nameof(request.ItemId))!.Value;
-
-        var uuid = Creds.GetAuthToken();
-
-        await using var itemClient = Clients.GetItemClient(Creds.GetInstanceUrl());
-        await itemClient.setLanguageCombinationIDAsync(uuid, intLangCombId, 3, intItemId);
-
-        await Creds.Logout();
+        await ItemClient.setLanguageCombinationIDAsync(Uuid, intLangCombId, 3, intItemId);
     }
 
     [Action("Add priceline to item", Description = "Adds a new priceline")]
     public async Task<PriceLineListResponse> AddPriceLinesToItem([ActionParameter] PriceLineRequest request)
     {
-        try
+        var intItemId = IntParser.Parse(request.ItemId, nameof(request.ItemId))!.Value;
+
+        var priceUnitListResult = await ItemClient.getPriceUnit_ListAsync(Uuid, "en", "Translation");
+        var priceUnits = priceUnitListResult.data?.Where(x =>
+            x.description.Contains("Words Translation", StringComparison.OrdinalIgnoreCase)).ToArray();
+
+        if (priceUnits == null || !priceUnits.Any())
+            throw new("No price units found");
+
+        foreach (var priceUnit in priceUnits)
         {
-            var intItemId = IntParser.Parse(request.ItemId, nameof(request.ItemId))!.Value;
-            var uuid = Creds.GetAuthToken();
-
-            await using var itemClient = Clients.GetItemClient(Creds.GetInstanceUrl());
-
-            var priceUnitListResult = await itemClient.getPriceUnit_ListAsync(uuid, "en", "Translation");
-            var priceUnits = priceUnitListResult.data?.Where(x =>
-                x.description.Contains("Words Translation", StringComparison.OrdinalIgnoreCase)).ToArray();
-
-            if (priceUnits == null || !priceUnits.Any())
-                throw new("No price units found");
-
-            foreach (var priceUnit in priceUnits)
+            var priceLine = new PriceLineIN
             {
-                var priceLine = new PriceLineIN
-                {
-                    amount = request.Amount,
-                    priceUnitID = priceUnit.priceUnitID,
-                    taxType = 0,
-                    unit_price = request.UnitPrice
-                };
-                await itemClient.insertPriceLineAsync(uuid, intItemId, 3, priceLine,
-                    priceUnit.description.Contains("New", StringComparison.OrdinalIgnoreCase));
-            }
-
-            var priceListResult = await itemClient.getPriceLine_ListAsync(uuid, intItemId, 3);
-
-            return new()
-            {
-                PriceLines = priceListResult.data.Select(x => new PriceLineResponse(x))
+                amount = request.Amount,
+                priceUnitID = priceUnit.priceUnitID,
+                taxType = 0,
+                unit_price = request.UnitPrice
             };
+            await ItemClient.insertPriceLineAsync(Uuid, intItemId, 3, priceLine,
+                priceUnit.description.Contains("New", StringComparison.OrdinalIgnoreCase));
         }
-        finally
+        var priceListResult = await ItemClient.getPriceLine_ListAsync(Uuid, intItemId, 3);
+        return new()
         {
-            await Creds.Logout();
-        }
-    }
-
-    [Action("Delete order", Description = "Delete a Plunet order")]
-    public async Task DeleteOrder([ActionParameter] [Display("Order ID")] string orderId)
-    {
-        var intOrderId = IntParser.Parse(orderId, nameof(orderId))!.Value;
-        var uuid = Creds.GetAuthToken();
-
-        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
-        await orderClient.deleteAsync(uuid, intOrderId);
-
-        await Creds.Logout();
-    }
-
-    [Action("Update order", Description = "Update Plunet order")]
-    public async Task UpdateOrder([ActionParameter] UpdateOrderRequest request)
-    {
-        var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
-        var uuid = Creds.GetAuthToken();
-
-        var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
-        await orderClient.updateAsync(uuid, new OrderIN
-        {
-            orderID = intOrderId,
-            projectName = request.ProjectName,
-            customerContactID = IntParser.Parse(request.ContactId, nameof(request.ContactId)) ?? default,
-            customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
-            subject = request.Subject,
-            projectManagerID = IntParser.Parse(request.ProjectManagerId, nameof(request.ProjectManagerId))!.Value,
-            orderDate = DateTime.Now,
-            deliveryDeadline = request.Deadline ?? default,
-            currency = request.Currency,
-            projectManagerMemo = request.ProjectManagerMemo,
-            rate = request.Rate ?? default,
-            referenceNumber = request.ReferenceNumber
-        }, false);
-
-        await Creds.Logout();
+            PriceLines = priceListResult.data.Select(x => new PriceLineResponse(x))
+        };
     }
 
     [Action("Get language combinations for order", Description = "Get language combinations (source language - target " +
                                                                  "language) for order.")]
     public async Task<LanguageCombinationsResponse> GetLanguageCombinationsForOrder(
-        [ActionParameter] [Display("Order ID")] [DataSource(typeof(OrderIdDataHandler))] string orderId)
+        [ActionParameter] OrderRequest request)
     {
-        var intOrderId = IntParser.Parse(orderId, nameof(orderId))!.Value;
-        var uuid = Creds.GetAuthToken();
+        var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
 
-        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
-        var languageCombinations = await orderClient.getLanguageCombinationAsync(uuid, intOrderId);
-        
+        var languageCombinations = await OrderClient.getLanguageCombinationAsync(Uuid, intOrderId);
+
         if (languageCombinations.data is null)
             throw new(languageCombinations.statusMessage);
-        
-        await using var client = Clients.GetAdminClient(Creds.GetInstanceUrl());
-        var languages = await client.getAvailableLanguagesAsync(uuid, "en");
+
+        var languages = await AdminClient.getAvailableLanguagesAsync(Uuid, "en");
 
         var orderLanguageCombinations = languageCombinations.data
             .Select(combination => new { source = combination.Split(" - ")[0], target = combination.Split(" - ")[1] })
             .Select(combination =>
                 new LanguageCombination(languages.data.First(l => l.name == combination.source).folderName,
                     languages.data.First(l => l.name == combination.target).folderName));
-        
-        await Creds.Logout();
 
         return new() { LanguageCombinations = orderLanguageCombinations };
     }
