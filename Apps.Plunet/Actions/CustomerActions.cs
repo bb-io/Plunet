@@ -155,9 +155,8 @@ public class CustomerActions : PlunetInvocable
         [ActionParameter] CustomerRequest customer, [ActionParameter] SetCustomerAddressRequest request)
     {
         var intCustomerId = IntParser.Parse(customer.CustomerId, nameof(customer.CustomerId))!.Value;
-        var uuid = Creds.GetAuthToken();
         
-        var response = await CustomerAddressClient.insert2Async(uuid, intCustomerId, new()
+        var response = await CustomerAddressClient.insert2Async(Uuid, intCustomerId, new()
         {
             name1 = request.FirstAddressName,
             city = request.City,
