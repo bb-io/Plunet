@@ -13,29 +13,24 @@ public class ContactIdDataHandler : PlunetInvocable, IAsyncDataSourceHandler
     {
     }
 
+    // TODO: Make use of advanced dynamic inputs and ask for customer ID first.
+
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
         CancellationToken cancellationToken)
     {
-        var uuid = Creds.GetAuthToken();
-
-        var customerClient = Clients.GetCustomerClient(Creds.GetInstanceUrl());
-
         var allStatuses = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-        var customers = await customerClient
-            .getAllCustomerObjects2Async(uuid, Array.ConvertAll(allStatuses, i => (int?)i));
+        var customers = await CustomerClient
+            .getAllCustomerObjects2Async(Uuid, Array.ConvertAll(allStatuses, i => (int?)i));
 
-        var contactClient = Clients.GetContactClient(Creds.GetInstanceUrl());
         var allContacts = new List<ContactObjectResponse>();
          
         foreach(var customer in customers.CustomerListResult.data)
         {
-            var contacts = await contactClient.getAllContactObjectsAsync(uuid, customer.customerID);
+            var contacts = await ContactClient.getAllContactObjectsAsync(Uuid, customer.customerID);
                
             if(contacts.data != null)
                 allContacts.AddRange(contacts.data.Select(c => new ContactObjectResponse(c)));
         }
-            
-        await Creds.Logout();
 
         return allContacts.DistinctBy(c => c.CustomerContactId)
             .Where(x => context.SearchString == null ||

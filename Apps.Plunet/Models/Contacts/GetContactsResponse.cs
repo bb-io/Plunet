@@ -4,6 +4,6 @@ namespace Apps.Plunet.Models.Contacts;
 
 public class GetContactsResponse
 {
-    [Display("Customer contacts")]
+    [Display("Contacts")]
     public IEnumerable<ContactObjectResponse> CustomerContacts { get; set; }
 }

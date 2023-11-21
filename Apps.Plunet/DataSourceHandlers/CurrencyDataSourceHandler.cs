@@ -15,12 +15,7 @@ namespace Apps.Plunet.DataSourceHandlers
         public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
             CancellationToken cancellationToken)
         {
-            var uuid = Creds.GetAuthToken();
-
-            var client = Clients.GetAdminClient(Creds.GetInstanceUrl());
-            var currencies = await client.getSystemCurrenciesAsync(uuid);
-
-            await Creds.Logout();
+            var currencies = await AdminClient.getSystemCurrenciesAsync(Uuid);
 
             return currencies.data
                 .Where(x => context.SearchString == null ||

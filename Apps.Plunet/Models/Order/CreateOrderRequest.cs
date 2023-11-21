@@ -24,7 +24,8 @@ public class CreateOrderRequest
     [Display("Contact ID")]
     [DataSource(typeof(ContactIdDataHandler))]
     public string? ContactId { get; set; }
-    
+
+    [DataSource(typeof(CurrencyDataSourceHandler))]
     public string? Currency { get; set; }
     
     public double? Rate { get; set; }
