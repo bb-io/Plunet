@@ -60,7 +60,7 @@ public class ContactActions : PlunetInvocable
     }
 
     [Action("Create contact", Description = "Create a new contact in Plunet")]
-    public async Task<CreateContactResponse> CreateContact([ActionParameter] CreateContactRequest request)
+    public async Task<ContactObjectResponse> CreateContact([ActionParameter] CreateContactRequest request)
     {
         var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
 
@@ -81,19 +81,19 @@ public class ContactActions : PlunetInvocable
             supervisor2 = request.Supervisor2,
             status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default
         });
-        
-        return new()
-        {
-            ContactId = contactIdResult.data.ToString()
-        };
+
+        if (contactIdResult.statusMessage != ApiResponses.Ok)
+            throw new(contactIdResult.statusMessage);
+
+        return await GetContactById(new ContactRequest { ContactId = contactIdResult.data.ToString()});
     }
 
     [Action("Update contact", Description = "Update Plunet contact")]
-    public async Task UpdateContact([ActionParameter] UpdateContactRequest request)
+    public async Task<ContactObjectResponse> UpdateContact([ActionParameter] UpdateContactRequest request)
     {
         var intContactId = IntParser.Parse(request.ContactId, nameof(request.ContactId))!.Value;
         
-        await ContactClient.updateAsync(Uuid, new()
+        var result = await ContactClient.updateAsync(Uuid, new()
         {
             customerContactID = intContactId,
             name1 = request.FirstName,
@@ -110,5 +110,10 @@ public class ContactActions : PlunetInvocable
             supervisor1 = request.Supervisor1,
             supervisor2 = request.Supervisor2,
         }, false);
+
+        if (result.statusMessage != ApiResponses.Ok)
+            throw new(result.statusMessage);
+
+        return await GetContactById(new ContactRequest { ContactId = request.ContactId });
     }
 }

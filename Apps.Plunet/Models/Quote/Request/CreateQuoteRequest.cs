@@ -7,6 +7,10 @@ namespace Apps.Plunet.Models.Quote.Request;
 
 public class CreateQuoteRequest
 {
+    [Display("Template")]
+    [DataSource(typeof(QuoteTemplateDataHandler))]
+    public string? TemplateId { get; set; }
+
     [Display("Currency")]
     public string? Currency { get; set; }
 

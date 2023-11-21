@@ -56,10 +56,15 @@ public class CustomerActions : PlunetInvocable
         var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
         var customer = await CustomerClient.getCustomerObjectAsync(Uuid, intCustomerId);
 
+        var paymentInfo = await CustomerClient.getPaymentInformationAsync(Uuid, intCustomerId);
+
+        if (paymentInfo.statusMessage != ApiResponses.Ok)
+            throw new(paymentInfo.statusMessage);
+
         if (customer.data is null)
             throw new(customer.statusMessage);
 
-        return new(customer.data);
+        return new(customer.data, paymentInfo.data);
     }
 
     [Action("Delete customer", Description = "Delete a Plunet customer")]
@@ -70,7 +75,7 @@ public class CustomerActions : PlunetInvocable
     }
 
     [Action("Create customer", Description = "Create a new customer in Plunet")]
-    public async Task<CreateCustomerResponse> CreateCustomer([ActionParameter] CreateCustomerRequest request)
+    public async Task<GetCustomerResponse> CreateCustomer([ActionParameter] CreateCustomerRequest request)
     {
         if (request.AddressType == null ^ request.Country == null)
             throw new(
@@ -97,22 +102,20 @@ public class CustomerActions : PlunetInvocable
         });
 
         var customerId = customerIdResult.data.ToString();
-        var address = request.AddressType is null
-            ? null
-            : await SetCustomerAddress(new()
+
+        if (request.AddressType != null)
+        {
+            await SetCustomerAddress(new()
             {
                 CustomerId = customerId
             }, new(request));
+        }
 
-        return new()
-        {
-            CustomerId = customerId,
-            AddressId = address?.AddressId
-        };
+        return await GetCustomerById(new CustomerRequest { CustomerId = customerId });
     }
 
     [Action("Update customer", Description = "Update Plunet customer")]
-    public async Task UpdateCustomer([ActionParameter] UpdateCustomerRequest request)
+    public async Task<GetCustomerResponse> UpdateCustomer([ActionParameter] UpdateCustomerRequest request)
     {
         var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
         
@@ -136,21 +139,11 @@ public class CustomerActions : PlunetInvocable
             skypeID = request.SkypeId,
             userId = IntParser.Parse(request.UserId, nameof(request.UserId)) ?? default,
         }, false);
+
+        return await GetCustomerById(new CustomerRequest { CustomerId = request.CustomerId });
     }
 
-    [Action("Get payment information", Description = "Get payment information for Plunet customer")]
-    public async Task<GetPaymentInfoResponse> GetPaymentInfoByCustomerId([ActionParameter] CustomerRequest input)
-    {
-        var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
-        var paymentInfo = await CustomerClient.getPaymentInformationAsync(Uuid, intCustomerId);
-
-        if (paymentInfo.data is null)
-            throw new(paymentInfo.statusMessage);
-
-        return new(paymentInfo.data);
-    }
-
-    [Action("Set customer address", Description = "Set Plunet customer address")]
+    //[Action("Set customer address", Description = "Set Plunet customer address")]
     public async Task<SetCustomerAddressResponse> SetCustomerAddress(
         [ActionParameter] CustomerRequest customer, [ActionParameter] SetCustomerAddressRequest request)
     {
@@ -178,51 +171,51 @@ public class CustomerActions : PlunetInvocable
         };
     }
 
-    [Action("Update customer address", Description = "Update Plunet customer address")]
-    public async Task<SetCustomerAddressResponse> UpdateCustomerAddress(
-        [ActionParameter] UpdateCustomerAddressRequest request)
-    {
-        var addressId = int.Parse(request.AddressId);
+    //[Action("Update customer address", Description = "Update Plunet customer address")]
+    //public async Task<SetCustomerAddressResponse> UpdateCustomerAddress(
+    //    [ActionParameter] UpdateCustomerAddressRequest request)
+    //{
+    //    var addressId = int.Parse(request.AddressId);
 
-        var response = await CustomerAddressClient.updateAsync(Uuid, new()
-        {
-            addressID = addressId,
-            name1 = request.FirstAddressName,
-            city = request.City,
-            addressType = IntParser.Parse(request.AddressType, nameof(request.AddressType)) ?? default,
-            street = request.Street,
-            street2 = request.Street2,
-            zip = request.ZipCode,
-            country = request.Country,
-            state = request.State,
-            description = request.Description
-        }, false);
+    //    var response = await CustomerAddressClient.updateAsync(Uuid, new()
+    //    {
+    //        addressID = addressId,
+    //        name1 = request.FirstAddressName,
+    //        city = request.City,
+    //        addressType = IntParser.Parse(request.AddressType, nameof(request.AddressType)) ?? default,
+    //        street = request.Street,
+    //        street2 = request.Street2,
+    //        zip = request.ZipCode,
+    //        country = request.Country,
+    //        state = request.State,
+    //        description = request.Description
+    //    }, false);
 
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
+    //    if (response.statusMessage != ApiResponses.Ok)
+    //        throw new(response.statusMessage);
 
-        return new()
-        {
-            AddressId = addressId.ToString()
-        };
-    }
+    //    return new()
+    //    {
+    //        AddressId = addressId.ToString()
+    //    };
+    //}
 
-    [Action("Get customer addresses", Description = "Get all Plunet customer address IDs")]
-    public async Task<ListAddressesResponse> GetAllAddresses([ActionParameter] CustomerRequest request)
-    {
-        var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
-        var response = await CustomerAddressClient.getAllAddressesAsync(Uuid, intCustomerId);
+    //[Action("Get customer addresses", Description = "Get all Plunet customer address IDs")]
+    //public async Task<ListAddressesResponse> GetAllAddresses([ActionParameter] CustomerRequest request)
+    //{
+    //    var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
+    //    var response = await CustomerAddressClient.getAllAddressesAsync(Uuid, intCustomerId);
 
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
+    //    if (response.statusMessage != ApiResponses.Ok)
+    //        throw new(response.statusMessage);
 
-        var addresses = response.data
-            .Where(x => x is not null)
-            .Select(x => x.Value.ToString())
-            .ToList();
+    //    var addresses = response.data
+    //        .Where(x => x is not null)
+    //        .Select(x => x.Value.ToString())
+    //        .ToList();
 
-        return new(addresses);
-    }
+    //    return new(addresses);
+    //}
 
     // [Action("Set payment information by customer ID", Description = "Set payment information by Plunet customer ID")]
     // public async Task SetPaymentInfoByCustomerId(IEnumerable<AuthenticationCredentialsProvider> Creds, [ActionParameter] int customerId, [ActionParameter] GetPaymentInfoResponse request)

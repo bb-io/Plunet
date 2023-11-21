@@ -58,7 +58,6 @@ public class RequestActions : PlunetInvocable
     public async Task<RequestResponse> GetRequest([ActionParameter] [Display("Request ID")] string requestId)
     {
         var intRequestId = IntParser.Parse(requestId, nameof(requestId))!.Value;
-
         var requestResult = await RequestClient.getRequestObjectAsync(Uuid, intRequestId);
 
         if (requestResult.data is null)
@@ -68,7 +67,7 @@ public class RequestActions : PlunetInvocable
     }
 
     [Action("Create request", Description = "Create a new request in Plunet")]
-    public async Task<CreatеRequestResponse> CreateRequest([ActionParameter] CreatеRequestRequest request)
+    public async Task<RequestResponse> CreateRequest([ActionParameter] CreatеRequestRequest request)
     {
         var requestIdResult = await RequestClient.insert2Async(Uuid, new()
         {
@@ -81,6 +80,9 @@ public class RequestActions : PlunetInvocable
             status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default,
             quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId)) ?? default
         });
+
+        if (requestIdResult.statusMessage != ApiResponses.Ok)
+            throw new(requestIdResult.statusMessage);
 
         var requestId = requestIdResult.data;
 
@@ -121,16 +123,13 @@ public class RequestActions : PlunetInvocable
             await RequestClient.setWorkflowIDAsync(Uuid, requestId,
                 IntParser.Parse(request.WorkflowId, nameof(request.WorkflowId))!.Value);
 
-        return new()
-        {
-            RequestId = requestIdResult.data.ToString()
-        };
+        return await GetRequest(requestId.ToString());
     }
 
     [Action("Update request", Description = "Update Plunet request")]
-    public async Task UpdateRequest([ActionParameter] UpdateRequestRequest request)
+    public async Task<RequestResponse> UpdateRequest([ActionParameter] UpdateRequestRequest request)
     {
-        await RequestClient.updateAsync(Uuid, new RequestIN
+        var result = await RequestClient.updateAsync(Uuid, new RequestIN
         {
             requestID = IntParser.Parse(request.RequestId, nameof(request.RequestId))!.Value,
             briefDescription = request.BriefDescription,
@@ -142,6 +141,11 @@ public class RequestActions : PlunetInvocable
             status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default,
             quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId)) ?? default
         }, false);
+
+        if (result.statusMessage != ApiResponses.Ok)
+            throw new(result.statusMessage);
+
+        return await GetRequest(request.RequestId);
     }
 
     [Action("Delete request", Description = "Delete a Plunet request")]
