@@ -1,4 +1,5 @@
 ﻿using Blackbird.Applications.Sdk.Common;
+using Blackbird.Plugins.Plunet.DataCustomer30Service;
 
 namespace Apps.Plunet.Models.Customer;
 
@@ -49,7 +50,10 @@ public class GetCustomerResponse
     [Display("Website")]
     public string Website { get; set; }
 
-    public GetCustomerResponse(Blackbird.Plugins.Plunet.DataCustomer30Service.Customer customer)
+    [Display("Payment information")]
+    public GetPaymentInfoResponse PaymentInformation { get; set; }
+
+    public GetCustomerResponse(Blackbird.Plugins.Plunet.DataCustomer30Service.Customer customer, PaymentInfo paymentInfo)
     {
         AcademicTitle = customer.academicTitle;
         CostCenter = customer.costCenter;
@@ -66,5 +70,6 @@ public class GetCustomerResponse
         Status = customer.status;
         UserId = customer.userId.ToString();
         Website = customer.website;
+        PaymentInformation = new GetPaymentInfoResponse(paymentInfo);
     }
 }

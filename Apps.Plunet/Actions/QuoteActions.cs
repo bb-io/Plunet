@@ -1,4 +1,5 @@
-﻿using Apps.Plunet.Extensions;
+﻿using Apps.Plunet.Constants;
+using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Quote;
 using Apps.Plunet.Models.Quote.Request;
@@ -8,6 +9,7 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
+using Blackbird.Plugins.Plunet.DataRequest30Service;
 
 namespace Apps.Plunet.Actions;
 
@@ -73,7 +75,7 @@ public class QuoteActions : PlunetInvocable
     }
 
     [Action("Create quote", Description = "Create a new quote in Plunet")]
-    public async Task<CreateQuoteResponse> CreateQuote([ActionParameter] CreateQuoteRequest request)
+    public async Task<QuoteResponse> CreateQuote([ActionParameter] CreateQuoteRequest request)
     {
         var quoteIdResult = await QuoteClient.insert2Async(Uuid, new QuoteIN
         {
@@ -86,6 +88,9 @@ public class QuoteActions : PlunetInvocable
             referenceNumber = request.ReferenceNumber,
             status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default
         });
+
+        if (quoteIdResult.statusMessage != ApiResponses.Ok)
+            throw new(quoteIdResult.statusMessage);
 
         var quoteId = quoteIdResult.data;
 
@@ -108,10 +113,7 @@ public class QuoteActions : PlunetInvocable
             await QuoteClient.setCustomerContactIDAsync(Uuid,
                 IntParser.Parse(request.ContactId, nameof(request.ContactId))!.Value, quoteId);
 
-        return new()
-        {
-            QuoteId = quoteIdResult.data.ToString()
-        };
+        return await GetQuote(quoteId.ToString());
     }
 
     //[Action("Create quote based on template", Description = "Create a new quote based on a template")]
@@ -185,9 +187,9 @@ public class QuoteActions : PlunetInvocable
     }
 
     [Action("Update quote", Description = "Update Plunet quote")]
-    public async Task UpdateQuote([ActionParameter] UpdateQuoteRequest request)
+    public async Task<QuoteResponse> UpdateQuote([ActionParameter] UpdateQuoteRequest request)
     {
-        await QuoteClient.updateAsync(Uuid, new QuoteIN
+        var result = await QuoteClient.updateAsync(Uuid, new QuoteIN
         {
             quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId))!.Value,
             projectName = request.ProjectName,
@@ -199,5 +201,10 @@ public class QuoteActions : PlunetInvocable
             referenceNumber = request.ReferenceNumber,
             status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default
         }, false);
+
+        if (result.statusMessage != ApiResponses.Ok)
+            throw new(result.statusMessage);
+
+        return await GetQuote(request.QuoteId);
     }
 }
