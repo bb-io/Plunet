@@ -34,7 +34,10 @@ public class OrderResponse
     [Display("Rate")]
     public double Rate { get; set; }
 
-    public OrderResponse(Blackbird.Plugins.Plunet.DataOrder30Service.Order order)
+    [Display("Language combinations")]
+    public IEnumerable<LanguageCombination> LanguageCombinations { get; set; }
+
+    public OrderResponse(Blackbird.Plugins.Plunet.DataOrder30Service.Order order, IEnumerable<LanguageCombination> combinations)
     {
         Currency = order.currency;
         CustomerId = order.customerID.ToString();
@@ -46,5 +49,6 @@ public class OrderResponse
         ProjectManagerId = order.projectManagerID.ToString();
         ProjectName = order.projectName;
         Rate = order.rate;
+        LanguageCombinations = combinations;
     }
 }

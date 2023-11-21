@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Api;
+using Apps.Plunet.Constants;
 using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Order;
@@ -16,18 +17,14 @@ public class TemplateDataHandler : PlunetInvocable, IAsyncDataSourceHandler
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
         CancellationToken cancellationToken)
     {
-        var uuid = Creds.GetAuthToken();
+        var response = await OrderClient.getTemplateListAsync(Uuid);
 
-        await using var orderClient = Clients.GetOrderClient(Creds.GetInstanceUrl());
-        var response = await orderClient.getTemplateListAsync(uuid);
+        if (response.statusMessage != ApiResponses.Ok)
+            throw new(response.statusMessage);
 
-        await Creds.Logout();
-
-        var templates = response.data.Select(x => new TemplateResponse(x)).ToArray();
-
-        return templates
+        return response.data
             .Where(x => context.SearchString == null ||
-                        x.Name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-            .ToDictionary(x => x.Id, x => x.Name);
+                        x.templateName.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
+            .ToDictionary(x => x.templateID.ToString(), x => x.templateName);
     }
 }

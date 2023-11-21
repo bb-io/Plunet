@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Api;
+using Apps.Plunet.Constants;
 using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Customer;
@@ -16,22 +17,16 @@ public class CustomerIdDataHandler : PlunetInvocable, IAsyncDataSourceHandler
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
         CancellationToken cancellationToken)
     {
-        var uuid = Creds.GetAuthToken();
-        var customerClient = Clients.GetCustomerClient(Creds.GetInstanceUrl());
-
         var allStatuses = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-        var response = await customerClient
-            .getAllCustomerObjects2Async(uuid, Array.ConvertAll(allStatuses, i => (int?)i));
+        var response = await CustomerClient.getAllCustomerObjects2Async(Uuid, Array.ConvertAll(allStatuses, i => (int?)i));
 
-        var customers = response.CustomerListResult.data
-            .Select(x => new GetCustomerResponse(x)).ToArray();
+        if (response.CustomerListResult.statusMessage != ApiResponses.Ok)
+            throw new(response.CustomerListResult.statusMessage);
 
-        await Creds.Logout();
-
-        return customers
+        return response.CustomerListResult.data
             .Where(x => context.SearchString == null ||
-                        x.Name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
+                        x.fullName.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
             .Take(20)
-            .ToDictionary(x => x.CustomerId, x => x.Name);
+            .ToDictionary(x => x.customerID.ToString(), x => x.fullName);
     }
 }

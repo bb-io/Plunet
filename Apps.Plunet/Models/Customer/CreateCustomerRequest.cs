@@ -23,6 +23,7 @@ public class CreateCustomerRequest
 
     [Display("Academic title")] public string? AcademicTitle { get; set; }
 
+    [DataSource(typeof(CurrencyDataSourceHandler))]
     public string? Currency { get; set; }
 
     public string? Fax { get; set; }

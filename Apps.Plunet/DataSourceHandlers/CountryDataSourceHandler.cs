@@ -15,12 +15,7 @@ public class CountryDataSourceHandler : PlunetInvocable, IAsyncDataSourceHandler
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
         CancellationToken cancellationToken)
     {
-        var uuid = Creds.GetAuthToken();
-       
-        var client = Clients.GetAdminClient(Creds.GetInstanceUrl());
-        var countries = await client.getAvailableCountriesAsync(uuid, "en");
-        
-        await Creds.Logout();
+        var countries = await AdminClient.getAvailableCountriesAsync(Uuid, Language);
 
         return countries.data
             .Where(x => context.SearchString == null ||

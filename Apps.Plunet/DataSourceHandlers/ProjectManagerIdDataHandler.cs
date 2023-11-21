@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Api;
+using Apps.Plunet.Constants;
 using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 using Blackbird.Applications.Sdk.Common.Dynamic;
@@ -15,12 +16,8 @@ public class ProjectManagerIdDataHandler : PlunetInvocable, IAsyncDataSourceHand
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
         CancellationToken cancellationToken)
     {
-        var uuid = Creds.GetAuthToken();
-            
-        await using var client = Clients.GetResourceClient(Creds.GetInstanceUrl());
-           
-        var statuses = new int?[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-        var resources = await client.getAllResourceObjects2Async(uuid, statuses, statuses);
+        // Only active & internal resources
+        var resources = await ResourceClient.getAllResourceObjects2Async(Uuid, new int?[] { 1 }, new int?[] { 1, 4, 6, 5, 7, 8 });
 
         return resources.ResourceListResult.data
             .Where(x => (context.SearchString == null ||

@@ -115,9 +115,9 @@ public class CustomerActions : PlunetInvocable
     }
 
     [Action("Update customer", Description = "Update Plunet customer")]
-    public async Task<GetCustomerResponse> UpdateCustomer([ActionParameter] UpdateCustomerRequest request)
+    public async Task<GetCustomerResponse> UpdateCustomer([ActionParameter] CustomerRequest customer, [ActionParameter] CreateCustomerRequest request)
     {
-        var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
+        var intCustomerId = IntParser.Parse(customer.CustomerId, nameof(customer.CustomerId))!.Value;
         
         await CustomerClient.updateAsync(Uuid, new CustomerIN
         {
@@ -140,7 +140,7 @@ public class CustomerActions : PlunetInvocable
             userId = IntParser.Parse(request.UserId, nameof(request.UserId)) ?? default,
         }, false);
 
-        return await GetCustomerById(new CustomerRequest { CustomerId = request.CustomerId });
+        return await GetCustomerById(customer);
     }
 
     //[Action("Set customer address", Description = "Set Plunet customer address")]

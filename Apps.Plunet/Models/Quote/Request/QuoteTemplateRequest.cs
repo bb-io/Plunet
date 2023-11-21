@@ -7,12 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apps.Plunet.Models.Order
+namespace Apps.Plunet.Models.Quote.Request
 {
-    public class OrderTemplateRequest
+    public class QuoteTemplateRequest
     {
         [Display("Template")]
-        [DataSource(typeof(TemplateDataHandler))]
+        [DataSource(typeof(QuoteTemplateDataHandler))]
         public string? TemplateId { get; set; }
     }
 }

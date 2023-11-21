@@ -57,15 +57,15 @@ public class QuoteActions : PlunetInvocable
 
         var getRequestTasks = searchResult.data
             .Where(x => x.HasValue)
-            .Select(x => GetQuote(x.Value.ToString()));
+            .Select(x => GetQuote(new GetQuoteRequest { QuoteId = x.Value.ToString() }));
 
         return new(await Task.WhenAll(getRequestTasks));
     }
 
     [Action("Get quote", Description = "Get details for a Plunet quote")]
-    public async Task<QuoteResponse> GetQuote([ActionParameter] [Display("Quote ID")] string quoteId)
+    public async Task<QuoteResponse> GetQuote([ActionParameter] GetQuoteRequest request)
     {
-        var intQuoteId = IntParser.Parse(quoteId, nameof(quoteId))!.Value;
+        var intQuoteId = IntParser.Parse(request.QuoteId, nameof(request.QuoteId))!.Value;
         var quoteResult = await QuoteClient.getQuoteObjectAsync(Uuid, intQuoteId);
 
         if (quoteResult.data is null)
@@ -74,8 +74,8 @@ public class QuoteActions : PlunetInvocable
         return new(quoteResult.data);
     }
 
-    [Action("Create quote", Description = "Create a new quote in Plunet")]
-    public async Task<QuoteResponse> CreateQuote([ActionParameter] CreateQuoteRequest request)
+    [Action("Create quote", Description = "Create a new quote in Plunet, optionally using a template")]
+    public async Task<QuoteResponse> CreateQuote([ActionParameter] QuoteTemplateRequest template, [ActionParameter] CreateQuoteRequest request)
     {
         var quoteIn = new QuoteIN
         {
@@ -89,9 +89,9 @@ public class QuoteActions : PlunetInvocable
             status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default
         };
 
-        var quoteIdResult = request.TemplateId == null ? 
+        var quoteIdResult = template.TemplateId == null ? 
             await QuoteClient.insert2Async(Uuid,quoteIn) : 
-            await QuoteClient.insert_byTemplateAsync(Uuid, quoteIn, IntParser.Parse(request.TemplateId, nameof(request.TemplateId)) ?? default);
+            await QuoteClient.insert_byTemplateAsync(Uuid, quoteIn, IntParser.Parse(template.TemplateId, nameof(template.TemplateId)) ?? default);
 
         if (quoteIdResult.statusMessage != ApiResponses.Ok)
             throw new(quoteIdResult.statusMessage);
@@ -117,7 +117,7 @@ public class QuoteActions : PlunetInvocable
             await QuoteClient.setCustomerContactIDAsync(Uuid,
                 IntParser.Parse(request.ContactId, nameof(request.ContactId))!.Value, quoteId);
 
-        return await GetQuote(quoteId.ToString());
+        return await GetQuote(new GetQuoteRequest { QuoteId = quoteId.ToString() });
     }
 
     //[Action("Add language combination to quote", Description = "Add a new language combination to an existing quote")]
@@ -151,18 +151,18 @@ public class QuoteActions : PlunetInvocable
     //}
 
     [Action("Delete quote", Description = "Delete a Plunet quote")]
-    public async Task DeleteQuote([ActionParameter] [Display("Quote ID")] string quoteId)
+    public async Task DeleteQuote([ActionParameter] GetQuoteRequest request)
     {
-        var intQuoteId = IntParser.Parse(quoteId, nameof(quoteId))!.Value;
+        var intQuoteId = IntParser.Parse(request.QuoteId, nameof(request.QuoteId))!.Value;
         await QuoteClient.deleteAsync(Uuid, intQuoteId);
     }
 
     [Action("Update quote", Description = "Update Plunet quote")]
-    public async Task<QuoteResponse> UpdateQuote([ActionParameter] UpdateQuoteRequest request)
+    public async Task<QuoteResponse> UpdateQuote([ActionParameter] GetQuoteRequest quote, [ActionParameter] CreateQuoteRequest request)
     {
         var result = await QuoteClient.updateAsync(Uuid, new QuoteIN
         {
-            quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId))!.Value,
+            quoteID = IntParser.Parse(quote.QuoteId, nameof(quote.QuoteId))!.Value,
             projectName = request.ProjectName,
             customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
             subject = request.Subject,
@@ -176,6 +176,6 @@ public class QuoteActions : PlunetInvocable
         if (result.statusMessage != ApiResponses.Ok)
             throw new(result.statusMessage);
 
-        return await GetQuote(request.QuoteId);
+        return await GetQuote(quote);
     }
 }

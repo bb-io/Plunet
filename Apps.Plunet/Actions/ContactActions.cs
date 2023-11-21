@@ -89,9 +89,9 @@ public class ContactActions : PlunetInvocable
     }
 
     [Action("Update contact", Description = "Update Plunet contact")]
-    public async Task<ContactObjectResponse> UpdateContact([ActionParameter] UpdateContactRequest request)
+    public async Task<ContactObjectResponse> UpdateContact([ActionParameter] ContactRequest contact, [ActionParameter] CreateContactRequest request)
     {
-        var intContactId = IntParser.Parse(request.ContactId, nameof(request.ContactId))!.Value;
+        var intContactId = IntParser.Parse(contact.ContactId, nameof(contact.ContactId))!.Value;
         
         var result = await ContactClient.updateAsync(Uuid, new()
         {
@@ -114,6 +114,6 @@ public class ContactActions : PlunetInvocable
         if (result.statusMessage != ApiResponses.Ok)
             throw new(result.statusMessage);
 
-        return await GetContactById(new ContactRequest { ContactId = request.ContactId });
+        return await GetContactById(contact);
     }
 }
