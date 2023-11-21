@@ -3,6 +3,7 @@ using Apps.Plunet.Constants;
 using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Customer;
+using Apps.Plunet.Models.Resource.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -18,35 +19,42 @@ public class CustomerActions : PlunetInvocable
     {
     }
 
-    [Action("List customers", Description = "List all customers")]
-    public async Task<ListCustomersResponse> ListCustomers()
+    [Action("Search customers", Description = "Search for specific customers based on specific criteria")]
+    public async Task<ListCustomersResponse> SearchCustomers([ActionParameter] SearchCustomerRequest input)
     {
-        var uuid = Creds.GetAuthToken();
-        var allStatuses = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-        var response = await CustomerClient
-            .getAllCustomerObjects2Async(uuid, Array.ConvertAll(allStatuses, i => (int?)i));
-        var customers = response.CustomerListResult.data.Select(x => new GetCustomerResponse(x)).ToArray();
-        return new(customers);
-    }
-
-    [Action("Does customer exist", Description = "Checks if the customer with the specified name exists")]
-    public async Task<bool> DoesCustomerExists([ActionParameter] [Display("Customer name")] string customerName)
-    {
-        var uuid = Creds.GetAuthToken();
-        var response = await CustomerClient.searchAsync(uuid, new SearchFilter_Customer
+        var response = await CustomerClient.searchAsync(Uuid, new SearchFilter_Customer
         {
-            name1 = customerName
+            customerType = IntParser.Parse(input.CustomerType, nameof(input.CustomerType)) ?? -1,
+            email = input.Email,
+            languageCode = input.LanguageCode,
+            sourceLanguageCode = input.SourceLanguageCode,
+            name1 = input.Name1,
+            name2 = input.Name2,
+            customerStatus = IntParser.Parse(input.Status, nameof(input.Status)) ?? -1
+
         });
 
-        return response.data?.Any() is true;
+        if (response.statusMessage != ApiResponses.Ok)
+            throw new(response.statusMessage);
+
+        if (response.data is null)
+            return new(Enumerable.Empty<GetCustomerResponse>());
+
+        var ids = response.data.Where(x => x.HasValue)
+            .Select(x => GetCustomerById(new CustomerRequest { CustomerId = x!.Value.ToString() }))
+            .ToArray();
+
+        var result = await Task.WhenAll(ids);
+
+        return new(result);
+        
     }
 
     [Action("Get customer", Description = "Get the Plunet customer")]
     public async Task<GetCustomerResponse> GetCustomerById([ActionParameter] CustomerRequest input)
     {
         var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
-        var uuid = Creds.GetAuthToken();
-        var customer = await CustomerClient.getCustomerObjectAsync(uuid, intCustomerId);
+        var customer = await CustomerClient.getCustomerObjectAsync(Uuid, intCustomerId);
 
         if (customer.data is null)
             throw new(customer.statusMessage);
@@ -58,8 +66,7 @@ public class CustomerActions : PlunetInvocable
     public async Task DeleteCustomerById([ActionParameter] CustomerRequest input)
     {
         var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
-        var uuid = Creds.GetAuthToken();
-        await CustomerClient.deleteAsync(uuid, intCustomerId);
+        await CustomerClient.deleteAsync(Uuid, intCustomerId);
     }
 
     [Action("Create customer", Description = "Create a new customer in Plunet")]
@@ -69,8 +76,7 @@ public class CustomerActions : PlunetInvocable
             throw new(
                 "Both address type and country must be specified to create customer with address or not specified at all");
 
-        var uuid = Creds.GetAuthToken();
-        var customerIdResult = await CustomerClient.insert2Async(uuid, new()
+        var customerIdResult = await CustomerClient.insert2Async(Uuid, new()
         {
             name1 = request.Name1,
             name2 = request.Name2,
@@ -109,9 +115,8 @@ public class CustomerActions : PlunetInvocable
     public async Task UpdateCustomer([ActionParameter] UpdateCustomerRequest request)
     {
         var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
-        var uuid = Creds.GetAuthToken();
         
-        await CustomerClient.updateAsync(uuid, new CustomerIN
+        await CustomerClient.updateAsync(Uuid, new CustomerIN
         {
             customerID = intCustomerId,
             name1 = request.Name1,
@@ -137,8 +142,7 @@ public class CustomerActions : PlunetInvocable
     public async Task<GetPaymentInfoResponse> GetPaymentInfoByCustomerId([ActionParameter] CustomerRequest input)
     {
         var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
-        var uuid = Creds.GetAuthToken();
-        var paymentInfo = await CustomerClient.getPaymentInformationAsync(uuid, intCustomerId);
+        var paymentInfo = await CustomerClient.getPaymentInformationAsync(Uuid, intCustomerId);
 
         if (paymentInfo.data is null)
             throw new(paymentInfo.statusMessage);
@@ -179,10 +183,9 @@ public class CustomerActions : PlunetInvocable
     public async Task<SetCustomerAddressResponse> UpdateCustomerAddress(
         [ActionParameter] UpdateCustomerAddressRequest request)
     {
-        var uuid = Creds.GetAuthToken();
         var addressId = int.Parse(request.AddressId);
 
-        var response = await CustomerAddressClient.updateAsync(uuid, new()
+        var response = await CustomerAddressClient.updateAsync(Uuid, new()
         {
             addressID = addressId,
             name1 = request.FirstAddressName,
@@ -208,9 +211,8 @@ public class CustomerActions : PlunetInvocable
     [Action("Get customer addresses", Description = "Get all Plunet customer address IDs")]
     public async Task<ListAddressesResponse> GetAllAddresses([ActionParameter] CustomerRequest request)
     {
-        var uuid = Creds.GetAuthToken();
         var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
-        var response = await CustomerAddressClient.getAllAddressesAsync(uuid, intCustomerId);
+        var response = await CustomerAddressClient.getAllAddressesAsync(Uuid, intCustomerId);
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);

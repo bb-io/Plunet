@@ -21,9 +21,7 @@ public class QuoteActions : PlunetInvocable
     [Action("Search quotes", Description = "Search for specific quotes based on specific criteria")]
     public async Task<ListQuotesResponse> SearchQuotes([ActionParameter] SearchQuotesInput input)
     {
-        var uuid = Creds.GetAuthToken();
-
-        var searchResult = await QuoteClient.searchAsync(uuid, new()
+        var searchResult = await QuoteClient.searchAsync(Uuid, new()
         {
             languageCode = input.LanguageCode ?? string.Empty,
             sourceLanguage = input.SourceLanguage,
@@ -66,9 +64,7 @@ public class QuoteActions : PlunetInvocable
     public async Task<QuoteResponse> GetQuote([ActionParameter] [Display("Quote ID")] string quoteId)
     {
         var intQuoteId = IntParser.Parse(quoteId, nameof(quoteId))!.Value;
-        var uuid = Creds.GetAuthToken();
-
-        var quoteResult = await QuoteClient.getQuoteObjectAsync(uuid, intQuoteId);
+        var quoteResult = await QuoteClient.getQuoteObjectAsync(Uuid, intQuoteId);
 
         if (quoteResult.data is null)
             throw new(quoteResult.statusMessage);
@@ -79,9 +75,7 @@ public class QuoteActions : PlunetInvocable
     [Action("Create quote", Description = "Create a new quote in Plunet")]
     public async Task<CreateQuoteResponse> CreateQuote([ActionParameter] CreateQuoteRequest request)
     {
-        var uuid = Creds.GetAuthToken();
-
-        var quoteIdResult = await QuoteClient.insert2Async(uuid, new QuoteIN
+        var quoteIdResult = await QuoteClient.insert2Async(Uuid, new QuoteIN
         {
             projectName = request.ProjectName,
             customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
@@ -96,25 +90,23 @@ public class QuoteActions : PlunetInvocable
         var quoteId = quoteIdResult.data;
 
         if (request.RequestId is not null)
-            await QuoteClient.setRequestIDAsync(uuid, quoteId,
+            await QuoteClient.setRequestIDAsync(Uuid, quoteId,
                 IntParser.Parse(request.RequestId, nameof(request.RequestId))!.Value);
 
         if (request.ProjectStatus is not null)
-            await QuoteClient.setProjectStatusAsync(uuid, quoteId,
+            await QuoteClient.setProjectStatusAsync(Uuid, quoteId,
                 IntParser.Parse(request.ProjectStatus, nameof(request.ProjectStatus))!.Value);
 
         if (request.ProjectManagerId is not null)
-            await QuoteClient.setProjectmanagerIDAsync(uuid,
+            await QuoteClient.setProjectmanagerIDAsync(Uuid,
                 IntParser.Parse(request.ProjectManagerId, nameof(request.ProjectManagerId))!.Value, quoteId);
 
         if (request.ExternalId is not null)
-            await QuoteClient.setExternalIDAsync(uuid, quoteId, request.ExternalId);
+            await QuoteClient.setExternalIDAsync(Uuid, quoteId, request.ExternalId);
 
         if (request.ContactId is not null)
-            await QuoteClient.setCustomerContactIDAsync(uuid,
+            await QuoteClient.setCustomerContactIDAsync(Uuid,
                 IntParser.Parse(request.ContactId, nameof(request.ContactId))!.Value, quoteId);
-
-        await Creds.Logout();
 
         return new()
         {
@@ -189,19 +181,13 @@ public class QuoteActions : PlunetInvocable
     public async Task DeleteQuote([ActionParameter] [Display("Quote ID")] string quoteId)
     {
         var intQuoteId = IntParser.Parse(quoteId, nameof(quoteId))!.Value;
-        var uuid = Creds.GetAuthToken();
-
-        await QuoteClient.deleteAsync(uuid, intQuoteId);
-
-        await Creds.Logout();
+        await QuoteClient.deleteAsync(Uuid, intQuoteId);
     }
 
     [Action("Update quote", Description = "Update Plunet quote")]
     public async Task UpdateQuote([ActionParameter] UpdateQuoteRequest request)
     {
-        var uuid = Creds.GetAuthToken();
-
-        await QuoteClient.updateAsync(uuid, new QuoteIN
+        await QuoteClient.updateAsync(Uuid, new QuoteIN
         {
             quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId))!.Value,
             projectName = request.ProjectName,
@@ -213,7 +199,5 @@ public class QuoteActions : PlunetInvocable
             referenceNumber = request.ReferenceNumber,
             status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default
         }, false);
-
-        await Creds.Logout();
     }
 }

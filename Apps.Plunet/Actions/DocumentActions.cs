@@ -25,7 +25,6 @@ namespace Apps.Plunet.Actions
             var id = IntParser.Parse(request.MainId, nameof(request.MainId))!.Value;
             var folderType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
 
-
             await DocumentClient.upload_DocumentAsync(Uuid, id, folderType, request.File.Bytes, $"{request.Subfolder?.Replace("/", "\\") ?? ""}\\{request.File.Name}", request.File.Bytes.Length);
         }
 

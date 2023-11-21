@@ -19,8 +19,6 @@ public class ResourceActions : PlunetInvocable
     [Action("Search resources", Description = "Search for specific resources based on specific criteria")]
     public async Task<ListResourceResponse> SearchResources([ActionParameter] SearchResourcesRequest input)
     {
-
-        var statuses = new int?[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
         var response = await ResourceClient.searchAsync(Uuid, new Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource() 
         {
             contact_resourceID = IntParser.Parse(input.ContactId, nameof(input.ContactId)) ?? -1,

@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Api;
+using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
@@ -23,8 +24,7 @@ public class ContactActions : PlunetInvocable
     public async Task<GetContactsResponse> GetCustomerContacts([ActionParameter] CustomerRequest input)
     {
         var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
-        var uuid = Creds.GetAuthToken();
-        var contacts = await ContactClient.getAllContactObjectsAsync(uuid, intCustomerId);
+        var contacts = await ContactClient.getAllContactObjectsAsync(Uuid, intCustomerId);
 
         return new()
         {
@@ -32,36 +32,11 @@ public class ContactActions : PlunetInvocable
         };
     }
 
-    [Action("List contacts", Description = "List contacts")]
-    public async Task<GetContactsResponse> GetCustomerContacts2()
-    {
-        var uuid = Creds.GetAuthToken();
-        var allStatuses = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-        var customers = await CustomerClient
-            .getAllCustomerObjects2Async(uuid, Array.ConvertAll(allStatuses, i => (int?)i));
-
-        var allContacts = new List<ContactObjectResponse>();
-        foreach (var customer in customers.CustomerListResult.data)
-        {
-            var contacts = await ContactClient.getAllContactObjectsAsync(uuid, customer.customerID);
-            if (contacts.data != null)
-            {
-                allContacts.AddRange(contacts.data.Select(c => new ContactObjectResponse(c)));
-            }
-        }
-        
-        return new()
-        {
-            CustomerContacts = allContacts.DistinctBy(x => x.CustomerContactId)
-        };
-    }
-
     [Action("Get contact", Description = "Get the Plunet contact")]
     public async Task<ContactObjectResponse> GetContactById([ActionParameter] ContactRequest request)
     {
         var intContactId = IntParser.Parse(request.ContactId, nameof(request.ContactId))!.Value;
-        var uuid = Creds.GetAuthToken();
-        var contact = await ContactClient.getContactObjectAsync(uuid, intContactId);
+        var contact = await ContactClient.getContactObjectAsync(Uuid, intContactId);
         
         if (contact.data is null)
             throw new(contact.statusMessage);
@@ -69,13 +44,27 @@ public class ContactActions : PlunetInvocable
         return new(contact.data);
     }
 
+    [Action("Get contact by external ID", Description = "Get the Plunet contact by an external ID rather than a Plunet iD")]
+    public async Task<ContactObjectResponse> GetContactExternalId([ActionParameter] GetContactByExternalRequest request)
+    {
+        var response = await ContactClient.seekByExternalIDAsync(Uuid, request.ExternalId);
+
+        if (response.statusMessage != ApiResponses.Ok)
+            throw new(response.statusMessage);
+
+        var contactId = response.data.FirstOrDefault();
+        if (!contactId.HasValue)
+            throw new Exception("No contact found");
+
+        return await GetContactById(new ContactRequest { ContactId = contactId.Value.ToString() });
+    }
+
     [Action("Create contact", Description = "Create a new contact in Plunet")]
     public async Task<CreateContactResponse> CreateContact([ActionParameter] CreateContactRequest request)
     {
         var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
-        var uuid = Creds.GetAuthToken();
 
-        var contactIdResult = await ContactClient.insert2Async(uuid, new()
+        var contactIdResult = await ContactClient.insert2Async(Uuid, new()
         {
             customerID = intCustomerId,
             name1 = request.LastName,
@@ -99,26 +88,12 @@ public class ContactActions : PlunetInvocable
         };
     }
 
-    [Action("Get contact external ID", Description = "Get Plunet contact external ID")]
-    public async Task<GetContactExternalIdResponse> GetContactExternalId([ActionParameter] ContactRequest request)
-    {
-        var intContactId = IntParser.Parse(request.ContactId, nameof(request.ContactId))!.Value;
-        var uuid = Creds.GetAuthToken();
-        var contactExternalId = await ContactClient.getExternalIDAsync(uuid, intContactId);
-
-        return new()
-        {
-            ContactExternalId = contactExternalId.data
-        };
-    }
-
     [Action("Update contact", Description = "Update Plunet contact")]
     public async Task UpdateContact([ActionParameter] UpdateContactRequest request)
     {
         var intContactId = IntParser.Parse(request.ContactId, nameof(request.ContactId))!.Value;
-        var uuid = Creds.GetAuthToken();
         
-        await ContactClient.updateAsync(uuid, new()
+        await ContactClient.updateAsync(Uuid, new()
         {
             customerContactID = intContactId,
             name1 = request.FirstName,
