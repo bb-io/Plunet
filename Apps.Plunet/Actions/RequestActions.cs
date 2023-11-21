@@ -24,9 +24,8 @@ public class RequestActions : PlunetInvocable
     {
         var searchResult = await RequestClient.searchAsync(Uuid, new()
         {
-            languageCode = input.LanguageCode ?? string.Empty,
-            sourceLanguage = input.SourceLanguage,
-            targetLanguage = input.TargetLanguage,
+            sourceLanguage = input.SourceLanguage ?? string.Empty,
+            targetLanguage = input.TargetLanguage ?? string.Empty,
             requestStatus = IntParser.Parse(input.RequestStatus, nameof(input.RequestStatus)) ?? -1,
             timeFrame = input.DateFrom is not null || input.DateTo is not null
                 ? new()

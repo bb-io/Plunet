@@ -18,11 +18,7 @@ namespace Apps.Plunet.Models.Order
 
         [Display("Customer")]
         [DataSource(typeof(CustomerIdDataHandler))]
-        public string CustomerId { get; set; }
-
-        [Display("Language code")]
-        [DataSource(typeof(LanguageIsoDataHandler))]
-        public string? LanguageCode { get; set; }
+        public string? CustomerId { get; set; }
 
         [Display("Source language")]
         [DataSource(typeof(LanguageIsoDataHandler))]

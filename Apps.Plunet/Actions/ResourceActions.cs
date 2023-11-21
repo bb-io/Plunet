@@ -22,13 +22,13 @@ public class ResourceActions : PlunetInvocable
         var response = await ResourceClient.searchAsync(Uuid, new Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource() 
         {
             contact_resourceID = IntParser.Parse(input.ContactId, nameof(input.ContactId)) ?? -1,
-            email = input.Email ?? "",
-            name1 = input.Name1 ?? "",
-            name2 = input.Name2 ?? "",
+            email = input.Email ?? string.Empty,
+            name1 = input.Name1 ?? string.Empty,
+            name2 = input.Name2 ?? string.Empty,
             resourceType = IntParser.Parse(input.ResourceType, nameof(input.ResourceType)) ?? -1,
             resourceStatus = IntParser.Parse(input.Status, nameof(input.Status)) ?? -1,
-            sourceLanguageCode = input.SourceLanguageCode ?? "",
-            targetLanguageCode = input.TargetLanguageCode ?? "",
+            sourceLanguageCode = input.SourceLanguageCode ?? string.Empty,
+            targetLanguageCode = input.TargetLanguageCode ?? string.Empty,
             workingStatus = IntParser.Parse(input.WorkingStatus, nameof(input.WorkingStatus)) ?? -1,
         });
 

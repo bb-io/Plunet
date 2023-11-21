@@ -32,7 +32,6 @@ public class OrderActions : PlunetInvocable
     {
         var searchResult = await OrderClient.searchAsync(Uuid, new()
         {
-            languageCode = input.LanguageCode ?? string.Empty,
             sourceLanguage = input.SourceLanguage ?? string.Empty,
             targetLanguage = input.TargetLanguage ?? string.Empty,
             orderStatus = IntParser.Parse(input.OrderStatus, nameof(input.OrderStatus)) ?? -1,

@@ -7,10 +7,6 @@ namespace Apps.Plunet.Models.Quote.Request;
 
 public class SearchQuotesInput
 {
-    [Display("Language code")]
-    [DataSource(typeof(LanguageIsoDataHandler))]
-    public string? LanguageCode { get; set; }
-
     [Display("Source language")]
     [DataSource(typeof(LanguageIsoDataHandler))]
     public string? SourceLanguage { get; set; }
