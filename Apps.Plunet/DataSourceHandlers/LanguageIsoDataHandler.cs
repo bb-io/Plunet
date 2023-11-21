@@ -20,6 +20,6 @@ public class LanguageIsoDataHandler : PlunetInvocable, IAsyncDataSourceHandler
                                language.name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
             .Take(20)
             .GroupBy(x => x.isoCode)
-            .ToDictionary(x => x.Key.ToString(), language => language.First().ToString()!);
+            .ToDictionary(x => x.Key.ToString(), x => x.ToList().First().name!);
     }
 }
