@@ -1,4 +1,6 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Plunet.DataSourceHandlers;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +12,7 @@ namespace Apps.Plunet.Models.Quote.Request
     public class GetQuoteRequest
     {
         [Display("Quote ID")]
+        [DataSource(typeof(QuoteIdDataHandler))]
         public string QuoteId { get; set; }
     }
 }
