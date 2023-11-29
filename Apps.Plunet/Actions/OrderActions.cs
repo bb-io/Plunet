@@ -1,22 +1,12 @@
-﻿using Apps.Plunet.Api;
-using Apps.Plunet.Constants;
-using Apps.Plunet.DataSourceHandlers;
+﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
-using Apps.Plunet.Models.Document;
-using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Order;
-using Apps.Plunet.Models.Quote.Request;
-using Apps.Plunet.Models.Quote.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
-using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.Sdk.Utils.Parsers;
-using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
-using PriceLineResponse = Apps.Plunet.Models.Item.PriceLineResponse;
 
 namespace Apps.Plunet.Actions;
 
@@ -34,7 +24,7 @@ public class OrderActions : PlunetInvocable
         {
             sourceLanguage = input.SourceLanguage ?? string.Empty,
             targetLanguage = input.TargetLanguage ?? string.Empty,
-            orderStatus = IntParser.Parse(input.OrderStatus, nameof(input.OrderStatus)) ?? -1,
+            orderStatus = ParseId(input.OrderStatus),
             timeFrame = input.DateFrom is not null || input.DateTo is not null
                 ? new()
                 {
@@ -42,9 +32,9 @@ public class OrderActions : PlunetInvocable
                     dateTo = input.DateTo ?? default
                 }
                 : default,
-            customerID = IntParser.Parse(input.CustomerId, nameof(input.CustomerId)) ?? -1,
+            customerID = ParseId(input.CustomerId),
             projectName = input.ProjectName ?? string.Empty,
-            projectType = IntParser.Parse(input.ProjectType, nameof(input.ProjectType)) ?? -1,
+            projectType = ParseId(input.ProjectType),
             projectDescription = input.ProjectDescription ?? string.Empty,
         });
 
@@ -53,7 +43,7 @@ public class OrderActions : PlunetInvocable
 
         var getOrderTasks = searchResult.data
             .Where(x => x.HasValue)
-            .Select(x => GetOrder(new OrderRequest { OrderId = x.Value.ToString() }));
+            .Select(x => GetOrder(new OrderRequest { OrderId = x!.Value.ToString() }));
 
         return new ListOrderResponse { Orders = await Task.WhenAll(getOrderTasks) };
     }
@@ -61,13 +51,12 @@ public class OrderActions : PlunetInvocable
     [Action("Get order", Description = "Get the Plunet order")]
     public async Task<OrderResponse> GetOrder([ActionParameter] OrderRequest request)
     {
-        var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
-        var orderResult = await OrderClient.getOrderObjectAsync(Uuid, intOrderId);
+        var orderResult = await OrderClient.getOrderObjectAsync(Uuid, ParseId(request.OrderId));
 
         if (orderResult.statusMessage != ApiResponses.Ok)
             throw new(orderResult.statusMessage);
 
-        var languageCombinations = await OrderClient.getLanguageCombinationAsync(Uuid, intOrderId);
+        var languageCombinations = await OrderClient.getLanguageCombinationAsync(Uuid, ParseId(request.OrderId));
 
         if (languageCombinations.statusMessage != ApiResponses.Ok)
             throw new(languageCombinations.statusMessage);
@@ -89,10 +78,10 @@ public class OrderActions : PlunetInvocable
         var orderIn = new OrderIN()
         {
             projectName = request.ProjectName,
-            customerContactID = IntParser.Parse(request.ContactId, nameof(request.ContactId)) ?? default,
-            customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
+            customerContactID = ParseId(request.ContactId),
+            customerID = ParseId(request.CustomerId),
             subject = request.Subject,
-            projectManagerID = IntParser.Parse(request.ProjectManagerId, nameof(request.ProjectManagerId))!.Value,
+            projectManagerID = ParseId(request.ProjectManagerId),
             orderDate = DateTime.Now,
             deliveryDeadline = request.Deadline ?? default,
             currency = request.Currency,
@@ -103,7 +92,7 @@ public class OrderActions : PlunetInvocable
 
         var response = templateRequest.TemplateId == null ?
             await OrderClient.insert2Async(Uuid, orderIn) :
-            await OrderClient.insert_byTemplateAsync(Uuid, orderIn, IntParser.Parse(templateRequest.TemplateId, nameof(templateRequest.TemplateId)) ?? default);
+            await OrderClient.insert_byTemplateAsync(Uuid, orderIn, ParseId(templateRequest.TemplateId));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
@@ -114,23 +103,20 @@ public class OrderActions : PlunetInvocable
     [Action("Delete order", Description = "Delete a Plunet order")]
     public async Task DeleteOrder([ActionParameter] OrderRequest request)
     {
-        var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
-        await OrderClient.deleteAsync(Uuid, intOrderId);
+        await OrderClient.deleteAsync(Uuid, ParseId(request.OrderId));
     }
 
     [Action("Update order", Description = "Update Plunet order")]
     public async Task<OrderResponse> UpdateOrder([ActionParameter] OrderRequest order, [ActionParameter] CreateOrderRequest request)
     {
-        var intOrderId = IntParser.Parse(order.OrderId, nameof(order.OrderId))!.Value;
-
         var response = await OrderClient.updateAsync(Uuid, new OrderIN
         {
-            orderID = intOrderId,
+            orderID = ParseId(order.OrderId),
             projectName = request.ProjectName,
-            customerContactID = IntParser.Parse(request.ContactId, nameof(request.ContactId)) ?? default,
-            customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
+            customerContactID = ParseId(request.ContactId),
+            customerID = ParseId(request.CustomerId),
             subject = request.Subject,
-            projectManagerID = IntParser.Parse(request.ProjectManagerId, nameof(request.ProjectManagerId))!.Value,
+            projectManagerID = ParseId(request.ProjectManagerId),
             orderDate = DateTime.Now,
             deliveryDeadline = request.Deadline ?? default,
             currency = request.Currency,
@@ -152,7 +138,7 @@ public class OrderActions : PlunetInvocable
     //    var itemIdResult = await ItemClient.insert2Async(Uuid, new()
     //    {
     //        briefDescription = request.ItemName,
-    //        projectID = IntParser.Parse(request.ProjectId, nameof(request.ProjectId)) ?? default,
+    //        projectID = ParseId(request.ProjectId),
     //        totalPrice = request.TotalPrice ?? default,
     //        projectType = request.ProjectType,
     //        deliveryDeadline = request.DeadlineDateTime ?? default,
@@ -169,12 +155,11 @@ public class OrderActions : PlunetInvocable
     public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder(
         [ActionParameter] AddLanguageCombinationRequest request)
     {
-        var intOrderId = IntParser.Parse(request.OrderId, nameof(request.OrderId))!.Value;
         var langCombination = await new LanguageCombination(request.SourceLanguageCode, request.TargetLanguageCode)
             .GetLangNamesByLangIso(Creds);
 
         var result = await OrderClient.addLanguageCombinationAsync(Uuid, langCombination.Source,
-            langCombination.Target, intOrderId);
+            langCombination.Target, ParseId(request.OrderId));
 
         return new()
         {
@@ -185,16 +170,15 @@ public class OrderActions : PlunetInvocable
     //[Action("Set language combination to item", Description = "Set the language combination to an item")]
     //public async Task SetLanguageCombinationToItem([ActionParameter] SetLanguageCombinationRequest request)
     //{
-    //    var intLangCombId = IntParser.Parse(request.LanguageCombinationId, nameof(request.LanguageCombinationId))!
-    //        .Value;
-    //    var intItemId = IntParser.Parse(request.ItemId, nameof(request.ItemId))!.Value;
+    //    var intLangCombId = ParseId(request.LanguageCombinationId)
+    //    var intItemId = ParseId(request.ItemId);
     //    await ItemClient.setLanguageCombinationIDAsync(Uuid, intLangCombId, 3, intItemId);
     //}
 
     //[Action("Add priceline to item", Description = "Adds a new priceline")]
     //public async Task<PriceLineListResponse> AddPriceLinesToItem([ActionParameter] PriceLineRequest request)
     //{
-    //    var intItemId = IntParser.Parse(request.ItemId, nameof(request.ItemId))!.Value;
+    //    var intItemId = ParseId(request.ItemId);
 
     //    var priceUnitListResult = await ItemClient.getPriceUnit_ListAsync(Uuid, "en", "Translation");
     //    var priceUnits = priceUnitListResult.data?.Where(x =>

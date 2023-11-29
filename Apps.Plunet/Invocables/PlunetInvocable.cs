@@ -3,6 +3,7 @@ using Apps.Plunet.Extensions;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
@@ -46,5 +47,10 @@ public class PlunetInvocable : BaseInvocable
 
     public PlunetInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
+    }
+
+    protected int ParseId(string? value)
+    {
+        return IntParser.Parse(value, nameof(value)) ?? -1;
     }
 }

@@ -14,14 +14,10 @@ namespace Apps.Plunet.Models.Item
 
         [Display("Item status")]
         [DataSource(typeof(ItemStatusDataHandler))]
-        public string Status { get; set; }
+        public string? Status { get; set; }
 
         [Display("Document status")]
         [DataSource(typeof(DocumentStatusDataHandler))]
         public string? DocumentStatus { get; set; }
-
-        [Display("Currency type")]
-        [DataSource(typeof(CurrencyTypeDataHandler))]
-        public string? CurrencyType { get; set; }
     }
 }

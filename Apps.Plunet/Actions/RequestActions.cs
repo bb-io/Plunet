@@ -26,7 +26,7 @@ public class RequestActions : PlunetInvocable
         {
             sourceLanguage = input.SourceLanguage ?? string.Empty,
             targetLanguage = input.TargetLanguage ?? string.Empty,
-            requestStatus = IntParser.Parse(input.RequestStatus, nameof(input.RequestStatus)) ?? -1,
+            requestStatus = ParseId(input.RequestStatus),
             timeFrame = input.DateFrom is not null || input.DateTo is not null
                 ? new()
                 {
@@ -37,8 +37,8 @@ public class RequestActions : PlunetInvocable
             SelectionEntry_Customer = input.MainId is not null || input.CustomerEntryType is not null
                 ? new()
                 {
-                    mainID = IntParser.Parse(input.MainId, nameof(input.MainId)) ?? -1,
-                    customerEntryType = IntParser.Parse(input.CustomerEntryType, nameof(input.CustomerEntryType)) ?? -1
+                    mainID = ParseId(input.MainId),
+                    customerEntryType = ParseId(input.CustomerEntryType)
                 }
                 : default
         });
@@ -56,8 +56,7 @@ public class RequestActions : PlunetInvocable
     [Action("Get request", Description = "Get details for a Plunet request")]
     public async Task<RequestResponse> GetRequest([ActionParameter] [Display("Request ID")] string requestId)
     {
-        var intRequestId = IntParser.Parse(requestId, nameof(requestId))!.Value;
-        var requestResult = await RequestClient.getRequestObjectAsync(Uuid, intRequestId);
+        var requestResult = await RequestClient.getRequestObjectAsync(Uuid, ParseId(requestId));
 
         if (requestResult.data is null)
             throw new(requestResult.statusMessage);
@@ -73,11 +72,11 @@ public class RequestActions : PlunetInvocable
             briefDescription = request.BriefDescription,
             creationDate = DateTime.Now,
             deliveryDate = request.DeliveryDate ?? default,
-            orderID = IntParser.Parse(request.OrderId, nameof(request.OrderId)) ?? default,
+            orderID = ParseId(request.OrderId),
             subject = request.Subject,
             quotationDate = request.QuotationDate ?? default,
-            status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default,
-            quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId)) ?? default
+            status = ParseId(request.Status),
+            quoteID = ParseId(request.QuoteId)
         });
 
         if (requestIdResult.statusMessage != ApiResponses.Ok)
@@ -89,12 +88,10 @@ public class RequestActions : PlunetInvocable
             await RequestClient.addServiceAsync(Uuid, request.Service, requestId);
 
         if (request.ContactId is not null)
-            await RequestClient.setCustomerContactIDAsync(Uuid, requestId,
-                IntParser.Parse(request.ContactId, nameof(request.ContactId))!.Value);
+            await RequestClient.setCustomerContactIDAsync(Uuid, requestId, ParseId(request.ContactId));
 
         if (request.CustomerId is not null)
-            await RequestClient.setCustomerIDAsync(Uuid,
-                IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value, requestId);
+            await RequestClient.setCustomerIDAsync(Uuid, ParseId(request.CustomerId), requestId);
 
         if (request.ReferenceNumberOfPrev is not null)
             await RequestClient.setCustomerRefNo_PrevOrderAsync(Uuid, request.ReferenceNumberOfPrev, requestId);
@@ -106,8 +103,7 @@ public class RequestActions : PlunetInvocable
             await RequestClient.setEN15038RequestedAsync(Uuid, request.IsEn10538.Value, requestId);
 
         if (request.MasterProjectId is not null)
-            await RequestClient.setMasterProjectIDAsync(Uuid, requestId,
-                IntParser.Parse(request.MasterProjectId, nameof(request.MasterProjectId))!.Value);
+            await RequestClient.setMasterProjectIDAsync(Uuid, requestId, ParseId(request.MasterProjectId));
 
         if (request.Price is not null)
             await RequestClient.setPriceAsync(Uuid, request.Price.Value, requestId);
@@ -119,8 +115,7 @@ public class RequestActions : PlunetInvocable
             await RequestClient.setWordCountAsync(Uuid, request.WordCount.Value, requestId);
 
         if (request.WorkflowId is not null)
-            await RequestClient.setWorkflowIDAsync(Uuid, requestId,
-                IntParser.Parse(request.WorkflowId, nameof(request.WorkflowId))!.Value);
+            await RequestClient.setWorkflowIDAsync(Uuid, requestId, ParseId(request.WorkflowId));
 
         return await GetRequest(requestId.ToString());
     }
@@ -130,15 +125,15 @@ public class RequestActions : PlunetInvocable
     {
         var result = await RequestClient.updateAsync(Uuid, new RequestIN
         {
-            requestID = IntParser.Parse(request.RequestId, nameof(request.RequestId))!.Value,
+            requestID = ParseId(request.RequestId),
             briefDescription = request.BriefDescription,
             creationDate = DateTime.Now,
             deliveryDate = request.DeliveryDate ?? default,
-            orderID = IntParser.Parse(request.OrderId, nameof(request.OrderId)) ?? default,
+            orderID = ParseId(request.OrderId),
             subject = request.Subject,
             quotationDate = request.QuotationDate ?? default,
-            status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default,
-            quoteID = IntParser.Parse(request.QuoteId, nameof(request.QuoteId)) ?? default
+            status = ParseId(request.Status),
+            quoteID = ParseId(request.QuoteId)
         }, false);
 
         if (result.statusMessage != ApiResponses.Ok)
@@ -150,8 +145,7 @@ public class RequestActions : PlunetInvocable
     [Action("Delete request", Description = "Delete a Plunet request")]
     public async Task DeleteRequest([ActionParameter] [Display("Request ID")] string requestId)
     {
-        var intRequestId = IntParser.Parse(requestId, nameof(requestId))!.Value;
-        await RequestClient.deleteAsync(Uuid, intRequestId);
+        await RequestClient.deleteAsync(Uuid, ParseId(requestId));
     }
 
     [Action("Add language combination to request", Description = "Add a language combination to the specific request")]
@@ -160,10 +154,7 @@ public class RequestActions : PlunetInvocable
         string requestId,
         [ActionParameter] LanguagesRequest langs)
     {
-        var intRequestId = IntParser.Parse(requestId, nameof(requestId))!.Value;
-        var response = await RequestClient.addLanguageCombinationAsync(Uuid, langs.SourceLanguageCode,
-            langs.TargetLanguageCode,
-            intRequestId);
+        var response = await RequestClient.addLanguageCombinationAsync(Uuid, langs.SourceLanguageCode, langs.TargetLanguageCode, ParseId(requestId));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);

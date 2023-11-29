@@ -21,15 +21,15 @@ public class ResourceActions : PlunetInvocable
     {
         var response = await ResourceClient.searchAsync(Uuid, new Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource() 
         {
-            contact_resourceID = IntParser.Parse(input.ContactId, nameof(input.ContactId)) ?? -1,
+            contact_resourceID = ParseId(input.ContactId),
             email = input.Email ?? string.Empty,
             name1 = input.Name1 ?? string.Empty,
             name2 = input.Name2 ?? string.Empty,
-            resourceType = IntParser.Parse(input.ResourceType, nameof(input.ResourceType)) ?? -1,
-            resourceStatus = IntParser.Parse(input.Status, nameof(input.Status)) ?? -1,
+            resourceType = ParseId(input.ResourceType),
+            resourceStatus = ParseId(input.Status),
             sourceLanguageCode = input.SourceLanguageCode ?? string.Empty,
             targetLanguageCode = input.TargetLanguageCode ?? string.Empty,
-            workingStatus = IntParser.Parse(input.WorkingStatus, nameof(input.WorkingStatus)) ?? -1,
+            workingStatus = ParseId(input.WorkingStatus),
         });
 
         if (response.statusMessage != ApiResponses.Ok)
@@ -60,15 +60,13 @@ public class ResourceActions : PlunetInvocable
     public async Task<ResourceResponse> GetResource(
         [ActionParameter] [Display("Resource ID")]
         string resourceId)
-    {
-        
-        var intId = IntParser.Parse(resourceId, nameof(resourceId))!.Value;
-        var response = await ResourceClient.getResourceObjectAsync(Uuid, intId);
+    {        
+        var response = await ResourceClient.getResourceObjectAsync(Uuid, ParseId(resourceId));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
-        var paymentInfoResponse = await ResourceClient.getPaymentInformationAsync(Uuid, intId);
+        var paymentInfoResponse = await ResourceClient.getPaymentInformationAsync(Uuid, ParseId(resourceId));
 
         if (paymentInfoResponse.statusMessage != ApiResponses.Ok)
             throw new(paymentInfoResponse.statusMessage);

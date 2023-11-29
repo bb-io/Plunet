@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Apps.Plunet.Models.Item
 {
-    public class ItemProjectRequest
+    public class OptionalItemProjectRequest
     {
 
         [Display("Type")]

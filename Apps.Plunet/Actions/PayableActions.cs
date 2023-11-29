@@ -22,13 +22,13 @@ public class PayableActions : PlunetInvocable
     {
         var response = await PayableClient.searchAsync(Uuid, new()
         {
-            exported = IntParser.Parse(input.Exported, nameof(input.Exported)) ?? 3,
+            exported = ParseId(input.Exported),
             isoCodeCurrency = input.Currency,
-            resourceID = IntParser.Parse(input.ResourceId, nameof(input.ResourceId)) ?? -1,
-            payableStatus = IntParser.Parse(input.Status, nameof(input.Status)) ?? -1,
+            resourceID = ParseId(input.ResourceId),
+            payableStatus = ParseId(input.Status),
             timeFrame = new()
             {
-                dateRelation = int.Parse(input.TimeFrameRelation),
+                dateRelation = ParseId(input.TimeFrameRelation),
                 dateTo = input.DateTo,
                 dateFrom = input.DateFrom,
             }
@@ -58,7 +58,7 @@ public class PayableActions : PlunetInvocable
     [Action("Get payable", Description = "Get details of a specific payable")]
     public async Task<PayableResponse> GetPayable([ActionParameter] [Display("Payable ID")] string payableId)
     {
-        var id = IntParser.Parse(payableId, nameof(payableId))!.Value;
+        var id = ParseId(payableId);
         var accountStatement = await GetString(PayableClient.getAccountStatementAsync(Uuid, id));
         var companyCode = await Try(GetId(PayableClient.getCompanyCodeAsync(Uuid, id)));
         var creditorAccount = await Try(GetString(PayableClient.getCreditorAccountAsync(Uuid, id)));
@@ -119,10 +119,10 @@ public class PayableActions : PlunetInvocable
     [Action("Update payable", Description = "Edit the fields of a payable")]
     public async Task<PayableResponse> UpdatePayable([ActionParameter] UpdatePayableRequest input)
     {
-        var id = IntParser.Parse(input.Id, nameof(input.Id))!.Value;
+        var id = ParseId(input.Id);
 
         if (input.Status != null)
-            await PayableClient.setStatusAsync(Uuid, IntParser.Parse(input.Status, nameof(input.Status))!.Value, id);
+            await PayableClient.setStatusAsync(Uuid, ParseId(input.Status), id);
 
         if (input.AccountStatement != null)
             await PayableClient.setAccountStatementAsync(Uuid, id, input.AccountStatement);

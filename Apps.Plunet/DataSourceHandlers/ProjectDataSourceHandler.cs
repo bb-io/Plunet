@@ -1,22 +1,15 @@
 ﻿using Apps.Plunet.Invocables;
-using Apps.Plunet.Models.;
 using Apps.Plunet.Models.Item;
-using Apps.Plunet.Webhooks.CallbackClients;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Apps.Plunet.DataSourceHandlers
 {
     public class ProjectDataSourceHandler : PlunetInvocable, IAsyncDataSourceHandler
     {
-        private ItemProjectRequest actionContext;
-        public ProjectDataSourceHandler(InvocationContext invocationContext, [ActionParameter] ItemProjectRequest context) : base(invocationContext)
+        private OptionalItemProjectRequest actionContext;
+        public ProjectDataSourceHandler(InvocationContext invocationContext, [ActionParameter] OptionalItemProjectRequest context) : base(invocationContext)
         {
             actionContext = context;
         }

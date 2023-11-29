@@ -27,7 +27,7 @@ public class QuoteActions : PlunetInvocable
         {
             sourceLanguage = input.SourceLanguage ?? string.Empty,
             targetLanguage = input.TargetLanguage ?? string.Empty,
-            quoteStatus = IntParser.Parse(input.QuoteStatus, nameof(input.QuoteStatus)) ?? -1,
+            quoteStatus = ParseId(input.QuoteStatus),
             timeFrame = input.DateFrom is not null || input.DateTo is not null
                 ? new()
                 {
@@ -38,15 +38,15 @@ public class QuoteActions : PlunetInvocable
             selectionEntryCustomer = input.CustomerMainId is not null || input.CustomerEntryType is not null
                 ? new()
                 {
-                    mainID = IntParser.Parse(input.CustomerMainId, nameof(input.CustomerMainId)) ?? -1,
-                    customerEntryType = IntParser.Parse(input.CustomerEntryType, nameof(input.CustomerEntryType)) ?? -1
+                    mainID = ParseId(input.CustomerMainId),
+                    customerEntryType = ParseId(input.CustomerEntryType)
                 }
                 : default,
             SelectionEntry_Resource = input.ResourceMainId is not null || input.ResourceEntryType is not null
                 ? new()
                 {
-                    mainID = IntParser.Parse(input.ResourceMainId, nameof(input.ResourceMainId)) ?? -1,
-                    resourceEntryType = IntParser.Parse(input.ResourceEntryType, nameof(input.ResourceEntryType)) ?? -1
+                    mainID = ParseId(input.ResourceMainId),
+                    resourceEntryType = ParseId(input.ResourceEntryType)
                 }
                 : default
         });
@@ -64,8 +64,7 @@ public class QuoteActions : PlunetInvocable
     [Action("Get quote", Description = "Get details for a Plunet quote")]
     public async Task<QuoteResponse> GetQuote([ActionParameter] GetQuoteRequest request)
     {
-        var intQuoteId = IntParser.Parse(request.QuoteId, nameof(request.QuoteId))!.Value;
-        var quoteResult = await QuoteClient.getQuoteObjectAsync(Uuid, intQuoteId);
+        var quoteResult = await QuoteClient.getQuoteObjectAsync(Uuid, ParseId(request.QuoteId));
 
         if (quoteResult.data is null)
             throw new(quoteResult.statusMessage);
@@ -79,18 +78,18 @@ public class QuoteActions : PlunetInvocable
         var quoteIn = new QuoteIN
         {
             projectName = request.ProjectName,
-            customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
+            customerID = ParseId(request.CustomerId),
             subject = request.Subject,
             creationDate = DateTime.Now,
             currency = request.Currency,
             projectManagerMemo = request.ProjectManagerMemo,
             referenceNumber = request.ReferenceNumber,
-            status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default
+            status = ParseId(request.Status)
         };
 
         var quoteIdResult = template.TemplateId == null ? 
             await QuoteClient.insert2Async(Uuid,quoteIn) : 
-            await QuoteClient.insert_byTemplateAsync(Uuid, quoteIn, IntParser.Parse(template.TemplateId, nameof(template.TemplateId)) ?? default);
+            await QuoteClient.insert_byTemplateAsync(Uuid, quoteIn, ParseId(template.TemplateId));
 
         if (quoteIdResult.statusMessage != ApiResponses.Ok)
             throw new(quoteIdResult.statusMessage);
@@ -98,23 +97,19 @@ public class QuoteActions : PlunetInvocable
         var quoteId = quoteIdResult.data;
 
         if (request.RequestId is not null)
-            await QuoteClient.setRequestIDAsync(Uuid, quoteId,
-                IntParser.Parse(request.RequestId, nameof(request.RequestId))!.Value);
+            await QuoteClient.setRequestIDAsync(Uuid, quoteId, ParseId(request.RequestId));
 
         if (request.ProjectStatus is not null)
-            await QuoteClient.setProjectStatusAsync(Uuid, quoteId,
-                IntParser.Parse(request.ProjectStatus, nameof(request.ProjectStatus))!.Value);
+            await QuoteClient.setProjectStatusAsync(Uuid, quoteId, ParseId(request.ProjectStatus));
 
         if (request.ProjectManagerId is not null)
-            await QuoteClient.setProjectmanagerIDAsync(Uuid,
-                IntParser.Parse(request.ProjectManagerId, nameof(request.ProjectManagerId))!.Value, quoteId);
+            await QuoteClient.setProjectmanagerIDAsync(Uuid, ParseId(request.ProjectManagerId), quoteId);
 
         if (request.ExternalId is not null)
             await QuoteClient.setExternalIDAsync(Uuid, quoteId, request.ExternalId);
 
         if (request.ContactId is not null)
-            await QuoteClient.setCustomerContactIDAsync(Uuid,
-                IntParser.Parse(request.ContactId, nameof(request.ContactId))!.Value, quoteId);
+            await QuoteClient.setCustomerContactIDAsync(Uuid, ParseId(request.ContactId), quoteId);
 
         return await GetQuote(new GetQuoteRequest { QuoteId = quoteId.ToString() });
     }
@@ -152,8 +147,7 @@ public class QuoteActions : PlunetInvocable
     [Action("Delete quote", Description = "Delete a Plunet quote")]
     public async Task DeleteQuote([ActionParameter] GetQuoteRequest request)
     {
-        var intQuoteId = IntParser.Parse(request.QuoteId, nameof(request.QuoteId))!.Value;
-        await QuoteClient.deleteAsync(Uuid, intQuoteId);
+        await QuoteClient.deleteAsync(Uuid, ParseId(request.QuoteId));
     }
 
     [Action("Update quote", Description = "Update Plunet quote")]
@@ -161,15 +155,15 @@ public class QuoteActions : PlunetInvocable
     {
         var result = await QuoteClient.updateAsync(Uuid, new QuoteIN
         {
-            quoteID = IntParser.Parse(quote.QuoteId, nameof(quote.QuoteId))!.Value,
+            quoteID = ParseId(quote.QuoteId),
             projectName = request.ProjectName,
-            customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
+            customerID = ParseId(request.CustomerId),
             subject = request.Subject,
             creationDate = DateTime.Now,
             currency = request.Currency,
             projectManagerMemo = request.ProjectManagerMemo,
             referenceNumber = request.ReferenceNumber,
-            status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default
+            status = ParseId(request.Status)
         }, false);
 
         if (result.statusMessage != ApiResponses.Ok)
