@@ -76,6 +76,8 @@ namespace Apps.Plunet.Actions
             };
         }
 
+        // Optional get by language
+        // Seek language combination
         [Action("Get item", Description = "Get details for a Plunet item")]
         public async Task<ItemResponse> GetItem([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request, [ActionParameter] OptionalCurrencyTypeRequest currency)
         {
@@ -88,6 +90,7 @@ namespace Apps.Plunet.Actions
             return new(result.data);
         }
 
+        // Insertlanguageindependent
         [Action("Create item", Description = "Create a new item in Plunet")]
         public async Task<ItemResponse> CreateItem([ActionParameter] ProjectTypeRequest project, [ActionParameter] ProjectIdRequest projectId, [ActionParameter] CreateItemRequest request)
         {
@@ -137,5 +140,15 @@ namespace Apps.Plunet.Actions
 
             return await GetItem(project, item, new OptionalCurrencyTypeRequest { });
         }
+
+        // Pricelist
+        // Add languagecombination2
+        // Copy jobs from workflow
+        // GetJobs? GetJobsWithStatus?
+        // SetCatReport
+
+        // Add pricelines (from priceline transfer file)
+        // Get pricelines (to priceline transfer file), optional currency
+        // Update priceline
     }
 }

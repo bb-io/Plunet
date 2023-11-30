@@ -1,6 +1,8 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
+using Apps.Plunet.Models;
+using Apps.Plunet.Models.Order;
 using Apps.Plunet.Models.Quote;
 using Apps.Plunet.Models.Quote.Request;
 using Apps.Plunet.Models.Quote.Response;
@@ -170,5 +172,17 @@ public class QuoteActions : PlunetInvocable
             throw new(result.statusMessage);
 
         return await GetQuote(quote);
+    }
+
+    [Action("Add language combination to quote", Description = "Add a new language combination to an existing quote")]
+    public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToQuote([ActionParameter] GetQuoteRequest quote, AddLanguageCombinationRequest request)
+    {
+        var result = await QuoteClient.addLanguageCombinationAsync(Uuid, request.SourceLanguageCode,
+            request.TargetLanguageCode, ParseId(quote.QuoteId));
+
+        return new()
+        {
+            LanguageCombinationId = result.data.ToString()
+        };
     }
 }

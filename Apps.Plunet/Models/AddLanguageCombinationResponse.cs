@@ -1,6 +1,6 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Apps.Plunet.Models.Order;
+namespace Apps.Plunet.Models;
 
 public class AddLanguageCombinationResponse
 {

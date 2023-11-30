@@ -152,14 +152,13 @@ public class OrderActions : PlunetInvocable
     //}   
 
     [Action("Add language combination to order", Description = "Add a new language combination to an existing order")]
-    public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder(
-        [ActionParameter] AddLanguageCombinationRequest request)
+    public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder([ActionParameter] OrderRequest order, [ActionParameter] AddLanguageCombinationRequest request)
     {
         var langCombination = await new LanguageCombination(request.SourceLanguageCode, request.TargetLanguageCode)
             .GetLangNamesByLangIso(Creds);
 
-        var result = await OrderClient.addLanguageCombinationAsync(Uuid, langCombination.Source,
-            langCombination.Target, ParseId(request.OrderId));
+        var result = await OrderClient.addLanguageCombinationAsync(Uuid, request.SourceLanguageCode,
+            request.TargetLanguageCode, ParseId(order.OrderId));
 
         return new()
         {
