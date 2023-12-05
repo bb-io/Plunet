@@ -76,8 +76,7 @@ namespace Apps.Plunet.Actions
             };
         }
 
-        // Optional get by language
-        // Seek language combination
+
         [Action("Get item", Description = "Get details for a Plunet item")]
         public async Task<ItemResponse> GetItem([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request, [ActionParameter] OptionalCurrencyTypeRequest currency)
         {
@@ -90,10 +89,14 @@ namespace Apps.Plunet.Actions
             return new(result.data);
         }
 
-        // Insertlanguageindependent
         [Action("Create item", Description = "Create a new item in Plunet")]
-        public async Task<ItemResponse> CreateItem([ActionParameter] ProjectTypeRequest project, [ActionParameter] ProjectIdRequest projectId, [ActionParameter] CreateItemRequest request)
+        public async Task<ItemResponse> CreateItem([ActionParameter] ProjectTypeRequest project, [ActionParameter] ProjectIdRequest projectId, [ActionParameter] CreateItemRequest request, [ActionParameter] OptionalLanguageCombinationRequest languages)
         {
+            if ((languages.SourceLanguageCode == null) != (languages.TargetLanguageCode == null))
+            {
+                throw new Exception("Either both source and target languages should be defined or neither");
+            }
+
             var itemIn = new ItemIN()
             {
                 briefDescription = request.BriefDescription ?? string.Empty,
@@ -105,10 +108,12 @@ namespace Apps.Plunet.Actions
                 status = ParseId(request.Status),
             };
 
-            var response = await ItemClient.insert2Async(Uuid, itemIn);
+            var response = languages.SourceLanguageCode == null ? await ItemClient.insertLanguageIndependentItemAsync(Uuid, itemIn) : await ItemClient.insert2Async(Uuid, itemIn);
 
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
+
+            await HandleLanguages(languages, ParseId(project.ProjectType), ParseId(projectId.ProjectId), response.data);
 
             return await GetItem(project, new GetItemRequest { ItemId = response.data.ToString() }, new OptionalCurrencyTypeRequest { });
         }
@@ -120,8 +125,13 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Update item", Description = "Update an existing item in Plunet")]
-        public async Task<ItemResponse> UpdateItem([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest item, [ActionParameter] CreateItemRequest request)
+        public async Task<ItemResponse> UpdateItem([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest item, [ActionParameter] CreateItemRequest request, [ActionParameter] OptionalLanguageCombinationRequest languages)
         {
+            if ((languages.SourceLanguageCode == null) != (languages.TargetLanguageCode == null))
+            {
+                throw new Exception("Either both source and target languages should be defined or neither");
+            }
+
             var itemIn = new ItemIN()
             {
                 briefDescription = request.BriefDescription ?? string.Empty,
@@ -138,11 +148,40 @@ namespace Apps.Plunet.Actions
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
 
+            var itemRes = await ItemClient.getItemObjectAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId));
+            await HandleLanguages(languages, ParseId(project.ProjectType), itemRes.data.projectID, ParseId(item.ItemId));            
+
             return await GetItem(project, item, new OptionalCurrencyTypeRequest { });
         }
 
+        private async Task HandleLanguages(OptionalLanguageCombinationRequest languages, int projectType, int projectId, int itemId)
+        {
+            if (languages.SourceLanguageCode != null)
+            {
+                var sourceLanguage = await GetLanguageFromIsoOrFolderOrName(languages.SourceLanguageCode);
+                var targetLanguage = await GetLanguageFromIsoOrFolderOrName(languages.TargetLanguageCode);
+                var languageCombination = await ItemClient.seekLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, projectType, projectId, itemId);
+                var languageCombinationCode = languageCombination.data;
+
+                if (languageCombinationCode == 0)
+                {
+                    if (projectType == 3) // order
+                    {
+                        var result = await OrderClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, itemId);
+                        languageCombinationCode = result.data;
+                    }
+                    else
+                    {
+                        var result = await QuoteClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, itemId);
+                        languageCombinationCode = result.data;
+                    }
+                }
+
+                await ItemClient.setLanguageCombinationIDAsync(Uuid, languageCombinationCode, projectType, itemId);
+            }
+        }
+
         // Pricelist
-        // Add languagecombination2
         // Copy jobs from workflow
         // GetJobs? GetJobsWithStatus?
         // SetCatReport

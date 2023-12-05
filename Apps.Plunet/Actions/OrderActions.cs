@@ -61,13 +61,7 @@ public class OrderActions : PlunetInvocable
         if (languageCombinations.statusMessage != ApiResponses.Ok)
             throw new(languageCombinations.statusMessage);
 
-        var languages = await AdminClient.getAvailableLanguagesAsync(Uuid, Language);
-
-        var orderLanguageCombinations = languageCombinations.data
-            .Select(combination => new { source = combination.Split(" - ")[0], target = combination.Split(" - ")[1] })
-            .Select(combination =>
-                new LanguageCombination(languages.data.First(l => l.name == combination.source).folderName,
-                    languages.data.First(l => l.name == combination.target).folderName));
+        var orderLanguageCombinations = await ParseLanguageCombinations(languageCombinations.data);
 
         return new(orderResult.data, orderLanguageCombinations);
     }
@@ -152,13 +146,12 @@ public class OrderActions : PlunetInvocable
     //}   
 
     [Action("Add language combination to order", Description = "Add a new language combination to an existing order")]
-    public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder([ActionParameter] OrderRequest order, [ActionParameter] AddLanguageCombinationRequest request)
+    public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder([ActionParameter] OrderRequest order, [ActionParameter] LanguageCombinationRequest request)
     {
-        var langCombination = await new LanguageCombination(request.SourceLanguageCode, request.TargetLanguageCode)
-            .GetLangNamesByLangIso(Creds);
+        var sourceLanguage = await GetLanguageFromIsoOrFolderOrName(request.SourceLanguageCode);
+        var targetLanguage = await GetLanguageFromIsoOrFolderOrName(request.TargetLanguageCode);
 
-        var result = await OrderClient.addLanguageCombinationAsync(Uuid, request.SourceLanguageCode,
-            request.TargetLanguageCode, ParseId(order.OrderId));
+        var result = await OrderClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, ParseId(order.OrderId));
 
         return new()
         {

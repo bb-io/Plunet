@@ -175,10 +175,12 @@ public class QuoteActions : PlunetInvocable
     }
 
     [Action("Add language combination to quote", Description = "Add a new language combination to an existing quote")]
-    public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToQuote([ActionParameter] GetQuoteRequest quote, AddLanguageCombinationRequest request)
+    public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToQuote([ActionParameter] GetQuoteRequest quote, LanguageCombinationRequest request)
     {
-        var result = await QuoteClient.addLanguageCombinationAsync(Uuid, request.SourceLanguageCode,
-            request.TargetLanguageCode, ParseId(quote.QuoteId));
+        var sourceLanguage = await GetLanguageFromIsoOrFolderOrName(request.SourceLanguageCode);
+        var targetLanguage = await GetLanguageFromIsoOrFolderOrName(request.TargetLanguageCode);
+
+        var result = await QuoteClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, ParseId(quote.QuoteId));
 
         return new()
         {

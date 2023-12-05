@@ -4,7 +4,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models;
 
-public class AddLanguageCombinationRequest
+public class LanguageCombinationRequest
 {
     [Display("Source language")]
     [DataSource(typeof(LanguageIsoDataHandler))]

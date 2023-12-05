@@ -61,7 +61,7 @@ namespace Apps.Plunet.Models.Item
             }
             InvoiceId = item.invoiceID.ToString();
             ItemId = item.itemID.ToString();
-            Jobs = item.jobIDList.Where(x => x.HasValue).Select(x => x.ToString()!);
+            Jobs = item.jobIDList == null ? new List<string> { } : item.jobIDList.Where(x => x.HasValue).Select(x => x.ToString()!);
             OrderId = item.orderID.ToString();
             ProjectId = item.projectID.ToString();
             ProjectType = item.projectType.ToString();

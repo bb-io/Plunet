@@ -1,5 +1,6 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Extensions;
+using Apps.Plunet.Models;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -30,6 +31,8 @@ public class PlunetInvocable : BaseInvocable
     protected string Url => Creds.GetInstanceUrl();
     protected string Language => SystemConsts.Language;
 
+    private Language[] _languages;
+
     protected PlunetAPIClient AuthClient => new(PlunetAPIClient.EndpointConfiguration.PlunetAPIPort, Url.TrimEnd('/') + "/PlunetAPI");
     protected DataCustomer30Client CustomerClient => new(DataCustomer30Client.EndpointConfiguration.DataCustomer30Port, Url.TrimEnd('/') + "/DataCustomer30");
     protected DataCustomerContact30Client ContactClient => new(DataCustomerContact30Client.EndpointConfiguration.DataCustomerContact30Port, Url.TrimEnd('/') + "/DataCustomerContact30");
@@ -53,4 +56,47 @@ public class PlunetInvocable : BaseInvocable
     {
         return IntParser.Parse(value, nameof(value)) ?? -1;
     }
+
+    protected async Task<Language[]> GetSystemLanguages()
+    {
+        if (_languages == null)
+        {
+            var response = await AdminClient.getAvailableLanguagesAsync(Uuid, Language);
+
+            if (response.statusMessage != ApiResponses.Ok)
+                throw new(response.statusMessage);
+
+            _languages = response.data;
+        }
+
+        return _languages;
+
+    }
+
+    protected async Task<IEnumerable<LanguageCombination>> ParseLanguageCombinations(IEnumerable<string> dashSeparatedStrings)
+    {
+        var languages = await GetSystemLanguages();
+        return dashSeparatedStrings
+            .Select(combination => new { source = combination.Split(" - ")[0], target = combination.Split(" - ")[1] })
+            .Select(combination =>
+                new LanguageCombination(languages.First(l => l.name == combination.source).folderName,
+                    languages.First(l => l.name == combination.target).folderName));
+    }
+
+    protected async Task<Language> GetLanguageFromIsoOrFolderOrName(string isOrFolderOrName)
+    {
+        var languages = await GetSystemLanguages();
+
+        var language = languages.FirstOrDefault(x =>
+                                 x.isoCode.Equals(isOrFolderOrName, StringComparison.OrdinalIgnoreCase) ||
+                                 x.folderName.Equals(isOrFolderOrName, StringComparison.OrdinalIgnoreCase) ||
+                                 x.name.Equals(isOrFolderOrName, StringComparison.OrdinalIgnoreCase));
+
+        if (language == null)
+            throw new($"Language {isOrFolderOrName} could not be found in your Plunet instance");
+
+        return language;
+    }
+
+    
 }
