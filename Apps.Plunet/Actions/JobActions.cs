@@ -19,6 +19,7 @@ using StringResult = Blackbird.Plugins.Plunet.DataJob30Service.StringResult;
 
 namespace Apps.Plunet.Actions
 {
+    [ActionList]
     public class JobActions : PlunetInvocable
     {
         public JobActions(InvocationContext invocationContext) : base(invocationContext)
