@@ -162,7 +162,7 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Get job pricelines", Description = "Get a list of all pricelines attached to a job")]
-        public async Task<PricelinesResponse> GetItemPricelines([ActionParameter] GetJobRequest job)
+        public async Task<PricelinesResponse> GetJobPricelines([ActionParameter] GetJobRequest job)
         {
             var response = await JobClient.getPriceLine_ListAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType));
 
@@ -176,7 +176,7 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Create job priceline", Description = "Add a new pricline to a job")]
-        public async Task<PricelineResponse> CreateItemPriceline([ActionParameter] GetJobRequest job, [ActionParameter] PriceUnitRequest unit, [ActionParameter] PricelineRequest input)
+        public async Task<PricelineResponse> CreateJobPriceline([ActionParameter] GetJobRequest job, [ActionParameter] JobPriceUnitRequest unit, [ActionParameter] PricelineRequest input)
         {
             var pricelineIn = new Blackbird.Plugins.Plunet.DataJob30Service.PriceLineIN
             {
@@ -210,7 +210,7 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Update job priceline", Description = "Update an existing job pricline")]
-        public async Task<PricelineResponse> UpdateItemPriceline([ActionParameter] GetJobRequest job, [ActionParameter] PriceUnitRequest unit, [ActionParameter] PricelineIdRequest line, [ActionParameter] PricelineRequest input)
+        public async Task<PricelineResponse> UpdateJobPriceline([ActionParameter] GetJobRequest job, [ActionParameter] JobPriceUnitRequest unit, [ActionParameter] PricelineIdRequest line, [ActionParameter] PricelineRequest input)
         {
             var pricelineIn = new Blackbird.Plugins.Plunet.DataJob30Service.PriceLineIN
             {

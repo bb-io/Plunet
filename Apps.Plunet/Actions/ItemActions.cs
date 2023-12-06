@@ -159,7 +159,7 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Create item priceline", Description = "Add a new pricline to an item")]
-        public async Task<PricelineResponse> CreateItemPriceline([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest item, [ActionParameter] PriceUnitRequest unit, [ActionParameter] PricelineRequest input)
+        public async Task<PricelineResponse> CreateItemPriceline([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest item, [ActionParameter] ItemPriceUnitRequest unit, [ActionParameter] PricelineRequest input)
         {
             var pricelineIn = new PriceLineIN
             {
@@ -193,7 +193,7 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Update item priceline", Description = "Update an existing item pricline")]
-        public async Task<PricelineResponse> UpdateItemPriceline([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest item, [ActionParameter] PriceUnitRequest unit, [ActionParameter] PricelineIdRequest line, [ActionParameter] PricelineRequest input)
+        public async Task<PricelineResponse> UpdateItemPriceline([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest item, [ActionParameter] ItemPriceUnitRequest unit, [ActionParameter] PricelineIdRequest line, [ActionParameter] PricelineRequest input)
         {
             var pricelineIn = new PriceLineIN
             {

@@ -1,22 +1,24 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Item;
-using Blackbird.Applications.Sdk.Common;
+using Apps.Plunet.Webhooks.CallbackClients;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Common;
 using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Apps.Plunet.Models.Job;
 
 namespace Apps.Plunet.DataSourceHandlers
 {
-    public class ItemPriceUnitDataHandler : PlunetInvocable, IAsyncDataSourceHandler
+    public class JobPriceUnitDataHandler : PlunetInvocable, IAsyncDataSourceHandler
     {
-        private ItemPriceUnitRequest request;
-        public ItemPriceUnitDataHandler(InvocationContext invocationContext, [ActionParameter] ItemPriceUnitRequest context) : base(invocationContext)
+        private JobPriceUnitRequest request;
+        public JobPriceUnitDataHandler(InvocationContext invocationContext, [ActionParameter] JobPriceUnitRequest context) : base(invocationContext)
         {
             request = context;
         }
@@ -27,7 +29,7 @@ namespace Apps.Plunet.DataSourceHandlers
             if (string.IsNullOrWhiteSpace(request.Service))
                 throw new("Please fill in the service first");
 
-            var response = await ItemClient.getPriceUnit_ListAsync(Uuid, Language, request.Service);
+            var response = await JobClient.getPriceUnit_ListAsync(Uuid, Language, request.Service);
 
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
