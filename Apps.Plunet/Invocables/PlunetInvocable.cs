@@ -75,6 +75,9 @@ public class PlunetInvocable : BaseInvocable
 
     protected async Task<IEnumerable<LanguageCombination>> ParseLanguageCombinations(IEnumerable<string> dashSeparatedStrings)
     {
+        if (dashSeparatedStrings == null)
+            return new List<LanguageCombination>();
+
         var languages = await GetSystemLanguages();
         return dashSeparatedStrings
             .Select(combination => new { source = combination.Split(" - ")[0], target = combination.Split(" - ")[1] })
