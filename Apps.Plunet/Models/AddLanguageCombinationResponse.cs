@@ -1,12 +1,9 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Apps.Plunet.Models.Item;
+namespace Apps.Plunet.Models;
 
-public class SetLanguageCombinationRequest
+public class AddLanguageCombinationResponse
 {
-    [Display("Item ID")]
-    public string ItemId { get; set; }
-
     [Display("Language combination ID")]
     public string LanguageCombinationId { get; set; }
 }

@@ -7,12 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Apps.Plunet.Models.Quote.Request
+namespace Apps.Plunet.Models.Item
 {
-    public class GetQuoteRequest
+    public class ProjectIdRequest
     {
-        [Display("Quote ID")]
-        [DataSource(typeof(QuoteIdDataHandler))]
-        public string QuoteId { get; set; }
+        [Display("Order or quote ID")]
+        [DataSource(typeof(ProjectDataSourceHandler))]
+        public string ProjectId { get; set; }
     }
 }

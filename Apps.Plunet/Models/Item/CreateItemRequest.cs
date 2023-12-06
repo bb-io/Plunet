@@ -1,25 +1,25 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Plunet.DataSourceHandlers;
+using Apps.Plunet.DataSourceHandlers.EnumHandlers;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Item;
 
 public class CreateItemRequest
-{
-    [Display("Project ID")]
-    public string ProjectId { get; set; }
-    
-    [Display("Project type")]
-    public int ProjectType { get; set; }
-    
-    [Display("Item name")]
-    public string? ItemName { get; set; }
+{    
+    [Display("Brief description")]
+    public string? BriefDescription { get; set; }
 
-    [Display("Deadline date and time")]
-    public DateTime? DeadlineDateTime { get; set; }
+    [Display("Delivery date")]
+    public DateTime? Deadline { get; set; }
 
-    [Display("Total price")]
-    public double? TotalPrice { get; set; }
-    
+    [Display("Comment")]
+    public string? Comment { get; set; }
+
+    [Display("Reference")]
     public string? Reference { get; set; }
-    
-    public int? Status { get; set; }
+
+    [Display("Status")]
+    [DataSource(typeof(ItemStatusDataHandler))]
+    public string? Status { get; set; }
 }

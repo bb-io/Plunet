@@ -21,12 +21,6 @@ public class ConnectionValidator : IConnectionValidator
                     Message = "Wrong username of password"
                 };
 
-            var customerClient = Clients.GetCustomerClient(authProviders.GetInstanceUrl());
-
-            var allStatuses = new[] { 1, 2, 3, 4, 5, 6, 7, 8 };
-            await customerClient
-                .getAllCustomerObjects2Async(uuid, Array.ConvertAll(allStatuses, i => (int?)i));
-
             return new()
             {
                 IsValid = true

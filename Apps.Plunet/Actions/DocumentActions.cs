@@ -21,19 +21,13 @@ namespace Apps.Plunet.Actions
         [Action("Upload file", Description = "Upload a file to an entity")]
         public async Task UploadFile([ActionParameter] UploadDocumentRequest request)
         {
-            var id = IntParser.Parse(request.MainId, nameof(request.MainId))!.Value;
-            var folderType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
-
-            await DocumentClient.upload_DocumentAsync(Uuid, id, folderType, request.File.Bytes, $"{request.Subfolder?.Replace("/", "\\") ?? ""}\\{request.File.Name}", request.File.Bytes.Length);
+            await DocumentClient.upload_DocumentAsync(Uuid, ParseId(request.MainId), ParseId(request.FolderType), request.File.Bytes, $"{request.Subfolder?.Replace("/", "\\") ?? ""}\\{request.File.Name}", request.File.Bytes.Length);
         }
 
         [Action("Download file", Description = "Download a file from an entity")]
         public async Task<FileResponse> DownloadFile([ActionParameter] DownloadDocumentRequest request)
         {
-            var id = IntParser.Parse(request.MainId, nameof(request.MainId))!.Value;
-            var folderType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
-
-            var response = await DocumentClient.download_DocumentAsync(Uuid, id, folderType, request.FilePathName.Replace("/", "\\"));
+            var response = await DocumentClient.download_DocumentAsync(Uuid, ParseId(request.MainId), ParseId(request.FolderType), request.FilePathName.Replace("/", "\\"));
 
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
@@ -48,10 +42,7 @@ namespace Apps.Plunet.Actions
         [Action("Download all files in folder", Description = "Download all the files from an entity folder")]
         public async Task<ListFilesResponse> ListFiles([ActionParameter] ListFilesRequest request)
         {
-            var id = IntParser.Parse(request.MainId, nameof(request.MainId))!.Value;
-            var folderType = IntParser.Parse(request.FolderType, nameof(request.FolderType))!.Value;
-
-            var response = await DocumentClient.getFileListAsync(Uuid, id, folderType);
+            var response = await DocumentClient.getFileListAsync(Uuid, ParseId(request.MainId), ParseId(request.FolderType));
 
             if (request.Subfolder != null)
                 response.data = response.data.Where(folder => folder.StartsWith($"\\{request.Subfolder.Replace("/", "\\").ToLower()}\\")).ToArray();

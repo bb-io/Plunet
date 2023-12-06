@@ -23,8 +23,7 @@ public class ContactActions : PlunetInvocable
     [Action("Get customer contacts", Description = "Get all the contacts of the customer")]
     public async Task<GetContactsResponse> GetCustomerContacts([ActionParameter] CustomerRequest input)
     {
-        var intCustomerId = IntParser.Parse(input.CustomerId, nameof(input.CustomerId))!.Value;
-        var contacts = await ContactClient.getAllContactObjectsAsync(Uuid, intCustomerId);
+        var contacts = await ContactClient.getAllContactObjectsAsync(Uuid, ParseId(input.CustomerId));
 
         return new()
         {
@@ -35,8 +34,7 @@ public class ContactActions : PlunetInvocable
     [Action("Get contact", Description = "Get the Plunet contact")]
     public async Task<ContactObjectResponse> GetContactById([ActionParameter] ContactRequest request)
     {
-        var intContactId = IntParser.Parse(request.ContactId, nameof(request.ContactId))!.Value;
-        var contact = await ContactClient.getContactObjectAsync(Uuid, intContactId);
+        var contact = await ContactClient.getContactObjectAsync(Uuid, ParseId(request.ContactId));
         
         if (contact.data is null)
             throw new(contact.statusMessage);
@@ -62,11 +60,9 @@ public class ContactActions : PlunetInvocable
     [Action("Create contact", Description = "Create a new contact in Plunet")]
     public async Task<ContactObjectResponse> CreateContact([ActionParameter] CreateContactRequest request)
     {
-        var intCustomerId = IntParser.Parse(request.CustomerId, nameof(request.CustomerId))!.Value;
-
         var contactIdResult = await ContactClient.insert2Async(Uuid, new()
         {
-            customerID = intCustomerId,
+            customerID = ParseId(request.CustomerId),
             name1 = request.LastName,
             name2 = request.FirstName,
             email = request.Email,
@@ -75,11 +71,11 @@ public class ContactActions : PlunetInvocable
             costCenter = request.CostCenter,
             externalID = request.ExternalId,
             fax = request.Fax,
-            addressID = IntParser.Parse(request.AddressId, nameof(request.AddressId)) ?? default,
-            userId = IntParser.Parse(request.UserId, nameof(request.UserId)) ?? default,
+            addressID = ParseId(request.AddressId),
+            userId = ParseId(request.UserId),
             supervisor1 = request.Supervisor1,
             supervisor2 = request.Supervisor2,
-            status = IntParser.Parse(request.Status, nameof(request.Status)) ?? default
+            status = ParseId(request.Status)
         });
 
         if (contactIdResult.statusMessage != ApiResponses.Ok)
@@ -90,12 +86,10 @@ public class ContactActions : PlunetInvocable
 
     [Action("Update contact", Description = "Update Plunet contact")]
     public async Task<ContactObjectResponse> UpdateContact([ActionParameter] ContactRequest contact, [ActionParameter] CreateContactRequest request)
-    {
-        var intContactId = IntParser.Parse(contact.ContactId, nameof(contact.ContactId))!.Value;
-        
+    {        
         var result = await ContactClient.updateAsync(Uuid, new()
         {
-            customerContactID = intContactId,
+            customerContactID = ParseId(contact.ContactId),
             name1 = request.FirstName,
             name2 = request.LastName,
             email = request.Email,
@@ -104,9 +98,9 @@ public class ContactActions : PlunetInvocable
             costCenter = request.CostCenter,
             externalID = request.ExternalId,
             fax = request.Fax,
-            addressID = IntParser.Parse(request.AddressId, nameof(request.AddressId)) ?? default,
-            customerID = IntParser.Parse(request.CustomerId, nameof(request.CustomerId)) ?? default,
-            userId = IntParser.Parse(request.UserId, nameof(request.UserId)) ?? default,
+            addressID = ParseId(request.AddressId),
+            customerID = ParseId(request.CustomerId),
+            userId = ParseId(request.UserId),
             supervisor1 = request.Supervisor1,
             supervisor2 = request.Supervisor2,
         }, false);

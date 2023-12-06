@@ -11,7 +11,7 @@ public class ApiKeyConnectionDefinition : IConnectionDefinition
     {
         new ConnectionProperty(CredsNames.UrlNameKey)
         {
-            DisplayName = "Url", Description = "The url to your Plunet instance (https://<your company name>.plunet.com)"
+            DisplayName = "URL", Description = "The url to your Plunet instance (https://<your company name>.plunet.com)"
         },
         new(CredsNames.UserNameKey)
         {

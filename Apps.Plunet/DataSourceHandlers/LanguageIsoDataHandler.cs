@@ -12,10 +12,10 @@ public class LanguageIsoDataHandler : PlunetInvocable, IAsyncDataSourceHandler
 
     public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
         CancellationToken cancellationToken)
-    {            
-        var languages = await AdminClient.getAvailableLanguagesAsync(Uuid, Language);
+    {
+        var languages = await GetSystemLanguages();
 
-        return languages.data
+        return languages
             .Where(language => context.SearchString == null ||
                                language.name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
             .Take(20)
