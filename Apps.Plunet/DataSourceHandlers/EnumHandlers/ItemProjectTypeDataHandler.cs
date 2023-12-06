@@ -11,8 +11,8 @@ namespace Apps.Plunet.DataSourceHandlers.EnumHandlers
     {
         protected override Dictionary<string, string> EnumValues => new()
         {
-            { "3", "Order item" },
-            { "1", "Quote item" },
+            { "3", "Order" },
+            { "1", "Quote" },
         };
     }
 }

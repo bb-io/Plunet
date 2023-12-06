@@ -2,9 +2,9 @@
 
 namespace Apps.Plunet.Models
 {
-    public class PriceLineResponse
+    public class PricelineResponse
     {
-        [Display("ID")]
+        [Display("Priceline ID")]
         public string Id { get; set; }
 
         [Display("Amount")]
@@ -27,5 +27,9 @@ namespace Apps.Plunet.Models
 
         [Display("Unit price")]
         public double UnitPrice { get; set; }
+
+        [Display("Price unit")]
+        public string PriceUnitId { get; set; }
+
     }
 }
