@@ -21,36 +21,37 @@ namespace Apps.Plunet.Actions
         {
             ItemListResult result;
 
-            if (searchParams.Status == null)
+            if (item.ProjectId == null)
             {
-                result = currencyParams.CurrencyType == null ? await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType)) :
-                    await ItemClient.getAllItemObjectsByCurrencyAsync(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType), ParseId(currencyParams.CurrencyType));
-            }
-            else
-            {
-                if (item.ProjectId == null)
+                if (searchParams.Status == null)
                 {
-                    if (searchParams.DocumentStatus == null)
-                    {
-                        result = await ItemClient.getItemsByStatus1Async(Uuid, ParseId(item.ProjectType), ParseId(searchParams.Status));
-                    }
-                    else
-                    {
-                        result = currencyParams.CurrencyType == null ? await ItemClient.getItemsByStatus3Async(Uuid, ParseId(item.ProjectType), ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus)) :
-                            await ItemClient.getItemsByStatus3ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectType), ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus), ParseId(currencyParams.CurrencyType));
-                    }                    
+                    throw new Exception("Please provide either an order or quote ID or an item status.");
+                }
+                if (searchParams.DocumentStatus == null)
+                {
+                    result = await ItemClient.getItemsByStatus1Async(Uuid, ParseId(item.ProjectType), ParseId(searchParams.Status));
                 }
                 else
                 {
-                    if (searchParams.DocumentStatus == null)
-                    {
-                        result = await ItemClient.getItemsByStatus2Async(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType), ParseId(searchParams.Status));
-                    }
-                    else
-                    {
-                        result = currencyParams.CurrencyType == null ? await ItemClient.getItemsByStatus4Async(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType), ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus)) :
-                            await ItemClient.getItemsByStatus4ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType), ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus), ParseId(currencyParams.CurrencyType));
-                    }
+                    result = currencyParams.CurrencyType == null ? await ItemClient.getItemsByStatus3Async(Uuid, ParseId(item.ProjectType), ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus)) :
+                        await ItemClient.getItemsByStatus3ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectType), ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus), ParseId(currencyParams.CurrencyType));
+                }
+            }
+            else
+            {
+                if (searchParams.Status == null)
+                {
+                    result = currencyParams.CurrencyType == null ? await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType)) :
+                        await ItemClient.getAllItemObjectsByCurrencyAsync(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType), ParseId(currencyParams.CurrencyType));
+                }
+                else if (searchParams.DocumentStatus == null)
+                {
+                    result = await ItemClient.getItemsByStatus2Async(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType), ParseId(searchParams.Status));
+                }
+                else
+                {
+                    result = currencyParams.CurrencyType == null ? await ItemClient.getItemsByStatus4Async(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType), ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus)) :
+                        await ItemClient.getItemsByStatus4ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType), ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus), ParseId(currencyParams.CurrencyType));
                 }
             }
 
@@ -59,7 +60,7 @@ namespace Apps.Plunet.Actions
 
             return new ListItemResponse
             {
-                Items = result.data.Select(x => new ItemResponse(x))
+                Items = result.data is null ? new List<ItemResponse>() : result.data.Select(x => new ItemResponse(x))
             };
         }
 

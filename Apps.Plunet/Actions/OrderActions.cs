@@ -2,6 +2,7 @@
 using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
+using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.Order;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
@@ -38,10 +39,10 @@ public class OrderActions : PlunetInvocable
             projectDescription = input.ProjectDescription ?? string.Empty,
         });
 
-        if (searchResult.data is null)
+        if (searchResult.statusMessage != ApiResponses.Ok)
             throw new(searchResult.statusMessage);
 
-        var getOrderTasks = searchResult.data
+        var getOrderTasks = searchResult.data is null ? Enumerable.Empty<Task<OrderResponse>>() : searchResult.data
             .Where(x => x.HasValue)
             .Select(x => GetOrder(new OrderRequest { OrderId = x!.Value.ToString() }));
 

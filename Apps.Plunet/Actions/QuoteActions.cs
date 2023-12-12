@@ -3,6 +3,7 @@ using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Order;
+using Apps.Plunet.Models.Payable.Response;
 using Apps.Plunet.Models.Quote;
 using Apps.Plunet.Models.Quote.Request;
 using Apps.Plunet.Models.Quote.Response;
@@ -53,8 +54,11 @@ public class QuoteActions : PlunetInvocable
                 : default
         });
 
-        if (searchResult.data is null)
+        if (searchResult.statusMessage != ApiResponses.Ok)
             throw new(searchResult.statusMessage);
+
+        if (searchResult.data is null)
+            return new(Enumerable.Empty<QuoteResponse>());
 
         var getRequestTasks = searchResult.data
             .Where(x => x.HasValue)
