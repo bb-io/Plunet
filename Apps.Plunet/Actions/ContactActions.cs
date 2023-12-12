@@ -27,7 +27,7 @@ public class ContactActions : PlunetInvocable
 
         return new()
         {
-            CustomerContacts = contacts.data.Select(x => new ContactObjectResponse(x))
+            CustomerContacts = contacts.data is null ? new List<ContactObjectResponse>() : contacts.data.Select(x => new ContactObjectResponse(x))
         };
     }
 

@@ -2,6 +2,7 @@
 using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
+using Apps.Plunet.Models.Quote.Response;
 using Apps.Plunet.Models.Request.Request;
 using Apps.Plunet.Models.Request.Response;
 using Blackbird.Applications.Sdk.Common;
@@ -43,8 +44,11 @@ public class RequestActions : PlunetInvocable
                 : default
         });
 
-        if (searchResult.data is null)
+        if (searchResult.statusMessage != ApiResponses.Ok)
             throw new(searchResult.statusMessage);
+
+        if (searchResult.data is null)
+            return new(Enumerable.Empty<RequestResponse>());
 
         var getRequestTasks = searchResult.data
             .Where(x => x.HasValue)
