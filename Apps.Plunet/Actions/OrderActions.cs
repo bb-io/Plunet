@@ -64,6 +64,15 @@ public class OrderActions : PlunetInvocable
 
         var orderLanguageCombinations = await ParseLanguageCombinations(languageCombinations.data);
 
+        var itemsResult = await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(request.OrderId), 3);
+
+        if (itemsResult.statusMessage != ApiResponses.Ok)
+            throw new(itemsResult.statusMessage);
+
+        var totalOrderPrice = itemsResult.data.Sum(x => x.totalPrice);
+
+        // Todo Add to model
+
         return new(orderResult.data, orderLanguageCombinations);
     }
 
