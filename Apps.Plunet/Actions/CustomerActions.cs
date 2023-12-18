@@ -61,7 +61,9 @@ public class CustomerActions : PlunetInvocable
         if (customer.data is null)
             throw new(customer.statusMessage);
 
-        return new(customer.data, paymentInfo.data);
+        var accountManagerId = await CustomerClient.getAccountManagerIDAsync(Uuid, ParseId(input.CustomerId));
+
+        return new(customer.data, paymentInfo.data, accountManagerId?.data);
     }
 
     [Action("Delete customer", Description = "Delete a Plunet customer")]

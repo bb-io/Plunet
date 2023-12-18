@@ -50,10 +50,14 @@ public class GetCustomerResponse
     [Display("Website")]
     public string Website { get; set; }
 
+    [Display("Account manager ID")]
+    public string? AccountManagerId { get; set; }
+
     [Display("Payment information")]
     public GetPaymentInfoResponse PaymentInformation { get; set; }
 
-    public GetCustomerResponse(Blackbird.Plugins.Plunet.DataCustomer30Service.Customer customer, PaymentInfo paymentInfo)
+    public GetCustomerResponse(Blackbird.Plugins.Plunet.DataCustomer30Service.Customer customer,
+        PaymentInfo paymentInfo, int? accountManagerId = default)
     {
         AcademicTitle = customer.academicTitle;
         CostCenter = customer.costCenter;
@@ -70,6 +74,7 @@ public class GetCustomerResponse
         Status = customer.status;
         UserId = customer.userId.ToString();
         Website = customer.website;
+        AccountManagerId = accountManagerId?.ToString();
         PaymentInformation = new GetPaymentInfoResponse(paymentInfo);
     }
 }
