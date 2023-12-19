@@ -1,5 +1,4 @@
-﻿using Apps.Plunet.Api;
-using Apps.Plunet.Extensions;
+﻿using Apps.Plunet.Extensions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Connections;
 

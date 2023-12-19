@@ -1,8 +1,6 @@
 ﻿using Apps.Plunet.Constants;
-using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
-using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.Order;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
@@ -52,6 +50,11 @@ public class OrderActions : PlunetInvocable
     [Action("Get order", Description = "Get the Plunet order")]
     public async Task<OrderResponse> GetOrder([ActionParameter] OrderRequest request)
     {
+        var file = await File.ReadAllBytesAsync("/home/bzveriok/Documents/file.xlsx");
+        var res = await ItemClient.setCatReport2Async(Uuid, file, "file.xlsx", file.Length, false, 10, 3, true, 1);
+        
+        
+        
         var orderResult = await OrderClient.getOrderObjectAsync(Uuid, ParseId(request.OrderId));
 
         if (orderResult.statusMessage != ApiResponses.Ok)
@@ -71,9 +74,10 @@ public class OrderActions : PlunetInvocable
 
         var totalOrderPrice = itemsResult.data.Sum(x => x.totalPrice);
 
-        // Todo Add to model
-
-        return new(orderResult.data, orderLanguageCombinations);
+        return new(orderResult.data, orderLanguageCombinations)
+        {
+            TotalPrice = totalOrderPrice
+        };
     }
 
     [Action("Create order", Description = "Create a new order in Plunet")]

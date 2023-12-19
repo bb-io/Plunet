@@ -1,13 +1,9 @@
-﻿using Apps.Plunet.Api;
-using Apps.Plunet.Constants;
-using Apps.Plunet.Extensions;
+﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Customer;
-using Apps.Plunet.Models.Resource.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 
 namespace Apps.Plunet.Actions;
@@ -45,7 +41,6 @@ public class CustomerActions : PlunetInvocable
         var result = await Task.WhenAll(ids);
 
         return new(result);
-        
     }
 
     [Action("Get customer", Description = "Get the Plunet customer")]
@@ -61,9 +56,12 @@ public class CustomerActions : PlunetInvocable
         if (customer.data is null)
             throw new(customer.statusMessage);
 
-        var accountManagerId = await CustomerClient.getAccountManagerIDAsync(Uuid, ParseId(input.CustomerId));
+        var accountManagerResult = await CustomerClient.getAccountManagerIDAsync(Uuid, ParseId(input.CustomerId));
 
-        return new(customer.data, paymentInfo.data, accountManagerId?.data);
+        if (accountManagerResult.statusMessage != ApiResponses.Ok)
+            throw new(accountManagerResult.statusMessage);
+
+        return new(customer.data, paymentInfo.data, accountManagerResult?.data);
     }
 
     [Action("Delete customer", Description = "Delete a Plunet customer")]
@@ -113,8 +111,9 @@ public class CustomerActions : PlunetInvocable
     }
 
     [Action("Update customer", Description = "Update Plunet customer")]
-    public async Task<GetCustomerResponse> UpdateCustomer([ActionParameter] CustomerRequest customer, [ActionParameter] CreateCustomerRequest request)
-    {        
+    public async Task<GetCustomerResponse> UpdateCustomer([ActionParameter] CustomerRequest customer,
+        [ActionParameter] CreateCustomerRequest request)
+    {
         await CustomerClient.updateAsync(Uuid, new CustomerIN
         {
             customerID = ParseId(customer.CustomerId),
@@ -142,7 +141,7 @@ public class CustomerActions : PlunetInvocable
     //[Action("Set customer address", Description = "Set Plunet customer address")]
     public async Task<SetCustomerAddressResponse> SetCustomerAddress(
         [ActionParameter] CustomerRequest customer, [ActionParameter] SetCustomerAddressRequest request)
-    {        
+    {
         var response = await CustomerAddressClient.insert2Async(Uuid, ParseId(customer.CustomerId), new()
         {
             name1 = request.FirstAddressName,

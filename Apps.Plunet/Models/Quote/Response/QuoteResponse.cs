@@ -4,8 +4,7 @@ namespace Apps.Plunet.Models.Quote.Response;
 
 public class QuoteResponse
 {
-    [Display("Quote ID")]
-    public string QuoteId { get; set; }
+    [Display("Quote ID")] public string QuoteId { get; set; }
 
     public string Currency { get; set; }
 
@@ -19,11 +18,12 @@ public class QuoteResponse
 
     public string Number { get; set; }
 
-    [Display("Creation date")]
-    public DateTime CreationDate { get; set; }
+    [Display("Creation date")] public DateTime CreationDate { get; set; }
 
     [Display("Is creation date specified")]
     public bool CreationDateSpecificied { get; set; }
+
+    [Display("Total price")] public double TotalPrice { get; set; }
 
     public QuoteResponse(Blackbird.Plugins.Plunet.DataQuote30Service.Quote quote)
     {
