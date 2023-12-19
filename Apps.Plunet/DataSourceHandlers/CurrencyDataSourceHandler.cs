@@ -1,7 +1,5 @@
 ﻿using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Apps.Plunet.Api;
-using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 
 namespace Apps.Plunet.DataSourceHandlers

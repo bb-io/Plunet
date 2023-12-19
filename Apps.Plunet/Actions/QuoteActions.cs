@@ -1,18 +1,12 @@
 ﻿using Apps.Plunet.Constants;
-using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
-using Apps.Plunet.Models.Order;
-using Apps.Plunet.Models.Payable.Response;
-using Apps.Plunet.Models.Quote;
 using Apps.Plunet.Models.Quote.Request;
 using Apps.Plunet.Models.Quote.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
-using Blackbird.Plugins.Plunet.DataRequest30Service;
 
 namespace Apps.Plunet.Actions;
 
@@ -75,7 +69,17 @@ public class QuoteActions : PlunetInvocable
         if (quoteResult.data is null)
             throw new(quoteResult.statusMessage);
 
-        return new(quoteResult.data);
+        var itemsResult = await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(request.QuoteId), 1);
+
+        if (itemsResult.statusMessage != ApiResponses.Ok)
+            throw new(itemsResult.statusMessage);
+
+        var totalPrice = itemsResult.data.Sum(x => x.totalPrice);
+        
+        return new(quoteResult.data)
+        {
+            TotalPrice = totalPrice
+        };
     }
 
     [Action("Create quote", Description = "Create a new quote in Plunet, optionally using a template")]

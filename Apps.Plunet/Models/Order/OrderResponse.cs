@@ -37,6 +37,9 @@ public class OrderResponse
     [Display("Language combinations")]
     public IEnumerable<LanguageCombination> LanguageCombinations { get; set; }
 
+    [Display("Total price")]
+    public double TotalPrice { get; set; }
+
     public OrderResponse(Blackbird.Plugins.Plunet.DataOrder30Service.Order order, IEnumerable<LanguageCombination> combinations)
     {
         Currency = order.currency;

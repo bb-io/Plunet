@@ -16,8 +16,11 @@ namespace Apps.Plunet.Actions
         {
         }
 
-        [Action("Search items", Description = "Search for items either under a specific order/quote or with a certain status")]
-        public async Task<ListItemResponse> SearchItems([ActionParameter] OptionalItemProjectRequest item, [ActionParameter] SearchItemsRequest searchParams, [ActionParameter] OptionalCurrencyTypeRequest currencyParams)
+        [Action("Search items",
+            Description = "Search for items either under a specific order/quote or with a certain status")]
+        public async Task<ListItemResponse> SearchItems([ActionParameter] OptionalItemProjectRequest item,
+            [ActionParameter] SearchItemsRequest searchParams,
+            [ActionParameter] OptionalCurrencyTypeRequest currencyParams)
         {
             ItemListResult result;
 
@@ -27,31 +30,46 @@ namespace Apps.Plunet.Actions
                 {
                     throw new Exception("Please provide either an order or quote ID or an item status.");
                 }
+
                 if (searchParams.DocumentStatus == null)
                 {
-                    result = await ItemClient.getItemsByStatus1Async(Uuid, ParseId(item.ProjectType), ParseId(searchParams.Status));
+                    result = await ItemClient.getItemsByStatus1Async(Uuid, ParseId(item.ProjectType),
+                        ParseId(searchParams.Status));
                 }
                 else
                 {
-                    result = currencyParams.CurrencyType == null ? await ItemClient.getItemsByStatus3Async(Uuid, ParseId(item.ProjectType), ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus)) :
-                        await ItemClient.getItemsByStatus3ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectType), ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus), ParseId(currencyParams.CurrencyType));
+                    result = currencyParams.CurrencyType == null
+                        ? await ItemClient.getItemsByStatus3Async(Uuid, ParseId(item.ProjectType),
+                            ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus))
+                        : await ItemClient.getItemsByStatus3ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectType),
+                            ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus),
+                            ParseId(currencyParams.CurrencyType));
                 }
             }
             else
             {
                 if (searchParams.Status == null)
                 {
-                    result = currencyParams.CurrencyType == null ? await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType)) :
-                        await ItemClient.getAllItemObjectsByCurrencyAsync(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType), ParseId(currencyParams.CurrencyType));
+                    result = currencyParams.CurrencyType == null
+                        ? await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(item.ProjectId),
+                            ParseId(item.ProjectType))
+                        : await ItemClient.getAllItemObjectsByCurrencyAsync(Uuid, ParseId(item.ProjectId),
+                            ParseId(item.ProjectType), ParseId(currencyParams.CurrencyType));
                 }
                 else if (searchParams.DocumentStatus == null)
                 {
-                    result = await ItemClient.getItemsByStatus2Async(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType), ParseId(searchParams.Status));
+                    result = await ItemClient.getItemsByStatus2Async(Uuid, ParseId(item.ProjectId),
+                        ParseId(item.ProjectType), ParseId(searchParams.Status));
                 }
                 else
                 {
-                    result = currencyParams.CurrencyType == null ? await ItemClient.getItemsByStatus4Async(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType), ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus)) :
-                        await ItemClient.getItemsByStatus4ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectId), ParseId(item.ProjectType), ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus), ParseId(currencyParams.CurrencyType));
+                    result = currencyParams.CurrencyType == null
+                        ? await ItemClient.getItemsByStatus4Async(Uuid, ParseId(item.ProjectId),
+                            ParseId(item.ProjectType), ParseId(searchParams.Status),
+                            ParseId(searchParams.DocumentStatus))
+                        : await ItemClient.getItemsByStatus4ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectId),
+                            ParseId(item.ProjectType), ParseId(searchParams.Status),
+                            ParseId(searchParams.DocumentStatus), ParseId(currencyParams.CurrencyType));
                 }
             }
 
@@ -66,10 +84,13 @@ namespace Apps.Plunet.Actions
 
 
         [Action("Get item", Description = "Get details for a Plunet item")]
-        public async Task<ItemResponse> GetItem([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request, [ActionParameter] OptionalCurrencyTypeRequest currency)
+        public async Task<ItemResponse> GetItem([ActionParameter] ProjectTypeRequest project,
+            [ActionParameter] GetItemRequest request, [ActionParameter] OptionalCurrencyTypeRequest currency)
         {
-            var result = currency.CurrencyType == null ? await ItemClient.getItemObjectAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)) :
-                await ItemClient.getItemObjectByCurrencyTypeAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId), ParseId(currency.CurrencyType));
+            var result = currency.CurrencyType == null
+                ? await ItemClient.getItemObjectAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId))
+                : await ItemClient.getItemObjectByCurrencyTypeAsync(Uuid, ParseId(project.ProjectType),
+                    ParseId(request.ItemId), ParseId(currency.CurrencyType));
 
             if (result.statusMessage != ApiResponses.Ok)
                 throw new(result.statusMessage);
@@ -78,7 +99,9 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Create item", Description = "Create a new item in Plunet")]
-        public async Task<ItemResponse> CreateItem([ActionParameter] ProjectTypeRequest project, [ActionParameter] ProjectIdRequest projectId, [ActionParameter] CreateItemRequest request, [ActionParameter] OptionalLanguageCombinationRequest languages)
+        public async Task<ItemResponse> CreateItem([ActionParameter] ProjectTypeRequest project,
+            [ActionParameter] ProjectIdRequest projectId, [ActionParameter] CreateItemRequest request,
+            [ActionParameter] OptionalLanguageCombinationRequest languages)
         {
             if ((languages.SourceLanguageCode == null) != (languages.TargetLanguageCode == null))
             {
@@ -96,18 +119,22 @@ namespace Apps.Plunet.Actions
                 status = ParseId(request.Status),
             };
 
-            var response = languages.SourceLanguageCode == null ? await ItemClient.insertLanguageIndependentItemAsync(Uuid, itemIn) : await ItemClient.insert2Async(Uuid, itemIn);
+            var response = languages.SourceLanguageCode == null
+                ? await ItemClient.insertLanguageIndependentItemAsync(Uuid, itemIn)
+                : await ItemClient.insert2Async(Uuid, itemIn);
 
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
 
             await HandleLanguages(languages, ParseId(project.ProjectType), ParseId(projectId.ProjectId), response.data);
 
-            return await GetItem(project, new GetItemRequest { ItemId = response.data.ToString() }, new OptionalCurrencyTypeRequest { });
+            return await GetItem(project, new GetItemRequest { ItemId = response.data.ToString() },
+                new OptionalCurrencyTypeRequest { });
         }
 
         [Action("Delete item", Description = "Delete a Plunet item")]
-        public async Task DeleteItem([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request)
+        public async Task DeleteItem([ActionParameter] ProjectTypeRequest project,
+            [ActionParameter] GetItemRequest request)
         {
             var response = await ItemClient.deleteAsync(Uuid, ParseId(request.ItemId), ParseId(project.ProjectType));
 
@@ -116,7 +143,9 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Update item", Description = "Update an existing item in Plunet")]
-        public async Task<ItemResponse> UpdateItem([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest item, [ActionParameter] CreateItemRequest request, [ActionParameter] OptionalLanguageCombinationRequest languages)
+        public async Task<ItemResponse> UpdateItem([ActionParameter] ProjectTypeRequest project,
+            [ActionParameter] GetItemRequest item, [ActionParameter] CreateItemRequest request,
+            [ActionParameter] OptionalLanguageCombinationRequest languages)
         {
             if ((languages.SourceLanguageCode == null) != (languages.TargetLanguageCode == null))
             {
@@ -140,15 +169,18 @@ namespace Apps.Plunet.Actions
                 throw new(response.statusMessage);
 
             var itemRes = await ItemClient.getItemObjectAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId));
-            await HandleLanguages(languages, ParseId(project.ProjectType), itemRes.data.projectID, ParseId(item.ItemId));            
+            await HandleLanguages(languages, ParseId(project.ProjectType), itemRes.data.projectID,
+                ParseId(item.ItemId));
 
             return await GetItem(project, item, new OptionalCurrencyTypeRequest { });
         }
 
         [Action("Get item pricelines", Description = "Get a list of all pricelines attached to an item")]
-        public async Task<PricelinesResponse> GetItemPricelines([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest item)
+        public async Task<PricelinesResponse> GetItemPricelines([ActionParameter] ProjectTypeRequest project,
+            [ActionParameter] GetItemRequest item)
         {
-            var response = await ItemClient.getPriceLine_ListAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType));
+            var response =
+                await ItemClient.getPriceLine_ListAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType));
 
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
@@ -160,7 +192,9 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Create item priceline", Description = "Add a new pricline to an item")]
-        public async Task<PricelineResponse> CreateItemPriceline([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest item, [ActionParameter] ItemPriceUnitRequest unit, [ActionParameter] PricelineRequest input)
+        public async Task<PricelineResponse> CreateItemPriceline([ActionParameter] ProjectTypeRequest project,
+            [ActionParameter] GetItemRequest item, [ActionParameter] ItemPriceUnitRequest unit,
+            [ActionParameter] PricelineRequest input)
         {
             var pricelineIn = new PriceLineIN
             {
@@ -176,7 +210,8 @@ namespace Apps.Plunet.Actions
             if (input.TimePerUnit.HasValue)
                 pricelineIn.time_perUnit = input.TimePerUnit.Value;
 
-            var response = await ItemClient.insertPriceLineAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType), pricelineIn, false);
+            var response = await ItemClient.insertPriceLineAsync(Uuid, ParseId(item.ItemId),
+                ParseId(project.ProjectType), pricelineIn, false);
 
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
@@ -185,16 +220,20 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Delete item priceline", Description = "Delete a priceline from an item")]
-        public async Task DeletePriceline([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest item, [ActionParameter] PricelineIdRequest line)
+        public async Task DeletePriceline([ActionParameter] ProjectTypeRequest project,
+            [ActionParameter] GetItemRequest item, [ActionParameter] PricelineIdRequest line)
         {
-            var response = await ItemClient.deletePriceLineAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType), ParseId(line.Id));
+            var response = await ItemClient.deletePriceLineAsync(Uuid, ParseId(item.ItemId),
+                ParseId(project.ProjectType), ParseId(line.Id));
 
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
         }
 
         [Action("Update item priceline", Description = "Update an existing item pricline")]
-        public async Task<PricelineResponse> UpdateItemPriceline([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest item, [ActionParameter] ItemPriceUnitRequest unit, [ActionParameter] PricelineIdRequest line, [ActionParameter] PricelineRequest input)
+        public async Task<PricelineResponse> UpdateItemPriceline([ActionParameter] ProjectTypeRequest project,
+            [ActionParameter] GetItemRequest item, [ActionParameter] ItemPriceUnitRequest unit,
+            [ActionParameter] PricelineIdRequest line, [ActionParameter] PricelineRequest input)
         {
             var pricelineIn = new PriceLineIN
             {
@@ -211,12 +250,27 @@ namespace Apps.Plunet.Actions
             if (input.TimePerUnit.HasValue)
                 pricelineIn.time_perUnit = input.TimePerUnit.Value;
 
-            var response = await ItemClient.updatePriceLineAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType), pricelineIn);
+            var response = await ItemClient.updatePriceLineAsync(Uuid, ParseId(item.ItemId),
+                ParseId(project.ProjectType), pricelineIn);
 
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
 
             return CreatePricelineResponse(response.data);
+        }
+
+        [Action("Upload CAT report",
+            Description = "Upload a report file into the report folder of the specified item.")]
+        public async Task UploadCatReport(
+            [ActionParameter] GetItemRequest item,
+            [ActionParameter] UploadCatReportRequest input)
+        {
+            var response = await ItemClient.setCatReport2Async(Uuid, input.File.Bytes, input.File.Name, input.File.Bytes.Length,
+                input.OverwriteExistingPricelines, ParseId(input.CatType), ParseId(input.ProjectType),
+                input.CopyResultsToItem, ParseId(item.ItemId));
+            
+            if (response.Result.statusMessage != ApiResponses.Ok)
+                throw new(response.Result.statusMessage);
         }
 
         private PricelineResponse CreatePricelineResponse(PriceLine line)
@@ -235,25 +289,29 @@ namespace Apps.Plunet.Actions
             };
         }
 
-        private async Task HandleLanguages(OptionalLanguageCombinationRequest languages, int projectType, int projectId, int itemId)
+        private async Task HandleLanguages(OptionalLanguageCombinationRequest languages, int projectType, int projectId,
+            int itemId)
         {
             if (languages.SourceLanguageCode != null)
             {
                 var sourceLanguage = await GetLanguageFromIsoOrFolderOrName(languages.SourceLanguageCode);
                 var targetLanguage = await GetLanguageFromIsoOrFolderOrName(languages.TargetLanguageCode);
-                var languageCombination = await ItemClient.seekLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, projectType, projectId, itemId);
+                var languageCombination = await ItemClient.seekLanguageCombinationAsync(Uuid, sourceLanguage.name,
+                    targetLanguage.name, projectType, projectId, itemId);
                 var languageCombinationCode = languageCombination.data;
 
                 if (languageCombinationCode == 0)
                 {
                     if (projectType == 3) // order
                     {
-                        var result = await OrderClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, itemId);
+                        var result = await OrderClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name,
+                            targetLanguage.name, itemId);
                         languageCombinationCode = result.data;
                     }
                     else
                     {
-                        var result = await QuoteClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, itemId);
+                        var result = await QuoteClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name,
+                            targetLanguage.name, itemId);
                         languageCombinationCode = result.data;
                     }
                 }
@@ -265,6 +323,5 @@ namespace Apps.Plunet.Actions
         // Pricelist
         // Copy jobs from workflow
         // SetCatReport
-
     }
 }

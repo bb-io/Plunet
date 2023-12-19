@@ -1,0 +1,12 @@
+using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+
+namespace Apps.Plunet.DataSourceHandlers.EnumHandlers;
+
+public class ProjectOrderQuoteTypeDataHandler : EnumDataHandler
+{
+    protected override Dictionary<string, string> EnumValues => new()
+    {
+        { "1", "Quote" },
+        { "3", "Order" }
+    };
+}
