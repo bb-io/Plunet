@@ -1,5 +1,7 @@
-﻿using File = Blackbird.Applications.Sdk.Common.Files.File;
+﻿
+
+using Blackbird.Applications.Sdk.Common.Files;
 
 namespace Apps.Plunet.Models;
 
-public record FileResponse(File File);
+public record FileResponse(FileReference File);
