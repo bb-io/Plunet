@@ -2,25 +2,31 @@
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Apps.Plunet.Models.Document;
-using File = Blackbird.Applications.Sdk.Common.Files.File;
+
 using System.Net.Mime;
 using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.Sdk.Common.Files;
 
 namespace Apps.Plunet.Actions
 {
     [ActionList]
     public class DocumentActions : PlunetInvocable
     {
-        public DocumentActions(InvocationContext invocationContext) : base(invocationContext)
+        private readonly IFileManagementClient _fileManagementClient;
+        public DocumentActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(invocationContext)
         {
+            _fileManagementClient = fileManagementClient;
         }
 
         [Action("Upload file", Description = "Upload a file to an entity")]
         public async Task UploadFile([ActionParameter] UploadDocumentRequest request)
         {
-            await DocumentClient.upload_DocumentAsync(Uuid, ParseId(request.MainId), ParseId(request.FolderType), request.File.Bytes, $"{request.Subfolder?.Replace("/", "\\") ?? ""}\\{request.File.Name}", request.File.Bytes.Length);
+            var fileBytes = _fileManagementClient.DownloadAsync(request.File).Result.GetByteData().Result;
+            await DocumentClient.upload_DocumentAsync(Uuid, ParseId(request.MainId), ParseId(request.FolderType), fileBytes, $"{request.Subfolder?.Replace("/", "\\") ?? ""}\\{request.File.Name}", fileBytes.Length);
         }
 
         [Action("Download file", Description = "Download a file from an entity")]
@@ -31,11 +37,9 @@ namespace Apps.Plunet.Actions
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
 
-            return new(new(response.fileContent)
-            {
-                Name = Path.GetFileName(response.filename),
-                ContentType = MediaTypeNames.Application.Octet
-            });
+            using var stream = new MemoryStream(response.fileContent);
+            var file = await _fileManagementClient.UploadAsync(stream, MediaTypeNames.Application.Octet, Path.GetFileName(response.filename));
+            return new(file);
         }
 
         [Action("Download all files in folder", Description = "Download all the files from an entity folder")]
@@ -49,7 +53,7 @@ namespace Apps.Plunet.Actions
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
 
-            List<File> files = new List<File>();
+            List<FileReference> files = new List<FileReference>();
 
             foreach(var path in response.data)
             {
