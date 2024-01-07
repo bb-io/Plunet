@@ -50,11 +50,6 @@ public class OrderActions : PlunetInvocable
     [Action("Get order", Description = "Get the Plunet order")]
     public async Task<OrderResponse> GetOrder([ActionParameter] OrderRequest request)
     {
-        var file = await File.ReadAllBytesAsync("/home/bzveriok/Documents/file.xlsx");
-        var res = await ItemClient.setCatReport2Async(Uuid, file, "file.xlsx", file.Length, false, 10, 3, true, 1);
-        
-        
-        
         var orderResult = await OrderClient.getOrderObjectAsync(Uuid, ParseId(request.OrderId));
 
         if (orderResult.statusMessage != ApiResponses.Ok)
