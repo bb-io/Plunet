@@ -16,10 +16,11 @@ public class LanguageIsoDataHandler : PlunetInvocable, IAsyncDataSourceHandler
         var languages = await GetSystemLanguages();
 
         return languages
+            .Where(x => !string.IsNullOrWhiteSpace(x.isoCode))
             .Where(language => context.SearchString == null ||
                                language.name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-            .Take(20)
             .GroupBy(x => x.isoCode)
-            .ToDictionary(x => x.Key.ToString(), x => x.ToList().First().name!);
+            .ToDictionary(x => x.Key.ToString(),
+                x => string.Join(", ", x.Select(x => x.name)));
     }
 }
