@@ -1,13 +1,14 @@
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
-using File = Blackbird.Applications.Sdk.Common.Files.File;
+using Blackbird.Applications.Sdk.Common.Files;
+
 
 namespace Apps.Plunet.Models.Item;
 
 public class UploadCatReportRequest
 {
-    public File File { get; set; }
+    public FileReference File { get; set; }
     
     [Display("Overwrite existing pricelines")]
     public bool OverwriteExistingPricelines { get; set; }

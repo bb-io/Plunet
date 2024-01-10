@@ -67,7 +67,7 @@ public class OrderActions : PlunetInvocable
         if (itemsResult.statusMessage != ApiResponses.Ok)
             throw new(itemsResult.statusMessage);
 
-        var totalOrderPrice = itemsResult.data.Sum(x => x.totalPrice);
+        var totalOrderPrice = itemsResult.data?.Sum(x => x.totalPrice) ?? 0;
 
         return new(orderResult.data, orderLanguageCombinations)
         {

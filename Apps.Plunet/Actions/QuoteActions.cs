@@ -74,7 +74,7 @@ public class QuoteActions : PlunetInvocable
         if (itemsResult.statusMessage != ApiResponses.Ok)
             throw new(itemsResult.statusMessage);
 
-        var totalPrice = itemsResult.data.Sum(x => x.totalPrice);
+        var totalPrice = itemsResult.data?.Sum(x => x.totalPrice) ?? 0;
         
         return new(quoteResult.data)
         {

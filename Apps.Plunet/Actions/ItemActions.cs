@@ -5,6 +5,8 @@ using Apps.Plunet.Models.Item;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.Files;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 
 namespace Apps.Plunet.Actions
@@ -12,8 +14,10 @@ namespace Apps.Plunet.Actions
     [ActionList]
     public class ItemActions : PlunetInvocable
     {
-        public ItemActions(InvocationContext invocationContext) : base(invocationContext)
+        private readonly IFileManagementClient _fileManagementClient;
+        public ItemActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(invocationContext)
         {
+            _fileManagementClient = fileManagementClient;
         }
 
         [Action("Search items",
@@ -265,7 +269,8 @@ namespace Apps.Plunet.Actions
             [ActionParameter] GetItemRequest item,
             [ActionParameter] UploadCatReportRequest input)
         {
-            var response = await ItemClient.setCatReport2Async(Uuid, input.File.Bytes, input.File.Name, input.File.Bytes.Length,
+            var fileBytes = _fileManagementClient.DownloadAsync(input.File).Result.GetByteData().Result;
+            var response = await ItemClient.setCatReport2Async(Uuid, fileBytes, input.File.Name, fileBytes.Length,
                 input.OverwriteExistingPricelines, ParseId(input.CatType), ParseId(input.ProjectType),
                 input.CopyResultsToItem, ParseId(item.ItemId));
             
