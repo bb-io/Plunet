@@ -43,6 +43,9 @@ public class OrderResponse
     [Display("Total price")]
     public double TotalPrice { get; set; }
 
+    [Display("Status")]
+    public string Status { get; set; }
+
     public OrderResponse(Blackbird.Plugins.Plunet.DataOrder30Service.Order order, IEnumerable<LanguageCombination> combinations)
     {
         Currency = order.currency;

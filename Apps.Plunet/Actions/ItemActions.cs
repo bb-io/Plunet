@@ -14,10 +14,8 @@ namespace Apps.Plunet.Actions
     [ActionList]
     public class ItemActions : PlunetInvocable
     {
-        private readonly IFileManagementClient _fileManagementClient;
-        public ItemActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : base(invocationContext)
+        public ItemActions(InvocationContext invocationContext) : base(invocationContext)
         {
-            _fileManagementClient = fileManagementClient;
         }
 
         [Action("Search items",
@@ -261,21 +259,6 @@ namespace Apps.Plunet.Actions
                 throw new(response.statusMessage);
 
             return CreatePricelineResponse(response.data);
-        }
-
-        [Action("Upload CAT report",
-            Description = "Upload a report file into the report folder of the specified item.")]
-        public async Task UploadCatReport(
-            [ActionParameter] GetItemRequest item,
-            [ActionParameter] UploadCatReportRequest input)
-        {
-            var fileBytes = _fileManagementClient.DownloadAsync(input.File).Result.GetByteData().Result;
-            var response = await ItemClient.setCatReport2Async(Uuid, fileBytes, input.File.Name, fileBytes.Length,
-                input.OverwriteExistingPricelines, ParseId(input.CatType), ParseId(input.ProjectType),
-                input.CopyResultsToItem, ParseId(item.ItemId));
-            
-            if (response.Result.statusMessage != ApiResponses.Ok)
-                throw new(response.Result.statusMessage);
         }
 
         private PricelineResponse CreatePricelineResponse(PriceLine line)

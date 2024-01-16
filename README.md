@@ -167,7 +167,7 @@ An example of the granularity at which orders (and other entities) can be select
 
 ## Events
 
-All webhooks only return an ID. This ID can be used with acompanying 'get' actions to get the actual entities. F.e. after _On customer created_ one may want to invoke the action _Get customer_ to get the customer information.
+All webhooks return all data for the entity they were invoked on. All _status changed_ events have an optional input field _new status_ which can be used to differentiate the new status after the event.
 
 ### Customers
 

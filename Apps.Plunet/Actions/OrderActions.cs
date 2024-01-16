@@ -70,10 +70,15 @@ public class OrderActions : PlunetInvocable
         if (contactResult.statusMessage != ApiResponses.Ok)
             throw new(contactResult.statusMessage);
 
+        var statusResult = await OrderClient.getProjectStatusAsync(Uuid, ParseId(request.OrderId));
+        if (statusResult.statusMessage != ApiResponses.Ok)
+            throw new(statusResult.statusMessage);
+
         return new(orderResult.data, orderLanguageCombinations)
         {
             TotalPrice = totalOrderPrice,
             ContactId = contactResult.data.ToString(),
+            Status = statusResult.data.ToString(),
         };
     }
 
@@ -101,6 +106,13 @@ public class OrderActions : PlunetInvocable
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
+
+        if (request.Status != null)
+        {
+            var statusResponse = await OrderClient.setProjectStatusAsync(Uuid, response.data, ParseId(request.Status));
+            if (statusResponse.statusMessage != ApiResponses.Ok)
+                throw new(statusResponse.statusMessage);
+        }
 
         return await GetOrder(new OrderRequest { OrderId = response.data.ToString() });
     }
@@ -132,6 +144,13 @@ public class OrderActions : PlunetInvocable
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
+
+        if (request.Status != null)
+        {
+            var statusResponse = await OrderClient.setProjectStatusAsync(Uuid, ParseId(order.OrderId), ParseId(request.Status));
+            if (statusResponse.statusMessage != ApiResponses.Ok)
+                throw new(statusResponse.statusMessage);
+        }
 
         return await GetOrder(order);
     }

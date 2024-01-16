@@ -7,7 +7,7 @@ namespace Apps.Plunet.DataSourceHandlers.EnumHandlers
         protected override Dictionary<string, string> EnumValues => new()
         {
             ["1"] = "Active",
-            ["6"] = "Aquistition address",
+            ["6"] = "New (registered)",
             ["5"] = "Blocked",
             ["3"] = "Contacted",
             ["8"] = "Deletion requested",
