@@ -51,27 +51,29 @@ public class OrderActions : PlunetInvocable
     public async Task<OrderResponse> GetOrder([ActionParameter] OrderRequest request)
     {
         var orderResult = await OrderClient.getOrderObjectAsync(Uuid, ParseId(request.OrderId));
-
         if (orderResult.statusMessage != ApiResponses.Ok)
             throw new(orderResult.statusMessage);
 
         var languageCombinations = await OrderClient.getLanguageCombinationAsync(Uuid, ParseId(request.OrderId));
-
         if (languageCombinations.statusMessage != ApiResponses.Ok)
             throw new(languageCombinations.statusMessage);
 
         var orderLanguageCombinations = await ParseLanguageCombinations(languageCombinations.data);
 
         var itemsResult = await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(request.OrderId), 3);
-
         if (itemsResult.statusMessage != ApiResponses.Ok)
             throw new(itemsResult.statusMessage);
 
         var totalOrderPrice = itemsResult.data?.Sum(x => x.totalPrice) ?? 0;
 
+        var contactResult = await OrderClient.getCustomerContactIDAsync(Uuid, ParseId(request.OrderId));
+        if (contactResult.statusMessage != ApiResponses.Ok)
+            throw new(contactResult.statusMessage);
+
         return new(orderResult.data, orderLanguageCombinations)
         {
-            TotalPrice = totalOrderPrice
+            TotalPrice = totalOrderPrice,
+            ContactId = contactResult.data.ToString(),
         };
     }
 

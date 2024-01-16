@@ -6,7 +6,7 @@ namespace Apps.Plunet.Models.Order
 {
     public class OrderRequest
     {
-        [Display("Order")]
+        [Display("Order ID")]
         [DataSource(typeof(OrderIdDataHandler))]
         public string OrderId { get; set; }
     }

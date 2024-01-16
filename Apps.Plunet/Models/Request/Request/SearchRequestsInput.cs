@@ -27,5 +27,5 @@ public class SearchRequestsInput
     [DataSource(typeof(CustomerEntryTypeDataHandler))]
     public string? CustomerEntryType { get; set; }
 
-    [Display("Main ID")] public string? MainId { get; set; }
+    [Display("Customer ID")] public string? MainId { get; set; }
 }

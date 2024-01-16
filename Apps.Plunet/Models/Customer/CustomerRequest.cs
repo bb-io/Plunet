@@ -6,7 +6,7 @@ namespace Apps.Plunet.Models.Customer;
 
 public class CustomerRequest
 {
-    [Display("Customer")]
+    [Display("Customer ID")]
     [DataSource(typeof(CustomerIdDataHandler))]
     public string CustomerId { get; set; }
 }

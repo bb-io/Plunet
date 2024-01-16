@@ -10,6 +10,9 @@ public class OrderResponse
     [Display("Customer ID")]
     public string CustomerId { get; set; }
 
+    [Display("Contact ID")]
+    public string ContactId { get; set; }
+
     [Display("Delivery deadline")]
     public DateTime DeliveryDeadline { get; set; }
 
