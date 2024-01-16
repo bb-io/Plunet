@@ -7,6 +7,7 @@ using Apps.Plunet.Constants;
 
 namespace Apps.Plunet.Actions
 {
+    [ActionList]
     public class CustomPropertyActions : PlunetInvocable
     {
         public CustomPropertyActions(InvocationContext invocationContext) : base(invocationContext)
