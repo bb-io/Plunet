@@ -23,7 +23,7 @@ public class SearchQuotesInput
     [DataSource(typeof(CustomerEntryTypeDataHandler))]
     public string? CustomerEntryType { get; set; }
 
-    [Display("Customer entry main ID")] public string? CustomerMainId { get; set; }
+    [Display("Customer ID")] public string? CustomerMainId { get; set; }
     
     [Display("Quote status")]
     [DataSource(typeof(QuoteStatusDataHandler))]
@@ -32,5 +32,5 @@ public class SearchQuotesInput
     [Display("Resource entry type")]
     public string? ResourceEntryType { get; set; }
 
-    [Display("Resource entry main ID")] public string? ResourceMainId { get; set; }
+    [Display("Resource ID")] public string? ResourceMainId { get; set; }
 }

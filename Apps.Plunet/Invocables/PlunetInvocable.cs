@@ -8,6 +8,7 @@ using Blackbird.Applications.Sdk.Utils.Parsers;
 using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
+using Blackbird.Plugins.Plunet.DataCustomFields30;
 using Blackbird.Plugins.Plunet.DataDocument30Service;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataJob30Service;
@@ -47,6 +48,7 @@ public class PlunetInvocable : BaseInvocable
     protected DataJob30Client JobClient => new(DataJob30Client.EndpointConfiguration.DataJob30Port, Url.TrimEnd('/') + "/DataJob30");
     protected DataResourceAddress30Client ResourceAddressClient => new(DataResourceAddress30Client.EndpointConfiguration.DataResourceAddress30Port, Url.TrimEnd('/') + "/DataResourceAddress30");
     protected DataCustomerAddress30Client CustomerAddressClient => new(DataCustomerAddress30Client.EndpointConfiguration.DataCustomerAddress30Port, Url.TrimEnd('/') + "/DataCustomerAddress30");
+    protected DataCustomFields30Client CustomFieldsClient => new(DataCustomFields30Client.EndpointConfiguration.DataCustomFields30Port, Url.TrimEnd('/') + "/DataCustomFields30");
 
     public PlunetInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
