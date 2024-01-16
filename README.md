@@ -158,6 +158,13 @@ An example of the granularity at which orders (and other entities) can be select
   - Working status
 - **Get resource**
 
+### Custom properties
+
+- **Set property**
+- **Get property**
+- **Set text module**
+- **Get text module**
+
 ## Events
 
 All webhooks only return an ID. This ID can be used with acompanying 'get' actions to get the actual entities. F.e. after _On customer created_ one may want to invoke the action _Get customer_ to get the customer information.

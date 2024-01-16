@@ -15,13 +15,13 @@ namespace Apps.Plunet.Models.CustomProperties
         [DataSource(typeof(PropertyUsageDataHandler))]
         public string UsageArea { get; set; }
 
-        [Display("Name", Description = "From Admin -> Properties, in English")]
-        public string Name { get; set; }
-
         [Display("Entity ID", Description = "The ID of the entity, e.g. the order ID or the customer ID")]
         public string MainId { get; set; }
 
+        [Display("Name", Description = "From Admin -> Properties, in English")]
+        public string Name { get; set; }
+
         [Display("Property values")]
-        public IEnumerable<string>? Values { get; set; }
+        public IEnumerable<string> Values { get; set; }
     }
 }
