@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.DataSourceHandlers;
+using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
@@ -35,4 +36,8 @@ public class CreateOrderRequest
     
     [Display("Reference number")]
     public string? ReferenceNumber { get; set; }
+
+    [Display("Status")]
+    [DataSource(typeof(OrderStatusDataHandler))]
+    public string? Status { get; set; }
 }

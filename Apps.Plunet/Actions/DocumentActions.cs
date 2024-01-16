@@ -10,6 +10,7 @@ using Apps.Plunet.Models;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Common.Files;
+using Apps.Plunet.Models.Item;
 
 namespace Apps.Plunet.Actions
 {
@@ -63,6 +64,18 @@ namespace Apps.Plunet.Actions
 
             return new ListFilesResponse { Files = files};
 
+        }
+
+        [Action("Upload CAT report", Description = "Upload a report file into the report folder of the specified item.")]
+        public async Task UploadCatReport([ActionParameter] GetItemRequest item, [ActionParameter] UploadCatReportRequest input)
+        {
+            var fileBytes = _fileManagementClient.DownloadAsync(input.File).Result.GetByteData().Result;
+            var response = await ItemClient.setCatReport2Async(Uuid, fileBytes, input.File.Name, fileBytes.Length,
+                input.OverwriteExistingPricelines, ParseId(input.CatType), ParseId(input.ProjectType),
+                input.CopyResultsToItem, ParseId(item.ItemId));
+
+            if (response.Result.statusMessage != ApiResponses.Ok)
+                throw new(response.Result.statusMessage);
         }
     }
 }

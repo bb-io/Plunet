@@ -42,7 +42,7 @@ public class GetCustomerResponse
     public string SkypeId { get; set; }
 
     [Display("Status")]
-    public int Status { get; set; }
+    public string Status { get; set; }
 
     [Display("User ID")]
     public string UserId { get; set; }
@@ -71,7 +71,7 @@ public class GetCustomerResponse
         Name = customer.name1 ?? customer.name2;
         Phone = customer.phone;
         SkypeId = customer.skypeID;
-        Status = customer.status;
+        Status = customer.status.ToString();
         UserId = customer.userId.ToString();
         Website = customer.website;
         AccountManagerId = accountManagerId?.ToString();

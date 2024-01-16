@@ -12,10 +12,11 @@ using RestSharp;
 
 namespace Apps.Plunet.Webhooks.WebhookLists.Base;
 
-public abstract class PlunetWebhookList : PlunetInvocable
+public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
 {
     protected abstract string ServiceName { get; }
-    protected abstract string XmlTagName { get; }
+
+    protected abstract Task<T> GetEntity(XDocument doc);
 
     private string WsdlServiceUrl => $"{Creds.Get(CredsNames.UrlNameKey).Value}/{ServiceName}";
 
@@ -26,33 +27,34 @@ public abstract class PlunetWebhookList : PlunetInvocable
     {
     }
 
-    protected Task<WebhookResponse<TriggerContent>> HandleWebhook(WebhookRequest webhookRequest)
+    protected Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
         => webhookRequest.HttpMethod == HttpMethod.Get
             ? GeneratePreflightResponse(webhookRequest)
-            : GenerateTriggerResponse(webhookRequest);
+            : GenerateTriggerResponse(webhookRequest, preflightComparisonCheck);
 
-    private Task<WebhookResponse<TriggerContent>> GenerateTriggerResponse(WebhookRequest webhookRequest)
+    private async Task<WebhookResponse<T>> GenerateTriggerResponse(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
     {
         var doc = XDocument.Parse(webhookRequest.Body.ToString() ?? string.Empty);
         var triggerResponse =
             "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:api=\"http://API.Integration/\"><soap:Header/><soap:Body><api:receiveNotifyCallbackResponse/></soap:Body></soap:Envelope>";
 
-        var value = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlTagName)?.Value;
         var httpResponseMessage = new HttpResponseMessage()
         {
             Content = new StringContent(triggerResponse)
         };
         httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Soap);
 
-        return Task.FromResult(new WebhookResponse<TriggerContent>
+        var entity = await GetEntity(doc);
+
+        return new()
         {
             HttpResponseMessage = httpResponseMessage,
-            Result = value == null ? null : new() { Id = value },
-            ReceivedWebhookRequestType = WebhookRequestType.Default
-        });
+            Result = entity,
+            ReceivedWebhookRequestType = preflightComparisonCheck(entity) ? WebhookRequestType.Default : WebhookRequestType.Preflight
+        };
     }
 
-    private async Task<WebhookResponse<TriggerContent>> GeneratePreflightResponse(WebhookRequest webhookRequest)
+    private async Task<WebhookResponse<T>> GeneratePreflightResponse(WebhookRequest webhookRequest)
     {
         var webhookUrl = webhookRequest.Headers.GetValueOrDefault("webhookUrl");
 
