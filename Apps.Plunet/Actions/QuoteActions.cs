@@ -65,20 +65,28 @@ public class QuoteActions : PlunetInvocable
     public async Task<QuoteResponse> GetQuote([ActionParameter] GetQuoteRequest request)
     {
         var quoteResult = await QuoteClient.getQuoteObjectAsync(Uuid, ParseId(request.QuoteId));
-
-        if (quoteResult.data is null)
+        if (quoteResult.statusMessage != ApiResponses.Ok)
             throw new(quoteResult.statusMessage);
 
         var itemsResult = await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(request.QuoteId), 1);
-
         if (itemsResult.statusMessage != ApiResponses.Ok)
             throw new(itemsResult.statusMessage);
 
         var totalPrice = itemsResult.data?.Sum(x => x.totalPrice) ?? 0;
-        
+
+        var customerIdResult = await QuoteClient.getCustomerIDAsync(Uuid, ParseId(request.QuoteId));
+        if (customerIdResult.statusMessage != ApiResponses.Ok)
+            throw new(customerIdResult.statusMessage);
+
+        var contactIdResult = await QuoteClient.getCustomerContactIDAsync(Uuid, ParseId(request.QuoteId));
+        if (contactIdResult.statusMessage != ApiResponses.Ok)
+            throw new(contactIdResult.statusMessage);
+
         return new(quoteResult.data)
         {
-            TotalPrice = totalPrice
+            TotalPrice = totalPrice,
+            CustomerId = customerIdResult.data.ToString(),
+            ContactId = contactIdResult.data.ToString(),
         };
     }
 

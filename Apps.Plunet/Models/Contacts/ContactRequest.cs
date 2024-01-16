@@ -6,7 +6,7 @@ namespace Apps.Plunet.Models.Contacts;
 
 public class ContactRequest
 {
-    [Display("Contact")]
+    [Display("Contact ID")]
     [DataSource(typeof(ContactIdDataHandler))]
     public string ContactId { get; set; }
 }
