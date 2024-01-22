@@ -67,8 +67,6 @@ public class OrderActions : PlunetInvocable
         var totalOrderPrice = itemsResult.data?.Sum(x => x.totalPrice) ?? 0;
 
         var contactResult = await OrderClient.getCustomerContactIDAsync(Uuid, ParseId(request.OrderId));
-        if (contactResult.statusMessage != ApiResponses.Ok)
-            throw new(contactResult.statusMessage);
 
         var statusResult = await OrderClient.getProjectStatusAsync(Uuid, ParseId(request.OrderId));
         if (statusResult.statusMessage != ApiResponses.Ok)
@@ -77,7 +75,7 @@ public class OrderActions : PlunetInvocable
         return new(orderResult.data, orderLanguageCombinations)
         {
             TotalPrice = totalOrderPrice,
-            ContactId = contactResult.data.ToString(),
+            ContactId = contactResult.data == 0 ? null : contactResult.data.ToString(),
             Status = statusResult.data.ToString(),
         };
     }

@@ -74,7 +74,7 @@ public class GetCustomerResponse
         Status = customer.status.ToString();
         UserId = customer.userId.ToString();
         Website = customer.website;
-        AccountManagerId = accountManagerId?.ToString();
+        AccountManagerId = accountManagerId == 0 ? null : accountManagerId?.ToString();
         PaymentInformation = new GetPaymentInfoResponse(paymentInfo);
     }
 }
