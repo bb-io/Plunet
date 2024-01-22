@@ -58,9 +58,6 @@ public class CustomerActions : PlunetInvocable
 
         var accountManagerResult = await CustomerClient.getAccountManagerIDAsync(Uuid, ParseId(input.CustomerId));
 
-        if (accountManagerResult.statusMessage != ApiResponses.Ok)
-            throw new(accountManagerResult.statusMessage);
-
         return new(customer.data, paymentInfo.data, accountManagerResult?.data);
     }
 

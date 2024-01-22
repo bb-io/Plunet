@@ -185,9 +185,10 @@ public class PayableActions : PlunetInvocable
         return response.data;
     }
 
-    private async Task<string> GetId(Task<IntegerResult> task)
+    private async Task<string?> GetId(Task<IntegerResult> task)
     {
         var response = await task;
+        if (response.data == 0) return null;
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
         return response.data.ToString();

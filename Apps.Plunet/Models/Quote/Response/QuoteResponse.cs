@@ -7,10 +7,10 @@ public class QuoteResponse
     [Display("Quote ID")] public string QuoteId { get; set; }
 
     [Display("Customer ID")]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     [Display("Contact ID")]
-    public string ContactId { get; set; }
+    public string? ContactId { get; set; }
 
     public string Currency { get; set; }
 

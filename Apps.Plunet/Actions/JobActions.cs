@@ -256,6 +256,7 @@ namespace Apps.Plunet.Actions
         private async Task<string?> GetId(Task<IntegerResult> task, bool throwOnError = true)
         {
             var response = await task;
+            if (response.data == 0) return null;
             if (response.statusMessage != ApiResponses.Ok)
             {
                 if (throwOnError)

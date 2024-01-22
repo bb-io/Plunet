@@ -75,18 +75,14 @@ public class QuoteActions : PlunetInvocable
         var totalPrice = itemsResult.data?.Sum(x => x.totalPrice) ?? 0;
 
         var customerIdResult = await QuoteClient.getCustomerIDAsync(Uuid, ParseId(request.QuoteId));
-        if (customerIdResult.statusMessage != ApiResponses.Ok)
-            throw new(customerIdResult.statusMessage);
 
         var contactIdResult = await QuoteClient.getCustomerContactIDAsync(Uuid, ParseId(request.QuoteId));
-        if (contactIdResult.statusMessage != ApiResponses.Ok)
-            throw new(contactIdResult.statusMessage);
 
         return new(quoteResult.data)
         {
             TotalPrice = totalPrice,
-            CustomerId = customerIdResult.data.ToString(),
-            ContactId = contactIdResult.data.ToString(),
+            CustomerId = customerIdResult.data == 0 ? null : customerIdResult.data.ToString(),
+            ContactId = contactIdResult.data == 0 ? null : contactIdResult.data.ToString(),
         };
     }
 
