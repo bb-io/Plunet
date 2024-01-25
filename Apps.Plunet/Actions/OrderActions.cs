@@ -81,7 +81,7 @@ public class OrderActions : PlunetInvocable
     }
 
     [Action("Get order target languages for source", Description = "Given a source language and an order, get all the target languages that this order represents")]
-    public async Task<LanguagesResponse> GetOrder([ActionParameter] OrderRequest request, [ActionParameter] SourceLanguageRequest language)
+    public async Task<LanguagesResponse> GetOrderTargetLanguage([ActionParameter] OrderRequest request, [ActionParameter] SourceLanguageRequest language)
     {
         var languageCombinations = await OrderClient.getLanguageCombinationAsync(Uuid, ParseId(request.OrderId));
         if (languageCombinations.statusMessage != ApiResponses.Ok)
