@@ -40,11 +40,16 @@ public class OrderResponse
     [Display("Language combinations")]
     public IEnumerable<LanguageCombination> LanguageCombinations { get; set; }
 
+    [Display("Target languages")]
+    public IEnumerable<string> AllTargetLanguages { get; set; }
+
     [Display("Total price")]
     public double TotalPrice { get; set; }
 
     [Display("Status")]
     public string Status { get; set; }
+
+
 
     public OrderResponse(Blackbird.Plugins.Plunet.DataOrder30Service.Order order, IEnumerable<LanguageCombination> combinations)
     {
@@ -59,5 +64,6 @@ public class OrderResponse
         ProjectName = order.projectName;
         Rate = order.rate;
         LanguageCombinations = combinations;
+        AllTargetLanguages = combinations.Select(x => x.Target).Distinct();
     }
 }
