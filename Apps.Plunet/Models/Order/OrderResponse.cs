@@ -43,6 +43,9 @@ public class OrderResponse
     [Display("Target languages")]
     public IEnumerable<string> AllTargetLanguages { get; set; }
 
+    [Display("Source languages")]
+    public IEnumerable<string> AllSourceLanguages { get; set; }
+
     [Display("Total price")]
     public double TotalPrice { get; set; }
 
@@ -65,5 +68,6 @@ public class OrderResponse
         Rate = order.rate;
         LanguageCombinations = combinations;
         AllTargetLanguages = combinations.Select(x => x.Target).Distinct();
+        AllSourceLanguages = combinations.Select(x => x.Source).Distinct();
     }
 }
