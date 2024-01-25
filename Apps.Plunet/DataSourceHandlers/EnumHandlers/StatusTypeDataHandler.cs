@@ -10,8 +10,8 @@ namespace Apps.Plunet.DataSourceHandlers.EnumHandlers
             { "2", "Inactive" },
             { "3", "Prospect" },
             { "4", "New" },
-            { "5", "Contacted" },
-            { "6", "Blocked" },
+            { "5", "Blocked" },
+            { "6", "Contacted" },
             { "7", "New (registered)" },
             { "8", "Deletion requested" }
         };
