@@ -80,6 +80,22 @@ public class OrderActions : PlunetInvocable
         };
     }
 
+    [Action("Get order target languages for source", Description = "Given a source language and an order, get all the target languages that this order represents")]
+    public async Task<LanguagesResponse> GetOrderTargetLanguage([ActionParameter] OrderRequest request, [ActionParameter] SourceLanguageRequest language)
+    {
+        var languageCombinations = await OrderClient.getLanguageCombinationAsync(Uuid, ParseId(request.OrderId));
+        if (languageCombinations.statusMessage != ApiResponses.Ok)
+            throw new(languageCombinations.statusMessage);
+
+        var orderLanguageCombinations = await ParseLanguageCombinations(languageCombinations.data);
+        var response = orderLanguageCombinations.Where(x => x.Source == language.SourceLanguageCode).Select(x => x.Target).Distinct();
+
+        return new LanguagesResponse
+        {
+            Languages = response,
+        };
+    }
+
     [Action("Create order", Description = "Create a new order in Plunet")]
     public async Task<OrderResponse> CreateOrder([ActionParameter] OrderTemplateRequest templateRequest, [ActionParameter] CreateOrderRequest request)
     {
