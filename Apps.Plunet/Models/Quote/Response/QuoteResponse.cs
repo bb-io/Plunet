@@ -30,6 +30,8 @@ public class QuoteResponse
     public bool CreationDateSpecificied { get; set; }
 
     [Display("Total price")] public double TotalPrice { get; set; }
+    [Display("Project manager ID")]
+    public string? ProjectManagerId { get; set; }
 
     public QuoteResponse(Blackbird.Plugins.Plunet.DataQuote30Service.Quote quote)
     {

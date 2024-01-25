@@ -78,11 +78,24 @@ public class QuoteActions : PlunetInvocable
 
         var contactIdResult = await QuoteClient.getCustomerContactIDAsync(Uuid, ParseId(request.QuoteId));
 
+        var pmID = await QuoteClient.getProjectmanagerIDAsync(Uuid, ParseId(request.QuoteId));
+
+        var projectManagerID = string.Empty;
+        if(pmID == null)
+        {
+            projectManagerID = null;
+        }
+        else
+        {
+            projectManagerID = pmID.data == 0 ? null : pmID.data.ToString();
+        }
+
         return new(quoteResult.data)
         {
             TotalPrice = totalPrice,
             CustomerId = customerIdResult.data == 0 ? null : customerIdResult.data.ToString(),
             ContactId = contactIdResult.data == 0 ? null : contactIdResult.data.ToString(),
+            ProjectManagerId = projectManagerID,
         };
     }
 
