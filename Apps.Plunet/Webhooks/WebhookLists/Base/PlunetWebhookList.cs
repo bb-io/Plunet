@@ -36,7 +36,7 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
     {
         var doc = XDocument.Parse(webhookRequest.Body.ToString() ?? string.Empty);
         var triggerResponse =
-            "<soap:Envelope xmlns:soap=\"http://www.w3.org/2003/05/soap-envelope\" xmlns:api=\"http://API.Integration/\"><soap:Header/><soap:Body><api:receiveNotifyCallbackResponse/></soap:Body></soap:Envelope>";
+            "<S:Envelope xmlns:S=\"http://www.w3.org/2003/05/soap-envelope\">\r\n   <S:Body>\r\n      <ns2:ReceiveNotifyCallbackResponse xmlns:ns2=\"http://API.Integration/\"/>\r\n   </S:Body>\r\n</S:Envelope>";
 
         var httpResponseMessage = new HttpResponseMessage()
         {
