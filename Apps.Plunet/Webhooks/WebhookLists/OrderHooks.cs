@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Actions;
+using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Order;
 using Apps.Plunet.Models.Request.Response;
@@ -17,6 +18,8 @@ namespace Apps.Plunet.Webhooks.WebhookLists;
 public class OrderHooks : PlunetWebhookList<OrderResponse>
 {
     protected override string ServiceName => "CallbackOrder30";
+    protected override string TriggerResponse => SoapResponses.OtherOk;
+
     private const string XmlIdTagName = "OrderID";
     private OrderActions Actions { get; set; }
     public OrderHooks(InvocationContext invocationContext) : base(invocationContext)

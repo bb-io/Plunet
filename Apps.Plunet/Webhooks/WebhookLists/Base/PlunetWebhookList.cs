@@ -16,6 +16,8 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
 {
     protected abstract string ServiceName { get; }
 
+    protected abstract string TriggerResponse { get; }
+
     protected abstract Task<T> GetEntity(XDocument doc);
 
     private string WsdlServiceUrl => $"{Creds.Get(CredsNames.UrlNameKey).Value}/{ServiceName}";
@@ -35,12 +37,10 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
     private async Task<WebhookResponse<T>> GenerateTriggerResponse(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
     {
         var doc = XDocument.Parse(webhookRequest.Body.ToString() ?? string.Empty);
-        var triggerResponse =
-            "<S:Envelope xmlns:S=\"http://www.w3.org/2003/05/soap-envelope\">\r\n   <S:Body>\r\n      <ns2:ReceiveNotifyCallbackResponse xmlns:ns2=\"http://API.Integration/\"/>\r\n   </S:Body>\r\n</S:Envelope>";
 
         var httpResponseMessage = new HttpResponseMessage()
         {
-            Content = new StringContent(triggerResponse)
+            Content = new StringContent(TriggerResponse)
         };
         httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Soap);
 
