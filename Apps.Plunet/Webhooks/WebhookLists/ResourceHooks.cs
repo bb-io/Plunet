@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Actions;
+using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.Resource.Response;
@@ -18,6 +19,8 @@ namespace Apps.Plunet.Webhooks.WebhookLists;
 public class ResourceHooks : PlunetWebhookList<ResourceResponse>
 {
     protected override string ServiceName => "CallbackResource30";
+    protected override string TriggerResponse => SoapResponses.CustomerAndResourceOk;
+
     private const string XmlIdTagName = "ResourceID";
 
     private ResourceActions Actions { get; set; }

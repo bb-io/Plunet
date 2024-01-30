@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Actions;
+using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.Request.Response;
@@ -16,7 +17,9 @@ namespace Apps.Plunet.Webhooks.WebhookLists;
 [WebhookList]
 public class RequestHooks : PlunetWebhookList<RequestResponse>
 {
-    protected override string ServiceName => "CallbackRequest30";
+    protected override string ServiceName => "CallbackRequest30"; 
+    protected override string TriggerResponse => SoapResponses.OtherOk;
+
 
     private const string XmlIdTagName = "RequestID";
 

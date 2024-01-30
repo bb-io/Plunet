@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Actions;
+using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.Item;
@@ -18,6 +19,8 @@ namespace Apps.Plunet.Webhooks.WebhookLists;
 public class ItemHooks : PlunetWebhookList<ItemResponse>
 {
     protected override string ServiceName => "CallbackItem30";
+    protected override string TriggerResponse => SoapResponses.OtherOk;
+
 
     private const string XmlIdTagName = "ItemID";
 

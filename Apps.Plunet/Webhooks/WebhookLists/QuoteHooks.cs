@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Actions;
+using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Order;
 using Apps.Plunet.Models.Quote.Request;
@@ -18,6 +19,8 @@ namespace Apps.Plunet.Webhooks.WebhookLists;
 public class QuoteHooks : PlunetWebhookList<QuoteResponse>
 {
     protected override string ServiceName => "CallbackQuote30";
+    protected override string TriggerResponse => SoapResponses.OtherOk;
+
     private const string XmlIdTagName = "QuoteID";
     private QuoteActions Actions { get; set; }
 

@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Actions;
+using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Webhooks.Handlers.Impl.Customers;
@@ -16,6 +17,8 @@ namespace Apps.Plunet.Webhooks.WebhookLists;
 public class CustomerHooks : PlunetWebhookList<GetCustomerResponse>
 {
     protected override string ServiceName => "CallbackCustomer30";
+
+    protected override string TriggerResponse => SoapResponses.CustomerAndResourceOk;
 
     private const string XmlIdTagName = "CustomerID";
 
