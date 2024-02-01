@@ -25,14 +25,14 @@ namespace Apps.Plunet.DataSourceHandlers
             });
 
             if (response.statusMessage != ApiResponses.Ok)
-                throw new(response.statusMessage);
+                throw new("Resource search " + response.statusMessage);
 
-            //var allWorkingStatuses = new[] { 1, 2 };
-            //var allStatuses = new[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
-            var resourcesResponse = await ResourceClient.getAllResourceObjects2Async(Uuid, null, null);
+            var allWorkingStatuses = new int?[2] { 1, 2 };
+            var allStatuses = new int?[10] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+            var resourcesResponse = await ResourceClient.getAllResourceObjects2Async(Uuid, allWorkingStatuses, allStatuses);
 
             if (resourcesResponse.ResourceListResult.statusMessage != ApiResponses.Ok)
-                throw new(resourcesResponse.ResourceListResult.statusMessage);
+                throw new("Resource name " + resourcesResponse.ResourceListResult.statusMessage);
 
             return resourcesResponse.ResourceListResult.data
                 .Take(20)
