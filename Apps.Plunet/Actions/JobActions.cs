@@ -111,7 +111,8 @@ namespace Apps.Plunet.Actions
                 startDateSpecified = input.StartDate.HasValue,
                 itemID = ParseId(input.ItemId),
                 projectType = ParseId(project.ProjectType),
-                status = ParseId(input.Status)
+                status = ParseId(input.Status),
+                projectID = ParseId(input.ProjectId),
             };
 
             if (input.DueDate.HasValue)

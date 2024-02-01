@@ -1,9 +1,11 @@
 ﻿using Apps.Plunet.Constants;
+using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Resource.Request;
 using Apps.Plunet.Models.Resource.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Plunet.Actions;
@@ -57,7 +59,7 @@ public class ResourceActions : PlunetInvocable
 
     [Action("Get resource", Description = "Get details of a specific resource")]
     public async Task<ResourceResponse> GetResource(
-        [ActionParameter] [Display("Resource ID")]
+        [ActionParameter][DataSource(typeof(ResourceIdDataHandler))] [Display("Resource ID")]
         string resourceId)
     {        
         var response = await ResourceClient.getResourceObjectAsync(Uuid, ParseId(resourceId));
