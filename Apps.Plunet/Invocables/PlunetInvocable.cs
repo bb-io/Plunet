@@ -92,11 +92,10 @@ public class PlunetInvocable : BaseInvocable
     {
         var languages = await GetSystemLanguages();
 
-        string formattedName = isOrFolderOrName.Replace("_", "-");
         var language = languages.FirstOrDefault(x =>
-                                 x.isoCode.Equals(formattedName, StringComparison.OrdinalIgnoreCase) ||
-                                 x.folderName.Equals(formattedName, StringComparison.OrdinalIgnoreCase) ||
-                                 x.name.Equals(formattedName, StringComparison.OrdinalIgnoreCase));
+                                 x.isoCode.Equals(isOrFolderOrName, StringComparison.OrdinalIgnoreCase) ||
+                                 x.folderName.Equals(isOrFolderOrName, StringComparison.OrdinalIgnoreCase) ||
+                                 x.name.Equals(isOrFolderOrName, StringComparison.OrdinalIgnoreCase));
 
         if (language == null)
             throw new($"Language {isOrFolderOrName} could not be found in your Plunet instance");
