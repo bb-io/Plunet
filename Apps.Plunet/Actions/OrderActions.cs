@@ -2,6 +2,8 @@
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Order;
+using Apps.Plunet.Models.ProjectCategory.Request;
+using Apps.Plunet.Models.ProjectCategory.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -111,7 +113,7 @@ public class OrderActions : PlunetInvocable
             currency = request.Currency,
             projectManagerMemo = request.ProjectManagerMemo,
             rate = request.Rate ?? default,
-            referenceNumber = request.ReferenceNumber
+            referenceNumber = request.ReferenceNumber,
         };
 
         var response = templateRequest.TemplateId == null ?
@@ -168,7 +170,32 @@ public class OrderActions : PlunetInvocable
 
         return await GetOrder(order);
     }
+    
+    [Action("Set project category", Description = "Set the project category")]
+    public async Task<ProjectCategoryResponse> SetProjectCategory([ActionParameter] OrderRequest request, [ActionParameter] CreateProjectCategoryRequest category, [ActionParameter] OrderRequest orderRequest)
+    {
+        string languageCode = category.SystemLanguageCode ?? "EN";
+        var result = await OrderClient.setProjectCategoryAsync(Uuid, category.ProjectCategory, languageCode, ParseId(orderRequest.OrderId));
+        
+        if (result.statusMessage != ApiResponses.Ok)
+        {
+            throw new Exception(result.statusMessage);
+        }
 
+        return await GetProjectCategory(new GetProjectCategoryRequest { SystemLanguageCode = languageCode }, orderRequest);
+    }
+    
+    [Action("Get project category", Description = "Get the project category")]
+    public async Task<ProjectCategoryResponse> GetProjectCategory([ActionParameter] GetProjectCategoryRequest projectCategoryRequest, [ActionParameter] OrderRequest request)
+    {
+        string languageCode = projectCategoryRequest.SystemLanguageCode ?? "EN";
+        var response = await OrderClient.getProjectCategoryAsync(Uuid, languageCode, ParseId(request.OrderId));
+        
+        return new ProjectCategoryResponse
+        {
+            ProjectCategory = response.data
+        };
+    }
 
     //[Action("Add item to order", Description = "Add a new item to an order")]
     //public async Task<CreateItemResponse> AddItemToOrder([ActionParameter] CreateItemRequest request)
