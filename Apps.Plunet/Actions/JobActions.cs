@@ -139,7 +139,8 @@ namespace Apps.Plunet.Actions
                 itemID = ParseId(input.ItemId),
                 jobID = ParseId(request.JobId),
                 projectType = ParseId(request.ProjectType),
-                status = ParseId(input.Status)
+                status = ParseId(input.Status),
+                projectID = ParseId(input.ProjectId)
             };
 
             if (input.DueDate.HasValue)
