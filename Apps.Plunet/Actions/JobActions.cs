@@ -3,6 +3,8 @@ using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Job;
+using Apps.Plunet.Models.Resource.Request;
+using Apps.Plunet.Models.Resource.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -136,6 +138,22 @@ namespace Apps.Plunet.Actions
             }
 
             return await GetJob(new GetJobRequest { ProjectType = project.ProjectType, JobId = jobId});
+        }
+
+        [Action("Assign resource to job", Description = "Assign a resource to a Plunet job")]
+        public async Task<AssignResourceResponse> AssignResourceToJob([ActionParameter] GetJobRequest request, [ActionParameter] ResourceRequest resource)
+        {
+            var result = await JobClient.setResourceIDAsync(Uuid, ParseId(request.ProjectType), ParseId(resource.ResourceId), ParseId(request.JobId));
+
+            if (result.statusMessage != ApiResponses.Ok)
+                throw new(result.statusMessage);
+
+            var jobResource = await JobClient.getResourceIDAsync(Uuid, ParseId(request.ProjectType), ParseId(request.JobId));
+
+            if (jobResource.statusMessage != ApiResponses.Ok)
+                throw new(jobResource.statusMessage);
+
+            return new AssignResourceResponse { ResourceId = jobResource.data.ToString() };
         }
 
         [Action("Update job", Description = "Update an existing job in Plunet")]
