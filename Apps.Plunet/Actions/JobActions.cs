@@ -103,7 +103,7 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Create job", Description = "Create a new job in Plunet")]
-        public async Task<JobResponse> CreateJob([ActionParameter] ProjectTypeRequest project, [ActionParameter] CreateJobRequest input, [ActionParameter] JobTypeRequest type)
+        public async Task<JobResponse> CreateJob([ActionParameter] ProjectTypeRequest project, [ActionParameter] CreateJobRequest input, [ActionParameter] JobTypeRequest type, [ActionParameter] ContactPersonRequest contactPerson)
         {
             var jobIn = new JobIN()
             {
@@ -126,7 +126,16 @@ namespace Apps.Plunet.Actions
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
 
-            return await GetJob(new GetJobRequest { ProjectType = project.ProjectType, JobId = response.data.ToString()});
+            string jobId = response.data.ToString();
+            if (contactPerson.ResourceId is not null)
+            {
+                var result = await JobClient.setContactPersonIDAsync(Uuid, ParseId(project.ProjectType), ParseId(jobId), ParseId(contactPerson.ResourceId));
+                
+                if (result.statusMessage != ApiResponses.Ok)
+                    throw new Exception(result.statusMessage);
+            }
+
+            return await GetJob(new GetJobRequest { ProjectType = project.ProjectType, JobId = jobId});
         }
 
         [Action("Update job", Description = "Update an existing job in Plunet")]
