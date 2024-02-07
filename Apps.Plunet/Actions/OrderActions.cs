@@ -99,7 +99,7 @@ public class OrderActions : PlunetInvocable
     }
 
     [Action("Create order", Description = "Create a new order in Plunet")]
-    public async Task<OrderResponse> CreateOrder([ActionParameter] OrderTemplateRequest templateRequest, [ActionParameter] CreateOrderRequest request)
+    public async Task<OrderResponse> CreateOrder([ActionParameter] OrderTemplateRequest templateRequest, [ActionParameter] CreateOrderRequest request, [ActionParameter] SetOptionalProjectCategoryRequest category)
     {
         var orderIn = new OrderIN()
         {
@@ -129,8 +129,14 @@ public class OrderActions : PlunetInvocable
             if (statusResponse.statusMessage != ApiResponses.Ok)
                 throw new(statusResponse.statusMessage);
         }
+        
+        string orderId = response.data.ToString();
+        if (category.ProjectCategory is not null)
+        {
+            await SetProjectCategory(new SetProjectCategoryRequest { ProjectCategory = category.ProjectCategory, SystemLanguageCode = category.SystemLanguageCode}, new OrderRequest { OrderId = orderId });
+        }
 
-        return await GetOrder(new OrderRequest { OrderId = response.data.ToString() });
+        return await GetOrder(new OrderRequest { OrderId = orderId });
     }
 
     [Action("Delete order", Description = "Delete a Plunet order")]
@@ -172,7 +178,7 @@ public class OrderActions : PlunetInvocable
     }
     
     [Action("Set project category", Description = "Set the project category")]
-    public async Task<ProjectCategoryResponse> SetProjectCategory([ActionParameter] OrderRequest request, [ActionParameter] CreateProjectCategoryRequest category, [ActionParameter] OrderRequest orderRequest)
+    public async Task<ProjectCategoryResponse> SetProjectCategory([ActionParameter] SetProjectCategoryRequest category, [ActionParameter] OrderRequest orderRequest)
     {
         string languageCode = category.SystemLanguageCode ?? "EN";
         var result = await OrderClient.setProjectCategoryAsync(Uuid, category.ProjectCategory, languageCode, ParseId(orderRequest.OrderId));

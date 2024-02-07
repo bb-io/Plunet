@@ -4,7 +4,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.ProjectCategory.Request;
 
-public class CreateProjectCategoryRequest
+public class SetProjectCategoryRequest
 {
     [Display("Project category")]
     [DataSource(typeof(ProjectCategoryDataHandler))]
