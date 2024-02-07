@@ -159,13 +159,13 @@ public class OrderActions : PlunetInvocable
         }, false);
 
         if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
+            throw new($"Error updating order: {response.statusMessage}");
 
         if (request.Status != null)
         {
             var statusResponse = await OrderClient.setProjectStatusAsync(Uuid, ParseId(order.OrderId), ParseId(request.Status));
             if (statusResponse.statusMessage != ApiResponses.Ok)
-                throw new(statusResponse.statusMessage);
+                throw new($"Error updating order status: {statusResponse.statusMessage}");
         }
 
         return await GetOrder(order);
