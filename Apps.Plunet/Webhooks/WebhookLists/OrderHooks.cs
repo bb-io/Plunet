@@ -39,8 +39,8 @@ public class OrderHooks : PlunetWebhookList<OrderResponse>
         => HandleWebhook(webhookRequest, order => true);
 
     [Webhook("On order created", typeof(OrderCreatedEventHandler), Description = "Triggered when an order is created")]
-    public Task<WebhookResponse<OrderResponse>> OrderCreated(WebhookRequest webhookRequest, [WebhookParameter][Display("Template")][DataSource(typeof(TemplateDataHandler))] string? templateId)
-        => HandleWebhook(webhookRequest, order => true);
+    public Task<WebhookResponse<OrderResponse>> OrderCreated(WebhookRequest webhookRequest, [WebhookParameter][Display("Request")][DataSource(typeof(RequestDataHandler))] string? requestId)
+        => HandleWebhook(webhookRequest, order => requestId == null || requestId == order.RequestId);
 
     [Webhook("On order status changed", typeof(OrderChangedEventHandler),
         Description = "Triggered when an order status is changed")]
