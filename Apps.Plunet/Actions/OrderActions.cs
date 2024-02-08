@@ -8,6 +8,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
+using SetOptionalProjectCategoryRequest = Apps.Plunet.Models.ProjectCategory.Request.SetOptionalProjectCategoryRequest;
 
 namespace Apps.Plunet.Actions;
 
@@ -165,13 +166,13 @@ public class OrderActions : PlunetInvocable
         }, false);
 
         if (response.statusMessage != ApiResponses.Ok)
-            throw new($"Error updating order: {response.statusMessage}");
+            throw new(response.statusMessage);
 
         if (request.Status != null)
         {
             var statusResponse = await OrderClient.setProjectStatusAsync(Uuid, ParseId(order.OrderId), ParseId(request.Status));
             if (statusResponse.statusMessage != ApiResponses.Ok)
-                throw new($"Error updating order status: {statusResponse.statusMessage}");
+                throw new(response.statusMessage);
         }
 
         return await GetOrder(order);
