@@ -51,6 +51,11 @@ public class OrderResponse
 
     [Display("Status")]
     public string Status { get; set; }
+    
+    [Display("Template ID")]
+    public string TemplateId { get; set; }
+
+    public string Template { get; set; }
 
 
 

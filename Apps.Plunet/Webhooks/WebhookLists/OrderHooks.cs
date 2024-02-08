@@ -11,6 +11,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
+using Apps.Plunet.DataSourceHandlers;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
@@ -38,7 +39,7 @@ public class OrderHooks : PlunetWebhookList<OrderResponse>
         => HandleWebhook(webhookRequest, order => true);
 
     [Webhook("On order created", typeof(OrderCreatedEventHandler), Description = "Triggered when an order is created")]
-    public Task<WebhookResponse<OrderResponse>> OrderCreated(WebhookRequest webhookRequest)
+    public Task<WebhookResponse<OrderResponse>> OrderCreated(WebhookRequest webhookRequest, [WebhookParameter][Display("Template")][DataSource(typeof(TemplateDataHandler))] string? templateId)
         => HandleWebhook(webhookRequest, order => true);
 
     [Webhook("On order status changed", typeof(OrderChangedEventHandler),
