@@ -24,7 +24,7 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Get item jobs", Description = "Get all jobs related to a Plunet item")]
-        public async Task<ItemJobsResponse> GetItemJobs([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request, [ActionParameter] OptionalJobStatusRequest status)
+        public async Task<ItemJobsResponse> GetItemJobs([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request, [ActionParameter]OptionalJobStatusRequest status)
         {
             var result = status.Status == null ? await ItemClient.getJobsAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)) :
                 await ItemClient.getJobsWithStatusAsync(Uuid, ParseId(status.Status), ParseId(project.ProjectType), ParseId(request.ItemId));
@@ -44,6 +44,22 @@ namespace Apps.Plunet.Actions
             {
                 Jobs = jobs
             };
+        }
+        
+        [Action("Find job from collection by text module", Description = "Find a job by a text module")]
+        public async Task<JobResponse> FindJobByTextModule([ActionParameter] FindJobByTextModuleRequest request, [ActionParameter]TextModuleRequest textModuleRequest, [ActionParameter]string textModuleValue)
+        {
+            foreach (var job in request.Jobs)
+            {
+                var textModule = await CustomFieldsClient.getTextmoduleAsync(Uuid, textModuleRequest.Flag, ParseId(textModuleRequest.UsageArea), ParseId(job.JobId), Language);
+                if (textModule.statusMessage == ApiResponses.Ok
+                    && textModule.data.stringValue == textModuleValue)
+                {
+                    return job;
+                }
+            }
+            
+            throw new("Job not found");
         }
 
         [Action("Get Job", Description = "Get details for a Plunet job")]
@@ -257,27 +273,6 @@ namespace Apps.Plunet.Actions
                 throw new(response.statusMessage);
 
             return CreatePricelineResponse(response.data);
-        }
-        
-        [Action("Find job from collection by text module", Description = "Find a job by a text module")]
-        public async Task<JobResponse> FindJobByTextModule([ActionParameter] FindJobByTextModuleRequest request, [ActionParameter]TextModuleRequest textModuleRequest, [ActionParameter]string textModuleValue)
-        {
-            foreach (var jobId in request.Jobs)
-            {
-                var job = await JobClient.getJob_ForViewAsync(Uuid, ParseId(jobId), ParseId(request.ProjectType));
-                
-                if(job.statusMessage != ApiResponses.Ok)
-                    throw new(job.statusMessage);
-
-                var textModule = await CustomFieldsClient.getTextmoduleAsync(Uuid, textModuleRequest.Flag, ParseId(textModuleRequest.UsageArea), ParseId(jobId), Language);
-                if (textModule.statusMessage == ApiResponses.Ok
-                    && textModule.data.stringValue == textModuleValue)
-                {
-                    return await GetJob(new GetJobRequest { JobId = jobId, ProjectType = request.ProjectType });
-                }
-            }
-            
-            throw new("Job not found");
         }
 
         private PricelineResponse CreatePricelineResponse(Blackbird.Plugins.Plunet.DataJob30Service.PriceLine line)
