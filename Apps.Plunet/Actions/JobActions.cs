@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
+using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Job;
 using Apps.Plunet.Models.Resource.Request;
@@ -256,6 +257,27 @@ namespace Apps.Plunet.Actions
                 throw new(response.statusMessage);
 
             return CreatePricelineResponse(response.data);
+        }
+        
+        [Action("Find job from collection by text module", Description = "Find a job by a text module")]
+        public async Task<JobResponse> FindJobByTextModule([ActionParameter] FindJobByTextModuleRequest request, [ActionParameter]TextModuleRequest textModuleRequest, [ActionParameter]string textModuleValue)
+        {
+            foreach (var jobId in request.Jobs)
+            {
+                var job = await JobClient.getJob_ForViewAsync(Uuid, ParseId(jobId), ParseId(request.ProjectType));
+                
+                if(job.statusMessage != ApiResponses.Ok)
+                    throw new(job.statusMessage);
+
+                var textModule = await CustomFieldsClient.getTextmoduleAsync(Uuid, textModuleRequest.Flag, ParseId(textModuleRequest.UsageArea), ParseId(jobId), Language);
+                if (textModule.statusMessage == ApiResponses.Ok
+                    && textModule.data.stringValue == textModuleValue)
+                {
+                    return await GetJob(new GetJobRequest { JobId = jobId, ProjectType = request.ProjectType });
+                }
+            }
+            
+            throw new("Job not found");
         }
 
         private PricelineResponse CreatePricelineResponse(Blackbird.Plugins.Plunet.DataJob30Service.PriceLine line)
