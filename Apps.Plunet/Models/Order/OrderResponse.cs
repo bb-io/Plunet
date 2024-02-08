@@ -52,10 +52,10 @@ public class OrderResponse
     [Display("Status")]
     public string Status { get; set; }
     
-    [Display("Template ID")]
-    public string TemplateId { get; set; }
+    [Display("Request ID")]
+    public string RequestId { get; set; }
 
-    public string Template { get; set; }
+    public string RequestID { get; set; }
 
 
 
