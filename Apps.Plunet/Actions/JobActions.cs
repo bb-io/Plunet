@@ -46,20 +46,30 @@ namespace Apps.Plunet.Actions
             };
         }
         
-        [Action("Find job from collection by text module", Description = "Find a job by a text module")]
-        public async Task<JobResponse> FindJobByTextModule([ActionParameter] FindJobByTextModuleRequest request, [ActionParameter]TextModuleRequest textModuleRequest, [ActionParameter]string textModuleValue)
+        [Action("Get item job by text module", Description = "Get all jobs related to a Plunet item")]
+        public async Task<JobResponse> GetItemJobByTextModule([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request, [ActionParameter]OptionalJobStatusRequest status, [ActionParameter]FindJobByTextModuleRequest textModuleRequest)
         {
-            foreach (var job in request.Jobs)
+            var itemJobsResponse = await GetItemJobs(project, request, status);
+            
+            if (textModuleRequest.Flag is not null)
             {
-                var textModule = await CustomFieldsClient.getTextmoduleAsync(Uuid, textModuleRequest.Flag, ParseId(textModuleRequest.UsageArea), ParseId(job.JobId), Language);
-                if (textModule.statusMessage == ApiResponses.Ok
-                    && textModule.data.stringValue == textModuleValue)
+                foreach (var job in itemJobsResponse.Jobs)
                 {
-                    return job;
+                    var textModuleValue = await CustomFieldsClient.getTextmoduleAsync(Uuid, textModuleRequest.Flag, ParseId(textModuleRequest.UsageArea), ParseId(job.JobId), Language);
+                    if (textModuleValue.statusMessage == ApiResponses.Ok
+                        && textModuleValue.data.stringValue == textModuleRequest.TextModuleValue)
+                    {
+                        return job;
+                    }
                 }
+            
+                throw new("Job not found");
             }
             
-            throw new("Job not found");
+            if(itemJobsResponse.Jobs.Any() == false)
+                throw new("No jobs found");
+            
+            return itemJobsResponse.Jobs.First();
         }
 
         [Action("Get Job", Description = "Get details for a Plunet job")]
