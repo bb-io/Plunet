@@ -47,7 +47,31 @@ public class ResourceActions : PlunetInvocable
             .ToArray();
 
         var result = await Task.WhenAll(ids);
+        
+        if (input.Flag is not null)
+        {
+            var textModuleResources = new List<ResourceResponse>();
 
+            foreach (var resource in result)
+            {
+                var something = await CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag,
+                    ParseId(input.UsageArea), ParseId(resource.ResourceID), Language);
+
+                if (something.statusMessage == ApiResponses.Ok)
+                {
+                    if (something.data.stringValue.Equals(input.TextModuleValue))
+                    {
+                        textModuleResources.Add(resource);
+                    }
+                }
+            }
+            
+            return new()
+            {
+                Resources = textModuleResources
+            };
+        }
+        
         return new()
         {
             Resources = result
