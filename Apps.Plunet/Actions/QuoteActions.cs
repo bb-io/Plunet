@@ -1,10 +1,12 @@
 ﻿using Apps.Plunet.Constants;
+using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Quote.Request;
 using Apps.Plunet.Models.Quote.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
 
@@ -100,7 +102,7 @@ public class QuoteActions : PlunetInvocable
     }
 
     [Action("Create quote", Description = "Create a new quote in Plunet, optionally using a template")]
-    public async Task<QuoteResponse> CreateQuote([ActionParameter] QuoteTemplateRequest template, [ActionParameter] CreateQuoteRequest request)
+    public async Task<QuoteResponse> CreateQuote([ActionParameter] CreateQuoteRequest request, QuoteTemplateRequest template)
     {
         var quoteIn = new QuoteIN
         {
@@ -139,6 +141,13 @@ public class QuoteActions : PlunetInvocable
             await QuoteClient.setCustomerContactIDAsync(Uuid, ParseId(request.ContactId), quoteId);
 
         return await GetQuote(new GetQuoteRequest { QuoteId = quoteId.ToString() });
+    }
+    
+    [Action("Create quote from template", Description = "Create a new quote in Plunet using a template")]
+    public async Task<QuoteResponse> CreateQuoteFromTemplate([ActionParameter] CreateQuoteRequest request, [ActionParameter, Display("Template"), DataSource(typeof(QuoteTemplateDataHandler))] string templateId)
+    {
+        var quoteTemplateRequest = new QuoteTemplateRequest { TemplateId = templateId };
+        return await CreateQuote(request, quoteTemplateRequest);
     }
 
     //[Action("Add language combination to quote", Description = "Add a new language combination to an existing quote")]
