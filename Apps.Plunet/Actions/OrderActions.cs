@@ -140,9 +140,29 @@ public class OrderActions : PlunetInvocable
     }
     
     [Action("Create order by template", Description = "Create a new order in Plunet by template")]
-    public async Task<OrderResponse> CreateOrderByTemplate([ActionParameter, Display("Template"), DataSource(typeof(TemplateDataHandler))] string templateId, [ActionParameter] CreateOrderRequest request, [ActionParameter] SetProjectCategoryRequest projectCategoryRequest)
+    public async Task<OrderResponse> CreateOrderByTemplate([ActionParameter, Display("Template"), DataSource(typeof(TemplateDataHandler))] string templateId, [ActionParameter]CreateOrderByTemplateRequest request, [ActionParameter]SetOptionalProjectCategoryRequest projectCategoryOptionalRequest)
     {
-        return await CreateOrder(request, projectCategoryRequest, new OrderTemplateRequest {TemplateId = templateId});
+        var createOrderRequest = new CreateOrderRequest
+        {
+            ContactId = request.ContactId,
+            CustomerId = request.CustomerId,
+            Currency = request.Currency,
+            Deadline = request.Deadline,
+            ProjectManagerId = request.ProjectManagerId,
+            ProjectManagerMemo = request.ProjectManagerMemo,
+            ProjectName = request.ProjectName,
+            Rate = request.Rate,
+            ReferenceNumber = request.ReferenceNumber,
+            Status = request.Status,
+            Subject = request.Subject
+        };
+        
+        var projectCategoryRequest = new SetProjectCategoryRequest
+        {
+            ProjectCategory = projectCategoryOptionalRequest.ProjectCategory
+        };
+        
+        return await CreateOrder(createOrderRequest, projectCategoryRequest, new OrderTemplateRequest { TemplateId = templateId });
     }
 
     [Action("Delete order", Description = "Delete a Plunet order")]
