@@ -100,7 +100,7 @@ public class OrderActions : PlunetInvocable
     }
 
     [Action("Create order", Description = "Create a new order in Plunet")]
-    public async Task<OrderResponse> CreateOrder([ActionParameter] OrderTemplateRequest templateRequest, [ActionParameter] CreateOrderRequest request, [ActionParameter] SetOptionalProjectCategoryRequest category)
+    public async Task<OrderResponse> CreateOrder([ActionParameter] OrderTemplateRequest templateRequest, [ActionParameter] CreateOrderRequest request, [ActionParameter] SetProjectCategoryRequest projectCategoryRequest)
     {
         var orderIn = new OrderIN()
         {
@@ -132,10 +132,7 @@ public class OrderActions : PlunetInvocable
         }
         
         string orderId = response.data.ToString();
-        if (category.ProjectCategory is not null)
-        {
-            await SetProjectCategory(new SetProjectCategoryRequest { ProjectCategory = category.ProjectCategory, SystemLanguageCode = category.SystemLanguageCode}, new OrderRequest { OrderId = orderId });
-        }
+        await SetProjectCategory(projectCategoryRequest, new OrderRequest { OrderId = orderId });
 
         return await GetOrder(new OrderRequest { OrderId = orderId });
     }
@@ -181,15 +178,14 @@ public class OrderActions : PlunetInvocable
     [Action("Set project category", Description = "Set the project category")]
     public async Task<ProjectCategoryResponse> SetProjectCategory([ActionParameter] SetProjectCategoryRequest category, [ActionParameter] OrderRequest orderRequest)
     {
-        string languageCode = category.SystemLanguageCode ?? "EN";
-        var result = await OrderClient.setProjectCategoryAsync(Uuid, category.ProjectCategory, languageCode, ParseId(orderRequest.OrderId));
+        var result = await OrderClient.setProjectCategoryAsync(Uuid, category.ProjectCategory, Language, ParseId(orderRequest.OrderId));
         
         if (result.statusMessage != ApiResponses.Ok)
         {
             throw new Exception(result.statusMessage);
         }
 
-        return await GetProjectCategory(new GetProjectCategoryRequest { SystemLanguageCode = languageCode }, orderRequest);
+        return await GetProjectCategory(new GetProjectCategoryRequest { SystemLanguageCode = Language }, orderRequest);
     }
     
     [Action("Get project category", Description = "Get the project category")]

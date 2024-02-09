@@ -9,7 +9,4 @@ public class SetProjectCategoryRequest
     [Display("Project category")]
     [DataSource(typeof(ProjectCategoryDataHandler))]
     public string ProjectCategory { get; set; }
-
-    [Display("System language code")]
-    public string? SystemLanguageCode { get; set; }
 }
