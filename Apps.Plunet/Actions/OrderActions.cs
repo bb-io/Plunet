@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Constants;
+using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Order;
@@ -6,6 +7,7 @@ using Apps.Plunet.Models.ProjectCategory.Request;
 using Apps.Plunet.Models.ProjectCategory.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
 using SetOptionalProjectCategoryRequest = Apps.Plunet.Models.ProjectCategory.Request.SetOptionalProjectCategoryRequest;
@@ -100,7 +102,7 @@ public class OrderActions : PlunetInvocable
     }
 
     [Action("Create order", Description = "Create a new order in Plunet")]
-    public async Task<OrderResponse> CreateOrder([ActionParameter] OrderTemplateRequest templateRequest, [ActionParameter] CreateOrderRequest request, [ActionParameter] SetProjectCategoryRequest projectCategoryRequest)
+    public async Task<OrderResponse> CreateOrder([ActionParameter] CreateOrderRequest request, [ActionParameter] SetProjectCategoryRequest projectCategoryRequest, OrderTemplateRequest templateRequest)
     {
         var orderIn = new OrderIN()
         {
@@ -135,6 +137,12 @@ public class OrderActions : PlunetInvocable
         await SetProjectCategory(projectCategoryRequest, new OrderRequest { OrderId = orderId });
 
         return await GetOrder(new OrderRequest { OrderId = orderId });
+    }
+    
+    [Action("Create order by template", Description = "Create a new order in Plunet by template")]
+    public async Task<OrderResponse> CreateOrderByTemplate([ActionParameter, Display("Template"), DataSource(typeof(TemplateDataHandler))] string templateId, [ActionParameter] CreateOrderRequest request, [ActionParameter] SetProjectCategoryRequest projectCategoryRequest)
+    {
+        return await CreateOrder(request, projectCategoryRequest, new OrderTemplateRequest {TemplateId = templateId});
     }
 
     [Action("Delete order", Description = "Delete a Plunet order")]

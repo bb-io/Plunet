@@ -39,10 +39,7 @@ namespace Apps.Plunet.Models.Resource.Request
         [Display("Workingi status")]
         [DataSource(typeof(WorkingStatusDataHandler))]
         public string? WorkingStatus { get; set; }
-
-        [Display("Entity type")]
-        [DataSource(typeof (TextModuleUsageDataHandler))]
-        public string? UsageArea {  get; set; }
+        
 
         [Display("Flag", Description = "e.g. [Textmodule_1]")]
         public string? Flag { get; set; }

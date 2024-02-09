@@ -51,15 +51,15 @@ public class ResourceActions : PlunetInvocable
         if (input.Flag is not null)
         {
             var textModuleResources = new List<ResourceResponse>();
-
+            int resourceUsageArea = 2;
+            
             foreach (var resource in result)
             {
-                var something = await CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag,
-                    ParseId(input.UsageArea), ParseId(resource.ResourceID), Language);
-
-                if (something.statusMessage == ApiResponses.Ok)
+                var textModuleResult = await CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag,
+                    resourceUsageArea, ParseId(resource.ResourceID), Language);
+                if (textModuleResult.statusMessage == ApiResponses.Ok)
                 {
-                    if (something.data.stringValue.Equals(input.TextModuleValue))
+                    if (textModuleResult.data.stringValue.Equals(input.TextModuleValue))
                     {
                         textModuleResources.Add(resource);
                     }
