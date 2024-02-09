@@ -134,7 +134,10 @@ public class OrderActions : PlunetInvocable
         }
         
         string orderId = response.data.ToString();
-        await SetProjectCategory(projectCategoryRequest, new OrderRequest { OrderId = orderId });
+        if(projectCategoryRequest.ProjectCategory is not null)
+        {
+            await SetProjectCategory(projectCategoryRequest, new OrderRequest { OrderId = orderId });
+        }
 
         return await GetOrder(new OrderRequest { OrderId = orderId });
     }
