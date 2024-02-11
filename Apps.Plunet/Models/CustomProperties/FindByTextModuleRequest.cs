@@ -2,7 +2,7 @@
 
 namespace Apps.Plunet.Models.CustomProperties;
 
-public abstract class FindByTextModuleRequest
+public class FindByTextModuleRequest
 {
     [Display("Flag", Description = "e.g. [Textmodule_1]")]
     public string Flag { get; set; }

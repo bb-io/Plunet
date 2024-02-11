@@ -80,7 +80,7 @@ public class ResourceActions : PlunetInvocable
     }
     
     [Action("Find resource by text module", Description = "Find resources by text module")]
-    public async Task<ResourceResponse> FindResourceByTextModule([ActionParameter] FindResourceByTextModuleRequest request)
+    public async Task<ResourceResponse> FindResourceByTextModule([ActionParameter]FindByTextModuleRequest request)
     {
         var result = await SearchResources(new SearchResourcesRequest { TextModuleValue = request.TextModuleValue, Flag = request.Flag });
         
