@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Invocables;
+using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Models.Resource.Request;
 using Apps.Plunet.Models.Resource.Response;
 using Blackbird.Applications.Sdk.Common;
@@ -77,9 +78,21 @@ public class ResourceActions : PlunetInvocable
             Resources = result
         };
     }
+    
+    [Action("Find resource by text module", Description = "Find resources by text module")]
+    public async Task<ResourceResponse> FindResourceByTextModule([ActionParameter] FindResourceByTextModuleRequest request)
+    {
+        var result = await SearchResources(new SearchResourcesRequest { TextModuleValue = request.TextModuleValue, Flag = request.Flag });
+        
+        if(result.Resources.Any() == false)
+        {
+            throw new("No resources found with the given text module value");
+        }
+        
+        return result.Resources.First();
+    }
 
     // Get resource price lists (optional source+target)
-
 
     [Action("Get resource", Description = "Get details of a specific resource")]
     public async Task<ResourceResponse> GetResource(

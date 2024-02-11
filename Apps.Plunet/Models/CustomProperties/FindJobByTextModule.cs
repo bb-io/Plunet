@@ -4,15 +4,9 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.CustomProperties;
 
-public class FindJobByTextModuleRequest
+public class FindJobByTextModule : FindByTextModuleRequest
 {
     [Display("Entity type")]
     [DataSource(typeof (TextModuleUsageDataHandler))]
-    public string UsageArea {  get; set; }
-
-    [Display("Flag", Description = "e.g. [Textmodule_1]")]
-    public string Flag { get; set; }
-    
-    [Display("Text module value")]
-    public string TextModuleValue { get; set; }
+    public string UsageArea {  get; set; } 
 }

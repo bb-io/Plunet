@@ -47,7 +47,7 @@ namespace Apps.Plunet.Actions
         }
         
         [Action("Get item job by text module", Description = "Get all jobs related to a Plunet item")]
-        public async Task<JobResponse> GetItemJobByTextModule([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request, [ActionParameter]OptionalJobStatusRequest status, [ActionParameter]FindJobByTextModuleRequest textModuleRequest)
+        public async Task<JobResponse> GetItemJobByTextModule([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request, [ActionParameter]OptionalJobStatusRequest status, [ActionParameter]FindJobByTextModule textModuleRequest)
         {
             var itemJobsResponse = await GetItemJobs(project, request, status);
             
