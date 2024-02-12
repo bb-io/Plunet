@@ -51,9 +51,10 @@ public class OrderResponse
 
     [Display("Status")]
     public string Status { get; set; }
-
-
-
+    
+    [Display("Request ID")]
+    public string RequestId { get; set; }
+    
     public OrderResponse(Blackbird.Plugins.Plunet.DataOrder30Service.Order order, IEnumerable<LanguageCombination> combinations)
     {
         Currency = order.currency;
@@ -69,5 +70,6 @@ public class OrderResponse
         LanguageCombinations = combinations;
         AllTargetLanguages = combinations.Select(x => x.Target).Distinct();
         AllSourceLanguages = combinations.Select(x => x.Source).Distinct();
+        RequestId = order.requestID.ToString();
     }
 }

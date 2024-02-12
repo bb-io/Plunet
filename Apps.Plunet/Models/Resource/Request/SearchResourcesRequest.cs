@@ -2,6 +2,7 @@
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Apps.Plunet.DataSourceHandlers;
+using Apps.Plunet.Models.CustomProperties;
 
 namespace Apps.Plunet.Models.Resource.Request
 {
@@ -38,6 +39,12 @@ namespace Apps.Plunet.Models.Resource.Request
         [Display("Workingi status")]
         [DataSource(typeof(WorkingStatusDataHandler))]
         public string? WorkingStatus { get; set; }
+        
 
+        [Display("Flag", Description = "e.g. [Textmodule_1]")]
+        public string? Flag { get; set; }
+    
+        [Display("Text module value")]
+        public string? TextModuleValue { get; set; }
     }
 }

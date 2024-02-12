@@ -5,7 +5,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Order;
 
-public class CreateOrderRequest
+public class CreateOrderByTemplateRequest
 {
     [Display("Project manager")]
     [DataSource(typeof(ProjectManagerIdDataHandler))]
@@ -16,7 +16,7 @@ public class CreateOrderRequest
     public string? CustomerId { get; set; }
 
     [Display("Project name")]
-    public string ProjectName { get; set; }
+    public string? ProjectName { get; set; }
     
     public string? Subject { get; set; }
 
