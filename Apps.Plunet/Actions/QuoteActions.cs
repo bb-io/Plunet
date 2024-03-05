@@ -81,6 +81,8 @@ public class QuoteActions : PlunetInvocable
         var contactIdResult = await QuoteClient.getCustomerContactIDAsync(Uuid, ParseId(request.QuoteId));
 
         var pmID = await QuoteClient.getProjectmanagerIDAsync(Uuid, ParseId(request.QuoteId));
+        
+        var orderId = await QuoteClient.getOrderIDFirstItemAsync(Uuid, ParseId(request.QuoteId));
 
         var projectManagerID = string.Empty;
         if(pmID == null)
@@ -98,6 +100,7 @@ public class QuoteActions : PlunetInvocable
             CustomerId = customerIdResult.data == 0 ? null : customerIdResult.data.ToString(),
             ContactId = contactIdResult.data == 0 ? null : contactIdResult.data.ToString(),
             ProjectManagerId = projectManagerID,
+            OrderId = orderId.data == 0 ? null : orderId.data.ToString(),
         };
     }
 
