@@ -12,6 +12,8 @@ public class QuoteResponse
     [Display("Contact ID")]
     public string? ContactId { get; set; }
 
+    [Display("Order ID")] public string? OrderId { get; set; }
+
     public string Currency { get; set; }
 
     [Display("Project name")] public string ProjectName { get; set; }
