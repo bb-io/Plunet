@@ -54,7 +54,10 @@ public class OrderResponse
     
     [Display("Request ID")]
     public string RequestId { get; set; }
-    
+
+    [Display("Project category")]
+    public string ProjectCategory { get; set; }
+
     public OrderResponse(Blackbird.Plugins.Plunet.DataOrder30Service.Order order, IEnumerable<LanguageCombination> combinations)
     {
         Currency = order.currency;

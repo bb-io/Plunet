@@ -40,4 +40,8 @@ public class CreateOrderRequest
     [Display("Status")]
     [DataSource(typeof(OrderStatusDataHandler))]
     public string? Status { get; set; }
+
+    [Display("Project category")]
+    //[DataSource(typeof(ProjectCategoryDataHandler))]
+    public string? ProjectCategory { get; set; }
 }
