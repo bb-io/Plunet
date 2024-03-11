@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
 		<Product>Plunet</Product>
 		<Description>The right translation management software</Description>
-		<Version>1.7.10</Version>
+		<Version>1.7.11</Version>
 		<AssemblyName>Apps.Plunet</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
