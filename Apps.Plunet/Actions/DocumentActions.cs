@@ -27,7 +27,9 @@ namespace Apps.Plunet.Actions
         public async Task UploadFile([ActionParameter] UploadDocumentRequest request)
         {
             var fileBytes = _fileManagementClient.DownloadAsync(request.File).Result.GetByteData().Result;
-            await DocumentClient.upload_DocumentAsync(Uuid, ParseId(request.MainId), ParseId(request.FolderType), fileBytes, $"{request.Subfolder?.Replace("/", "\\") ?? ""}\\{request.File.Name}", fileBytes.Length);
+            var response = await DocumentClient.upload_DocumentAsync(Uuid, ParseId(request.MainId), ParseId(request.FolderType), fileBytes, $"{request.Subfolder?.Replace("/", "\\") ?? ""}\\{request.File.Name}", fileBytes.Length);
+            if (response.Result.statusMessage != ApiResponses.Ok)
+                throw new(response.Result.statusMessage);
         }
 
         [Action("Download file", Description = "Download a file from an entity")]
