@@ -20,7 +20,19 @@ public static class AuthProvidersExtension
         return source.FirstOrDefault(x => x.KeyName == CredsNames.UrlNameKey)
             ?.Value.ToUri();
     }
-    
+
+    public static string GetUsername(this IEnumerable<AuthenticationCredentialsProvider> source)
+    {
+        return source.FirstOrDefault(x => x.KeyName == CredsNames.UserNameKey)
+            ?.Value ?? string.Empty;
+    }
+
+    public static string GetPassword(this IEnumerable<AuthenticationCredentialsProvider> source)
+    {
+        return source.FirstOrDefault(x => x.KeyName == CredsNames.PasswordKey)
+            ?.Value ?? string.Empty;
+    }
+
     public static async Task Logout(this IEnumerable<AuthenticationCredentialsProvider> source)
     {
         var uuid = source.GetAuthToken();

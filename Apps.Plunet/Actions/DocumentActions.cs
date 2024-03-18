@@ -28,6 +28,14 @@ namespace Apps.Plunet.Actions
         {
             var fileBytes = _fileManagementClient.DownloadAsync(request.File).Result.GetByteData().Result;
             var response = await DocumentClient.upload_DocumentAsync(Uuid, ParseId(request.MainId), ParseId(request.FolderType), fileBytes, $"{request.Subfolder?.Replace("/", "\\") ?? ""}\\{request.File.Name}", fileBytes.Length);
+            if (response.Result.statusMessage.Contains("session-UUID used is invalid"))
+            {
+                await WaitAndRefreshAuthToken();
+                await UploadFile(request);
+                return;
+            }
+            if (response.Result.statusMessage.Contains("already exists") && request.IgnoreIfFileAlreadyExists.HasValue && request.IgnoreIfFileAlreadyExists.Value)
+                return;            
             if (response.Result.statusMessage != ApiResponses.Ok)
                 throw new(response.Result.statusMessage);
         }

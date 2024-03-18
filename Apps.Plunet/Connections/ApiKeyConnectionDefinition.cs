@@ -29,8 +29,9 @@ public class ApiKeyConnectionDefinition : IConnectionDefinition
         return new[]
         {
             CreateAuthorizationCredentialsProvider(values),
-            new(AuthenticationCredentialsRequestLocation.None,
-                CredsNames.UrlNameKey, values[CredsNames.UrlNameKey].TrimEnd('/'))
+            new(AuthenticationCredentialsRequestLocation.None, CredsNames.UrlNameKey, values[CredsNames.UrlNameKey].TrimEnd('/')),
+            new(AuthenticationCredentialsRequestLocation.None, CredsNames.UserNameKey, values[CredsNames.UserNameKey]),
+            new(AuthenticationCredentialsRequestLocation.None, CredsNames.PasswordKey, values[CredsNames.PasswordKey]),
         };
     }
 

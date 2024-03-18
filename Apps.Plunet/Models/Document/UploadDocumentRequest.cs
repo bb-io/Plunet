@@ -19,4 +19,7 @@ public class UploadDocumentRequest
 
     [Display("Subfolder")]
     public string? Subfolder { get; set; }
+
+    [Display("Ignore if file already exists")]
+    public bool? IgnoreIfFileAlreadyExists { get; set; }
 }
