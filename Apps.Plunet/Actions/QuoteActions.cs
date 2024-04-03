@@ -95,12 +95,12 @@ public class QuoteActions : PlunetInvocable
             projectManagerID = pmID.data == 0 ? null : pmID.data.ToString();
         }
         
-        var categoryResult = await OrderClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.QuoteId));
+        var categoryResult = await QuoteClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.QuoteId));
         if (categoryResult.statusMessage != ApiResponses.Ok)
         {
             if(categoryResult.statusMessage.Contains(ApiResponses.ProjectCategoryIsNotSet))
             {
-                categoryResult = new StringResult() { data = string.Empty };
+                categoryResult = new Blackbird.Plugins.Plunet.DataQuote30Service.StringResult { data = string.Empty };
             }
             else
             {
