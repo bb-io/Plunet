@@ -47,7 +47,7 @@ public class QuoteHooks : PlunetWebhookList<QuoteResponse>
         Description = "Triggered when a quote status is changed")]
     public Task<WebhookResponse<QuoteResponse>> QuoteStatusChanged(WebhookRequest webhookRequest,
         [WebhookParameter] [Display("Quote status")] [DataSource(typeof(QuoteStatusDataHandler))] string? newStatus,
-        [WebhookParameter] [Display("Project category")] [DataSource(typeof(ProjectCategoryDataHandler))] string? category,
+        [WebhookParameter] [Display("Project category")] string? category,
         [WebhookParameter] [Display("Project status"), DataSource(typeof(ProjectStatusDataHandler))] string? projectStatus)
         => HandleWebhook(webhookRequest,
             quote => (newStatus == null || newStatus == quote.Status) &&

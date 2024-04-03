@@ -47,7 +47,7 @@ public class OrderHooks : PlunetWebhookList<OrderResponse>
         Description = "Triggered when an order status is changed")]
     public Task<WebhookResponse<OrderResponse>> OrderStatusChanged(WebhookRequest webhookRequest,
         [WebhookParameter] [Display("New status")] [DataSource(typeof(OrderStatusDataHandler))] string? newStatus,
-        [WebhookParameter] [Display("Project category"), DataSource(typeof(ProjectCategoryDataHandler))] string? category,
+        [WebhookParameter] [Display("Project category")] string? category,
         [WebhookParameter] [Display("Project status"), DataSource(typeof(ProjectStatusDataHandler))] string? projectStatus)
         => HandleWebhook(webhookRequest,
             order => (newStatus == null || newStatus == order.Status) &&
