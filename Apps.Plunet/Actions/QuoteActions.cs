@@ -9,6 +9,7 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
+using StringResult = Blackbird.Plugins.Plunet.DataOrder30Service.StringResult;
 
 namespace Apps.Plunet.Actions;
 
@@ -96,7 +97,16 @@ public class QuoteActions : PlunetInvocable
         
         var categoryResult = await OrderClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.QuoteId));
         if (categoryResult.statusMessage != ApiResponses.Ok)
-            throw new(categoryResult.statusMessage);
+        {
+            if(categoryResult.statusMessage.Contains(ApiResponses.ProjectCategoryIsNotSet))
+            {
+                categoryResult = new StringResult() { data = string.Empty };
+            }
+            else
+            {
+                throw new(categoryResult.statusMessage);
+            }
+        }
         
         var projectStatus = await QuoteClient.getProjectStatusAsync(Uuid, ParseId(request.QuoteId));
         if (projectStatus.statusMessage != ApiResponses.Ok)

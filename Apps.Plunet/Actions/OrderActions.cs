@@ -79,7 +79,16 @@ public class OrderActions : PlunetInvocable
 
         var categoryResult = await OrderClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.OrderId));
         if (categoryResult.statusMessage != ApiResponses.Ok)
-            throw new(categoryResult.statusMessage);
+        {
+            if(categoryResult.statusMessage.Contains(ApiResponses.ProjectCategoryIsNotSet))
+            {
+                categoryResult = new StringResult() { data = string.Empty };
+            }
+            else
+            {
+                throw new(categoryResult.statusMessage);
+            }
+        }
         
         var projectStatusResult = await OrderClient.getProjectStatusAsync(Uuid, ParseId(request.OrderId));
         if (projectStatusResult.statusMessage != ApiResponses.Ok)
