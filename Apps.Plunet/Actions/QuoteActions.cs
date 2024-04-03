@@ -9,6 +9,7 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
+using StringResult = Blackbird.Plugins.Plunet.DataOrder30Service.StringResult;
 
 namespace Apps.Plunet.Actions;
 
@@ -93,6 +94,23 @@ public class QuoteActions : PlunetInvocable
         {
             projectManagerID = pmID.data == 0 ? null : pmID.data.ToString();
         }
+        
+        var categoryResult = await QuoteClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.QuoteId));
+        if (categoryResult.statusMessage != ApiResponses.Ok)
+        {
+            if(categoryResult.statusMessage.Contains(ApiResponses.ProjectCategoryIsNotSet))
+            {
+                categoryResult = new Blackbird.Plugins.Plunet.DataQuote30Service.StringResult { data = string.Empty };
+            }
+            else
+            {
+                throw new(categoryResult.statusMessage);
+            }
+        }
+        
+        var projectStatus = await QuoteClient.getProjectStatusAsync(Uuid, ParseId(request.QuoteId));
+        if (projectStatus.statusMessage != ApiResponses.Ok)
+            throw new(projectStatus.statusMessage);
 
         return new(quoteResult.data)
         {
@@ -101,6 +119,8 @@ public class QuoteActions : PlunetInvocable
             ContactId = contactIdResult.data == 0 ? null : contactIdResult.data.ToString(),
             ProjectManagerId = projectManagerID,
             OrderId = orderId.data == 0 ? null : orderId.data.ToString(),
+            ProjectCategory = categoryResult.data,
+            ProjectStatus = projectStatus.data.ToString()
         };
     }
 

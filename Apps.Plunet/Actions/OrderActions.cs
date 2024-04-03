@@ -79,7 +79,20 @@ public class OrderActions : PlunetInvocable
 
         var categoryResult = await OrderClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.OrderId));
         if (categoryResult.statusMessage != ApiResponses.Ok)
-            throw new(categoryResult.statusMessage);
+        {
+            if(categoryResult.statusMessage.Contains(ApiResponses.ProjectCategoryIsNotSet))
+            {
+                categoryResult = new StringResult() { data = string.Empty };
+            }
+            else
+            {
+                throw new(categoryResult.statusMessage);
+            }
+        }
+        
+        var projectStatusResult = await OrderClient.getProjectStatusAsync(Uuid, ParseId(request.OrderId));
+        if (projectStatusResult.statusMessage != ApiResponses.Ok)
+            throw new(projectStatusResult.statusMessage);
 
         return new(orderResult.data, orderLanguageCombinations)
         {
@@ -87,6 +100,7 @@ public class OrderActions : PlunetInvocable
             ContactId = contactResult.data == 0 ? null : contactResult.data.ToString(),
             Status = statusResult.data.ToString(),
             ProjectCategory = categoryResult.data,
+            ProjectStatus = projectStatusResult.data.ToString()
         };
     }
 

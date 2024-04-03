@@ -17,6 +17,10 @@ public class QuoteResponse
     public string Currency { get; set; }
 
     [Display("Project name")] public string ProjectName { get; set; }
+    
+    [Display("Project category")] public string ProjectCategory { get; set; }
+    
+    [Display("Project status")] public string ProjectStatus { get; set; }
 
     public double Rate { get; set; }
 

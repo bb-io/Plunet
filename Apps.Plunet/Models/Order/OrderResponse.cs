@@ -57,6 +57,9 @@ public class OrderResponse
 
     [Display("Project category")]
     public string ProjectCategory { get; set; }
+    
+    [Display("Project status")] 
+    public string ProjectStatus { get; set; }
 
     public OrderResponse(Blackbird.Plugins.Plunet.DataOrder30Service.Order order, IEnumerable<LanguageCombination> combinations)
     {
