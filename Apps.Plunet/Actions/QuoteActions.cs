@@ -93,6 +93,14 @@ public class QuoteActions : PlunetInvocable
         {
             projectManagerID = pmID.data == 0 ? null : pmID.data.ToString();
         }
+        
+        var categoryResult = await OrderClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.QuoteId));
+        if (categoryResult.statusMessage != ApiResponses.Ok)
+            throw new(categoryResult.statusMessage);
+        
+        var projectStatus = await QuoteClient.getProjectStatusAsync(Uuid, ParseId(request.QuoteId));
+        if (projectStatus.statusMessage != ApiResponses.Ok)
+            throw new(projectStatus.statusMessage);
 
         return new(quoteResult.data)
         {
@@ -101,6 +109,8 @@ public class QuoteActions : PlunetInvocable
             ContactId = contactIdResult.data == 0 ? null : contactIdResult.data.ToString(),
             ProjectManagerId = projectManagerID,
             OrderId = orderId.data == 0 ? null : orderId.data.ToString(),
+            ProjectCategory = categoryResult.data,
+            ProjectStatus = projectStatus.data.ToString()
         };
     }
 

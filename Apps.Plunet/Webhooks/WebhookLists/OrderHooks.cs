@@ -23,6 +23,7 @@ public class OrderHooks : PlunetWebhookList<OrderResponse>
 
     private const string XmlIdTagName = "OrderID";
     private OrderActions Actions { get; set; }
+
     public OrderHooks(InvocationContext invocationContext) : base(invocationContext)
     {
         Actions = new OrderActions(invocationContext);
@@ -31,7 +32,7 @@ public class OrderHooks : PlunetWebhookList<OrderResponse>
     protected override async Task<OrderResponse> GetEntity(XDocument doc)
     {
         var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value;
-        return await Actions.GetOrder(new OrderRequest { OrderId = id});
+        return await Actions.GetOrder(new OrderRequest { OrderId = id });
     }
 
     [Webhook("On order deleted", typeof(OrderDeleteEventHandler), Description = "Triggered when an order is deleted")]
@@ -44,6 +45,12 @@ public class OrderHooks : PlunetWebhookList<OrderResponse>
 
     [Webhook("On order status changed", typeof(OrderChangedEventHandler),
         Description = "Triggered when an order status is changed")]
-    public Task<WebhookResponse<OrderResponse>> OrderStatusChanged(WebhookRequest webhookRequest, [WebhookParameter][Display("New status")][DataSource(typeof(OrderStatusDataHandler))] string? newStatus, [WebhookParameter][Display("Project category")] string? category)
-        => HandleWebhook(webhookRequest, order => (newStatus == null || newStatus == order.Status) && (category == null || category == order.ProjectCategory));
+    public Task<WebhookResponse<OrderResponse>> OrderStatusChanged(WebhookRequest webhookRequest,
+        [WebhookParameter] [Display("New status")] [DataSource(typeof(OrderStatusDataHandler))] string? newStatus,
+        [WebhookParameter] [Display("Project category"), DataSource(typeof(ProjectCategoryDataHandler))] string? category,
+        [WebhookParameter] [Display("Project status"), DataSource(typeof(ProjectStatusDataHandler))] string? projectStatus)
+        => HandleWebhook(webhookRequest,
+            order => (newStatus == null || newStatus == order.Status) &&
+                     (category == null || category == order.ProjectCategory) &&
+                     (projectStatus == null || projectStatus == order.ProjectStatus));
 }
