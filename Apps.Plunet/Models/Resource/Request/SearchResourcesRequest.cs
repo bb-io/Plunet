@@ -3,6 +3,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Models.CustomProperties;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Models.Resource.Request
 {
@@ -12,7 +13,7 @@ namespace Apps.Plunet.Models.Resource.Request
         public string? ContactId { get; set; }
 
         [Display("Resource type")]
-        [DataSource(typeof(CustomerTypeDataHandler))]
+        [StaticDataSource(typeof(CustomerTypeDataHandler))]
         public string? ResourceType { get; set; }
 
         [Display("Email")]
@@ -25,7 +26,7 @@ namespace Apps.Plunet.Models.Resource.Request
         public string? Name2 { get; set; }
 
         [Display("Status")]
-        [DataSource(typeof(ResourceStatusDataHandler))]
+        [StaticDataSource(typeof(ResourceStatusDataHandler))]
         public string? Status { get; set; }
 
         [Display("Source language")]
@@ -37,7 +38,7 @@ namespace Apps.Plunet.Models.Resource.Request
         public string? TargetLanguageCode { get; set; }
 
         [Display("Workingi status")]
-        [DataSource(typeof(WorkingStatusDataHandler))]
+        [StaticDataSource(typeof(WorkingStatusDataHandler))]
         public string? WorkingStatus { get; set; }
         
 

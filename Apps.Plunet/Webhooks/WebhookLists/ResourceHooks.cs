@@ -12,6 +12,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using System.Xml.Linq;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
@@ -48,6 +49,6 @@ public class ResourceHooks : PlunetWebhookList<ResourceResponse>
 
     [Webhook("On resource status changed", typeof(ResourceChangedEventHandler),
         Description = "Triggered when a resource status is changed")]
-    public Task<WebhookResponse<ResourceResponse>> ResourceChanged(WebhookRequest webhookRequest, [WebhookParameter][Display("New status")][DataSource(typeof(ResourceStatusDataHandler))] string? newStatus)
+    public Task<WebhookResponse<ResourceResponse>> ResourceChanged(WebhookRequest webhookRequest, [WebhookParameter][Display("New status")][StaticDataSource(typeof(ResourceStatusDataHandler))] string? newStatus)
         => HandleWebhook(webhookRequest, resource => newStatus == null || newStatus == resource.Status);
 }

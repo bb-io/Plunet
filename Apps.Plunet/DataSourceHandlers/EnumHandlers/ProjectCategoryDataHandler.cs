@@ -1,10 +1,10 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.DataSourceHandlers.EnumHandlers;
 
-public class ProjectCategoryDataHandler : EnumDataHandler
+public class ProjectCategoryDataHandler : IStaticDataSourceHandler
 {
-    protected override Dictionary<string, string> EnumValues { get; } = new()
+    private Dictionary<string, string> EnumValues { get; } = new()
     {
         { "No project category", "No project category" },
         { "Translation", "Translation" },
@@ -12,4 +12,9 @@ public class ProjectCategoryDataHandler : EnumDataHandler
         { "Proofreading", "Proofreading" },
         { "Translation and Revision", "Translation and Revision" },
     };
+
+    public Dictionary<string, string> GetData()
+    {
+        return EnumValues;
+    }
 }

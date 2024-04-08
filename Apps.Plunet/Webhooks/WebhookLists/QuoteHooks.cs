@@ -12,6 +12,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
@@ -46,9 +47,9 @@ public class QuoteHooks : PlunetWebhookList<QuoteResponse>
     [Webhook("On quote status changed", typeof(QuoteChangedEventHandler),
         Description = "Triggered when a quote status is changed")]
     public Task<WebhookResponse<QuoteResponse>> QuoteStatusChanged(WebhookRequest webhookRequest,
-        [WebhookParameter] [Display("Quote status")] [DataSource(typeof(QuoteStatusDataHandler))] string? newStatus,
+        [WebhookParameter] [Display("Quote status")] [StaticDataSource(typeof(QuoteStatusDataHandler))] string? newStatus,
         [WebhookParameter] [Display("Project category")] string? category,
-        [WebhookParameter] [Display("Project status"), DataSource(typeof(ProjectStatusDataHandler))] string? projectStatus)
+        [WebhookParameter] [Display("Project status"), StaticDataSource(typeof(ProjectStatusDataHandler))] string? projectStatus)
         => HandleWebhook(webhookRequest,
             quote => (newStatus == null || newStatus == quote.Status) &&
                      (category == null || category == quote.ProjectCategory) && 

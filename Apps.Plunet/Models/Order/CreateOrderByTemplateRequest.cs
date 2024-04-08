@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Order;
@@ -38,7 +39,7 @@ public class CreateOrderByTemplateRequest
     public string? ReferenceNumber { get; set; }
 
     [Display("Status")]
-    [DataSource(typeof(OrderStatusDataHandler))]
+    [StaticDataSource(typeof(OrderStatusDataHandler))]
     public string? Status { get; set; }
 
     [Display("Project category")]

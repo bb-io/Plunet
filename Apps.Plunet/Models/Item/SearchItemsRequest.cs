@@ -1,5 +1,6 @@
 ﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Item
@@ -8,11 +9,11 @@ namespace Apps.Plunet.Models.Item
     {
 
         [Display("Item status")]
-        [DataSource(typeof(ItemStatusDataHandler))]
+        [StaticDataSource(typeof(ItemStatusDataHandler))]
         public string? Status { get; set; }
 
         [Display("Document status")]
-        [DataSource(typeof(DocumentStatusDataHandler))]
+        [StaticDataSource(typeof(DocumentStatusDataHandler))]
         public string? DocumentStatus { get; set; }
     }
 }

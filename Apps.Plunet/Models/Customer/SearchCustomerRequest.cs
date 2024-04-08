@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Customer
@@ -8,7 +9,7 @@ namespace Apps.Plunet.Models.Customer
     public class SearchCustomerRequest
     {
         [Display("Customer type")]
-        [DataSource(typeof(CustomerTypeDataHandler))]
+        [StaticDataSource(typeof(CustomerTypeDataHandler))]
         public string? CustomerType { get; set; }
 
         [Display("Email")]
@@ -25,7 +26,7 @@ namespace Apps.Plunet.Models.Customer
         public string? Name2 { get; set; }
 
         [Display("Status")]
-        [DataSource(typeof(CustomerStatusDataHandler))]
+        [StaticDataSource(typeof(CustomerStatusDataHandler))]
         public string? Status { get; set; }
     }
 }

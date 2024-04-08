@@ -1,16 +1,19 @@
-using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.DataSourceHandlers.EnumHandlers;
 
-public class OrderStatusDataHandler : EnumDataHandler
+public class OrderStatusDataHandler : IStaticDataSourceHandler
 {
-    protected override Dictionary<string, string> EnumValues => new()
+    public Dictionary<string, string> GetData()
     {
-        { "1", "Active" },
-        { "3", "Archived" },
-        { "6", "Completed" },
-        { "2", "Completed archivable" },
-        { "5", "In preparation" },
-        { "4", "Quote moved to order" }
-    };
+        return new()
+        {
+            { "1", "Active" },
+            { "3", "Archived" },
+            { "6", "Completed" },
+            { "2", "Completed archivable" },
+            { "5", "In preparation" },
+            { "4", "Quote moved to order" }
+        };
+    }
 }

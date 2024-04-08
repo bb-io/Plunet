@@ -6,13 +6,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Models.CustomProperties
 {
     public class SetPropertyRequest
     {
         [Display("Entity type")]
-        [DataSource(typeof(PropertyUsageDataHandler))]
+        [StaticDataSource(typeof(PropertyUsageDataHandler))]
         public string UsageArea { get; set; }
 
         [Display("Entity ID", Description = "The ID of the entity, e.g. the order ID or the customer ID")]
