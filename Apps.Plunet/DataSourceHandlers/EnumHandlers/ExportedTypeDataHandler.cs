@@ -1,13 +1,16 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.DataSourceHandlers.EnumHandlers;
 
-public class ExportedTypeDataHandler : EnumDataHandler
+public class ExportedTypeDataHandler : IStaticDataSourceHandler
 {
-    protected override Dictionary<string, string> EnumValues => new()
+    public Dictionary<string, string> GetData()
     {
-        { "1", "Exported" },
-        { "2", "Not exported" },
-        { "3", "Both" },
-    };
+        return new()
+        {
+            { "1", "Exported" },
+            { "2", "Not exported" },
+            { "3", "Both" },
+        };
+    }
 }

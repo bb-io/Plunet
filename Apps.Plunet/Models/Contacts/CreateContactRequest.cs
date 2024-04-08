@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Customer;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Contacts;
@@ -31,6 +32,6 @@ public class CreateContactRequest : CustomerRequest
     
     public string? Fax { get; set; }
     
-    [DataSource(typeof(ContanctStatusDataHandler))]
+    [StaticDataSource(typeof(ContanctStatusDataHandler))]
     public string? Status { get; set; }
 }

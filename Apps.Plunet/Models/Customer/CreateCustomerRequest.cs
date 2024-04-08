@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Customer;
@@ -15,7 +16,7 @@ public class CreateCustomerRequest
 
     [Display("Mobile phone")] public string? MobilePhone { get; set; }
 
-    [DataSource(typeof(StatusTypeDataHandler))]
+    [StaticDataSource(typeof(StatusTypeDataHandler))]
     public int? Status { get; set; }
 
     [Display("Form of address")] public int? FormOfAddress { get; set; }
@@ -40,7 +41,7 @@ public class CreateCustomerRequest
     [Display("User ID")] public string? UserId { get; set; }
 
     [Display("Address type")]
-    [DataSource(typeof(AddressTypeDataHandler))]
+    [StaticDataSource(typeof(AddressTypeDataHandler))]
     public new string? AddressType { get; set; }
 
     [Display("Country")]

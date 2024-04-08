@@ -1,14 +1,17 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.DataSourceHandlers.EnumHandlers;
 
-public class ContanctStatusDataHandler : EnumDataHandler
+public class ContanctStatusDataHandler : IStaticDataSourceHandler
 {
-    protected override Dictionary<string, string> EnumValues => new()
+    public Dictionary<string, string> GetData()
     {
-        { "1", "Active" },
-        { "2", "Not active" },
-        { "3", "Contacted" },
-        { "4", "Deletion requested" },
-    };
+        return new()
+        {
+            { "1", "Active" },
+            { "2", "Not active" },
+            { "3", "Contacted" },
+            { "4", "Deletion requested" },
+        };
+    }
 }

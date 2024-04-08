@@ -1,6 +1,7 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Models.Payable.Request
 {
@@ -11,7 +12,7 @@ namespace Apps.Plunet.Models.Payable.Request
         public string Id { get; set; }
 
         [Display("Status")]
-        [DataSource(typeof(PayableStatusDataHandler))]
+        [StaticDataSource(typeof(PayableStatusDataHandler))]
         public string? Status { get; set; }
 
         [Display("External invoice number")]

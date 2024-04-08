@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Order
@@ -24,7 +25,7 @@ namespace Apps.Plunet.Models.Order
         public string? TargetLanguage { get; set; }
 
         [Display("Status")]
-        [DataSource(typeof(ProjectStatusDataHandler))]
+        [StaticDataSource(typeof(ProjectStatusDataHandler))]
         public string? OrderStatus { get; set; }
 
         [Display("Project name")]
@@ -34,7 +35,7 @@ namespace Apps.Plunet.Models.Order
         public string? ProjectDescription { get; set; }
 
         [Display("Project type")]
-        [DataSource(typeof(ProjectTypeDataHandler))]
+        [StaticDataSource(typeof(ProjectTypeDataHandler))]
         public string? ProjectType { get; set; }
     }
 }

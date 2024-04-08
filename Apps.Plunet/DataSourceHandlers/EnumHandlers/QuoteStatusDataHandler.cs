@@ -1,10 +1,10 @@
-using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.DataSourceHandlers.EnumHandlers;
 
-public class QuoteStatusDataHandler : EnumDataHandler
+public class QuoteStatusDataHandler : IStaticDataSourceHandler
 {
-    protected override Dictionary<string, string> EnumValues => new()
+    private static Dictionary<string, string> EnumValues => new()
     {
         { "1", "Pending" },
         { "2", "Revised" },
@@ -17,4 +17,9 @@ public class QuoteStatusDataHandler : EnumDataHandler
         { "9", "In preparation" },
         { "11", "Check clearance" }
     };
+
+    public Dictionary<string, string> GetData()
+    {
+        return EnumValues;
+    }
 }

@@ -1,14 +1,17 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.DataSourceHandlers.EnumHandlers
 {
-    public class CustomerTypeDataHandler : EnumDataHandler
+    public class CustomerTypeDataHandler : IStaticDataSourceHandler
     {
-        protected override Dictionary<string, string> EnumValues => new()
+        public Dictionary<string, string> GetData()
         {
-            { "0", "Direct" },
-            { "2", "Indirect" },
-            { "1", "Direct Indirect" },
-        };
+            return new()
+            {
+                { "0", "Direct" },
+                { "2", "Indirect" },
+                { "1", "Direct Indirect" },
+            };
+        }
     }
 }

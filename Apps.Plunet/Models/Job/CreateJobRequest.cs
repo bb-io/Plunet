@@ -1,5 +1,6 @@
 ﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Job
@@ -20,7 +21,7 @@ namespace Apps.Plunet.Models.Job
         public DateTime? StartDate { get; set; }
 
         [Display("Status")]
-        [DataSource(typeof(JobStatusDataHandler))]
+        [StaticDataSource(typeof(JobStatusDataHandler))]
         public string? Status { get; set; }
     }
 }

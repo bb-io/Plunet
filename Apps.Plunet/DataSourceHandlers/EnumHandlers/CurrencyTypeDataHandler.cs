@@ -1,13 +1,16 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.DataSourceHandlers.EnumHandlers
 {
-    public class CurrencyTypeDataHandler : EnumDataHandler
+    public class CurrencyTypeDataHandler : IStaticDataSourceHandler
     {
-        protected override Dictionary<string, string> EnumValues => new()
+        public Dictionary<string, string> GetData()
         {
-            { "2", "Home currency" },
-            { "1", "Project currency" },
-        };
+            return new()
+            {
+                { "2", "Home currency" },
+                { "1", "Project currency" },
+            };
+        }
     }
 }

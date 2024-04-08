@@ -12,6 +12,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
 using Apps.Plunet.DataSourceHandlers;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
@@ -46,9 +47,9 @@ public class OrderHooks : PlunetWebhookList<OrderResponse>
     [Webhook("On order status changed", typeof(OrderChangedEventHandler),
         Description = "Triggered when an order status is changed")]
     public Task<WebhookResponse<OrderResponse>> OrderStatusChanged(WebhookRequest webhookRequest,
-        [WebhookParameter] [Display("New status")] [DataSource(typeof(OrderStatusDataHandler))] string? newStatus,
+        [WebhookParameter] [Display("New status")] [StaticDataSource(typeof(OrderStatusDataHandler))] string? newStatus,
         [WebhookParameter] [Display("Project category")] string? category,
-        [WebhookParameter] [Display("Project status"), DataSource(typeof(ProjectStatusDataHandler))] string? projectStatus)
+        [WebhookParameter] [Display("Project status"), StaticDataSource(typeof(ProjectStatusDataHandler))] string? projectStatus)
         => HandleWebhook(webhookRequest,
             order => (newStatus == null || newStatus == order.Status) &&
                      (category == null || category == order.ProjectCategory) &&

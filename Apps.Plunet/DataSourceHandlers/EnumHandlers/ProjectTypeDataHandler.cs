@@ -1,14 +1,19 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.DataSourceHandlers.EnumHandlers
 {
-    public class ProjectTypeDataHandler : EnumDataHandler
+    public class ProjectTypeDataHandler : IStaticDataSourceHandler
     {
-        protected override Dictionary<string, string> EnumValues => new()
+        private static Dictionary<string, string> EnumValues => new()
         {
             { "0", "All" },
             { "2", "Interpreting" },
             { "1", "Translation" },
         };
+
+        public Dictionary<string, string> GetData()
+        {
+            return EnumValues;
+        }
     }
 }

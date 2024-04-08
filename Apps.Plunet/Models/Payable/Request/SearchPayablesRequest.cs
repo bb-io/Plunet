@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Payable.Request;
@@ -14,14 +15,14 @@ public class SearchPayablesRequest
     public DateTime DateTo { get; set; }
 
     [Display("Date refers to")]
-    [DataSource(typeof(TimeFrameRelationDataHandler))]
+    [StaticDataSource(typeof(TimeFrameRelationDataHandler))]
     public string TimeFrameRelation { get; set; }
 
 
-    [DataSource(typeof(ExportedTypeDataHandler))]
+    [StaticDataSource(typeof(ExportedTypeDataHandler))]
     public string? Exported { get; set; }
     
-    [DataSource(typeof(PayableStatusDataHandler))]
+    [StaticDataSource(typeof(PayableStatusDataHandler))]
     public string? Status { get; set; }
 
     [DataSource(typeof(CurrencyDataSourceHandler))]

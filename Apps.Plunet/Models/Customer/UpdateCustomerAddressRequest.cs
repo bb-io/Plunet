@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Customer;
@@ -11,7 +12,7 @@ public class UpdateCustomerAddressRequest
     public string AddressId { get; set; }
     
     [Display("Address type")]
-    [DataSource(typeof(AddressTypeDataHandler))]
+    [StaticDataSource(typeof(AddressTypeDataHandler))]
     public string AddressType { get; set; }
 
     [Display("First address name")]
