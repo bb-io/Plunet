@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Actions;
+using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Job;
 using Apps.Plunet.Models.Quote.Request;
@@ -11,6 +12,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
@@ -18,6 +20,8 @@ namespace Apps.Plunet.Webhooks.WebhookLists;
 public class JobHooks : PlunetWebhookList<JobResponse>
 {
     protected override string ServiceName => "CallbackJob30";
+    protected override string TriggerResponse => SoapResponses.OtherOk;
+
     private const string XmlIdTagName = "JobID";
     private const string XmlProjectTagName = "ProjectType";
 
@@ -45,7 +49,7 @@ public class JobHooks : PlunetWebhookList<JobResponse>
 
     [Webhook("On job status changed", typeof(JobChangedEventHandler),
         Description = "Triggered when a job status is changed")]
-    public Task<WebhookResponse<JobResponse>> JobStatusChanged(WebhookRequest webhookRequest, [WebhookParameter][Display("New status")][DataSource(typeof(JobStatusDataHandler))] string? newStatus)
+    public Task<WebhookResponse<JobResponse>> JobStatusChanged(WebhookRequest webhookRequest, [WebhookParameter][Display("New status")][StaticDataSource(typeof(JobStatusDataHandler))] string? newStatus)
         => HandleWebhook(webhookRequest, job => newStatus == null || newStatus == job.Status);
 
     [Webhook("On job delivery date changed", typeof(JobDeliveryDateChangedEventHandler),

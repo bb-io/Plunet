@@ -28,11 +28,17 @@ public class PlunetInvocable : BaseInvocable
     protected AuthenticationCredentialsProvider[] Creds =>
         InvocationContext.AuthenticationCredentialsProviders.ToArray();
 
-    protected string Uuid => Creds.GetAuthToken();
+    protected string Uuid { get; set; }
     protected string Url => Creds.GetInstanceUrl();
     protected string Language => SystemConsts.Language;
 
     private Language[] _languages;
+
+    public async Task WaitAndRefreshAuthToken()
+    {
+        await Task.Delay(1000);
+        Uuid = AuthClient.loginAsync(Creds.GetUsername(), Creds.GetPassword()).GetAwaiter().GetResult();
+    }
 
     protected PlunetAPIClient AuthClient => new(PlunetAPIClient.EndpointConfiguration.PlunetAPIPort, Url.TrimEnd('/') + "/PlunetAPI");
     protected DataCustomer30Client CustomerClient => new(DataCustomer30Client.EndpointConfiguration.DataCustomer30Port, Url.TrimEnd('/') + "/DataCustomer30");
@@ -52,6 +58,7 @@ public class PlunetInvocable : BaseInvocable
 
     public PlunetInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
+        Uuid = Creds.GetAuthToken();
     }
 
     protected int ParseId(string? value)

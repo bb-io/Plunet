@@ -1,5 +1,6 @@
 ﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Document;
@@ -10,7 +11,7 @@ public class ListFilesRequest
     public string MainId { get; set; }
 
     [Display("Folder type")]
-    [DataSource(typeof(FolderTypeDataHandler))]
+    [StaticDataSource(typeof(FolderTypeDataHandler))]
     public string FolderType { get; set; }
 
     [Display("Subfolder")]

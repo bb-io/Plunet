@@ -1,15 +1,10 @@
-﻿using Blackbird.Applications.Sdk.Utils.Sdk.DataSourceHandlers;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.DataSourceHandlers.EnumHandlers
 {
-    public class PropertyUsageDataHandler : EnumDataHandler
+    public class PropertyUsageDataHandler : IStaticDataSourceHandler
     {
-        protected override Dictionary<string, string> EnumValues => new()
+        private static Dictionary<string, string> EnumValues => new()
         {
             { "1", "Customer" },
             { "6", "Order" },
@@ -21,5 +16,10 @@ namespace Apps.Plunet.DataSourceHandlers.EnumHandlers
             { "4", "Request" },
             { "2", "Resource" },
         };
+
+        public Dictionary<string, string> GetData()
+        {
+            return EnumValues;
+        }
     }
 }

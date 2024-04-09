@@ -1,5 +1,6 @@
 ﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Item;
@@ -19,6 +20,6 @@ public class CreateItemRequest
     public string? Reference { get; set; }
 
     [Display("Status")]
-    [DataSource(typeof(ItemStatusDataHandler))]
+    [StaticDataSource(typeof(ItemStatusDataHandler))]
     public string? Status { get; set; }
 }

@@ -8,10 +8,10 @@ public class OrderResponse
     public string Currency { get; set; }
 
     [Display("Customer ID")]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     [Display("Contact ID")]
-    public string ContactId { get; set; }
+    public string? ContactId { get; set; }
 
     [Display("Delivery deadline")]
     public DateTime DeliveryDeadline { get; set; }
@@ -40,16 +40,31 @@ public class OrderResponse
     [Display("Language combinations")]
     public IEnumerable<LanguageCombination> LanguageCombinations { get; set; }
 
+    [Display("Target languages")]
+    public IEnumerable<string> AllTargetLanguages { get; set; }
+
+    [Display("Source languages")]
+    public IEnumerable<string> AllSourceLanguages { get; set; }
+
     [Display("Total price")]
     public double TotalPrice { get; set; }
 
     [Display("Status")]
     public string Status { get; set; }
+    
+    [Display("Request ID")]
+    public string RequestId { get; set; }
+
+    [Display("Project category")]
+    public string ProjectCategory { get; set; }
+    
+    [Display("Project status")] 
+    public string ProjectStatus { get; set; }
 
     public OrderResponse(Blackbird.Plugins.Plunet.DataOrder30Service.Order order, IEnumerable<LanguageCombination> combinations)
     {
         Currency = order.currency;
-        CustomerId = order.customerID.ToString();
+        CustomerId = order.customerID == 0 ? null : order.customerID.ToString();
         DeliveryDeadline = order.deliveryDeadline;
         OrderClosingDate = order.orderClosingDate;
         OrderDate = order.orderDate;
@@ -59,5 +74,8 @@ public class OrderResponse
         ProjectName = order.projectName;
         Rate = order.rate;
         LanguageCombinations = combinations;
+        AllTargetLanguages = combinations.Select(x => x.Target).Distinct();
+        AllSourceLanguages = combinations.Select(x => x.Source).Distinct();
+        RequestId = order.requestID.ToString();
     }
 }

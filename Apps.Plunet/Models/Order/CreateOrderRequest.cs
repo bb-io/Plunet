@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Order;
@@ -16,7 +17,7 @@ public class CreateOrderRequest
     public string? CustomerId { get; set; }
 
     [Display("Project name")]
-    public string? ProjectName { get; set; }
+    public string ProjectName { get; set; }
     
     public string? Subject { get; set; }
 
@@ -38,6 +39,9 @@ public class CreateOrderRequest
     public string? ReferenceNumber { get; set; }
 
     [Display("Status")]
-    [DataSource(typeof(OrderStatusDataHandler))]
+    [StaticDataSource(typeof(OrderStatusDataHandler))]
     public string? Status { get; set; }
+
+    [Display("Project category")]
+    public string? ProjectCategory { get; set; }
 }

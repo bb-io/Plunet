@@ -7,14 +7,20 @@ public class QuoteResponse
     [Display("Quote ID")] public string QuoteId { get; set; }
 
     [Display("Customer ID")]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     [Display("Contact ID")]
-    public string ContactId { get; set; }
+    public string? ContactId { get; set; }
+
+    [Display("Order ID")] public string? OrderId { get; set; }
 
     public string Currency { get; set; }
 
     [Display("Project name")] public string ProjectName { get; set; }
+    
+    [Display("Project category")] public string ProjectCategory { get; set; }
+    
+    [Display("Project status")] public string ProjectStatus { get; set; }
 
     public double Rate { get; set; }
 
@@ -30,6 +36,8 @@ public class QuoteResponse
     public bool CreationDateSpecificied { get; set; }
 
     [Display("Total price")] public double TotalPrice { get; set; }
+    [Display("Project manager ID")]
+    public string? ProjectManagerId { get; set; }
 
     public QuoteResponse(Blackbird.Plugins.Plunet.DataQuote30Service.Quote quote)
     {

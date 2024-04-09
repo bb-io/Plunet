@@ -1,5 +1,6 @@
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Files;
 
@@ -14,11 +15,11 @@ public class UploadCatReportRequest
     public bool OverwriteExistingPricelines { get; set; }
     
     [Display("CAT type")]
-    [DataSource(typeof(CatTypeDataHandler))]
+    [StaticDataSource(typeof(CatTypeDataHandler))]
     public string CatType { get; set; }
     
     [Display("Project type")]
-    [DataSource(typeof(ProjectOrderQuoteTypeDataHandler))]
+    [StaticDataSource(typeof(ProjectOrderQuoteTypeDataHandler))]
     public string ProjectType { get; set; }
     
     [Display("Copy results to item")]

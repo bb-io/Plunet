@@ -1,11 +1,16 @@
 ﻿using Apps.Plunet.Constants;
+using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Order;
+using Apps.Plunet.Models.ProjectCategory.Request;
+using Apps.Plunet.Models.ProjectCategory.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
+using SetOptionalProjectCategoryRequest = Apps.Plunet.Models.ProjectCategory.Request.SetOptionalProjectCategoryRequest;
 
 namespace Apps.Plunet.Actions;
 
@@ -67,23 +72,56 @@ public class OrderActions : PlunetInvocable
         var totalOrderPrice = itemsResult.data?.Sum(x => x.totalPrice) ?? 0;
 
         var contactResult = await OrderClient.getCustomerContactIDAsync(Uuid, ParseId(request.OrderId));
-        if (contactResult.statusMessage != ApiResponses.Ok)
-            throw new(contactResult.statusMessage);
 
         var statusResult = await OrderClient.getProjectStatusAsync(Uuid, ParseId(request.OrderId));
         if (statusResult.statusMessage != ApiResponses.Ok)
             throw new(statusResult.statusMessage);
 
+        var categoryResult = await OrderClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.OrderId));
+        if (categoryResult.statusMessage != ApiResponses.Ok)
+        {
+            if(categoryResult.statusMessage.Contains(ApiResponses.ProjectCategoryIsNotSet))
+            {
+                categoryResult = new StringResult() { data = string.Empty };
+            }
+            else
+            {
+                throw new(categoryResult.statusMessage);
+            }
+        }
+        
+        var projectStatusResult = await OrderClient.getProjectStatusAsync(Uuid, ParseId(request.OrderId));
+        if (projectStatusResult.statusMessage != ApiResponses.Ok)
+            throw new(projectStatusResult.statusMessage);
+
         return new(orderResult.data, orderLanguageCombinations)
         {
             TotalPrice = totalOrderPrice,
-            ContactId = contactResult.data.ToString(),
+            ContactId = contactResult.data == 0 ? null : contactResult.data.ToString(),
             Status = statusResult.data.ToString(),
+            ProjectCategory = categoryResult.data,
+            ProjectStatus = projectStatusResult.data.ToString()
+        };
+    }
+
+    [Action("Get order target languages for source", Description = "Given a source language and an order, get all the target languages that this order represents")]
+    public async Task<LanguagesResponse> GetOrderTargetLanguage([ActionParameter] OrderRequest request, [ActionParameter] SourceLanguageRequest language)
+    {
+        var languageCombinations = await OrderClient.getLanguageCombinationAsync(Uuid, ParseId(request.OrderId));
+        if (languageCombinations.statusMessage != ApiResponses.Ok)
+            throw new(languageCombinations.statusMessage);
+
+        var orderLanguageCombinations = await ParseLanguageCombinations(languageCombinations.data);
+        var response = orderLanguageCombinations.Where(x => x.Source == language.SourceLanguageCode).Select(x => x.Target).Distinct();
+
+        return new LanguagesResponse
+        {
+            Languages = response,
         };
     }
 
     [Action("Create order", Description = "Create a new order in Plunet")]
-    public async Task<OrderResponse> CreateOrder([ActionParameter] OrderTemplateRequest templateRequest, [ActionParameter] CreateOrderRequest request)
+    public async Task<OrderResponse> CreateOrder([ActionParameter] CreateOrderRequest request, OrderTemplateRequest templateRequest)
     {
         var orderIn = new OrderIN()
         {
@@ -97,7 +135,7 @@ public class OrderActions : PlunetInvocable
             currency = request.Currency,
             projectManagerMemo = request.ProjectManagerMemo,
             rate = request.Rate ?? default,
-            referenceNumber = request.ReferenceNumber
+            referenceNumber = request.ReferenceNumber,
         };
 
         var response = templateRequest.TemplateId == null ?
@@ -114,7 +152,37 @@ public class OrderActions : PlunetInvocable
                 throw new(statusResponse.statusMessage);
         }
 
-        return await GetOrder(new OrderRequest { OrderId = response.data.ToString() });
+        if (request.ProjectCategory != null)
+        {
+            var categoryResponse = await OrderClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, response.data);
+            if (categoryResponse.statusMessage != ApiResponses.Ok)
+                throw new(categoryResponse.statusMessage);
+        }
+
+        string orderId = response.data.ToString();
+
+        return await GetOrder(new OrderRequest { OrderId = orderId });
+    }
+    
+    [Action("Create order by template", Description = "Create a new order in Plunet by template")]
+    public async Task<OrderResponse> CreateOrderByTemplate([ActionParameter, Display("Template"), DataSource(typeof(TemplateDataHandler))] string templateId, [ActionParameter]CreateOrderByTemplateRequest request)
+    {
+        var createOrderRequest = new CreateOrderRequest
+        {
+            ContactId = request.ContactId,
+            CustomerId = request.CustomerId,
+            Currency = request.Currency,
+            Deadline = request.Deadline,
+            ProjectManagerId = request.ProjectManagerId,
+            ProjectManagerMemo = request.ProjectManagerMemo,
+            ProjectName = request.ProjectName,
+            Rate = request.Rate,
+            ReferenceNumber = request.ReferenceNumber,
+            Status = request.Status,
+            Subject = request.Subject,
+            ProjectCategory = request.ProjectCategory
+        };
+        return await CreateOrder(createOrderRequest, new OrderTemplateRequest { TemplateId = templateId });
     }
 
     [Action("Delete order", Description = "Delete a Plunet order")]
@@ -126,21 +194,25 @@ public class OrderActions : PlunetInvocable
     [Action("Update order", Description = "Update Plunet order")]
     public async Task<OrderResponse> UpdateOrder([ActionParameter] OrderRequest order, [ActionParameter] CreateOrderRequest request)
     {
-        var response = await OrderClient.updateAsync(Uuid, new OrderIN
+        var orderResopnse = await GetOrder(order);
+
+        var orderUpdate = new OrderIN
         {
             orderID = ParseId(order.OrderId),
             projectName = request.ProjectName,
             customerContactID = ParseId(request.ContactId),
-            customerID = ParseId(request.CustomerId),
+            customerID = ParseId(request.CustomerId) == -1 ? ParseId(orderResopnse.CustomerId) : ParseId(request.CustomerId),
             subject = request.Subject,
-            projectManagerID = ParseId(request.ProjectManagerId),
+            projectManagerID = ParseId(request.ProjectManagerId) == -1 ? ParseId(orderResopnse.ProjectManagerId) : ParseId(request.ProjectManagerId),
             orderDate = DateTime.Now,
             deliveryDeadline = request.Deadline ?? default,
             currency = request.Currency,
             projectManagerMemo = request.ProjectManagerMemo,
             rate = request.Rate ?? default,
             referenceNumber = request.ReferenceNumber
-        }, false);
+        };
+
+        var response = await OrderClient.updateAsync(Uuid, orderUpdate, false);
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
@@ -149,12 +221,18 @@ public class OrderActions : PlunetInvocable
         {
             var statusResponse = await OrderClient.setProjectStatusAsync(Uuid, ParseId(order.OrderId), ParseId(request.Status));
             if (statusResponse.statusMessage != ApiResponses.Ok)
-                throw new(statusResponse.statusMessage);
+                throw new(response.statusMessage);
+        }
+
+        if (request.ProjectCategory != null)
+        {
+            var categoryResponse = await OrderClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, ParseId(order.OrderId));
+            if (categoryResponse.statusMessage != ApiResponses.Ok)
+                throw new(categoryResponse.statusMessage);
         }
 
         return await GetOrder(order);
-    }
-
+    }   
 
     //[Action("Add item to order", Description = "Add a new item to an order")]
     //public async Task<CreateItemResponse> AddItemToOrder([ActionParameter] CreateItemRequest request)

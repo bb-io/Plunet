@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Quote.Request;
@@ -27,7 +28,7 @@ public class CreateQuoteRequest
     public string? Subject { get; set; }
 
     [Display("Status")]
-    [DataSource(typeof(QuoteStatusDataHandler))]
+    [StaticDataSource(typeof(QuoteStatusDataHandler))]
     public string? Status { get; set; }
 
     [Display("Contact")]
@@ -42,7 +43,7 @@ public class CreateQuoteRequest
     public string? ProjectManagerId { get; set; }
 
     [Display("Project status")]
-    [DataSource(typeof(ProjectStatusDataHandler))]
+    [StaticDataSource(typeof(ProjectStatusDataHandler))]
     public string? ProjectStatus { get; set; }
 
     [Display("Request ID")]

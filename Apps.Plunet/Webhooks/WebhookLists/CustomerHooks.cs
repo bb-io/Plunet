@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Actions;
+using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Webhooks.Handlers.Impl.Customers;
@@ -9,6 +10,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
@@ -16,6 +18,8 @@ namespace Apps.Plunet.Webhooks.WebhookLists;
 public class CustomerHooks : PlunetWebhookList<GetCustomerResponse>
 {
     protected override string ServiceName => "CallbackCustomer30";
+
+    protected override string TriggerResponse => SoapResponses.CustomerAndResourceOk;
 
     private const string XmlIdTagName = "CustomerID";
 
@@ -44,6 +48,6 @@ public class CustomerHooks : PlunetWebhookList<GetCustomerResponse>
 
     [Webhook("On customer status changed", typeof(CustomerChangedEventHandler),
         Description = "Triggered when a customer status is changed")]
-    public Task<WebhookResponse<GetCustomerResponse>> CustomerChanged(WebhookRequest webhookRequest, [WebhookParameter][Display("New status")][DataSource(typeof(CustomerStatusDataHandler))] string? newStatus)
+    public Task<WebhookResponse<GetCustomerResponse>> CustomerChanged(WebhookRequest webhookRequest, [WebhookParameter][Display("New status")][StaticDataSource(typeof(CustomerStatusDataHandler))] string? newStatus)
         => HandleWebhook(webhookRequest, customer => newStatus == null || newStatus == customer.Status);
 }

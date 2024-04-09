@@ -42,9 +42,19 @@ namespace Apps.Plunet.Actions
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
 
+            string value = string.Empty;
+            if (string.IsNullOrEmpty(response.data.stringValue) && response.data.selectedValues.Any())
+            {
+                value = response.data.selectedValues.First();
+            }
+            else
+            {
+                value = response.data.stringValue;
+            }
+            
             return new()
             {
-                Value = response.data.stringValue
+                Value = value
             };
         }
 

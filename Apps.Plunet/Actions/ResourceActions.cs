@@ -1,9 +1,12 @@
 ﻿using Apps.Plunet.Constants;
+using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Invocables;
+using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Models.Resource.Request;
 using Apps.Plunet.Models.Resource.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Plunet.Actions;
@@ -45,19 +48,55 @@ public class ResourceActions : PlunetInvocable
             .ToArray();
 
         var result = await Task.WhenAll(ids);
-
+        
+        if (input.Flag is not null)
+        {
+            var textModuleResources = new List<ResourceResponse>();
+            int resourceUsageArea = 2;
+            
+            foreach (var resource in result)
+            {
+                var textModuleResult = await CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag,
+                    resourceUsageArea, ParseId(resource.ResourceID), Language);
+                if (textModuleResult.statusMessage == ApiResponses.Ok)
+                {
+                    if (textModuleResult.data.stringValue.Equals(input.TextModuleValue))
+                    {
+                        textModuleResources.Add(resource);
+                    }
+                }
+            }
+            
+            return new()
+            {
+                Resources = textModuleResources
+            };
+        }
+        
         return new()
         {
             Resources = result
         };
     }
+    
+    [Action("Find resource by text module", Description = "Find resources by text module")]
+    public async Task<ResourceResponse> FindResourceByTextModule([ActionParameter]FindByTextModuleRequest request)
+    {
+        var result = await SearchResources(new SearchResourcesRequest { TextModuleValue = request.TextModuleValue, Flag = request.Flag });
+        
+        if(result.Resources.Any() == false)
+        {
+            throw new("No resources found with the given text module value");
+        }
+        
+        return result.Resources.First();
+    }
 
     // Get resource price lists (optional source+target)
 
-
     [Action("Get resource", Description = "Get details of a specific resource")]
     public async Task<ResourceResponse> GetResource(
-        [ActionParameter] [Display("Resource ID")]
+        [ActionParameter][DataSource(typeof(ResourceIdDataHandler))] [Display("Resource ID")]
         string resourceId)
     {        
         var response = await ResourceClient.getResourceObjectAsync(Uuid, ParseId(resourceId));

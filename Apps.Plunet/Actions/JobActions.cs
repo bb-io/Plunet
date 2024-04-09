@@ -1,8 +1,11 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
+using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Job;
+using Apps.Plunet.Models.Resource.Request;
+using Apps.Plunet.Models.Resource.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -21,7 +24,7 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Get item jobs", Description = "Get all jobs related to a Plunet item")]
-        public async Task<ItemJobsResponse> GetItemJobs([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request, [ActionParameter] OptionalJobStatusRequest status)
+        public async Task<ItemJobsResponse> GetItemJobs([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request, [ActionParameter]OptionalJobStatusRequest status)
         {
             var result = status.Status == null ? await ItemClient.getJobsAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)) :
                 await ItemClient.getJobsWithStatusAsync(Uuid, ParseId(status.Status), ParseId(project.ProjectType), ParseId(request.ItemId));
@@ -41,6 +44,32 @@ namespace Apps.Plunet.Actions
             {
                 Jobs = jobs
             };
+        }
+        
+        [Action("Get item job by text module", Description = "Get all jobs related to a Plunet item")]
+        public async Task<JobResponse> GetItemJobByTextModule([ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request, [ActionParameter]OptionalJobStatusRequest status, [ActionParameter]FindJobByTextModule textModuleRequest)
+        {
+            var itemJobsResponse = await GetItemJobs(project, request, status);
+            
+            if (textModuleRequest.Flag is not null)
+            {
+                foreach (var job in itemJobsResponse.Jobs)
+                {
+                    var textModuleValue = await CustomFieldsClient.getTextmoduleAsync(Uuid, textModuleRequest.Flag, ParseId(textModuleRequest.UsageArea), ParseId(job.JobId), Language);
+                    if (textModuleValue.statusMessage == ApiResponses.Ok
+                        && textModuleValue.data.stringValue == textModuleRequest.TextModuleValue)
+                    {
+                        return job;
+                    }
+                }
+            
+                throw new("Job not found");
+            }
+            
+            if(itemJobsResponse.Jobs.Any() == false)
+                throw new("No jobs found");
+            
+            return itemJobsResponse.Jobs.First();
         }
 
         [Action("Get Job", Description = "Get details for a Plunet job")]
@@ -103,7 +132,7 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Create job", Description = "Create a new job in Plunet")]
-        public async Task<JobResponse> CreateJob([ActionParameter] ProjectTypeRequest project, [ActionParameter] CreateJobRequest input, [ActionParameter] JobTypeRequest type)
+        public async Task<JobResponse> CreateJob([ActionParameter] ProjectTypeRequest project, [ActionParameter] CreateJobRequest input, [ActionParameter] JobTypeRequest type, [ActionParameter] ContactPersonRequest contactPerson)
         {
             var jobIn = new JobIN()
             {
@@ -111,7 +140,8 @@ namespace Apps.Plunet.Actions
                 startDateSpecified = input.StartDate.HasValue,
                 itemID = ParseId(input.ItemId),
                 projectType = ParseId(project.ProjectType),
-                status = ParseId(input.Status)
+                status = ParseId(input.Status),
+                projectID = ParseId(input.ProjectId),
             };
 
             if (input.DueDate.HasValue)
@@ -125,7 +155,32 @@ namespace Apps.Plunet.Actions
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
 
-            return await GetJob(new GetJobRequest { ProjectType = project.ProjectType, JobId = response.data.ToString()});
+            string jobId = response.data.ToString();
+            if (contactPerson.ResourceId is not null)
+            {
+                var result = await JobClient.setContactPersonIDAsync(Uuid, ParseId(project.ProjectType), ParseId(jobId), ParseId(contactPerson.ResourceId));
+                
+                if (result.statusMessage != ApiResponses.Ok)
+                    throw new Exception(result.statusMessage);
+            }
+
+            return await GetJob(new GetJobRequest { ProjectType = project.ProjectType, JobId = jobId});
+        }
+
+        [Action("Assign resource to job", Description = "Assign a resource to a Plunet job")]
+        public async Task<AssignResourceResponse> AssignResourceToJob([ActionParameter] GetJobRequest request, [ActionParameter] ResourceRequest resource)
+        {
+            var result = await JobClient.setResourceIDAsync(Uuid, ParseId(request.ProjectType), ParseId(resource.ResourceId), ParseId(request.JobId));
+
+            if (result.statusMessage != ApiResponses.Ok)
+                throw new(result.statusMessage);
+
+            var jobResource = await JobClient.getResourceIDAsync(Uuid, ParseId(request.ProjectType), ParseId(request.JobId));
+
+            if (jobResource.statusMessage != ApiResponses.Ok)
+                throw new(jobResource.statusMessage);
+
+            return new AssignResourceResponse { ResourceId = jobResource.data.ToString() };
         }
 
         [Action("Update job", Description = "Update an existing job in Plunet")]
@@ -138,7 +193,8 @@ namespace Apps.Plunet.Actions
                 itemID = ParseId(input.ItemId),
                 jobID = ParseId(request.JobId),
                 projectType = ParseId(request.ProjectType),
-                status = ParseId(input.Status)
+                status = ParseId(input.Status),
+                projectID = ParseId(input.ProjectId)
             };
 
             if (input.DueDate.HasValue)
@@ -256,6 +312,7 @@ namespace Apps.Plunet.Actions
         private async Task<string?> GetId(Task<IntegerResult> task, bool throwOnError = true)
         {
             var response = await task;
+            if (response.data == 0) return null;
             if (response.statusMessage != ApiResponses.Ok)
             {
                 if (throwOnError)

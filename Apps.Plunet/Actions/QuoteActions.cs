@@ -1,12 +1,15 @@
 ﻿using Apps.Plunet.Constants;
+using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Quote.Request;
 using Apps.Plunet.Models.Quote.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
+using StringResult = Blackbird.Plugins.Plunet.DataOrder30Service.StringResult;
 
 namespace Apps.Plunet.Actions;
 
@@ -75,23 +78,54 @@ public class QuoteActions : PlunetInvocable
         var totalPrice = itemsResult.data?.Sum(x => x.totalPrice) ?? 0;
 
         var customerIdResult = await QuoteClient.getCustomerIDAsync(Uuid, ParseId(request.QuoteId));
-        if (customerIdResult.statusMessage != ApiResponses.Ok)
-            throw new(customerIdResult.statusMessage);
 
         var contactIdResult = await QuoteClient.getCustomerContactIDAsync(Uuid, ParseId(request.QuoteId));
-        if (contactIdResult.statusMessage != ApiResponses.Ok)
-            throw new(contactIdResult.statusMessage);
+
+        var pmID = await QuoteClient.getProjectmanagerIDAsync(Uuid, ParseId(request.QuoteId));
+        
+        var orderId = await QuoteClient.getOrderIDFirstItemAsync(Uuid, ParseId(request.QuoteId));
+
+        var projectManagerID = string.Empty;
+        if(pmID == null)
+        {
+            projectManagerID = null;
+        }
+        else
+        {
+            projectManagerID = pmID.data == 0 ? null : pmID.data.ToString();
+        }
+        
+        var categoryResult = await QuoteClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.QuoteId));
+        if (categoryResult.statusMessage != ApiResponses.Ok)
+        {
+            if(categoryResult.statusMessage.Contains(ApiResponses.ProjectCategoryIsNotSet))
+            {
+                categoryResult = new Blackbird.Plugins.Plunet.DataQuote30Service.StringResult { data = string.Empty };
+            }
+            else
+            {
+                throw new(categoryResult.statusMessage);
+            }
+        }
+        
+        var projectStatus = await QuoteClient.getProjectStatusAsync(Uuid, ParseId(request.QuoteId));
+        if (projectStatus.statusMessage != ApiResponses.Ok)
+            throw new(projectStatus.statusMessage);
 
         return new(quoteResult.data)
         {
             TotalPrice = totalPrice,
-            CustomerId = customerIdResult.data.ToString(),
-            ContactId = contactIdResult.data.ToString(),
+            CustomerId = customerIdResult.data == 0 ? null : customerIdResult.data.ToString(),
+            ContactId = contactIdResult.data == 0 ? null : contactIdResult.data.ToString(),
+            ProjectManagerId = projectManagerID,
+            OrderId = orderId.data == 0 ? null : orderId.data.ToString(),
+            ProjectCategory = categoryResult.data,
+            ProjectStatus = projectStatus.data.ToString()
         };
     }
 
     [Action("Create quote", Description = "Create a new quote in Plunet, optionally using a template")]
-    public async Task<QuoteResponse> CreateQuote([ActionParameter] QuoteTemplateRequest template, [ActionParameter] CreateQuoteRequest request)
+    public async Task<QuoteResponse> CreateQuote([ActionParameter] CreateQuoteRequest request, QuoteTemplateRequest template)
     {
         var quoteIn = new QuoteIN
         {
@@ -130,6 +164,13 @@ public class QuoteActions : PlunetInvocable
             await QuoteClient.setCustomerContactIDAsync(Uuid, ParseId(request.ContactId), quoteId);
 
         return await GetQuote(new GetQuoteRequest { QuoteId = quoteId.ToString() });
+    }
+    
+    [Action("Create quote from template", Description = "Create a new quote in Plunet using a template")]
+    public async Task<QuoteResponse> CreateQuoteFromTemplate([ActionParameter] CreateQuoteRequest request, [ActionParameter, Display("Template"), DataSource(typeof(QuoteTemplateDataHandler))] string templateId)
+    {
+        var quoteTemplateRequest = new QuoteTemplateRequest { TemplateId = templateId };
+        return await CreateQuote(request, quoteTemplateRequest);
     }
 
     //[Action("Add language combination to quote", Description = "Add a new language combination to an existing quote")]
