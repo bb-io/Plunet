@@ -24,6 +24,20 @@ public class ContactActions : PlunetInvocable
         {
             CustomerContacts = contacts.data is null ? new List<ContactObjectResponse>() : contacts.data.Select(x => new ContactObjectResponse(x))
         };
+        
+    }
+
+    [Action("Get customer emails", Description = "Get all the emails of the specified customer")]
+    public async Task<GetContactsEmailResponse> GetCustomerEmails([ActionParameter] CustomerRequest input)
+    {
+        var contacts = await ContactClient.getAllContactObjectsAsync(Uuid, ParseId(input.CustomerId));
+
+        return new GetContactsEmailResponse()
+        {
+            EmailAddresses = contacts.data is null ? new List<string>() : contacts.data.Select(x => x.email)
+
+        };
+
     }
 
     [Action("Get contact", Description = "Get the Plunet contact")]
