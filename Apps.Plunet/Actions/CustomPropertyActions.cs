@@ -14,17 +14,19 @@ namespace Apps.Plunet.Actions
         {
         }
 
-        [Action("Get property", Description = "Get a list of selected property values from any entity")]
-        public async Task<PropertyList> GetProperty([ActionParameter] PropertyRequest input)
+        [Action("Get property", Description = "Get the selected value from any entity")]
+        public async Task<string> GetProperty([ActionParameter] PropertyRequest input)
         {
             var response = await CustomFieldsClient.getPropertyAsync(Uuid, input.Name, ParseId(input.UsageArea), ParseId(input.MainId));
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
 
-            return new()
-            {
-                Values = response.data?.selectedPropertyValueList?.Select(x => x.ToString()),
-            };
+            var SelectedValue = response.data?.selectedPropertyValueID;
+            if (SelectedValue != null) {
+                var result = await CustomFieldsClient.getPropertyValueTextAsync(Uuid, input.Name, (int)SelectedValue, Language);
+                return result.data;
+            }
+            return string.Empty;
         }
 
         [Action("Set property", Description = "Set the selected proeprty values for any entity")]
