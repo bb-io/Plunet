@@ -41,15 +41,28 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
         return new SearchInvoicesResponse { Invoices = invoices };
     }
 
-    [Action("Get invoice by ID", Description = "Get invoice by ID")]
+    [Action("Get invoice", Description = "Get invoice by ID")]
     public async Task<GetInvoiceResponse> GetInvoice([ActionParameter] InvoiceRequest request)
     {
         var invoiceObject = await OutgoingInvoiceClient.getInvoiceObjectAsync(Uuid, int.Parse(request.InvoiceId));
 
         var customerActions = new CustomerActions(invocationContext);
-        var customer = await customerActions.GetCustomerById(new CustomerRequest
-            { CustomerId = invoiceObject.data.customerID.ToString() });
+        if(request.GetCustomer.HasValue && request.GetCustomer.Value)
+        {
+            var customer = new GetCustomerResponse();
+            try
+            {
+                customer = await customerActions.GetCustomerById(new CustomerRequest
+                    { CustomerId = invoiceObject.data.customerID.ToString() });
+            }
+            catch (Exception e)
+            {
+                InvocationContext.Logger?.LogError("Error while getting customer: " + e.Message, new object[]{e});
+            }
 
-        return new GetInvoiceResponse(invoiceObject, customer);
+            return new GetInvoiceResponse(invoiceObject, customer);
+        }
+        
+        return new GetInvoiceResponse(invoiceObject, null);
     }
 }

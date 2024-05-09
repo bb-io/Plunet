@@ -4,7 +4,7 @@ using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Plunet.Models.Invoices;
 
-public class GetInvoiceResponse(InvoiceResult result, GetCustomerResponse customer)
+public class GetInvoiceResponse(InvoiceResult result, GetCustomerResponse? customer)
 {
     [Display("Invoice ID")]
     public string InvoiceId { get; set; } = result.data.invoiceID.ToString();
@@ -12,8 +12,11 @@ public class GetInvoiceResponse(InvoiceResult result, GetCustomerResponse custom
     [Display("Project name")]
     public string ProjectName { get; set; } = result.data.briefDescription;
 
+    [Display("Customer ID")]
+    public string CustomerId { get; set; } = result.data.customerID.ToString();
+    
     [Display("Customer")]
-    public GetCustomerResponse Customer { get; set; } = customer;
+    public GetCustomerResponse? Customer { get; set; } = customer;
 
     [Display("Description")]
     public string Description { get; set; } = result.data.subject;
