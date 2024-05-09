@@ -2,6 +2,7 @@
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.Invoices;
+using Apps.Plunet.Models.Invoices.Items;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -46,10 +47,30 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
     {
         var invoiceObject = await OutgoingInvoiceClient.getInvoiceObjectAsync(Uuid, int.Parse(request.InvoiceId));
 
-        var customerActions = new CustomerActions(invocationContext);
+        var invoiceItems = await OutgoingInvoiceClient.getInvoiceItemListAsync(Uuid, int.Parse(request.InvoiceId));
+        var invoiceItemResponses = invoiceItems.data.Select(item => new InvoiceItemResponse
+        {
+            InvoiceId = item.invoiceID.ToString(),
+            InvoiceItemId = item.invoiceItemID.ToString(),
+            ItemNumber = item.itemNumber,
+            LanguageCombinationId = item.languageCombinationID.ToString(),
+            OrderId = item.orderID.ToString(),
+            OrderItemId = item.orderItemId.ToString(),
+            TotalPrice = item.totalPrice,
+            BriefDescription = item.briefDescription,
+            Comment = item.comment
+        }).ToList();
+        
+        var invoiceResponse = new GetInvoiceResponse(invoiceObject, null)
+        {
+            InvoiceItems = invoiceItemResponses
+        };
+
         if(request.GetCustomer.HasValue && request.GetCustomer.Value)
         {
+            var customerActions = new CustomerActions(invocationContext);
             var customer = new GetCustomerResponse();
+            
             try
             {
                 customer = await customerActions.GetCustomerById(new CustomerRequest
@@ -60,9 +81,56 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
                 InvocationContext.Logger?.LogError("Error while getting customer: " + e.Message, new object[]{e});
             }
 
-            return new GetInvoiceResponse(invoiceObject, customer);
+            invoiceResponse.Customer = customer;
+            return invoiceResponse;
+        }
+
+        return invoiceResponse;
+    }
+    
+    [Action("Update invoice", Description = "Update invoice")]
+    public async Task<GetInvoiceResponse> UpdateInvoice([ActionParameter] UpdateInvoiceRequest request)
+    {
+        if (!string.IsNullOrEmpty(request.Subject))
+        {
+            var result = await OutgoingInvoiceClient.setSubjectAsync(Uuid, request.Subject, int.Parse(request.InvoiceId));
+            
+            if(result.statusMessage != "OK")
+                throw new InvalidOperationException("Error while updating invoice subject");
         }
         
-        return new GetInvoiceResponse(invoiceObject, null);
+        if (!string.IsNullOrEmpty(request.BriefDescription))
+        {
+            var result = await OutgoingInvoiceClient.setBriefDescriptionAsync(Uuid, request.BriefDescription, int.Parse(request.InvoiceId));
+            
+            if(result.statusMessage != "OK")
+                throw new InvalidOperationException("Error while updating invoice brief description");
+        }
+        
+        if (request.InvoiceDate.HasValue)
+        {
+            var result = await OutgoingInvoiceClient.setInvoiceDateAsync(Uuid, request.InvoiceDate.Value, int.Parse(request.InvoiceId));
+            
+            if(result.statusMessage != "OK")
+                throw new InvalidOperationException("Error while updating invoice date");
+        }
+        
+        if (request.PaidDate.HasValue)
+        {
+            var result = await OutgoingInvoiceClient.setPaidDateAsync(Uuid, int.Parse(request.InvoiceId), request.PaidDate.Value);
+            
+            if(result.statusMessage != "OK")
+                throw new InvalidOperationException("Error while updating invoice paid date");
+        }
+        
+        if (!string.IsNullOrEmpty(request.InvoiceStatus))
+        {
+            var result = await OutgoingInvoiceClient.setStatusAsync(Uuid, int.Parse(request.InvoiceStatus), int.Parse(request.InvoiceId));
+            
+            if(result.statusMessage != "OK")
+                throw new InvalidOperationException("Error while updating invoice status");
+        }
+        
+        return await GetInvoice(request);
     }
 }

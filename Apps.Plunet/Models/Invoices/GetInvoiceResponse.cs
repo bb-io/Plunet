@@ -1,5 +1,6 @@
 ﻿using Apps.Plunet.DataOutgoingInvoice30Service;
 using Apps.Plunet.Models.Customer;
+using Apps.Plunet.Models.Invoices.Items;
 using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Plunet.Models.Invoices;
@@ -50,4 +51,7 @@ public class GetInvoiceResponse(InvoiceResult result, GetCustomerResponse? custo
 
     [Display("Value date")]
     public DateTime ValueDate { get; set; } = result.data.valueDate;
+
+    [Display("Invoice items")]
+    public List<InvoiceItemResponse> InvoiceItems { get; set; }
 }
