@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Constants;
+using Apps.Plunet.DataOutgoingInvoice30Service;
 using Apps.Plunet.Extensions;
 using Apps.Plunet.Models;
 using Blackbird.Applications.Sdk.Common;
@@ -52,6 +53,7 @@ public class PlunetInvocable : BaseInvocable
     protected DataRequest30Client RequestClient => new(DataRequest30Client.EndpointConfiguration.DataRequest30Port, Url.TrimEnd('/') + "/DataRequest30");
     protected DataQuote30Client QuoteClient => new(DataQuote30Client.EndpointConfiguration.DataQuote30Port, Url.TrimEnd('/') + "/DataQuote30");
     protected DataJob30Client JobClient => new(DataJob30Client.EndpointConfiguration.DataJob30Port, Url.TrimEnd('/') + "/DataJob30");
+    protected DataOutgoingInvoice30Client OutgoingInvoiceClient => new(DataOutgoingInvoice30Client.EndpointConfiguration.DataOutgoingInvoice30Port, Url.TrimEnd('/') + "/DataOutgoingInvoice30");
     protected DataResourceAddress30Client ResourceAddressClient => new(DataResourceAddress30Client.EndpointConfiguration.DataResourceAddress30Port, Url.TrimEnd('/') + "/DataResourceAddress30");
     protected DataCustomerAddress30Client CustomerAddressClient => new(DataCustomerAddress30Client.EndpointConfiguration.DataCustomerAddress30Port, Url.TrimEnd('/') + "/DataCustomerAddress30");
     protected DataCustomFields30Client CustomFieldsClient => new(DataCustomFields30Client.EndpointConfiguration.DataCustomFields30Port, Url.TrimEnd('/') + "/DataCustomFields30");
