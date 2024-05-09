@@ -35,7 +35,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
         var invoices = new List<GetInvoiceResponse>();
         foreach (var invoiceId  in searchInvoices.data)
         {
-            var invoice = await GetInvoice(new InvoiceRequest { InvoiceId = invoiceId.ToString() ?? throw new InvalidOperationException("Invoice ID us null") });
+            var invoice = await GetInvoice(new InvoiceRequest { InvoiceId = invoiceId.ToString() ?? throw new InvalidOperationException("Invoice ID is null") });
             invoices.Add(invoice);
         }
 
@@ -45,47 +45,55 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
     [Action("Get invoice", Description = "Get invoice by ID")]
     public async Task<GetInvoiceResponse> GetInvoice([ActionParameter] InvoiceRequest request)
     {
-        var invoiceObject = await OutgoingInvoiceClient.getInvoiceObjectAsync(Uuid, int.Parse(request.InvoiceId));
+        try
+        {
+            var invoiceObject = await OutgoingInvoiceClient.getInvoiceObjectAsync(Uuid, int.Parse(request.InvoiceId));
 
-        var invoiceItems = await OutgoingInvoiceClient.getInvoiceItemListAsync(Uuid, int.Parse(request.InvoiceId));
-        var invoiceItemResponses = invoiceItems.data.Select(item => new InvoiceItemResponse
-        {
-            InvoiceId = item.invoiceID.ToString(),
-            InvoiceItemId = item.invoiceItemID.ToString(),
-            ItemNumber = item.itemNumber,
-            LanguageCombinationId = item.languageCombinationID.ToString(),
-            OrderId = item.orderID.ToString(),
-            OrderItemId = item.orderItemId.ToString(),
-            TotalPrice = item.totalPrice,
-            BriefDescription = item.briefDescription,
-            Comment = item.comment
-        }).ToList();
-        
-        var invoiceResponse = new GetInvoiceResponse(invoiceObject, null)
-        {
-            InvoiceItems = invoiceItemResponses
-        };
-
-        if(request.GetCustomer.HasValue && request.GetCustomer.Value)
-        {
-            var customerActions = new CustomerActions(invocationContext);
-            var customer = new GetCustomerResponse();
-            
-            try
+            var invoiceItems = await OutgoingInvoiceClient.getInvoiceItemListAsync(Uuid, int.Parse(request.InvoiceId));
+            var invoiceItemResponses = invoiceItems.data.Select(item => new InvoiceItemResponse
             {
-                customer = await customerActions.GetCustomerById(new CustomerRequest
-                    { CustomerId = invoiceObject.data.customerID.ToString() });
-            }
-            catch (Exception e)
+                InvoiceId = item.invoiceID.ToString(),
+                InvoiceItemId = item.invoiceItemID.ToString(),
+                ItemNumber = item.itemNumber,
+                LanguageCombinationId = item.languageCombinationID.ToString(),
+                OrderId = item.orderID.ToString(),
+                OrderItemId = item.orderItemId.ToString(),
+                TotalPrice = item.totalPrice,
+                BriefDescription = item.briefDescription,
+                Comment = item.comment
+            }).ToList();
+
+            var invoiceResponse = new GetInvoiceResponse(invoiceObject, null)
             {
-                InvocationContext.Logger?.LogError("Error while getting customer: " + e.Message, new object[]{e});
+                InvoiceItems = invoiceItemResponses
+            };
+
+            if (request.GetCustomer.HasValue && request.GetCustomer.Value)
+            {
+                var customerActions = new CustomerActions(invocationContext);
+                var customer = new GetCustomerResponse();
+
+                try
+                {
+                    customer = await customerActions.GetCustomerById(new CustomerRequest
+                        { CustomerId = invoiceObject.data.customerID.ToString() });
+                }
+                catch (Exception e)
+                {
+                    InvocationContext.Logger?.LogError("Error while getting customer: " + e.Message,
+                        new object[] { e });
+                }
+
+                invoiceResponse.Customer = customer;
+                return invoiceResponse;
             }
 
-            invoiceResponse.Customer = customer;
             return invoiceResponse;
         }
-
-        return invoiceResponse;
+        catch (Exception e)
+        {
+            throw new Exception($"Failed to get invoice: {e.Message}; Exception type: {e.GetType()}; Stack trace: {e.StackTrace}");
+        }
     }
     
     [Action("Update invoice", Description = "Update invoice")]
