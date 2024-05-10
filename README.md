@@ -25,14 +25,14 @@ Before you can connect you need to make sure that:
 6. Fill in the password of your Plunet API user.
 7. Click _Connect_.
 
+![1701864930160](image/README/1701864930160.png)
+
 ### Troubleshooting
 
 If you are unable to connect, please check the following:
 1. The URL should look like `https://plunet-friend.plunet.com`. Without /PlunetAPI at the end.
 2. You must sure that your URL is accessible from the our servers. To check this, you can try to open the URL with '/PlunetAPI?wsdl' at the end in your browser (you should see an XML document that describes the API).
 3. Ensure that you don't have firewall rules that block the connection or whitelist of IP addresses that are allowed to connect to your Plunet instance (or if you do, make sure to whitelist the Blackbird IP addresses).
-
-![1701864930160](image/README/1701864930160.png)
 
 ## Actions
 
