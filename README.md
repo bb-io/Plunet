@@ -17,13 +17,20 @@ Before you can connect you need to make sure that:
 
 ## Connecting
 
-1. Navigate to apps and search for Plunet. If you cannot find Plunet then click _Add App_ in the top right corner, select Plunet and add the app to your Blackbird environment.
+1. Navigate to Apps, and identify the **Plunet** app. You can use search to find it.
 2. Click _Add Connection_.
 3. Name your connection for future reference e.g. 'My Plunet connection'.
 4. Fill in the URL to the Plunet instance you want to connect to. You can usually copy this part of the URL when you are logged into your Plunet instance.
 5. Fill in the username of your Plunet API user.
 6. Fill in the password of your Plunet API user.
 7. Click _Connect_.
+
+### Troubleshooting
+
+If you are unable to connect, please check the following:
+1. The URL should look like `https://plunet-friend.plunet.com`. Without /PlunetAPI at the end.
+2. You must sure that your URL is accessible from the our servers. To check this, you can try to open the URL with '/PlunetAPI?wsdl' at the end in your browser (you should see an XML document that describes the API).
+3. Ensure that you don't have firewall rules that block the connection or whitelist of IP addresses that are allowed to connect to your Plunet instance (or if you do, make sure to whitelist the Blackbird IP addresses).
 
 ![1701864930160](image/README/1701864930160.png)
 
