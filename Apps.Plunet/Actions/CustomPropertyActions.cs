@@ -45,6 +45,8 @@ namespace Apps.Plunet.Actions
                 throw new(response.statusMessage);
 
             string value = string.Empty;
+            if (string.IsNullOrEmpty(response.data.stringValue) && response.data.selectedValues is null)
+            { } else
             if (string.IsNullOrEmpty(response.data.stringValue) && response.data.selectedValues.Any())
             {
                 value = response.data.selectedValues.First();

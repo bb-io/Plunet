@@ -56,6 +56,10 @@ public class GetCustomerResponse
     [Display("Payment information")]
     public GetPaymentInfoResponse PaymentInformation { get; set; }
 
+    public GetCustomerResponse()
+    {
+    }
+    
     public GetCustomerResponse(Blackbird.Plugins.Plunet.DataCustomer30Service.Customer customer,
         PaymentInfo paymentInfo, int? accountManagerId = default)
     {
