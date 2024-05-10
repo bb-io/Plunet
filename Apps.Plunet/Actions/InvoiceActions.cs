@@ -109,7 +109,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
                 await OutgoingInvoiceClient.setSubjectAsync(Uuid, request.Subject, int.Parse(request.InvoiceId));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException("Error while updating invoice subject");
+                throw new InvalidOperationException($"Error while updating invoice subject, message: {result.statusMessage}");
         }
 
         if (!string.IsNullOrEmpty(request.BriefDescription))
@@ -119,7 +119,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
                     int.Parse(request.InvoiceId));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException("Error while updating invoice brief description");
+                throw new InvalidOperationException($"Error while updating invoice brief description, message: {result.statusMessage}");
         }
 
         if (request.InvoiceDate.HasValue)
@@ -129,7 +129,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
                     int.Parse(request.InvoiceId));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException("Error while updating invoice date");
+                throw new InvalidOperationException($"Error while updating invoice date, message: {result.statusMessage}");
         }
 
         if (request.PaidDate.HasValue)
@@ -139,7 +139,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
                     request.PaidDate.Value);
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException("Error while updating invoice paid date");
+                throw new InvalidOperationException($"Error while updating invoice paid date, message: {result.statusMessage}");
         }
 
         if (!string.IsNullOrEmpty(request.InvoiceStatus))
@@ -148,7 +148,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
                 int.Parse(request.InvoiceId));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException("Error while updating invoice status");
+                throw new InvalidOperationException($"Error while updating invoice status, message: {result.statusMessage}");
         }
 
         return await GetInvoice(request);
