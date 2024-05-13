@@ -2,15 +2,19 @@
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.Invoices;
+using Apps.Plunet.Models.Invoices.Common;
 using Apps.Plunet.Models.Invoices.Items;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Invoice = Apps.Plunet.Models.Invoices.Common.Invoice;
+using Tax = Apps.Plunet.Models.Invoices.Common.Tax;
 
 namespace Apps.Plunet.Actions;
 
 [ActionList]
-public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
+public class InvoiceActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : PlunetInvocable(invocationContext)
 {
     [Action("Search invoices", Description = "Search invoices")]
     public async Task<SearchInvoicesResponse> SearchInvoices([ActionParameter] SearchInvoicesRequest request)
@@ -48,7 +52,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
     {
         var invoiceObject = await OutgoingInvoiceClient.getInvoiceObjectAsync(Uuid, int.Parse(request.InvoiceId));
         var invoiceItems = await OutgoingInvoiceClient.getInvoiceItemListAsync(Uuid, int.Parse(request.InvoiceId));
-
+        
         var items = new List<InvoiceItemResponse>();
         if (invoiceItems.data != null)
         {
@@ -98,6 +102,59 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
         }
 
         return invoiceResponse;
+    }
+    
+    [Action("Export invoice", Description = "Get invoice by ID as JSON")]
+    public async Task<ExportInvoiceResponse> GetInvoiceAsJson([ActionParameter] InvoiceRequest request)
+    {
+        var invoice = await GetInvoice(new InvoiceRequest { InvoiceId = request.InvoiceId, GetCustomer = true});
+        
+        var lineItems = new List<LineItem>();
+        foreach (var item in invoice.InvoiceItems)
+        {
+            var priceline = await OutgoingInvoiceClient.getPriceLine_ListAsync(Uuid, int.Parse(item.InvoiceItemId));
+            foreach (var price in priceline.data)
+            {
+                lineItems.Add(new LineItem()
+                {
+                    Description = item.BriefDescription,
+                    Quantity = (int)price.amount,
+                    UnitPrice = (decimal)price.unit_price,
+                    Amount = (decimal)price.amount * (decimal)price.unit_price
+                });
+            }
+        }
+        
+        var invoiceObject = new InvoicesObject()
+        {
+            Invoices = new List<Invoice>
+            {
+                new()
+                {
+                    CustomerName = invoice.Customer?.Name ?? string.Empty,
+                    InvoiceNumber = invoice.InvoiceNumber,
+                    InvoiceDate = invoice.InvoiceDate,
+                    Currency = invoice.CurrencyCode,
+                    Taxes =
+                    [
+                        new Tax
+                        {
+                            Description = "Sales Tax",
+                            Amount = (decimal)invoice.Tax
+                        }
+                    ],
+                    Lines = lineItems,
+                }
+            }
+        };
+        
+        var stream = invoiceObject.ToStream();
+        var fileReference = await fileManagementClient.UploadAsync(stream, "application/json", $"{invoice.InvoiceNumber}.json");
+        
+        return new ExportInvoiceResponse
+        {
+            File = fileReference
+        };
     }
 
     [Action("Update invoice", Description = "Update invoice")]
