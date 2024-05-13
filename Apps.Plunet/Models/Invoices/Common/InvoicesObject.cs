@@ -5,6 +5,7 @@ namespace Apps.Plunet.Models.Invoices.Common;
 
 public class InvoicesObject
 {
+    [JsonProperty("invoices")]
     public List<Invoice> Invoices { get; set; } = new();
 
     public Stream ToStream()

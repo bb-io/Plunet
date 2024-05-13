@@ -144,6 +144,9 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
                         }
                     ],
                     Lines = lineItems,
+                    Total = lineItems.Sum(x => x.Amount) + (decimal)invoice.Tax,
+                    SubTotal = lineItems.Sum(x => x.Amount),
+                    CustomFields = new Dictionary<string, string>()
                 }
             }
         };
