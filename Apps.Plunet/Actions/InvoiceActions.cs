@@ -2,15 +2,19 @@
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.Invoices;
+using Apps.Plunet.Models.Invoices.Common;
 using Apps.Plunet.Models.Invoices.Items;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Invoice = Apps.Plunet.Models.Invoices.Common.Invoice;
+using Tax = Apps.Plunet.Models.Invoices.Common.Tax;
 
 namespace Apps.Plunet.Actions;
 
 [ActionList]
-public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
+public class InvoiceActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : PlunetInvocable(invocationContext)
 {
     [Action("Search invoices", Description = "Search invoices")]
     public async Task<SearchInvoicesResponse> SearchInvoices([ActionParameter] SearchInvoicesRequest request)
@@ -48,7 +52,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
     {
         var invoiceObject = await OutgoingInvoiceClient.getInvoiceObjectAsync(Uuid, int.Parse(request.InvoiceId));
         var invoiceItems = await OutgoingInvoiceClient.getInvoiceItemListAsync(Uuid, int.Parse(request.InvoiceId));
-
+        
         var items = new List<InvoiceItemResponse>();
         if (invoiceItems.data != null)
         {
@@ -99,6 +103,62 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
 
         return invoiceResponse;
     }
+    
+    [Action("Export invoice", Description = "Get invoice by ID as JSON")]
+    public async Task<ExportInvoiceResponse> GetInvoiceAsJson([ActionParameter] InvoiceRequest request)
+    {
+        var invoice = await GetInvoice(new InvoiceRequest { InvoiceId = request.InvoiceId, GetCustomer = true});
+        
+        var lineItems = new List<LineItem>();
+        foreach (var item in invoice.InvoiceItems)
+        {
+            var priceline = await OutgoingInvoiceClient.getPriceLine_ListAsync(Uuid, int.Parse(item.InvoiceItemId));
+            foreach (var price in priceline.data)
+            {
+                lineItems.Add(new LineItem()
+                {
+                    Description = item.BriefDescription,
+                    Quantity = (int)price.amount,
+                    UnitPrice = (decimal)price.unit_price,
+                    Amount = (decimal)price.amount * (decimal)price.unit_price
+                });
+            }
+        }
+        
+        var invoiceObject = new InvoicesObject()
+        {
+            Invoices = new List<Invoice>
+            {
+                new()
+                {
+                    CustomerName = invoice.Customer?.Name ?? string.Empty,
+                    InvoiceNumber = invoice.InvoiceNumber,
+                    InvoiceDate = invoice.InvoiceDate,
+                    Currency = invoice.CurrencyCode,
+                    Taxes =
+                    [
+                        new Tax
+                        {
+                            Description = "Sales Tax",
+                            Amount = (decimal)invoice.Tax
+                        }
+                    ],
+                    Lines = lineItems,
+                    Total = lineItems.Sum(x => x.Amount) + (decimal)invoice.Tax,
+                    SubTotal = lineItems.Sum(x => x.Amount),
+                    CustomFields = new Dictionary<string, string>()
+                }
+            }
+        };
+        
+        var stream = invoiceObject.ToStream();
+        var fileReference = await fileManagementClient.UploadAsync(stream, "application/json", $"{invoice.InvoiceNumber}.json");
+        
+        return new ExportInvoiceResponse
+        {
+            File = fileReference
+        };
+    }
 
     [Action("Update invoice", Description = "Update invoice")]
     public async Task<GetInvoiceResponse> UpdateInvoice([ActionParameter] UpdateInvoiceRequest request)
@@ -109,7 +169,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
                 await OutgoingInvoiceClient.setSubjectAsync(Uuid, request.Subject, int.Parse(request.InvoiceId));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException("Error while updating invoice subject");
+                throw new InvalidOperationException($"Error while updating invoice subject, message: {result.statusMessage}");
         }
 
         if (!string.IsNullOrEmpty(request.BriefDescription))
@@ -119,7 +179,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
                     int.Parse(request.InvoiceId));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException("Error while updating invoice brief description");
+                throw new InvalidOperationException($"Error while updating invoice brief description, message: {result.statusMessage}");
         }
 
         if (request.InvoiceDate.HasValue)
@@ -129,7 +189,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
                     int.Parse(request.InvoiceId));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException("Error while updating invoice date");
+                throw new InvalidOperationException($"Error while updating invoice date, message: {result.statusMessage}");
         }
 
         if (request.PaidDate.HasValue)
@@ -139,7 +199,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
                     request.PaidDate.Value);
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException("Error while updating invoice paid date");
+                throw new InvalidOperationException($"Error while updating invoice paid date, message: {result.statusMessage}");
         }
 
         if (!string.IsNullOrEmpty(request.InvoiceStatus))
@@ -148,7 +208,7 @@ public class InvoiceActions(InvocationContext invocationContext) : PlunetInvocab
                 int.Parse(request.InvoiceId));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException("Error while updating invoice status");
+                throw new InvalidOperationException($"Error while updating invoice status, message: {result.statusMessage}");
         }
 
         return await GetInvoice(request);
