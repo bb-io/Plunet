@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.DataOutgoingInvoice30Service;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Customer;
+using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Models.Invoices;
 using Apps.Plunet.Models.Invoices.Common;
 using Apps.Plunet.Models.Invoices.Items;
@@ -47,7 +48,7 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
         return new SearchInvoicesResponse { Invoices = invoices };
     }
     
-    [Action("Find invoice", Description = "Find invoice by parameters")]
+    [Action("Find invoice by text module", Description = "Find invoice by parameters")]
     public async Task<GetInvoiceResponse?> FindInvoice([ActionParameter] FindInvoiceRequest request)
     {
         var invoices = await SearchInvoices(request);
@@ -55,6 +56,26 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
         if (!string.IsNullOrEmpty(request.InvoiceNumber))
         {
             return invoices.Invoices.FirstOrDefault(x => x.InvoiceNumber == request.InvoiceNumber);
+        }
+        
+        if (!string.IsNullOrEmpty(request.Flag) && !string.IsNullOrEmpty(request.TextModuleValue))
+        {
+            var customPropertyActions = new CustomPropertyActions(invocationContext);
+            
+            foreach (var invoice in invoices.Invoices)
+            {
+                var textModule = await customPropertyActions.GetTextmodule(new TextModuleRequest
+                {
+                    Flag = request.Flag,
+                    MainId = invoice.InvoiceId,
+                    UsageArea = "7"
+                });
+
+                if (textModule.Value == request.TextModuleValue)
+                {
+                    return invoice;
+                }
+            }
         }
         
         return invoices.Invoices.FirstOrDefault();
