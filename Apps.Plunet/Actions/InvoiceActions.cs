@@ -25,8 +25,8 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
             timeFrame = new SelectionEntry_TimeFrame
             {
                 dateFrom = request.DateFrom ?? new DateTime(2021, 01, 01, 12, 10, 10),
-                dateTo = request.DateTo ?? DateTime.Now
-            }
+                dateTo = request.DateTo ?? DateTime.Now,
+            },
         };
 
         if (!string.IsNullOrEmpty(request.CustomerId))
@@ -45,6 +45,19 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
         }
 
         return new SearchInvoicesResponse { Invoices = invoices };
+    }
+    
+    [Action("Find invoice", Description = "Find invoice by parameters")]
+    public async Task<GetInvoiceResponse?> FindInvoice([ActionParameter] FindInvoiceRequest request)
+    {
+        var invoices = await SearchInvoices(request);
+
+        if (!string.IsNullOrEmpty(request.InvoiceNumber))
+        {
+            return invoices.Invoices.FirstOrDefault(x => x.InvoiceNumber == request.InvoiceNumber);
+        }
+        
+        return invoices.Invoices.FirstOrDefault();
     }
 
     [Action("Get invoice", Description = "Get invoice by ID")]
