@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.DataOutgoingInvoice30Service;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Customer;
+using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Models.Invoices;
 using Apps.Plunet.Models.Invoices.Common;
 using Apps.Plunet.Models.Invoices.Items;
@@ -25,8 +26,8 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
             timeFrame = new SelectionEntry_TimeFrame
             {
                 dateFrom = request.DateFrom ?? new DateTime(2021, 01, 01, 12, 10, 10),
-                dateTo = request.DateTo ?? DateTime.Now
-            }
+                dateTo = request.DateTo ?? DateTime.Now,
+            },
         };
 
         if (!string.IsNullOrEmpty(request.CustomerId))
@@ -45,6 +46,39 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
         }
 
         return new SearchInvoicesResponse { Invoices = invoices };
+    }
+    
+    [Action("Find invoice by text module", Description = "Find invoice by parameters")]
+    public async Task<GetInvoiceResponse?> FindInvoice([ActionParameter] FindInvoiceRequest request)
+    {
+        var invoices = await SearchInvoices(request);
+
+        if (!string.IsNullOrEmpty(request.InvoiceNumber))
+        {
+            invoices.Invoices = invoices.Invoices.Where(x => x.InvoiceNumber == request.InvoiceNumber).ToList();
+        }
+        
+        if (!string.IsNullOrEmpty(request.Flag) && !string.IsNullOrEmpty(request.TextModuleValue))
+        {
+            var customPropertyActions = new CustomPropertyActions(invocationContext);
+            
+            foreach (var invoice in invoices.Invoices)
+            {
+                var textModule = await customPropertyActions.GetTextmodule(new TextModuleRequest
+                {
+                    Flag = request.Flag,
+                    MainId = invoice.InvoiceId,
+                    UsageArea = "7"
+                });
+
+                if (textModule.Value == request.TextModuleValue)
+                {
+                    return invoice;
+                }
+            }
+        }
+        
+        throw new InvalidOperationException("No invoice found with the given parameters");
     }
 
     [Action("Get invoice", Description = "Get invoice by ID")]
