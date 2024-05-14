@@ -55,7 +55,7 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
 
         if (!string.IsNullOrEmpty(request.InvoiceNumber))
         {
-            return invoices.Invoices.FirstOrDefault(x => x.InvoiceNumber == request.InvoiceNumber);
+            invoices.Invoices = invoices.Invoices.Where(x => x.InvoiceNumber == request.InvoiceNumber).ToList();
         }
         
         if (!string.IsNullOrEmpty(request.Flag) && !string.IsNullOrEmpty(request.TextModuleValue))
@@ -78,7 +78,7 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
             }
         }
         
-        return invoices.Invoices.FirstOrDefault();
+        throw new InvalidOperationException("No invoice found with the given parameters");
     }
 
     [Action("Get invoice", Description = "Get invoice by ID")]
