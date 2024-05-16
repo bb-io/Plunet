@@ -9,16 +9,12 @@ using Blackbird.Plugins.Plunet.DataCustomer30Service;
 namespace Apps.Plunet.Actions;
 
 [ActionList]
-public class CustomerActions : PlunetInvocable
+public class CustomerActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
-    public CustomerActions(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     [Action("Search customers", Description = "Search for specific customers based on specific criteria")]
     public async Task<ListCustomersResponse> SearchCustomers([ActionParameter] SearchCustomerRequest input)
     {
-        var response = await CustomerClient.searchAsync(Uuid, new SearchFilter_Customer
+        var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await CustomerClient.searchAsync(Uuid, new SearchFilter_Customer
         {
             customerType = ParseId(input.CustomerType),
             email = input.Email ?? string.Empty,
@@ -26,7 +22,7 @@ public class CustomerActions : PlunetInvocable
             name1 = input.Name1 ?? string.Empty,
             name2 = input.Name2 ?? string.Empty,
             customerStatus = ParseId(input.Status)
-        });
+        }));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
@@ -46,9 +42,8 @@ public class CustomerActions : PlunetInvocable
     [Action("Get customer", Description = "Get the Plunet customer")]
     public async Task<GetCustomerResponse> GetCustomerById([ActionParameter] CustomerRequest input)
     {
-        var customer = await CustomerClient.getCustomerObjectAsync(Uuid, ParseId(input.CustomerId));
-
-        var paymentInfo = await CustomerClient.getPaymentInformationAsync(Uuid, ParseId(input.CustomerId));
+        var customer = await ExecuteWithRetry<CustomerResult>(async () => await CustomerClient.getCustomerObjectAsync(Uuid, ParseId(input.CustomerId)));
+        var paymentInfo = await ExecuteWithRetry<PaymentInfoResult>(async () => await CustomerClient.getPaymentInformationAsync(Uuid, ParseId(input.CustomerId)));
 
         if (paymentInfo.statusMessage != ApiResponses.Ok)
             throw new(paymentInfo.statusMessage);
@@ -56,15 +51,14 @@ public class CustomerActions : PlunetInvocable
         if (customer.data is null)
             throw new(customer.statusMessage);
 
-        var accountManagerResult = await CustomerClient.getAccountManagerIDAsync(Uuid, ParseId(input.CustomerId));
-
+        var accountManagerResult = await ExecuteWithRetry<IntegerResult>(async () => await CustomerClient.getAccountManagerIDAsync(Uuid, ParseId(input.CustomerId)));
         return new(customer.data, paymentInfo.data, accountManagerResult?.data);
     }
 
     [Action("Delete customer", Description = "Delete a Plunet customer")]
     public async Task DeleteCustomerById([ActionParameter] CustomerRequest input)
     {
-        await CustomerClient.deleteAsync(Uuid, ParseId(input.CustomerId));
+        await ExecuteWithRetry<Result>(async () => await CustomerClient.deleteAsync(Uuid, ParseId(input.CustomerId)));
     }
 
     [Action("Create customer", Description = "Create a new customer in Plunet")]
@@ -74,7 +68,7 @@ public class CustomerActions : PlunetInvocable
             throw new(
                 "Both address type and country must be specified to create customer with address or not specified at all");
 
-        var customerIdResult = await CustomerClient.insert2Async(Uuid, new()
+        var customerIdResult = await ExecuteWithRetry<IntegerResult>(async () => await CustomerClient.insert2Async(Uuid, new()
         {
             name1 = request.Name1,
             name2 = request.Name2,
@@ -92,7 +86,7 @@ public class CustomerActions : PlunetInvocable
             opening = request.Opening,
             skypeID = request.SkypeId,
             userId = ParseId(request.UserId),
-        });
+        }));
 
         var customerId = customerIdResult.data.ToString();
 
@@ -111,7 +105,7 @@ public class CustomerActions : PlunetInvocable
     public async Task<GetCustomerResponse> UpdateCustomer([ActionParameter] CustomerRequest customer,
         [ActionParameter] CreateCustomerRequest request)
     {
-        await CustomerClient.updateAsync(Uuid, new CustomerIN
+        await ExecuteWithRetry<Result>(async () => await CustomerClient.updateAsync(Uuid, new CustomerIN
         {
             customerID = ParseId(customer.CustomerId),
             name1 = request.Name1,
@@ -130,7 +124,7 @@ public class CustomerActions : PlunetInvocable
             opening = request.Opening,
             skypeID = request.SkypeId,
             userId = ParseId(request.UserId),
-        }, false);
+        }, false));
 
         return await GetCustomerById(customer);
     }
@@ -139,7 +133,7 @@ public class CustomerActions : PlunetInvocable
     public async Task<SetCustomerAddressResponse> SetCustomerAddress(
         [ActionParameter] CustomerRequest customer, [ActionParameter] SetCustomerAddressRequest request)
     {
-        var response = await CustomerAddressClient.insert2Async(Uuid, ParseId(customer.CustomerId), new()
+        var response = await ExecuteWithRetry<DataCustomerAddress30Service.IntegerResult>(async () => await CustomerAddressClient.insert2Async(Uuid, ParseId(customer.CustomerId), new()
         {
             name1 = request.FirstAddressName,
             city = request.City,
@@ -150,7 +144,7 @@ public class CustomerActions : PlunetInvocable
             country = request.Country,
             state = request.State,
             description = request.Description
-        });
+        }));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
@@ -226,4 +220,54 @@ public class CustomerActions : PlunetInvocable
     //     await Creds.Logout();
     //     return new BaseResponse { StatusCode = response.statusCode };
     // }
+    
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
+        where T : Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+            
+            if(result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+            
+            if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            {
+                await Task.Delay(delay);
+                await RefreshAuthToken();
+                attempts++;
+                continue;
+            }
+
+            return (T)result;
+        }
+    }
+    
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<DataCustomerAddress30Service.Result>> func, int maxRetries = 10, int delay = 1000)
+        where T : DataCustomerAddress30Service.Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+            
+            if(result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+            
+            if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            {
+                await Task.Delay(delay);
+                await RefreshAuthToken();
+                attempts++;
+                continue;
+            }
+
+            return (T)result;
+        }
+    }
 }

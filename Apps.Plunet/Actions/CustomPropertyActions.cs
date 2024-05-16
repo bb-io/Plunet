@@ -4,35 +4,40 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Constants;
+using Blackbird.Plugins.Plunet.DataCustomFields30;
 
 namespace Apps.Plunet.Actions
 {
     [ActionList]
-    public class CustomPropertyActions : PlunetInvocable
+    public class CustomPropertyActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
     {
-        public CustomPropertyActions(InvocationContext invocationContext) : base(invocationContext)
-        {
-        }
-
         [Action("Get property", Description = "Get the selected value from any entity")]
         public async Task<string> GetProperty([ActionParameter] PropertyRequest input)
         {
-            var response = await CustomFieldsClient.getPropertyAsync(Uuid, input.Name, ParseId(input.UsageArea), ParseId(input.MainId));
+            var response = await ExecuteWithRetry<PropertyResult>(async () =>
+                await CustomFieldsClient.getPropertyAsync(Uuid, input.Name, ParseId(input.UsageArea),
+                    ParseId(input.MainId)));
+
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
 
-            var SelectedValue = response.data?.selectedPropertyValueID;
-            if (SelectedValue != null) {
-                var result = await CustomFieldsClient.getPropertyValueTextAsync(Uuid, input.Name, (int)SelectedValue, Language);
+            var selectedValue = response.data?.selectedPropertyValueID;
+            if (selectedValue != null)
+            {
+                var result = await ExecuteWithRetry<StringResult>(async () =>
+                    await CustomFieldsClient.getPropertyValueTextAsync(Uuid, input.Name, (int)selectedValue, Language));
+                
                 return result.data;
             }
+
             return string.Empty;
         }
 
         [Action("Set property", Description = "Set the selected proeprty values for any entity")]
         public async Task SetProperty([ActionParameter] SetPropertyRequest input)
         {
-            var response = await CustomFieldsClient.setPropertyValueListAsync(Uuid, input.Name, ParseId(input.UsageArea), input.Values.Select(x => (int?)ParseId(x)).ToArray(), ParseId(input.MainId));
+            var response = await ExecuteWithRetry(async () => await CustomFieldsClient.setPropertyValueListAsync(Uuid, input.Name,
+                ParseId(input.UsageArea), input.Values.Select(x => (int?)ParseId(x)).ToArray(), ParseId(input.MainId)));
             if (response.Result.statusMessage != ApiResponses.Ok)
                 throw new(response.Result.statusMessage);
         }
@@ -40,14 +45,16 @@ namespace Apps.Plunet.Actions
         [Action("Get text module", Description = "Get a text module value from any entity")]
         public async Task<TextModuleResponse> GetTextmodule([ActionParameter] TextModuleRequest input)
         {
-            var response = await CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag, ParseId(input.UsageArea), ParseId(input.MainId), Language);
+            var response = await ExecuteWithRetry<TextmoduleResult>(async () => await CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag, ParseId(input.UsageArea),
+                ParseId(input.MainId), Language));
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
 
             string value = string.Empty;
             if (string.IsNullOrEmpty(response.data.stringValue) && response.data.selectedValues is null)
-            { } else
-            if (string.IsNullOrEmpty(response.data.stringValue) && response.data.selectedValues.Any())
+            {
+            }
+            else if (string.IsNullOrEmpty(response.data.stringValue) && response.data.selectedValues.Any())
             {
                 value = response.data.selectedValues.First();
             }
@@ -55,7 +62,7 @@ namespace Apps.Plunet.Actions
             {
                 value = response.data.stringValue;
             }
-            
+
             return new()
             {
                 Value = value
@@ -63,20 +70,69 @@ namespace Apps.Plunet.Actions
         }
 
         [Action("Set text module", Description = "Set a text module value for any entity")]
-        public async Task SetTextmodule([ActionParameter] TextModuleRequest input, [ActionParameter][Display("Value")] string value)
+        public async Task SetTextmodule([ActionParameter] TextModuleRequest input,
+            [ActionParameter] [Display("Value")] string value)
         {
-            var response = await CustomFieldsClient.setTextmoduleAsync(
-                Uuid, 
-                new Blackbird.Plugins.Plunet.DataCustomFields30.TextmoduleIN 
-                { 
-                    flag = input.Flag, 
-                    stringValue = value, 
-                    textModuleUsageArea = ParseId(input.UsageArea) 
-                }, 
-                ParseId(input.MainId), Language);
+            var response = await ExecuteWithRetry<Result>(async () => await CustomFieldsClient.setTextmoduleAsync(
+                Uuid,
+                new Blackbird.Plugins.Plunet.DataCustomFields30.TextmoduleIN
+                {
+                    flag = input.Flag,
+                    stringValue = value,
+                    textModuleUsageArea = ParseId(input.UsageArea)
+                },
+                ParseId(input.MainId), Language));
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
         }
+        
+        private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
+            where T : Result
+        {
+            var attempts = 0;
+            while (true)
+            {
+                var result = await func();
 
+                if (result.statusMessage == ApiResponses.Ok)
+                {
+                    return (T)result;
+                }
+
+                if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                return (T)result;
+            }
+        }
+        
+        private async Task<setPropertyValueListResponse> ExecuteWithRetry(Func<Task<setPropertyValueListResponse>> func, int maxRetries = 10, int delay = 1000)
+        {
+            var attempts = 0;
+            while (true)
+            {
+                var result = await func();
+
+                if (result.Result.statusMessage == ApiResponses.Ok)
+                {
+                    return result;
+                }
+
+                if (result.Result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                return result;
+            }
+        }
     }
 }
