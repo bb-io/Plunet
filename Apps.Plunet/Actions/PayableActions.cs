@@ -10,16 +10,12 @@ using Blackbird.Plugins.Plunet.DataPayable30Service;
 namespace Apps.Plunet.Actions;
 
 [ActionList]
-public class PayableActions : PlunetInvocable
+public class PayableActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
-    public PayableActions(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     [Action("Search payables", Description = "Get a list of payables based on custom criterias")]
     public async Task<SearchPayablesResponse> SearchPayables([ActionParameter] SearchPayablesRequest input)
     {
-        var response = await PayableClient.searchAsync(Uuid, new()
+        var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await PayableClient.searchAsync(Uuid, new()
         {
             exported = ParseId(input.Exported),
             isoCodeCurrency = input.Currency,
@@ -31,23 +27,24 @@ public class PayableActions : PlunetInvocable
                 dateTo = input.DateTo,
                 dateFrom = input.DateFrom,
             }
-        });
+        }));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
         if (response.data is null)
+        {
             return new()
             {
                 Payables = Enumerable.Empty<PayableResponse>()
             };
+        }
 
         var ids = response.data.Where(x => x.HasValue)
             .Select(x => GetPayable(x!.Value.ToString()))
             .ToArray();
 
         var result = await Task.WhenAll(ids);
-
         return new()
         {
             Payables = result
@@ -58,14 +55,14 @@ public class PayableActions : PlunetInvocable
     public async Task<PayableResponse> GetPayable([ActionParameter] [Display("Payable ID")] string payableId)
     {
         var id = ParseId(payableId);
-        var accountStatement = await GetString(PayableClient.getAccountStatementAsync(Uuid, id));
-        var companyCode = await Try(GetId(PayableClient.getCompanyCodeAsync(Uuid, id)));
-        var creditorAccount = await Try(GetString(PayableClient.getCreditorAccountAsync(Uuid, id)));
-        var currency = await GetString(PayableClient.getCurrencyAsync(Uuid, id));
-        var expenseAccount = await Try(GetString(PayableClient.getExpenseAccountAsync(Uuid, id)));
-        var externalInvoice = await GetString(PayableClient.getExternalInvoiceNumberAsync(Uuid, id));
-        var invoiceDate = await GetDate(PayableClient.getInvoiceDateAsync(Uuid, id));
-        var isExported = await GetBool(PayableClient.getIsExportedAsync(Uuid, id));
+        var accountStatement = await GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getAccountStatementAsync(Uuid, id)));
+        var companyCode = await Try(GetId(ExecuteWithRetry<IntegerResult>(async () => await PayableClient.getCompanyCodeAsync(Uuid, id))));
+        var creditorAccount = await Try(GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getCreditorAccountAsync(Uuid, id))));
+        var currency = await GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getCurrencyAsync(Uuid, id)));
+        var expenseAccount = await Try(GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getExpenseAccountAsync(Uuid, id))));
+        var externalInvoice = await GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getExternalInvoiceNumberAsync(Uuid, id)));
+        var invoiceDate = await GetDate(ExecuteWithRetry<DateResult>(async () => await PayableClient.getInvoiceDateAsync(Uuid, id)));
+        var isExported = await GetBool(ExecuteWithRetry<BooleanResult>(async () => await PayableClient.getIsExportedAsync(Uuid, id)));
         var memo = await GetString(PayableClient.getMemoAsync(Uuid, id));
         var paidDate = await GetDate(PayableClient.getPaidDateAsync(Uuid, id));
         var creatorResourceId = await GetId(PayableClient.getPaymentCreatorResourceIDAsync(Uuid, id));
@@ -209,11 +206,31 @@ public class PayableActions : PlunetInvocable
             throw new(response.statusMessage);
         return response.data;
     }
+    
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
+        where T : Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
 
+            if (result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
 
+            if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            {
+                await Task.Delay(delay);
+                await RefreshAuthToken();
+                attempts++;
+                continue;
+            }
 
+            return (T)result;
+        }
+    }
+    
     // TODO: get/set invoice tax types
-
-
-
 }
