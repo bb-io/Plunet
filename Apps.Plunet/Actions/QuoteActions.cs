@@ -23,7 +23,7 @@ public class QuoteActions : PlunetInvocable
     [Action("Search quotes", Description = "Search for specific quotes based on specific criteria")]
     public async Task<ListQuotesResponse> SearchQuotes([ActionParameter] SearchQuotesInput input)
     {
-        var searchResult = await QuoteClient.searchAsync(Uuid, new()
+        var searchResult = await RetryHandler.ExecuteWithRetry<IntegerArrayResult>(async () => await QuoteClient.searchAsync(Uuid, new()
         {
             sourceLanguage = input.SourceLanguage ?? string.Empty,
             targetLanguage = input.TargetLanguage ?? string.Empty,
@@ -49,7 +49,7 @@ public class QuoteActions : PlunetInvocable
                     resourceEntryType = ParseId(input.ResourceEntryType)
                 }
                 : default
-        });
+        }));
 
         if (searchResult.statusMessage != ApiResponses.Ok)
             throw new(searchResult.statusMessage);
