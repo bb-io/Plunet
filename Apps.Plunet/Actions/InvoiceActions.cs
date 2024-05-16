@@ -159,6 +159,18 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
             }
         }
         
+        var customFields = new Dictionary<string, string>();
+        if (request.CustomFieldKeys != null && request.CustomFieldValues != null)
+        {
+            if( request.CustomFieldKeys.Count() != request.CustomFieldValues.Count())
+                throw new InvalidOperationException("Custom field keys and values count must be equal");
+            
+            for (var i = 0; i < request.CustomFieldKeys.Count(); i++)
+            {
+                customFields.Add(request.CustomFieldKeys.ElementAt(i), request.CustomFieldValues.ElementAt(i));
+            }
+        }
+        
         var invoiceObject = new InvoicesObject()
         {
             Invoices = new List<Invoice>
@@ -180,7 +192,7 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
                     Lines = lineItems,
                     Total = lineItems.Sum(x => x.Amount) + (decimal)invoice.Tax,
                     SubTotal = lineItems.Sum(x => x.Amount),
-                    CustomFields = new Dictionary<string, string>()
+                    CustomFields = customFields
                 }
             }
         };
