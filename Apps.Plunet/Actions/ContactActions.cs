@@ -5,6 +5,7 @@ using Apps.Plunet.Models.Customer;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
 
 namespace Apps.Plunet.Actions;
 
@@ -43,7 +44,8 @@ public class ContactActions : PlunetInvocable
     [Action("Get contact", Description = "Get the Plunet contact")]
     public async Task<ContactObjectResponse> GetContactById([ActionParameter] ContactRequest request)
     {
-        var contact = await ContactClient.getContactObjectAsync(Uuid, ParseId(request.ContactId));
+        var contact = await ExecuteWithRetry<CustomerContactResult>(async () =>
+            await ContactClient.getContactObjectAsync(Uuid, ParseId(request.ContactId)));
         
         if (contact.data is null)
             throw new(contact.statusMessage);
@@ -118,5 +120,29 @@ public class ContactActions : PlunetInvocable
             throw new(result.statusMessage);
 
         return await GetContactById(contact);
+    }
+    
+    private static async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 7, int delay = 1000)
+        where T : Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+            
+            if(result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+            
+            if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            {
+                await Task.Delay(delay);
+                attempts++;
+                continue;
+            }
+            
+            throw new InvalidOperationException($"Failed to execute function after {attempts} attempts. Last error: {result.statusMessage}");
+        }
     }
 }

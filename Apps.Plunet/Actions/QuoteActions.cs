@@ -8,9 +8,10 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
-using StringResult = Blackbird.Plugins.Plunet.DataOrder30Service.StringResult;
-
+using IntegerArrayResult = Blackbird.Plugins.Plunet.DataQuote30Service.IntegerArrayResult;
+using Result = Blackbird.Plugins.Plunet.DataQuote30Service.Result;
 namespace Apps.Plunet.Actions;
 
 [ActionList]
@@ -23,7 +24,7 @@ public class QuoteActions : PlunetInvocable
     [Action("Search quotes", Description = "Search for specific quotes based on specific criteria")]
     public async Task<ListQuotesResponse> SearchQuotes([ActionParameter] SearchQuotesInput input)
     {
-        var searchResult = await RetryHandler.ExecuteWithRetry<IntegerArrayResult>(async () => await QuoteClient.searchAsync(Uuid, new()
+        var searchResult = await ExecuteWithRetry<IntegerArrayResult>(async () => await QuoteClient.searchAsync(Uuid, new()
         {
             sourceLanguage = input.SourceLanguage ?? string.Empty,
             targetLanguage = input.TargetLanguage ?? string.Empty,
@@ -67,23 +68,29 @@ public class QuoteActions : PlunetInvocable
     [Action("Get quote", Description = "Get details for a Plunet quote")]
     public async Task<QuoteResponse> GetQuote([ActionParameter] GetQuoteRequest request)
     {
-        var quoteResult = await QuoteClient.getQuoteObjectAsync(Uuid, ParseId(request.QuoteId));
+        var quoteResult = await ExecuteWithRetry<QuoteResult>(async () => await QuoteClient.getQuoteObjectAsync(Uuid, ParseId(request.QuoteId)));
         if (quoteResult.statusMessage != ApiResponses.Ok)
             throw new(quoteResult.statusMessage);
 
-        var itemsResult = await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(request.QuoteId), 1);
+        var itemsResult = await ExecuteWithRetry<ItemListResult>(async () =>
+            await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(request.QuoteId), 1));
         if (itemsResult.statusMessage != ApiResponses.Ok)
             throw new(itemsResult.statusMessage);
 
         var totalPrice = itemsResult.data?.Sum(x => x.totalPrice) ?? 0;
 
-        var customerIdResult = await QuoteClient.getCustomerIDAsync(Uuid, ParseId(request.QuoteId));
+        var customerIdResult = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>(async () =>
+            await QuoteClient.getCustomerIDAsync(Uuid, ParseId(request.QuoteId)));
 
-        var contactIdResult = await QuoteClient.getCustomerContactIDAsync(Uuid, ParseId(request.QuoteId));
+        var contactIdResult =
+            await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>(async () =>
+                await QuoteClient.getCustomerContactIDAsync(Uuid, ParseId(request.QuoteId)));
 
-        var pmID = await QuoteClient.getProjectmanagerIDAsync(Uuid, ParseId(request.QuoteId));
+        var pmID = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>(async () =>
+            await QuoteClient.getProjectmanagerIDAsync(Uuid, ParseId(request.QuoteId)));
         
-        var orderId = await QuoteClient.getOrderIDFirstItemAsync(Uuid, ParseId(request.QuoteId));
+        var orderId = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>(async () =>
+            await QuoteClient.getOrderIDFirstItemAsync(Uuid, ParseId(request.QuoteId)));
 
         var projectManagerID = string.Empty;
         if(pmID == null)
@@ -95,7 +102,9 @@ public class QuoteActions : PlunetInvocable
             projectManagerID = pmID.data == 0 ? null : pmID.data.ToString();
         }
         
-        var categoryResult = await QuoteClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.QuoteId));
+        var categoryResult = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.StringResult>(async () =>
+            await QuoteClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.QuoteId)));
+        
         if (categoryResult.statusMessage != ApiResponses.Ok)
         {
             if(categoryResult.statusMessage.Contains(ApiResponses.ProjectCategoryIsNotSet))
@@ -108,7 +117,8 @@ public class QuoteActions : PlunetInvocable
             }
         }
         
-        var projectStatus = await QuoteClient.getProjectStatusAsync(Uuid, ParseId(request.QuoteId));
+        var projectStatus = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>(async () =>
+            await QuoteClient.getProjectStatusAsync(Uuid, ParseId(request.QuoteId)));
         if (projectStatus.statusMessage != ApiResponses.Ok)
             throw new(projectStatus.statusMessage);
 
@@ -243,5 +253,53 @@ public class QuoteActions : PlunetInvocable
         {
             LanguageCombinationId = result.data.ToString()
         };
+    }
+    
+    private static async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 7, int delay = 1000)
+        where T : Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+            
+            if(result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+            
+            if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            {
+                await Task.Delay(delay);
+                attempts++;
+                continue;
+            }
+            
+            throw new InvalidOperationException($"Failed to execute function after {attempts} attempts. Last error: {result.statusMessage}");
+        }
+    }
+    
+    private static async Task<T> ExecuteWithRetry<T>(Func<Task<ItemListResult>> func, int maxRetries = 5, int delay = 1000)
+        where T : ItemListResult
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+            
+            if(result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+            
+            if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            {
+                await Task.Delay(delay);
+                attempts++;
+                continue;
+            }
+            
+            throw new InvalidOperationException($"Failed to execute function after {attempts} attempts. Last error: {result.statusMessage}");
+        }
     }
 }

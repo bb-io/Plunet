@@ -21,6 +21,7 @@ using Blackbird.Plugins.Plunet.DataResource30Service;
 using Blackbird.Plugins.Plunet.PlunetAPIService;
 using DataCustomerAddress30Service;
 using DataResourceAddress30Service;
+using Result = Blackbird.Plugins.Plunet.DataQuote30Service.Result;
 
 namespace Apps.Plunet.Invocables;
 
