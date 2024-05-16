@@ -41,10 +41,9 @@ public class PlunetInvocable : BaseInvocable
         await Task.Delay(1000);
         Uuid = await AuthClient.loginAsync(Creds.GetUsername(), Creds.GetPassword());
     }
-    
-    public async Task RefreshAuthToken()
+
+    protected async Task RefreshAuthToken()
     {
-        await Task.Delay(1000);
         Uuid = await AuthClient.loginAsync(Creds.GetUsername(), Creds.GetPassword());
     }
 
@@ -79,7 +78,7 @@ public class PlunetInvocable : BaseInvocable
     {
         if (_languages == null)
         {
-            var response = await AdminClient.getAvailableLanguagesAsync(Uuid, Language);
+            var response = await ExecuteWithRetry<LanguageListResult>(async () => await AdminClient.getAvailableLanguagesAsync(Uuid, Language));
 
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
@@ -118,6 +117,29 @@ public class PlunetInvocable : BaseInvocable
 
         return language;
     }
-
     
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Blackbird.Plugins.Plunet.DataAdmin30Service.Result>> func, int maxRetries = 10, int delay = 1000)
+        where T : Blackbird.Plugins.Plunet.DataAdmin30Service.Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+            
+            if(result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+            
+            if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            {
+                await Task.Delay(delay);
+                await RefreshAuthToken();
+                attempts++;
+                continue;
+            }
+
+            return (T)result;
+        }
+    }
 }
