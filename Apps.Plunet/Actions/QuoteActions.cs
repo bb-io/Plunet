@@ -255,7 +255,7 @@ public class QuoteActions : PlunetInvocable
         };
     }
     
-    private static async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 7, int delay = 1000)
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 7, int delay = 1000)
         where T : Result
     {
         var attempts = 0;
@@ -271,6 +271,7 @@ public class QuoteActions : PlunetInvocable
             if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
             {
                 await Task.Delay(delay);
+                await RefreshAuthToken();
                 attempts++;
                 continue;
             }
@@ -279,7 +280,7 @@ public class QuoteActions : PlunetInvocable
         }
     }
     
-    private static async Task<T> ExecuteWithRetry<T>(Func<Task<ItemListResult>> func, int maxRetries = 5, int delay = 1000)
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<ItemListResult>> func, int maxRetries = 5, int delay = 1000)
         where T : ItemListResult
     {
         var attempts = 0;
@@ -295,6 +296,7 @@ public class QuoteActions : PlunetInvocable
             if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
             {
                 await Task.Delay(delay);
+                await RefreshAuthToken();
                 attempts++;
                 continue;
             }

@@ -122,7 +122,7 @@ public class ContactActions : PlunetInvocable
         return await GetContactById(contact);
     }
     
-    private static async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 7, int delay = 1000)
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 7, int delay = 1000)
         where T : Result
     {
         var attempts = 0;
@@ -138,6 +138,7 @@ public class ContactActions : PlunetInvocable
             if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
             {
                 await Task.Delay(delay);
+                await RefreshAuthToken();
                 attempts++;
                 continue;
             }

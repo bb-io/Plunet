@@ -39,7 +39,13 @@ public class PlunetInvocable : BaseInvocable
     public async Task WaitAndRefreshAuthToken()
     {
         await Task.Delay(1000);
-        Uuid = AuthClient.loginAsync(Creds.GetUsername(), Creds.GetPassword()).GetAwaiter().GetResult();
+        Uuid = await AuthClient.loginAsync(Creds.GetUsername(), Creds.GetPassword());
+    }
+    
+    public async Task RefreshAuthToken()
+    {
+        await Task.Delay(1000);
+        Uuid = await AuthClient.loginAsync(Creds.GetUsername(), Creds.GetPassword());
     }
 
     protected PlunetAPIClient AuthClient => new(PlunetAPIClient.EndpointConfiguration.PlunetAPIPort, Url.TrimEnd('/') + "/PlunetAPI");
