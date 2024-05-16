@@ -274,8 +274,8 @@ public class QuoteActions : PlunetInvocable
                 attempts++;
                 continue;
             }
-            
-            throw new InvalidOperationException($"Failed to execute function after {attempts} attempts. Last error: {result.statusMessage}");
+
+            return (T)result;
         }
     }
     
@@ -299,7 +299,7 @@ public class QuoteActions : PlunetInvocable
                 continue;
             }
             
-            throw new InvalidOperationException($"Failed to execute function after {attempts} attempts. Last error: {result.statusMessage}");
+            return (T)result;
         }
     }
 }
