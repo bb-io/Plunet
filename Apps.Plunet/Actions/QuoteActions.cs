@@ -285,7 +285,7 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
         }
     }
     
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<ItemListResult>> func, int maxRetries = 5, int delay = 1000)
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<ItemListResult>> func, int maxRetries = 10, int delay = 1000)
         where T : ItemListResult
     {
         var attempts = 0;

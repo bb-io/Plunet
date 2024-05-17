@@ -21,7 +21,6 @@ using Blackbird.Plugins.Plunet.DataResource30Service;
 using Blackbird.Plugins.Plunet.PlunetAPIService;
 using DataCustomerAddress30Service;
 using DataResourceAddress30Service;
-using Result = Blackbird.Plugins.Plunet.DataQuote30Service.Result;
 
 namespace Apps.Plunet.Invocables;
 
@@ -35,12 +34,6 @@ public class PlunetInvocable : BaseInvocable
     protected string Language => SystemConsts.Language;
 
     private Language[] _languages;
-
-    public async Task WaitAndRefreshAuthToken()
-    {
-        await Task.Delay(1000);
-        Uuid = await AuthClient.loginAsync(Creds.GetUsername(), Creds.GetPassword());
-    }
 
     protected async Task RefreshAuthToken()
     {
