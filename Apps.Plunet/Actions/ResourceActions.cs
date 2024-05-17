@@ -20,74 +20,78 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
     [Action("Search resources", Description = "Search for specific resources based on specific criteria")]
     public async Task<ListResourceResponse> SearchResources([ActionParameter] SearchResourcesRequest input)
     {
-        var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await ResourceClient.searchAsync(Uuid, new Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource() 
-        {
-            contact_resourceID = ParseId(input.ContactId),
-            email = input.Email ?? string.Empty,
-            name1 = input.Name1 ?? string.Empty,
-            name2 = input.Name2 ?? string.Empty,
-            resourceType = ParseId(input.ResourceType),
-            resourceStatus = ParseId(input.Status),
-            sourceLanguageCode = input.SourceLanguageCode ?? string.Empty,
-            targetLanguageCode = input.TargetLanguageCode ?? string.Empty,
-            workingStatus = ParseId(input.WorkingStatus),
-        }));
+        var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await ResourceClient.searchAsync(Uuid,
+            new Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource()
+            {
+                contact_resourceID = ParseId(input.ContactId),
+                email = input.Email ?? string.Empty,
+                name1 = input.Name1 ?? string.Empty,
+                name2 = input.Name2 ?? string.Empty,
+                resourceType = ParseId(input.ResourceType),
+                resourceStatus = ParseId(input.Status),
+                sourceLanguageCode = input.SourceLanguageCode ?? string.Empty,
+                targetLanguageCode = input.TargetLanguageCode ?? string.Empty,
+                workingStatus = ParseId(input.WorkingStatus),
+            }));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
         if (response.data is null)
+        {
             return new()
             {
                 Resources = Enumerable.Empty<ResourceResponse>()
             };
+        }
 
-        var ids = response.data.Where(x => x.HasValue)
-            .Select(x => GetResource(x!.Value.ToString()))
-            .ToArray();
+        var results = new List<ResourceResponse>();
+        foreach (var id in response.data.Where(x => x.HasValue))
+        {
+            var resourceResponse = await GetResource(id!.Value.ToString());
+            results.Add(resourceResponse);
+        }
 
-        var result = await Task.WhenAll(ids);
-        
         if (input.Flag is not null)
         {
             var textModuleResources = new List<ResourceResponse>();
             int resourceUsageArea = 2;
-            
-            foreach (var resource in result)
+
+            foreach (var resource in results)
             {
-                var textModuleResult = await ExecuteWithRetry<TextmoduleResult>(async () => await CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag,
-                    resourceUsageArea, ParseId(resource.ResourceID), Language));
-                if (textModuleResult.statusMessage == ApiResponses.Ok)
+                var textModuleResult = await ExecuteWithRetry<TextmoduleResult>(async () =>
+                    await CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag,
+                        resourceUsageArea, ParseId(resource.ResourceID), Language));
+                if (textModuleResult.statusMessage == ApiResponses.Ok &&
+                    textModuleResult.data.stringValue.Equals(input.TextModuleValue))
                 {
-                    if (textModuleResult.data.stringValue.Equals(input.TextModuleValue))
-                    {
-                        textModuleResources.Add(resource);
-                    }
+                    textModuleResources.Add(resource);
                 }
             }
-            
+
             return new()
             {
                 Resources = textModuleResources
             };
         }
-        
+
         return new()
         {
-            Resources = result
+            Resources = results
         };
     }
-    
+
     [Action("Find resource by text module", Description = "Find resources by text module")]
-    public async Task<ResourceResponse> FindResourceByTextModule([ActionParameter]FindByTextModuleRequest request)
+    public async Task<ResourceResponse> FindResourceByTextModule([ActionParameter] FindByTextModuleRequest request)
     {
-        var result = await SearchResources(new SearchResourcesRequest { TextModuleValue = request.TextModuleValue, Flag = request.Flag });
-        
-        if(result.Resources.Any() == false)
+        var result = await SearchResources(new SearchResourcesRequest
+            { TextModuleValue = request.TextModuleValue, Flag = request.Flag });
+
+        if (result.Resources.Any() == false)
         {
             throw new("No resources found with the given text module value");
         }
-        
+
         return result.Resources.First();
     }
 
@@ -95,22 +99,24 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
 
     [Action("Get resource", Description = "Get details of a specific resource")]
     public async Task<ResourceResponse> GetResource(
-        [ActionParameter][DataSource(typeof(ResourceIdDataHandler))] [Display("Resource ID")]
+        [ActionParameter] [DataSource(typeof(ResourceIdDataHandler))] [Display("Resource ID")]
         string resourceId)
-    {        
-        var response = await ExecuteWithRetry<ResourceResult>(async () => await ResourceClient.getResourceObjectAsync(Uuid, ParseId(resourceId)));
+    {
+        var response = await ExecuteWithRetry<ResourceResult>(async () =>
+            await ResourceClient.getResourceObjectAsync(Uuid, ParseId(resourceId)));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
-        var paymentInfoResponse = await ExecuteWithRetry<PaymentInfoResult>(async () => await ResourceClient.getPaymentInformationAsync(Uuid, ParseId(resourceId)));
+        var paymentInfoResponse = await ExecuteWithRetry<PaymentInfoResult>(async () =>
+            await ResourceClient.getPaymentInformationAsync(Uuid, ParseId(resourceId)));
 
         if (paymentInfoResponse.statusMessage != ApiResponses.Ok)
             throw new(paymentInfoResponse.statusMessage);
 
         return new(response.data, paymentInfoResponse.data);
     }
-    
+
     private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
         where T : Result
     {
@@ -118,13 +124,13 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
         while (true)
         {
             var result = await func();
-            
-            if(result.statusMessage == ApiResponses.Ok)
+
+            if (result.statusMessage == ApiResponses.Ok)
             {
                 return (T)result;
             }
-            
-            if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+
+            if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
             {
                 await Task.Delay(delay);
                 await RefreshAuthToken();
@@ -135,26 +141,32 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
             return (T)result;
         }
     }
-    
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Blackbird.Plugins.Plunet.DataCustomFields30.Result>> func, int maxRetries = 10, int delay = 1000)
+
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Blackbird.Plugins.Plunet.DataCustomFields30.Result>> func,
+        int maxRetries = 10, int delay = 1000)
         where T : Blackbird.Plugins.Plunet.DataCustomFields30.Result
     {
         var attempts = 0;
         while (true)
         {
             var result = await func();
-            
-            if(result.statusMessage == ApiResponses.Ok)
+
+            if (result.statusMessage == ApiResponses.Ok)
             {
                 return (T)result;
             }
-            
-            if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+
+            if(result.statusMessage.Contains("session-UUID used is invalid"))
             {
-                await Task.Delay(delay);
-                await RefreshAuthToken();
-                attempts++;
-                continue;
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
             return (T)result;

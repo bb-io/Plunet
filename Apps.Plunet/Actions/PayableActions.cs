@@ -40,14 +40,16 @@ public class PayableActions(InvocationContext invocationContext) : PlunetInvocab
             };
         }
 
-        var ids = response.data.Where(x => x.HasValue)
-            .Select(x => GetPayable(x!.Value.ToString()))
-            .ToArray();
+        var results = new List<PayableResponse>();
+        foreach (var id in response.data.Where(x => x.HasValue))
+        {
+            var payableResponse = await GetPayable(id!.Value.ToString());
+            results.Add(payableResponse);
+        }
 
-        var result = await Task.WhenAll(ids);
         return new()
         {
-            Payables = result
+            Payables = results
         };
     }
 
@@ -220,12 +222,17 @@ public class PayableActions(InvocationContext invocationContext) : PlunetInvocab
                 return (T)result;
             }
 
-            if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            if(result.statusMessage.Contains("session-UUID used is invalid"))
             {
-                await Task.Delay(delay);
-                await RefreshAuthToken();
-                attempts++;
-                continue;
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
             return (T)result;

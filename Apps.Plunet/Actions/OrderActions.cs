@@ -9,7 +9,6 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
-using DoubleResult = Blackbird.Plugins.Plunet.DataItem30Service.DoubleResult;
 using IntegerArrayResult = Blackbird.Plugins.Plunet.DataOrder30Service.IntegerArrayResult;
 using IntegerResult = Blackbird.Plugins.Plunet.DataOrder30Service.IntegerResult;
 using Result = Blackbird.Plugins.Plunet.DataOrder30Service.Result;
@@ -46,13 +45,17 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         if (searchResult.statusMessage != ApiResponses.Ok)
             throw new(searchResult.statusMessage);
 
-        var getOrderTasks = searchResult.data is null
-            ? Enumerable.Empty<Task<OrderResponse>>()
-            : searchResult.data
-                .Where(x => x.HasValue)
-                .Select(x => GetOrder(new OrderRequest { OrderId = x!.Value.ToString() }));
+        var results = new List<OrderResponse>();
+        if (searchResult.data != null)
+        {
+            foreach (var id in searchResult.data.Where(x => x.HasValue))
+            {
+                var orderResponse = await GetOrder(new OrderRequest { OrderId = id!.Value.ToString() });
+                results.Add(orderResponse);
+            }
+        }
 
-        return new ListOrderResponse { Orders = await Task.WhenAll(getOrderTasks) };
+        return new ListOrderResponse { Orders = results };
     }
 
     [Action("Get order", Description = "Get the Plunet order")]
@@ -314,12 +317,17 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                 return (T)result;
             }
 
-            if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            if(result.statusMessage.Contains("session-UUID used is invalid"))
             {
-                await Task.Delay(delay);
-                await RefreshAuthToken();
-                attempts++;
-                continue;
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
             return (T)result;
@@ -339,12 +347,17 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                 return (T)result;
             }
 
-            if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            if(result.statusMessage.Contains("session-UUID used is invalid"))
             {
-                await Task.Delay(delay);
-                await RefreshAuthToken();
-                attempts++;
-                continue;
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
             return (T)result;

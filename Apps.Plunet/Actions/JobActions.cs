@@ -419,12 +419,17 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
                 return (T)result;
             }
 
-            if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            if(result.statusMessage.Contains("session-UUID used is invalid"))
             {
-                await Task.Delay(delay);
-                await RefreshAuthToken();
-                attempts++;
-                continue;
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
             return (T)result;

@@ -43,13 +43,16 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
         if (searchResult.data is null)
             return new(Enumerable.Empty<RequestResponse>());
 
-        var getRequestTasks = searchResult.data
-            .Where(x => x.HasValue)
-            .Select(x => GetRequest(x.Value.ToString()));
+        var results = new List<RequestResponse>();
+        foreach (var id in searchResult.data.Where(x => x.HasValue))
+        {
+            var requestResponse = await GetRequest(id.Value.ToString());
+            results.Add(requestResponse);
+        }
 
-        return new(await Task.WhenAll(getRequestTasks));
+        return new(results);
     }
-
+    
     [Action("Get request", Description = "Get details for a Plunet request")]
     public async Task<RequestResponse> GetRequest([ActionParameter] [Display("Request ID")] string requestId)
     {
@@ -170,12 +173,17 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
                 return (T)result;
             }
             
-            if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            if(result.statusMessage.Contains("session-UUID used is invalid"))
             {
-                await Task.Delay(delay);
-                await RefreshAuthToken();
-                attempts++;
-                continue;
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
             return (T)result;

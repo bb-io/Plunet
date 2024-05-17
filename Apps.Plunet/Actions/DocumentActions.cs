@@ -104,12 +104,17 @@ namespace Apps.Plunet.Actions
                     return (T)result;
                 }
 
-                if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+                if(result.statusMessage.Contains("session-UUID used is invalid"))
                 {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-                    continue;
+                    if (attempts < maxRetries)
+                    {
+                        await Task.Delay(delay);
+                        await RefreshAuthToken();
+                        attempts++;
+                        continue;
+                    }
+
+                    throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
                 }
 
                 return (T)result;
@@ -128,12 +133,17 @@ namespace Apps.Plunet.Actions
                     return result;
                 }
 
-                if (result.Result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+                if(result.Result.statusMessage.Contains("session-UUID used is invalid"))
                 {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-                    continue;
+                    if (attempts < maxRetries)
+                    {
+                        await Task.Delay(delay);
+                        await RefreshAuthToken();
+                        attempts++;
+                        continue;
+                    }
+
+                    throw new($"No more retries left. Last error: {result.Result.statusMessage}, Session UUID used is invalid.");
                 }
 
                 return result;
@@ -152,12 +162,17 @@ namespace Apps.Plunet.Actions
                     return result;
                 }
 
-                if (result.Result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+                if(result.Result.statusMessage.Contains("session-UUID used is invalid"))
                 {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-                    continue;
+                    if (attempts < maxRetries)
+                    {
+                        await Task.Delay(delay);
+                        await RefreshAuthToken();
+                        attempts++;
+                        continue;
+                    }
+
+                    throw new($"No more retries left. Last error: {result.Result.statusMessage}, Session UUID used is invalid.");
                 }
 
                 return result;
