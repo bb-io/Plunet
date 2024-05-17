@@ -304,10 +304,12 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         };
     }
 
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 10000)
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int initialDelay = 1000)
         where T : Result
     {
         var attempts = 0;
+        var delay = initialDelay;
+
         while (true)
         {
             var result = await func();
@@ -317,13 +319,15 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                 return (T)result;
             }
 
-            if(result.statusMessage.Contains("session-UUID used is invalid"))
+            if (result.statusMessage.Contains("session-UUID used is invalid"))
             {
                 if (attempts < maxRetries)
                 {
                     await Task.Delay(delay);
                     await RefreshAuthToken();
                     attempts++;
+
+                    delay = Math.Min(delay * 2, 20000);
                     continue;
                 }
 
@@ -334,10 +338,12 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         }
     }
 
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<T>> func, int maxRetries = 10, int delay = 10000)
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<T>> func, int maxRetries = 10, int initialDelay = 1000)
         where T : Blackbird.Plugins.Plunet.DataItem30Service.Result
     {
         var attempts = 0;
+        var delay = initialDelay;
+
         while (true)
         {
             var result = await func();
@@ -347,13 +353,15 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                 return (T)result;
             }
 
-            if(result.statusMessage.Contains("session-UUID used is invalid"))
+            if (result.statusMessage.Contains("session-UUID used is invalid"))
             {
                 if (attempts < maxRetries)
                 {
                     await Task.Delay(delay);
                     await RefreshAuthToken();
                     attempts++;
+
+                    delay = Math.Min(delay * 2, 20000);
                     continue;
                 }
 
