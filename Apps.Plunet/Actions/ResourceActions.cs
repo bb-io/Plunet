@@ -8,20 +8,19 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Plugins.Plunet.DataCustomFields30;
+using Blackbird.Plugins.Plunet.DataResource30Service;
+using Result = Blackbird.Plugins.Plunet.DataResource30Service.Result;
 
 namespace Apps.Plunet.Actions;
 
 [ActionList]
-public class ResourceActions : PlunetInvocable
+public class ResourceActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
-    public ResourceActions(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     [Action("Search resources", Description = "Search for specific resources based on specific criteria")]
     public async Task<ListResourceResponse> SearchResources([ActionParameter] SearchResourcesRequest input)
     {
-        var response = await ResourceClient.searchAsync(Uuid, new Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource() 
+        var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await ResourceClient.searchAsync(Uuid, new Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource() 
         {
             contact_resourceID = ParseId(input.ContactId),
             email = input.Email ?? string.Empty,
@@ -32,7 +31,7 @@ public class ResourceActions : PlunetInvocable
             sourceLanguageCode = input.SourceLanguageCode ?? string.Empty,
             targetLanguageCode = input.TargetLanguageCode ?? string.Empty,
             workingStatus = ParseId(input.WorkingStatus),
-        });
+        }));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
@@ -56,8 +55,8 @@ public class ResourceActions : PlunetInvocable
             
             foreach (var resource in result)
             {
-                var textModuleResult = await CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag,
-                    resourceUsageArea, ParseId(resource.ResourceID), Language);
+                var textModuleResult = await ExecuteWithRetry<TextmoduleResult>(async () => await CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag,
+                    resourceUsageArea, ParseId(resource.ResourceID), Language));
                 if (textModuleResult.statusMessage == ApiResponses.Ok)
                 {
                     if (textModuleResult.data.stringValue.Equals(input.TextModuleValue))
@@ -99,16 +98,66 @@ public class ResourceActions : PlunetInvocable
         [ActionParameter][DataSource(typeof(ResourceIdDataHandler))] [Display("Resource ID")]
         string resourceId)
     {        
-        var response = await ResourceClient.getResourceObjectAsync(Uuid, ParseId(resourceId));
+        var response = await ExecuteWithRetry<ResourceResult>(async () => await ResourceClient.getResourceObjectAsync(Uuid, ParseId(resourceId)));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
-        var paymentInfoResponse = await ResourceClient.getPaymentInformationAsync(Uuid, ParseId(resourceId));
+        var paymentInfoResponse = await ExecuteWithRetry<PaymentInfoResult>(async () => await ResourceClient.getPaymentInformationAsync(Uuid, ParseId(resourceId)));
 
         if (paymentInfoResponse.statusMessage != ApiResponses.Ok)
             throw new(paymentInfoResponse.statusMessage);
 
         return new(response.data, paymentInfoResponse.data);
+    }
+    
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
+        where T : Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+            
+            if(result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+            
+            if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            {
+                await Task.Delay(delay);
+                await RefreshAuthToken();
+                attempts++;
+                continue;
+            }
+
+            return (T)result;
+        }
+    }
+    
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Blackbird.Plugins.Plunet.DataCustomFields30.Result>> func, int maxRetries = 10, int delay = 1000)
+        where T : Blackbird.Plugins.Plunet.DataCustomFields30.Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+            
+            if(result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+            
+            if(result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            {
+                await Task.Delay(delay);
+                await RefreshAuthToken();
+                attempts++;
+                continue;
+            }
+
+            return (T)result;
+        }
     }
 }

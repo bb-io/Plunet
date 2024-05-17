@@ -63,17 +63,17 @@ public class PayableActions(InvocationContext invocationContext) : PlunetInvocab
         var externalInvoice = await GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getExternalInvoiceNumberAsync(Uuid, id)));
         var invoiceDate = await GetDate(ExecuteWithRetry<DateResult>(async () => await PayableClient.getInvoiceDateAsync(Uuid, id)));
         var isExported = await GetBool(ExecuteWithRetry<BooleanResult>(async () => await PayableClient.getIsExportedAsync(Uuid, id)));
-        var memo = await GetString(PayableClient.getMemoAsync(Uuid, id));
-        var paidDate = await GetDate(PayableClient.getPaidDateAsync(Uuid, id));
-        var creatorResourceId = await GetId(PayableClient.getPaymentCreatorResourceIDAsync(Uuid, id));
-        var dueDate = await GetDate(PayableClient.getPaymentDueDateAsync(Uuid, id));
-        var method = await GetId(PayableClient.getPaymentMethodAsync(Uuid, id));
-        var resource = await GetId(PayableClient.getResourceIDAsync(Uuid, id));
-        var status = await GetId(PayableClient.getStatusAsync(Uuid, id));
-        var total = await GetDouble(PayableClient.getTotalNetAmountAsync(Uuid, id, 2)); // PROJECT CURRENCY
-        var valueDate = await GetDate(PayableClient.getValueDateAsync(Uuid, id));
+        var memo = await GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getMemoAsync(Uuid, id)));
+        var paidDate = await GetDate(ExecuteWithRetry<DateResult>(async () => await PayableClient.getPaidDateAsync(Uuid, id)));
+        var creatorResourceId = await GetId(ExecuteWithRetry<IntegerResult>(async () => await PayableClient.getPaymentCreatorResourceIDAsync(Uuid, id)));
+        var dueDate = await GetDate(ExecuteWithRetry<DateResult>(async () => await PayableClient.getPaymentDueDateAsync(Uuid, id)));
+        var method = await GetId(ExecuteWithRetry<IntegerResult>(async () => await PayableClient.getPaymentMethodAsync(Uuid, id)));
+        var resource = await GetId(ExecuteWithRetry<IntegerResult>(async () => await PayableClient.getResourceIDAsync(Uuid, id)));
+        var status = await GetId(ExecuteWithRetry<IntegerResult>(async () => await PayableClient.getStatusAsync(Uuid, id)));
+        var total = await GetDouble(ExecuteWithRetry<DoubleResult>(async () => await PayableClient.getTotalNetAmountAsync(Uuid, id, 2))); // PROJECT CURRENCY
+        var valueDate = await GetDate(ExecuteWithRetry<DateResult>(async () => await PayableClient.getValueDateAsync(Uuid, id)));
 
-        var itemRes = await PayableClient.getPaymentItemListAsync(Uuid, id);
+        var itemRes = await ExecuteWithRetry<PayableItemResultList>(async () => await PayableClient.getPaymentItemListAsync(Uuid, id));
         if (itemRes.statusMessage != ApiResponses.Ok)
             throw new(itemRes.statusMessage);
 
@@ -118,34 +118,34 @@ public class PayableActions(InvocationContext invocationContext) : PlunetInvocab
         var id = ParseId(input.Id);
 
         if (input.Status != null)
-            await PayableClient.setStatusAsync(Uuid, ParseId(input.Status), id);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setStatusAsync(Uuid, ParseId(input.Status), id));
 
         if (input.AccountStatement != null)
-            await PayableClient.setAccountStatementAsync(Uuid, id, input.AccountStatement);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setAccountStatementAsync(Uuid, id, input.AccountStatement));
 
         if (input.CreditorAccount != null)
-            await PayableClient.setCreditorAccountAsync(Uuid, input.CreditorAccount, id);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setCreditorAccountAsync(Uuid, input.CreditorAccount, id));
 
         if (input.ExternalInvoiceNumber != null)
-            await PayableClient.setExternalInvoiceNumberAsync(Uuid, id, input.ExternalInvoiceNumber);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setExternalInvoiceNumberAsync(Uuid, id, input.ExternalInvoiceNumber));
 
         if (input.IsExported.HasValue)
-            await PayableClient.setIsExportedAsync(Uuid, id, input.IsExported.Value);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setIsExportedAsync(Uuid, id, input.IsExported.Value));
 
         if (input.Memo != null)
-            await PayableClient.setMemoAsync(Uuid, id, input.Memo);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setMemoAsync(Uuid, id, input.Memo));
 
         if (input.InvoiceDate.HasValue)
-            await PayableClient.setInvoiceDateAsync(Uuid, input.InvoiceDate.Value, id);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setInvoiceDateAsync(Uuid, input.InvoiceDate.Value, id));
 
         if (input.PaidDate.HasValue)
-            await PayableClient.setPaidDateAsync(Uuid, id, input.PaidDate.Value);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setPaidDateAsync(Uuid, id, input.PaidDate.Value));
 
         if (input.DueDate.HasValue)
-            await PayableClient.setPaymentDueDateAsync(Uuid, id, input.DueDate.Value);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setPaymentDueDateAsync(Uuid, id, input.DueDate.Value));
 
         if (input.ValueDate.HasValue)
-            await PayableClient.setValueDateAsync(Uuid, input.ValueDate.Value, id);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setValueDateAsync(Uuid, input.ValueDate.Value, id));
 
         return await GetPayable(input.Id);
     }
