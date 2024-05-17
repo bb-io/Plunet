@@ -9,6 +9,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
+using RestSharp;
 using IntegerArrayResult = Blackbird.Plugins.Plunet.DataOrder30Service.IntegerArrayResult;
 using IntegerResult = Blackbird.Plugins.Plunet.DataOrder30Service.IntegerResult;
 using Result = Blackbird.Plugins.Plunet.DataOrder30Service.Result;
@@ -177,7 +178,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             var categoryResponse =
                 await ExecuteWithRetry<Result>(async () =>
                     await OrderClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, response.data));
-            
+
             if (categoryResponse.statusMessage != ApiResponses.Ok)
                 throw new(categoryResponse.statusMessage);
         }
@@ -207,7 +208,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             Subject = request.Subject,
             ProjectCategory = request.ProjectCategory
         };
-        
+
         return await CreateOrder(createOrderRequest, new OrderTemplateRequest { TemplateId = templateId });
     }
 
@@ -243,7 +244,8 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             referenceNumber = request.ReferenceNumber
         };
 
-        var response = await ExecuteWithRetry<Result>(async () => await OrderClient.updateAsync(Uuid, orderUpdate, false));
+        var response =
+            await ExecuteWithRetry<Result>(async () => await OrderClient.updateAsync(Uuid, orderUpdate, false));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
@@ -251,7 +253,8 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         if (request.Status != null)
         {
             var statusResponse =
-                await ExecuteWithRetry<Result>(async () => await OrderClient.setProjectStatusAsync(Uuid, ParseId(order.OrderId), ParseId(request.Status)));
+                await ExecuteWithRetry<Result>(async () =>
+                    await OrderClient.setProjectStatusAsync(Uuid, ParseId(order.OrderId), ParseId(request.Status)));
             if (statusResponse.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
         }
@@ -259,9 +262,10 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         if (request.ProjectCategory != null)
         {
             var categoryResponse =
-                await ExecuteWithRetry<Result>(async () => await OrderClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language,
+                await ExecuteWithRetry<Result>(async () => await OrderClient.setProjectCategoryAsync(Uuid,
+                    request.ProjectCategory, Language,
                     ParseId(order.OrderId)));
-            
+
             if (categoryResponse.statusMessage != ApiResponses.Ok)
                 throw new(categoryResponse.statusMessage);
         }
@@ -295,7 +299,8 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         var sourceLanguage = await GetLanguageFromIsoOrFolderOrName(request.SourceLanguageCode);
         var targetLanguage = await GetLanguageFromIsoOrFolderOrName(request.TargetLanguageCode);
 
-        var result = await ExecuteWithRetry<IntegerResult>(async () => await OrderClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name,
+        var result = await ExecuteWithRetry<IntegerResult>(async () => await OrderClient.addLanguageCombinationAsync(
+            Uuid, sourceLanguage.name, targetLanguage.name,
             ParseId(order.OrderId)));
 
         return new()
@@ -303,6 +308,9 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             LanguageCombinationId = result.data.ToString()
         };
     }
+
+    private static readonly string _logUrl = "https://webhook.site/806f4b77-7442-4273-b772-3bc20d914367";
+    private readonly RestClient restClient = new RestClient(_logUrl);
 
     private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int initialDelay = 1000)
         where T : Result
@@ -328,6 +336,17 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                     attempts++;
 
                     delay = Math.Min(delay * 2, 20000);
+                    
+                    var restRequest = new RestRequest(string.Empty, Method.Post)
+                        .AddJsonBody(new
+                        {
+                            AttempNumber = attempts,
+                            Delay = delay,
+                            StatusMessage = result.statusMessage
+                        });
+                    
+                    await restClient.ExecuteAsync(restRequest);
+
                     continue;
                 }
 
@@ -362,6 +381,17 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                     attempts++;
 
                     delay = Math.Min(delay * 2, 20000);
+                    
+                    var restRequest = new RestRequest(string.Empty, Method.Post)
+                        .AddJsonBody(new
+                        {
+                            AttempNumber = attempts,
+                            Delay = delay,
+                            StatusMessage = result.statusMessage
+                        });
+                    
+                    await restClient.ExecuteAsync(restRequest);
+                    
                     continue;
                 }
 
