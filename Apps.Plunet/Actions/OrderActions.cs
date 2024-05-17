@@ -304,7 +304,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         };
     }
 
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 10000)
         where T : Result
     {
         var attempts = 0;
@@ -334,7 +334,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         }
     }
 
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<T>> func, int maxRetries = 10, int delay = 1000)
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<T>> func, int maxRetries = 10, int delay = 10000)
         where T : Blackbird.Plugins.Plunet.DataItem30Service.Result
     {
         var attempts = 0;
