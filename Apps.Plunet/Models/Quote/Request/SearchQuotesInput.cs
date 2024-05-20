@@ -6,7 +6,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Quote.Request;
 
-public class SearchQuotesInput
+public class SearchQuotesInput : SearchInputBase
 {
     [Display("Source language")]
     [DataSource(typeof(LanguageIsoDataHandler))]

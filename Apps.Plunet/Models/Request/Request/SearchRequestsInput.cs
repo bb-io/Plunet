@@ -6,7 +6,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Request.Request;
 
-public class SearchRequestsInput
+public class SearchRequestsInput : SearchInputBase
 {
     [Display("Source language")]
     [DataSource(typeof(LanguageIsoDataHandler))]

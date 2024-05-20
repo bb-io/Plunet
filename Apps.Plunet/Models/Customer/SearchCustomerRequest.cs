@@ -6,7 +6,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Customer
 {
-    public class SearchCustomerRequest
+    public class SearchCustomerRequest : SearchInputBase
     {
         [Display("Customer type")]
         [StaticDataSource(typeof(CustomerTypeDataHandler))]

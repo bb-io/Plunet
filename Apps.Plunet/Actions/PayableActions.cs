@@ -10,16 +10,12 @@ using Blackbird.Plugins.Plunet.DataPayable30Service;
 namespace Apps.Plunet.Actions;
 
 [ActionList]
-public class PayableActions : PlunetInvocable
+public class PayableActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
-    public PayableActions(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     [Action("Search payables", Description = "Get a list of payables based on custom criterias")]
     public async Task<SearchPayablesResponse> SearchPayables([ActionParameter] SearchPayablesRequest input)
     {
-        var response = await PayableClient.searchAsync(Uuid, new()
+        var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await PayableClient.searchAsync(Uuid, new()
         {
             exported = ParseId(input.Exported),
             isoCodeCurrency = input.Currency,
@@ -31,26 +27,29 @@ public class PayableActions : PlunetInvocable
                 dateTo = input.DateTo,
                 dateFrom = input.DateFrom,
             }
-        });
+        }));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
         if (response.data is null)
+        {
             return new()
             {
                 Payables = Enumerable.Empty<PayableResponse>()
             };
+        }
 
-        var ids = response.data.Where(x => x.HasValue)
-            .Select(x => GetPayable(x!.Value.ToString()))
-            .ToArray();
-
-        var result = await Task.WhenAll(ids);
+        var results = new List<PayableResponse>();
+        foreach (var id in response.data.Where(x => x.HasValue))
+        {
+            var payableResponse = await GetPayable(id!.Value.ToString());
+            results.Add(payableResponse);
+        }
 
         return new()
         {
-            Payables = result
+            Payables = results
         };
     }
 
@@ -58,25 +57,25 @@ public class PayableActions : PlunetInvocable
     public async Task<PayableResponse> GetPayable([ActionParameter] [Display("Payable ID")] string payableId)
     {
         var id = ParseId(payableId);
-        var accountStatement = await GetString(PayableClient.getAccountStatementAsync(Uuid, id));
-        var companyCode = await Try(GetId(PayableClient.getCompanyCodeAsync(Uuid, id)));
-        var creditorAccount = await Try(GetString(PayableClient.getCreditorAccountAsync(Uuid, id)));
-        var currency = await GetString(PayableClient.getCurrencyAsync(Uuid, id));
-        var expenseAccount = await Try(GetString(PayableClient.getExpenseAccountAsync(Uuid, id)));
-        var externalInvoice = await GetString(PayableClient.getExternalInvoiceNumberAsync(Uuid, id));
-        var invoiceDate = await GetDate(PayableClient.getInvoiceDateAsync(Uuid, id));
-        var isExported = await GetBool(PayableClient.getIsExportedAsync(Uuid, id));
-        var memo = await GetString(PayableClient.getMemoAsync(Uuid, id));
-        var paidDate = await GetDate(PayableClient.getPaidDateAsync(Uuid, id));
-        var creatorResourceId = await GetId(PayableClient.getPaymentCreatorResourceIDAsync(Uuid, id));
-        var dueDate = await GetDate(PayableClient.getPaymentDueDateAsync(Uuid, id));
-        var method = await GetId(PayableClient.getPaymentMethodAsync(Uuid, id));
-        var resource = await GetId(PayableClient.getResourceIDAsync(Uuid, id));
-        var status = await GetId(PayableClient.getStatusAsync(Uuid, id));
-        var total = await GetDouble(PayableClient.getTotalNetAmountAsync(Uuid, id, 2)); // PROJECT CURRENCY
-        var valueDate = await GetDate(PayableClient.getValueDateAsync(Uuid, id));
+        var accountStatement = await GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getAccountStatementAsync(Uuid, id)));
+        var companyCode = await Try(GetId(ExecuteWithRetry<IntegerResult>(async () => await PayableClient.getCompanyCodeAsync(Uuid, id))));
+        var creditorAccount = await Try(GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getCreditorAccountAsync(Uuid, id))));
+        var currency = await GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getCurrencyAsync(Uuid, id)));
+        var expenseAccount = await Try(GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getExpenseAccountAsync(Uuid, id))));
+        var externalInvoice = await GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getExternalInvoiceNumberAsync(Uuid, id)));
+        var invoiceDate = await GetDate(ExecuteWithRetry<DateResult>(async () => await PayableClient.getInvoiceDateAsync(Uuid, id)));
+        var isExported = await GetBool(ExecuteWithRetry<BooleanResult>(async () => await PayableClient.getIsExportedAsync(Uuid, id)));
+        var memo = await GetString(ExecuteWithRetry<StringResult>(async () => await PayableClient.getMemoAsync(Uuid, id)));
+        var paidDate = await GetDate(ExecuteWithRetry<DateResult>(async () => await PayableClient.getPaidDateAsync(Uuid, id)));
+        var creatorResourceId = await GetId(ExecuteWithRetry<IntegerResult>(async () => await PayableClient.getPaymentCreatorResourceIDAsync(Uuid, id)));
+        var dueDate = await GetDate(ExecuteWithRetry<DateResult>(async () => await PayableClient.getPaymentDueDateAsync(Uuid, id)));
+        var method = await GetId(ExecuteWithRetry<IntegerResult>(async () => await PayableClient.getPaymentMethodAsync(Uuid, id)));
+        var resource = await GetId(ExecuteWithRetry<IntegerResult>(async () => await PayableClient.getResourceIDAsync(Uuid, id)));
+        var status = await GetId(ExecuteWithRetry<IntegerResult>(async () => await PayableClient.getStatusAsync(Uuid, id)));
+        var total = await GetDouble(ExecuteWithRetry<DoubleResult>(async () => await PayableClient.getTotalNetAmountAsync(Uuid, id, 2))); // PROJECT CURRENCY
+        var valueDate = await GetDate(ExecuteWithRetry<DateResult>(async () => await PayableClient.getValueDateAsync(Uuid, id)));
 
-        var itemRes = await PayableClient.getPaymentItemListAsync(Uuid, id);
+        var itemRes = await ExecuteWithRetry<PayableItemResultList>(async () => await PayableClient.getPaymentItemListAsync(Uuid, id));
         if (itemRes.statusMessage != ApiResponses.Ok)
             throw new(itemRes.statusMessage);
 
@@ -121,34 +120,34 @@ public class PayableActions : PlunetInvocable
         var id = ParseId(input.Id);
 
         if (input.Status != null)
-            await PayableClient.setStatusAsync(Uuid, ParseId(input.Status), id);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setStatusAsync(Uuid, ParseId(input.Status), id));
 
         if (input.AccountStatement != null)
-            await PayableClient.setAccountStatementAsync(Uuid, id, input.AccountStatement);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setAccountStatementAsync(Uuid, id, input.AccountStatement));
 
         if (input.CreditorAccount != null)
-            await PayableClient.setCreditorAccountAsync(Uuid, input.CreditorAccount, id);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setCreditorAccountAsync(Uuid, input.CreditorAccount, id));
 
         if (input.ExternalInvoiceNumber != null)
-            await PayableClient.setExternalInvoiceNumberAsync(Uuid, id, input.ExternalInvoiceNumber);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setExternalInvoiceNumberAsync(Uuid, id, input.ExternalInvoiceNumber));
 
         if (input.IsExported.HasValue)
-            await PayableClient.setIsExportedAsync(Uuid, id, input.IsExported.Value);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setIsExportedAsync(Uuid, id, input.IsExported.Value));
 
         if (input.Memo != null)
-            await PayableClient.setMemoAsync(Uuid, id, input.Memo);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setMemoAsync(Uuid, id, input.Memo));
 
         if (input.InvoiceDate.HasValue)
-            await PayableClient.setInvoiceDateAsync(Uuid, input.InvoiceDate.Value, id);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setInvoiceDateAsync(Uuid, input.InvoiceDate.Value, id));
 
         if (input.PaidDate.HasValue)
-            await PayableClient.setPaidDateAsync(Uuid, id, input.PaidDate.Value);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setPaidDateAsync(Uuid, id, input.PaidDate.Value));
 
         if (input.DueDate.HasValue)
-            await PayableClient.setPaymentDueDateAsync(Uuid, id, input.DueDate.Value);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setPaymentDueDateAsync(Uuid, id, input.DueDate.Value));
 
         if (input.ValueDate.HasValue)
-            await PayableClient.setValueDateAsync(Uuid, input.ValueDate.Value, id);
+            await ExecuteWithRetry<Result>(async () => await PayableClient.setValueDateAsync(Uuid, input.ValueDate.Value, id));
 
         return await GetPayable(input.Id);
     }
@@ -209,11 +208,36 @@ public class PayableActions : PlunetInvocable
             throw new(response.statusMessage);
         return response.data;
     }
+    
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
+        where T : Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
 
+            if (result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
 
+            if(result.statusMessage.Contains("session-UUID used is invalid"))
+            {
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
 
+                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+            }
+
+            return (T)result;
+        }
+    }
+    
     // TODO: get/set invoice tax types
-
-
-
 }

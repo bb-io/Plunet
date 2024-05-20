@@ -172,6 +172,12 @@ An example of the granularity at which orders (and other entities) can be select
 - **Set text module**
 - **Get text module**
 
+## Search limitations
+
+The search actions have a limit of 50 results. If you need to search for more results, you can use the `Limit` optional parameter to increase the limit.
+
+We set this limit to prevent issues that can arise from executing multiple parallel actions simultaneously. When several search actions are run at the same time, it puts a significant load on the Plunet API. This can cause timeouts and failures, especially when dealing with a large number of results. By limiting the number of results returned in each search action, we help ensure more stable and reliable performance of the Plunet API.
+
 ## Events
 
 All webhooks return all data for the entity they were invoked on. All _status changed_ events have an optional input field _new status_ which can be used to differentiate the new status after the event.
@@ -236,7 +242,7 @@ A couple of features are still missing, if you are interested in any of these th
 - Resource creation and manipulation
 - Job rounds
 - CAT analysis imports
-- Invoices
+- Invoices (halfway implemented)
 
 ## Feedback
 

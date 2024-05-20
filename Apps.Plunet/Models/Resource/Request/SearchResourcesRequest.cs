@@ -7,7 +7,7 @@ using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Models.Resource.Request
 {
-    public class SearchResourcesRequest
+    public class SearchResourcesRequest : SearchInputBase
     {
         [Display("Contact ID")]
         public string? ContactId { get; set; }

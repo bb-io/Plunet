@@ -11,4 +11,10 @@ public class InvoiceRequest
 
     [Display("Get customer", Description = "If true, we will get Customer object. Default is false.")]
     public bool? GetCustomer { get; set; }
+
+    [Display("Custom field keys", Description = "Custom field keys to get. Default is null.")]
+    public IEnumerable<string>? CustomFieldKeys { get; set; }
+
+    [Display("Custom field values", Description = "Custom field values to get. Default is null.")]
+    public IEnumerable<string>? CustomFieldValues { get; set; }
 }

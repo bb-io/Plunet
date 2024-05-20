@@ -1,4 +1,5 @@
-﻿using Apps.Plunet.DataOutgoingInvoice30Service;
+﻿using Apps.Plunet.Constants;
+using Apps.Plunet.DataOutgoingInvoice30Service;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.CustomProperties;
@@ -15,7 +16,8 @@ using Tax = Apps.Plunet.Models.Invoices.Common.Tax;
 namespace Apps.Plunet.Actions;
 
 [ActionList]
-public class InvoiceActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : PlunetInvocable(invocationContext)
+public class InvoiceActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
+    : PlunetInvocable(invocationContext)
 {
     [Action("Search invoices", Description = "Search invoices")]
     public async Task<SearchInvoicesResponse> SearchInvoices([ActionParameter] SearchInvoicesRequest request)
@@ -35,10 +37,11 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
             filter.customerID = int.Parse(request.CustomerId);
         }
 
-        var searchInvoices = await OutgoingInvoiceClient.searchAsync(Uuid, filter);
-
+        var searchInvoices =
+            await ExecuteWithRetry<IntegerArrayResult>(
+                async () => await OutgoingInvoiceClient.searchAsync(Uuid, filter));
         var invoices = new List<GetInvoiceResponse>();
-        foreach (var invoiceId in searchInvoices.data)
+        foreach (var invoiceId in searchInvoices.data.Where(x => x.HasValue).Take(request.Limit ?? SystemConsts.SearchLimit))
         {
             var invoice = await GetInvoice(new InvoiceRequest
                 { InvoiceId = invoiceId.ToString() ?? throw new InvalidOperationException("Invoice ID is null") });
@@ -47,7 +50,7 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
 
         return new SearchInvoicesResponse { Invoices = invoices };
     }
-    
+
     [Action("Find invoice by text module", Description = "Find invoice by parameters")]
     public async Task<GetInvoiceResponse?> FindInvoice([ActionParameter] FindInvoiceRequest request)
     {
@@ -57,11 +60,11 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
         {
             invoices.Invoices = invoices.Invoices.Where(x => x.InvoiceNumber == request.InvoiceNumber).ToList();
         }
-        
+
         if (!string.IsNullOrEmpty(request.Flag) && !string.IsNullOrEmpty(request.TextModuleValue))
         {
             var customPropertyActions = new CustomPropertyActions(invocationContext);
-            
+
             foreach (var invoice in invoices.Invoices)
             {
                 var textModule = await customPropertyActions.GetTextmodule(new TextModuleRequest
@@ -77,16 +80,18 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
                 }
             }
         }
-        
+
         throw new InvalidOperationException("No invoice found with the given parameters");
     }
 
     [Action("Get invoice", Description = "Get invoice by ID")]
     public async Task<GetInvoiceResponse> GetInvoice([ActionParameter] InvoiceRequest request)
     {
-        var invoiceObject = await OutgoingInvoiceClient.getInvoiceObjectAsync(Uuid, int.Parse(request.InvoiceId));
-        var invoiceItems = await OutgoingInvoiceClient.getInvoiceItemListAsync(Uuid, int.Parse(request.InvoiceId));
-        
+        var invoiceObject = await ExecuteWithRetry<InvoiceResult>(async () =>
+            await OutgoingInvoiceClient.getInvoiceObjectAsync(Uuid, int.Parse(request.InvoiceId)));
+        var invoiceItems = await ExecuteWithRetry<InvoiceItemResult>(async () =>
+            await OutgoingInvoiceClient.getInvoiceItemListAsync(Uuid, int.Parse(request.InvoiceId)));
+
         var items = new List<InvoiceItemResponse>();
         if (invoiceItems.data != null)
         {
@@ -137,19 +142,20 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
 
         return invoiceResponse;
     }
-    
+
     [Action("Export invoice", Description = "Get invoice by ID as JSON")]
     public async Task<ExportInvoiceResponse> GetInvoiceAsJson([ActionParameter] InvoiceRequest request)
     {
-        var invoice = await GetInvoice(new InvoiceRequest { InvoiceId = request.InvoiceId, GetCustomer = true});
-        
+        var invoice = await GetInvoice(new InvoiceRequest { InvoiceId = request.InvoiceId, GetCustomer = true });
+
         var lineItems = new List<LineItem>();
         foreach (var item in invoice.InvoiceItems)
         {
-            var priceline = await OutgoingInvoiceClient.getPriceLine_ListAsync(Uuid, int.Parse(item.InvoiceItemId));
+            var priceline = await ExecuteWithRetry<PriceLineListResult>(async () =>
+                await OutgoingInvoiceClient.getPriceLine_ListAsync(Uuid, int.Parse(item.InvoiceItemId)));
             foreach (var price in priceline.data)
             {
-                lineItems.Add(new LineItem()
+                lineItems.Add(new LineItem
                 {
                     Description = item.BriefDescription,
                     Quantity = (int)price.amount,
@@ -158,11 +164,23 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
                 });
             }
         }
-        
-        var invoiceObject = new InvoicesObject()
+
+        var customFields = new Dictionary<string, string>();
+        if (request.CustomFieldKeys != null && request.CustomFieldValues != null)
         {
-            Invoices = new List<Invoice>
+            if (request.CustomFieldKeys.Count() != request.CustomFieldValues.Count())
+                throw new InvalidOperationException("Custom field keys and values count must be equal");
+
+            for (var i = 0; i < request.CustomFieldKeys.Count(); i++)
             {
+                customFields.Add(request.CustomFieldKeys.ElementAt(i), request.CustomFieldValues.ElementAt(i));
+            }
+        }
+
+        var invoiceObject = new InvoicesObject
+        {
+            Invoices =
+            [
                 new()
                 {
                     CustomerName = invoice.Customer?.Name ?? string.Empty,
@@ -180,14 +198,15 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
                     Lines = lineItems,
                     Total = lineItems.Sum(x => x.Amount) + (decimal)invoice.Tax,
                     SubTotal = lineItems.Sum(x => x.Amount),
-                    CustomFields = new Dictionary<string, string>()
+                    CustomFields = customFields
                 }
-            }
+            ]
         };
-        
+
         var stream = invoiceObject.ToStream();
-        var fileReference = await fileManagementClient.UploadAsync(stream, "application/json", $"{invoice.InvoiceNumber}.json");
-        
+        var fileReference =
+            await fileManagementClient.UploadAsync(stream, "application/json", $"{invoice.InvoiceNumber}.json");
+
         return new ExportInvoiceResponse
         {
             File = fileReference
@@ -200,51 +219,90 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
         if (!string.IsNullOrEmpty(request.Subject))
         {
             var result =
-                await OutgoingInvoiceClient.setSubjectAsync(Uuid, request.Subject, int.Parse(request.InvoiceId));
+                await ExecuteWithRetry<Result>(async () =>
+                    await OutgoingInvoiceClient.setSubjectAsync(Uuid, request.Subject, int.Parse(request.InvoiceId)));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException($"Error while updating invoice subject, message: {result.statusMessage}");
+                throw new InvalidOperationException(
+                    $"Error while updating invoice subject, message: {result.statusMessage}");
         }
 
         if (!string.IsNullOrEmpty(request.BriefDescription))
         {
             var result =
-                await OutgoingInvoiceClient.setBriefDescriptionAsync(Uuid, request.BriefDescription,
-                    int.Parse(request.InvoiceId));
+                await ExecuteWithRetry<Result>(async () => await OutgoingInvoiceClient.setBriefDescriptionAsync(Uuid,
+                    request.BriefDescription,
+                    int.Parse(request.InvoiceId)));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException($"Error while updating invoice brief description, message: {result.statusMessage}");
+                throw new InvalidOperationException(
+                    $"Error while updating invoice brief description, message: {result.statusMessage}");
         }
 
         if (request.InvoiceDate.HasValue)
         {
             var result =
-                await OutgoingInvoiceClient.setInvoiceDateAsync(Uuid, request.InvoiceDate.Value,
-                    int.Parse(request.InvoiceId));
+                await ExecuteWithRetry<Result>(async () => await OutgoingInvoiceClient.setInvoiceDateAsync(Uuid,
+                    request.InvoiceDate.Value,
+                    int.Parse(request.InvoiceId)));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException($"Error while updating invoice date, message: {result.statusMessage}");
+                throw new InvalidOperationException(
+                    $"Error while updating invoice date, message: {result.statusMessage}");
         }
 
         if (request.PaidDate.HasValue)
         {
-            var result =
+            var result = await ExecuteWithRetry<Result>(async () =>
                 await OutgoingInvoiceClient.setPaidDateAsync(Uuid, int.Parse(request.InvoiceId),
-                    request.PaidDate.Value);
+                    request.PaidDate.Value));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException($"Error while updating invoice paid date, message: {result.statusMessage}");
+                throw new InvalidOperationException(
+                    $"Error while updating invoice paid date, message: {result.statusMessage}");
         }
 
         if (!string.IsNullOrEmpty(request.InvoiceStatus))
         {
-            var result = await OutgoingInvoiceClient.setStatusAsync(Uuid, int.Parse(request.InvoiceStatus),
-                int.Parse(request.InvoiceId));
+            var result = await ExecuteWithRetry<Result>(async () => await OutgoingInvoiceClient.setStatusAsync(Uuid,
+                int.Parse(request.InvoiceStatus),
+                int.Parse(request.InvoiceId)));
 
             if (result.statusMessage != "OK")
-                throw new InvalidOperationException($"Error while updating invoice status, message: {result.statusMessage}");
+                throw new InvalidOperationException(
+                    $"Error while updating invoice status, message: {result.statusMessage}");
         }
 
         return await GetInvoice(request);
+    }
+
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
+        where T : Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+
+            if (result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+
+            if(result.statusMessage.Contains("session-UUID used is invalid"))
+            {
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+            }
+
+            return (T)result;
+        }
     }
 }

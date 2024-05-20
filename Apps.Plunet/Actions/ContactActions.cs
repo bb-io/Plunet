@@ -5,45 +5,38 @@ using Apps.Plunet.Models.Customer;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
 
 namespace Apps.Plunet.Actions;
 
 [ActionList]
-public class ContactActions : PlunetInvocable
+public class ContactActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
-    public ContactActions(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     [Action("Get customer contacts", Description = "Get all the contacts of the customer")]
     public async Task<GetContactsResponse> GetCustomerContacts([ActionParameter] CustomerRequest input)
     {
-        var contacts = await ContactClient.getAllContactObjectsAsync(Uuid, ParseId(input.CustomerId));
-
+        var contacts = await ExecuteWithRetry<CustomerContactListResult>(async () =>  await ContactClient.getAllContactObjectsAsync(Uuid, ParseId(input.CustomerId)));
         return new()
         {
             CustomerContacts = contacts.data is null ? new List<ContactObjectResponse>() : contacts.data.Select(x => new ContactObjectResponse(x))
         };
-        
     }
 
     [Action("Get customer emails", Description = "Get all the emails of the specified customer")]
     public async Task<GetContactsEmailResponse> GetCustomerEmails([ActionParameter] CustomerRequest input)
     {
-        var contacts = await ContactClient.getAllContactObjectsAsync(Uuid, ParseId(input.CustomerId));
-
-        return new GetContactsEmailResponse()
+        var contacts =  await ExecuteWithRetry<CustomerContactListResult>(async () =>  await ContactClient.getAllContactObjectsAsync(Uuid, ParseId(input.CustomerId)));
+        return new GetContactsEmailResponse
         {
             EmailAddresses = contacts.data is null ? new List<string>() : contacts.data.Select(x => x.email)
-
         };
-
     }
 
     [Action("Get contact", Description = "Get the Plunet contact")]
     public async Task<ContactObjectResponse> GetContactById([ActionParameter] ContactRequest request)
     {
-        var contact = await ContactClient.getContactObjectAsync(Uuid, ParseId(request.ContactId));
+        var contact = await ExecuteWithRetry<CustomerContactResult>(async () =>
+            await ContactClient.getContactObjectAsync(Uuid, ParseId(request.ContactId)));
         
         if (contact.data is null)
             throw new(contact.statusMessage);
@@ -54,7 +47,7 @@ public class ContactActions : PlunetInvocable
     [Action("Get contact by external ID", Description = "Get the Plunet contact by an external ID rather than a Plunet iD")]
     public async Task<ContactObjectResponse> GetContactExternalId([ActionParameter] GetContactByExternalRequest request)
     {
-        var response = await ContactClient.seekByExternalIDAsync(Uuid, request.ExternalId);
+        var response = await ExecuteWithRetry<IntegerArrayResult>(async () =>  await ContactClient.seekByExternalIDAsync(Uuid, request.ExternalId));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
@@ -69,7 +62,7 @@ public class ContactActions : PlunetInvocable
     [Action("Create contact", Description = "Create a new contact in Plunet")]
     public async Task<ContactObjectResponse> CreateContact([ActionParameter] CreateContactRequest request)
     {
-        var contactIdResult = await ContactClient.insert2Async(Uuid, new()
+        var contactIdResult =  await ExecuteWithRetry<IntegerResult>(async () => await ContactClient.insert2Async(Uuid, new()
         {
             customerID = ParseId(request.CustomerId),
             name1 = request.LastName,
@@ -85,7 +78,7 @@ public class ContactActions : PlunetInvocable
             supervisor1 = request.Supervisor1,
             supervisor2 = request.Supervisor2,
             status = ParseId(request.Status)
-        });
+        }));
 
         if (contactIdResult.statusMessage != ApiResponses.Ok)
             throw new(contactIdResult.statusMessage);
@@ -96,7 +89,7 @@ public class ContactActions : PlunetInvocable
     [Action("Update contact", Description = "Update Plunet contact")]
     public async Task<ContactObjectResponse> UpdateContact([ActionParameter] ContactRequest contact, [ActionParameter] CreateContactRequest request)
     {        
-        var result = await ContactClient.updateAsync(Uuid, new()
+        var result =  await ExecuteWithRetry<Result>(async () => await ContactClient.updateAsync(Uuid, new()
         {
             customerContactID = ParseId(contact.ContactId),
             name1 = request.FirstName,
@@ -112,11 +105,41 @@ public class ContactActions : PlunetInvocable
             userId = ParseId(request.UserId),
             supervisor1 = request.Supervisor1,
             supervisor2 = request.Supervisor2,
-        }, false);
+        }, false));
 
         if (result.statusMessage != ApiResponses.Ok)
             throw new(result.statusMessage);
 
         return await GetContactById(contact);
+    }
+    
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
+        where T : Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+            
+            if(result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+            
+            if(result.statusMessage.Contains("session-UUID used is invalid"))
+            {
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+            }
+
+            return (T)result;
+        }
     }
 }

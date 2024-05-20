@@ -11,16 +11,12 @@ using Blackbird.Plugins.Plunet.DataRequest30Service;
 namespace Apps.Plunet.Actions;
 
 [ActionList]
-public class RequestActions : PlunetInvocable
+public class RequestActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
-    public RequestActions(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
-
     [Action("Search requests", Description = "Search for specific requests based on specific criteria")]
     public async Task<ListRequestsResponse> SearchRequests([ActionParameter] SearchRequestsInput input)
     {
-        var searchResult = await RequestClient.searchAsync(Uuid, new()
+        var searchResult = await ExecuteWithRetry<IntegerArrayResult>(async () => await RequestClient.searchAsync(Uuid, new()
         {
             sourceLanguage = input.SourceLanguage ?? string.Empty,
             targetLanguage = input.TargetLanguage ?? string.Empty,
@@ -39,7 +35,7 @@ public class RequestActions : PlunetInvocable
                     customerEntryType = ParseId(input.CustomerEntryType)
                 }
                 : default
-        });
+        }));
 
         if (searchResult.statusMessage != ApiResponses.Ok)
             throw new(searchResult.statusMessage);
@@ -47,17 +43,20 @@ public class RequestActions : PlunetInvocable
         if (searchResult.data is null)
             return new(Enumerable.Empty<RequestResponse>());
 
-        var getRequestTasks = searchResult.data
-            .Where(x => x.HasValue)
-            .Select(x => GetRequest(x.Value.ToString()));
+        var results = new List<RequestResponse>();
+        foreach (var id in searchResult.data.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
+        {
+            var requestResponse = await GetRequest(id.Value.ToString());
+            results.Add(requestResponse);
+        }
 
-        return new(await Task.WhenAll(getRequestTasks));
+        return new(results);
     }
-
+    
     [Action("Get request", Description = "Get details for a Plunet request")]
     public async Task<RequestResponse> GetRequest([ActionParameter] [Display("Request ID")] string requestId)
     {
-        var requestResult = await RequestClient.getRequestObjectAsync(Uuid, ParseId(requestId));
+        var requestResult = await ExecuteWithRetry<RequestResult>(async () => await RequestClient.getRequestObjectAsync(Uuid, ParseId(requestId)));
 
         if (requestResult.data is null)
             throw new(requestResult.statusMessage);
@@ -68,7 +67,7 @@ public class RequestActions : PlunetInvocable
     [Action("Create request", Description = "Create a new request in Plunet")]
     public async Task<RequestResponse> CreateRequest([ActionParameter] CreatеRequestRequest request)
     {
-        var requestIdResult = await RequestClient.insert2Async(Uuid, new()
+        var requestIdResult = await ExecuteWithRetry<IntegerResult>(async () => await RequestClient.insert2Async(Uuid, new()
         {
             briefDescription = request.BriefDescription,
             creationDate = DateTime.Now,
@@ -78,7 +77,7 @@ public class RequestActions : PlunetInvocable
             quotationDate = request.QuotationDate ?? default,
             status = ParseId(request.Status),
             quoteID = ParseId(request.QuoteId)
-        });
+        }));
 
         if (requestIdResult.statusMessage != ApiResponses.Ok)
             throw new(requestIdResult.statusMessage);
@@ -86,37 +85,37 @@ public class RequestActions : PlunetInvocable
         var requestId = requestIdResult.data;
 
         if (request.Service is not null)
-            await RequestClient.addServiceAsync(Uuid, request.Service, requestId);
+            await ExecuteWithRetry<Result>(async () => await RequestClient.addServiceAsync(Uuid, request.Service, requestId));
 
         if (request.ContactId is not null)
-            await RequestClient.setCustomerContactIDAsync(Uuid, requestId, ParseId(request.ContactId));
+            await ExecuteWithRetry<IntegerArrayResult>(async () => await RequestClient.setCustomerContactIDAsync(Uuid, requestId, ParseId(request.ContactId)));
 
         if (request.CustomerId is not null)
-            await RequestClient.setCustomerIDAsync(Uuid, ParseId(request.CustomerId), requestId);
+            await ExecuteWithRetry<IntegerArrayResult>(async () => await RequestClient.setCustomerIDAsync(Uuid, ParseId(request.CustomerId), requestId));
 
         if (request.ReferenceNumberOfPrev is not null)
-            await RequestClient.setCustomerRefNo_PrevOrderAsync(Uuid, request.ReferenceNumberOfPrev, requestId);
+            await ExecuteWithRetry<IntegerArrayResult>(async () => await RequestClient.setCustomerRefNo_PrevOrderAsync(Uuid, request.ReferenceNumberOfPrev, requestId));
 
         if (request.ReferenceNumber is not null)
-            await RequestClient.setCustomerRefNoAsync(Uuid, request.ReferenceNumber, requestId);
+            await ExecuteWithRetry<IntegerArrayResult>(async () => await RequestClient.setCustomerRefNoAsync(Uuid, request.ReferenceNumber, requestId));
 
         if (request.IsEn10538 is not null)
-            await RequestClient.setEN15038RequestedAsync(Uuid, request.IsEn10538.Value, requestId);
+            await ExecuteWithRetry<IntegerArrayResult>(async () => await RequestClient.setEN15038RequestedAsync(Uuid, request.IsEn10538.Value, requestId));
 
         if (request.MasterProjectId is not null)
-            await RequestClient.setMasterProjectIDAsync(Uuid, requestId, ParseId(request.MasterProjectId));
+            await ExecuteWithRetry<IntegerArrayResult>(async () => await RequestClient.setMasterProjectIDAsync(Uuid, requestId, ParseId(request.MasterProjectId)));
 
         if (request.Price is not null)
-            await RequestClient.setPriceAsync(Uuid, request.Price.Value, requestId);
+            await ExecuteWithRetry<IntegerArrayResult>(async () => await RequestClient.setPriceAsync(Uuid, request.Price.Value, requestId));
 
         if (request.IsRushRequest is not null)
-            await RequestClient.setRushRequestAsync(Uuid, request.IsRushRequest.Value, requestId);
+            await ExecuteWithRetry<IntegerArrayResult>(async () => await RequestClient.setRushRequestAsync(Uuid, request.IsRushRequest.Value, requestId));
 
         if (request.WordCount is not null)
-            await RequestClient.setWordCountAsync(Uuid, request.WordCount.Value, requestId);
+            await ExecuteWithRetry<IntegerArrayResult>(async () => await RequestClient.setWordCountAsync(Uuid, request.WordCount.Value, requestId));
 
         if (request.WorkflowId is not null)
-            await RequestClient.setWorkflowIDAsync(Uuid, requestId, ParseId(request.WorkflowId));
+            await ExecuteWithRetry<IntegerArrayResult>(async () => await RequestClient.setWorkflowIDAsync(Uuid, requestId, ParseId(request.WorkflowId)));
 
         return await GetRequest(requestId.ToString());
     }
@@ -124,7 +123,7 @@ public class RequestActions : PlunetInvocable
     [Action("Update request", Description = "Update Plunet request")]
     public async Task<RequestResponse> UpdateRequest([ActionParameter] UpdateRequestRequest request)
     {
-        var result = await RequestClient.updateAsync(Uuid, new RequestIN
+        var result = await ExecuteWithRetry<Result>(async () => await RequestClient.updateAsync(Uuid, new RequestIN
         {
             requestID = ParseId(request.RequestId),
             briefDescription = request.BriefDescription,
@@ -135,7 +134,7 @@ public class RequestActions : PlunetInvocable
             quotationDate = request.QuotationDate ?? default,
             status = ParseId(request.Status),
             quoteID = ParseId(request.QuoteId)
-        }, false);
+        }, false));
 
         if (result.statusMessage != ApiResponses.Ok)
             throw new(result.statusMessage);
@@ -146,7 +145,7 @@ public class RequestActions : PlunetInvocable
     [Action("Delete request", Description = "Delete a Plunet request")]
     public async Task DeleteRequest([ActionParameter] [Display("Request ID")] string requestId)
     {
-        await RequestClient.deleteAsync(Uuid, ParseId(requestId));
+        await ExecuteWithRetry<Result>(async () => await RequestClient.deleteAsync(Uuid, ParseId(requestId)));
     }
 
     [Action("Add language combination to request", Description = "Add a language combination to the specific request")]
@@ -155,9 +154,39 @@ public class RequestActions : PlunetInvocable
         string requestId,
         [ActionParameter] LanguagesRequest langs)
     {
-        var response = await RequestClient.addLanguageCombinationAsync(Uuid, langs.SourceLanguageCode, langs.TargetLanguageCode, ParseId(requestId));
+        var response = await ExecuteWithRetry<Result>(async () => await RequestClient.addLanguageCombinationAsync(Uuid, langs.SourceLanguageCode, langs.TargetLanguageCode, ParseId(requestId)));
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
+    }
+    
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
+        where T : Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+            
+            if(result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+            
+            if(result.statusMessage.Contains("session-UUID used is invalid"))
+            {
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+            }
+
+            return (T)result;
+        }
     }
 }
