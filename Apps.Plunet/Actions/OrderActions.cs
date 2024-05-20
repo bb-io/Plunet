@@ -45,11 +45,15 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
 
         if (searchResult.statusMessage != ApiResponses.Ok)
             throw new(searchResult.statusMessage);
-
+        
         var results = new List<OrderResponse>();
         if (searchResult.data != null)
         {
-            foreach (var id in searchResult.data.Where(x => x.HasValue))
+            var data = input.Limit.HasValue 
+                ? searchResult.data.Where(x => x.HasValue).Take(input.Limit.Value) 
+                : searchResult.data.Where(x => x.HasValue);
+            
+            foreach (var id in data)
             {
                 var orderResponse = await GetOrder(new OrderRequest { OrderId = id!.Value.ToString() });
                 results.Add(orderResponse);
@@ -309,9 +313,6 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         };
     }
 
-    private static readonly string _logUrl = "https://webhook.site/806f4b77-7442-4273-b772-3bc20d914367";
-    private readonly RestClient restClient = new RestClient(_logUrl);
-
     private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int initialDelay = 1000)
         where T : Result
     {
@@ -344,8 +345,6 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                             Delay = delay,
                             StatusMessage = result.statusMessage
                         });
-                    
-                    await restClient.ExecuteAsync(restRequest);
 
                     continue;
                 }
@@ -389,8 +388,6 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                             Delay = delay,
                             StatusMessage = result.statusMessage
                         });
-                    
-                    await restClient.ExecuteAsync(restRequest);
                     
                     continue;
                 }

@@ -37,5 +37,8 @@ namespace Apps.Plunet.Models.Order
         [Display("Project type")]
         [StaticDataSource(typeof(ProjectTypeDataHandler))]
         public string? ProjectType { get; set; }
+
+        [Display("Limit", Description = "Maximum number of results")]
+        public int? Limit { get; set; }
     }
 }
