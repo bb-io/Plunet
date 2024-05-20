@@ -80,6 +80,13 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
             Resources = results
         };
     }
+    
+    [Action("Find resource", Description = "Find a specific resource based on specific criteria")]
+    public async Task<ResourceResponse?> FindResource([ActionParameter] SearchResourcesRequest request)
+    {
+        var result = await SearchResources(request);
+        return result.Resources.FirstOrDefault();
+    }
 
     [Action("Find resource by text module", Description = "Find resources by text module")]
     public async Task<ResourceResponse> FindResourceByTextModule([ActionParameter] FindByTextModuleRequest request)

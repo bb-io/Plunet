@@ -8,8 +8,8 @@ public class FindInvoiceRequest : SearchInvoicesRequest
     public string? InvoiceNumber { get; set; }
     
     [Display("Flag", Description = "e.g. [Textmodule_1]")]
-    public string Flag { get; set; }
+    public string? Flag { get; set; }
     
     [Display("Text module value")]
-    public string TextModuleValue { get; set; }
+    public string? TextModuleValue { get; set; }
 }

@@ -40,6 +40,13 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         return new(results);
     }
 
+    [Action("Find customer", Description = "Find a customer based on the specified criteria")]
+    public async Task<GetCustomerResponse?> FindCustomer([ActionParameter] SearchCustomerRequest request)
+    {
+        var response = await SearchCustomers(request);
+        return response.Customers.FirstOrDefault();
+    }
+
     [Action("Get customer", Description = "Get the Plunet customer")]
     public async Task<GetCustomerResponse> GetCustomerById([ActionParameter] CustomerRequest input)
     {

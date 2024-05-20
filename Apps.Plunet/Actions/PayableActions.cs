@@ -12,7 +12,7 @@ namespace Apps.Plunet.Actions;
 [ActionList]
 public class PayableActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
-    [Action("Search payables", Description = "Get a list of payables based on custom criterias")]
+    [Action("Search payables", Description = "Get a list of payables based on custom criteria")]
     public async Task<SearchPayablesResponse> SearchPayables([ActionParameter] SearchPayablesRequest input)
     {
         var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await PayableClient.searchAsync(Uuid, new()
@@ -51,6 +51,13 @@ public class PayableActions(InvocationContext invocationContext) : PlunetInvocab
         {
             Payables = results
         };
+    }
+
+    [Action("Find payable", Description = "Find a payable based on search criteria")]
+    public async Task<PayableResponse?> FindPayable([ActionParameter] SearchPayablesRequest input)
+    {
+        var result = await SearchPayables(input);
+        return result.Payables.FirstOrDefault();
     }
 
     [Action("Get payable", Description = "Get details of a specific payable")]
