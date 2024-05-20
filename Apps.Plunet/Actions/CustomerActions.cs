@@ -31,7 +31,7 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
             return new(Enumerable.Empty<GetCustomerResponse>());
 
         var results = new List<GetCustomerResponse>();
-        foreach (var id in response.data.Where(x => x.HasValue))
+        foreach (var id in response.data.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
         {
             var customerResponse = await GetCustomerById(new CustomerRequest { CustomerId = id!.Value.ToString() });
             results.Add(customerResponse);

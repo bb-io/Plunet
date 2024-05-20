@@ -49,11 +49,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         var results = new List<OrderResponse>();
         if (searchResult.data != null)
         {
-            var data = input.Limit.HasValue 
-                ? searchResult.data.Where(x => x.HasValue).Take(input.Limit.Value) 
-                : searchResult.data.Where(x => x.HasValue);
-            
-            foreach (var id in data)
+            foreach (var id in searchResult.data.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
             {
                 var orderResponse = await GetOrder(new OrderRequest { OrderId = id!.Value.ToString() });
                 results.Add(orderResponse);

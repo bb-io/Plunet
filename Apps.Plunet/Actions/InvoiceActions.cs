@@ -41,7 +41,7 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
             await ExecuteWithRetry<IntegerArrayResult>(
                 async () => await OutgoingInvoiceClient.searchAsync(Uuid, filter));
         var invoices = new List<GetInvoiceResponse>();
-        foreach (var invoiceId in searchInvoices.data)
+        foreach (var invoiceId in searchInvoices.data.Where(x => x.HasValue).Take(request.Limit ?? SystemConsts.SearchLimit))
         {
             var invoice = await GetInvoice(new InvoiceRequest
                 { InvoiceId = invoiceId.ToString() ?? throw new InvalidOperationException("Invoice ID is null") });

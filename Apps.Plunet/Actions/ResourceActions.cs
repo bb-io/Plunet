@@ -46,7 +46,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
         }
 
         var results = new List<ResourceResponse>();
-        foreach (var id in response.data.Where(x => x.HasValue))
+        foreach (var id in response.data.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
         {
             var resourceResponse = await GetResource(id!.Value.ToString());
             results.Add(resourceResponse);

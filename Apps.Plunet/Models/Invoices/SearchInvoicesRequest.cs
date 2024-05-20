@@ -4,7 +4,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Invoices;
 
-public class SearchInvoicesRequest
+public class SearchInvoicesRequest : SearchInputBase
 {
     [Display("Language code", Description = "If not provided, EN will be used.")]
     public string? LanguageCode { get; set; }

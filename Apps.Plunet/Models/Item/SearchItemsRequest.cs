@@ -5,7 +5,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Item
 {
-    public class SearchItemsRequest
+    public class SearchItemsRequest : SearchInputBase
     {
 
         [Display("Item status")]

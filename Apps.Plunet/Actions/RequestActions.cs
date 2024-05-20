@@ -44,7 +44,7 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
             return new(Enumerable.Empty<RequestResponse>());
 
         var results = new List<RequestResponse>();
-        foreach (var id in searchResult.data.Where(x => x.HasValue))
+        foreach (var id in searchResult.data.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
         {
             var requestResponse = await GetRequest(id.Value.ToString());
             results.Add(requestResponse);

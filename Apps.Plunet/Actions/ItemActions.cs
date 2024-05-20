@@ -74,7 +74,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
         return new ListItemResponse
         {
-            Items = result.data is null ? new List<ItemResponse>() : result.data.Select(x => new ItemResponse(x))
+            Items = result.data is null ? new List<ItemResponse>() : result.data.Take(searchParams.Limit ?? SystemConsts.SearchLimit).Select(x => new ItemResponse(x))
         };
     }
 

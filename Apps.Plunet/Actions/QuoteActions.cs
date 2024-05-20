@@ -56,7 +56,7 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
             return new(Enumerable.Empty<QuoteResponse>());
 
         var results = new List<QuoteResponse>();
-        foreach (var id in searchResult.data.Where(x => x.HasValue))
+        foreach (var id in searchResult.data.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
         {
             var quoteResponse = await GetQuote(new GetQuoteRequest { QuoteId = id.Value.ToString() });
             results.Add(quoteResponse);
