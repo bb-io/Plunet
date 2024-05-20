@@ -39,18 +39,16 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
         [ActionParameter] FindContactRequest findContactRequest)
     {
         var contacts =  await ExecuteWithRetry<CustomerContactListResult>(async () =>  await ContactClient.getAllContactObjectsAsync(Uuid, ParseId(input.CustomerId)));
-        if (contacts.data is null)
-        {
+        if(contacts.statusMessage != ApiResponses.Ok)
             throw new(contacts.statusMessage);
-        }
         
         CustomerContact? contact = null;
         if (!string.IsNullOrEmpty(findContactRequest.Email))
         {
-            contact = contacts.data.FirstOrDefault(x => x.email == findContactRequest.Email);
+            contact = contacts.data?.FirstOrDefault(x => x.email == findContactRequest.Email);
         }
         
-        contact ??= contacts.data.FirstOrDefault();
+        contact ??= contacts.data?.FirstOrDefault();
 
         if (contact is null)
         {
