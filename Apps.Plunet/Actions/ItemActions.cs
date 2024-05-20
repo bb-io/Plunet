@@ -77,7 +77,15 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             Items = result.data is null ? new List<ItemResponse>() : result.data.Take(searchParams.Limit ?? SystemConsts.SearchLimit).Select(x => new ItemResponse(x))
         };
     }
-
+    
+    [Action("Find item", Description = "Find a specific item based on specific criteria")]
+    public async Task<ItemResponse?> FindItem([ActionParameter] OptionalItemProjectRequest item,
+        [ActionParameter] SearchItemsRequest searchParams,
+        [ActionParameter] OptionalCurrencyTypeRequest currencyParams)
+    {
+        var result = await SearchItems(item, searchParams, currencyParams);
+        return result.Items.FirstOrDefault();
+    }
 
     [Action("Get item", Description = "Get details for a Plunet item")]
     public async Task<ItemResponse> GetItem([ActionParameter] ProjectTypeRequest project,

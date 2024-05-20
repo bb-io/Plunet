@@ -51,7 +51,7 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
         return new SearchInvoicesResponse { Invoices = invoices };
     }
 
-    [Action("Find invoice by text module", Description = "Find invoice by parameters")]
+    [Action("Find invoice", Description = "Find invoice based on specific parameters")]
     public async Task<GetInvoiceResponse?> FindInvoice([ActionParameter] FindInvoiceRequest request)
     {
         var invoices = await SearchInvoices(request);
@@ -80,8 +80,8 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
                 }
             }
         }
-
-        throw new InvalidOperationException("No invoice found with the given parameters");
+        
+        return invoices.Invoices.FirstOrDefault();
     }
 
     [Action("Get invoice", Description = "Get invoice by ID")]

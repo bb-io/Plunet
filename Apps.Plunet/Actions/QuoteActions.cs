@@ -64,6 +64,13 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
 
         return new(results);
     }
+    
+    [Action("Find quote", Description = "Find a quote based on specific criteria")]
+    public async Task<QuoteResponse?> FindQuote([ActionParameter] SearchQuotesInput request)
+    {
+        var searchResult = await SearchQuotes(request);
+        return searchResult.Quotes.FirstOrDefault();
+    }
 
     [Action("Get quote", Description = "Get details for a Plunet quote")]
     public async Task<QuoteResponse> GetQuote([ActionParameter] GetQuoteRequest request)

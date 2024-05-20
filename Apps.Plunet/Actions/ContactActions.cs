@@ -22,6 +22,7 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
         };
     }
 
+    /*
     [Action("Get customer emails", Description = "Get all the emails of the specified customer")]
     public async Task<GetContactsEmailResponse> GetCustomerEmails([ActionParameter] CustomerRequest input)
     {
@@ -30,6 +31,33 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
         {
             EmailAddresses = contacts.data is null ? new List<string>() : contacts.data.Select(x => x.email)
         };
+    }
+    */
+    
+    [Action("Find contact", Description = "Find a contact based on specified parameters")]
+    public async Task<ContactObjectResponse?> FindContactByEmail([ActionParameter] CustomerRequest input,
+        [ActionParameter] FindContactRequest findContactRequest)
+    {
+        var contacts =  await ExecuteWithRetry<CustomerContactListResult>(async () =>  await ContactClient.getAllContactObjectsAsync(Uuid, ParseId(input.CustomerId)));
+        if (contacts.data is null)
+        {
+            throw new(contacts.statusMessage);
+        }
+        
+        CustomerContact? contact = null;
+        if (!string.IsNullOrEmpty(findContactRequest.Email))
+        {
+            contact = contacts.data.FirstOrDefault(x => x.email == findContactRequest.Email);
+        }
+        
+        contact ??= contacts.data.FirstOrDefault();
+
+        if (contact is null)
+        {
+            return null;
+        }
+        
+        return new(contact);
     }
 
     [Action("Get contact", Description = "Get the Plunet contact")]

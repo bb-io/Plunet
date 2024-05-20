@@ -52,6 +52,13 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
 
         return new(results);
     }
+
+    [Action("Find request", Description = "Find a specific request based on specific criteria")]
+    public async Task<RequestResponse?> FindRequest([ActionParameter] SearchRequestsInput input)
+    {
+        var searchResult = await SearchRequests(input);
+        return searchResult.Requests.FirstOrDefault();
+    }
     
     [Action("Get request", Description = "Get details for a Plunet request")]
     public async Task<RequestResponse> GetRequest([ActionParameter] [Display("Request ID")] string requestId)
