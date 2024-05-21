@@ -14,7 +14,7 @@ namespace Apps.Plunet.Actions;
 public class RequestActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Search requests", Description = "Search for specific requests based on specific criteria")]
-    public async Task<ListRequestsResponse> SearchRequests([ActionParameter] SearchRequestsInput input)
+    public async Task<SearchResponse<RequestResponse>> SearchRequests([ActionParameter] SearchRequestsInput input)
     {
         var searchResult = await ExecuteWithRetry<IntegerArrayResult>(async () => await RequestClient.searchAsync(Uuid, new()
         {
@@ -41,7 +41,7 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
             throw new(searchResult.statusMessage);
 
         if (searchResult.data is null)
-            return new(Enumerable.Empty<RequestResponse>());
+            return new();
 
         var results = new List<RequestResponse>();
         foreach (var id in searchResult.data.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
@@ -54,10 +54,10 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
     }
 
     [Action("Find request", Description = "Find a specific request based on specific criteria")]
-    public async Task<RequestResponse?> FindRequest([ActionParameter] SearchRequestsInput input)
+    public async Task<FindResponse<RequestResponse>> FindRequest([ActionParameter] SearchRequestsInput input)
     {
         var searchResult = await SearchRequests(input);
-        return searchResult.Requests.FirstOrDefault();
+        return new(searchResult.Items.FirstOrDefault(), searchResult.TotalCount);
     }
     
     [Action("Get request", Description = "Get details for a Plunet request")]

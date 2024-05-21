@@ -1,5 +1,6 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
+using Apps.Plunet.Models;
 using Apps.Plunet.Models.Customer;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
@@ -12,7 +13,7 @@ namespace Apps.Plunet.Actions;
 public class CustomerActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Search customers", Description = "Search for specific customers based on specific criteria")]
-    public async Task<ListCustomersResponse> SearchCustomers([ActionParameter] SearchCustomerRequest input)
+    public async Task<SearchResponse<GetCustomerResponse>> SearchCustomers([ActionParameter] SearchCustomerRequest input)
     {
         var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await CustomerClient.searchAsync(Uuid, new SearchFilter_Customer
         {
@@ -28,7 +29,7 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
             throw new(response.statusMessage);
 
         if (response.data is null)
-            return new(Enumerable.Empty<GetCustomerResponse>());
+            return new();
 
         var results = new List<GetCustomerResponse>();
         foreach (var id in response.data.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
@@ -41,10 +42,10 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
     }
 
     [Action("Find customer", Description = "Find a customer based on the specified criteria")]
-    public async Task<GetCustomerResponse?> FindCustomer([ActionParameter] SearchCustomerRequest request)
+    public async Task<FindResponse<GetCustomerResponse>?> FindCustomer([ActionParameter] SearchCustomerRequest request)
     {
         var response = await SearchCustomers(request);
-        return response.Customers.FirstOrDefault();
+        return new(response.Items.FirstOrDefault(), response.TotalCount);
     }
 
     [Action("Get customer", Description = "Get the Plunet customer")]

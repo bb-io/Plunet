@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Invocables;
+using Apps.Plunet.Models;
 using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Models.Resource.Request;
 using Apps.Plunet.Models.Resource.Response;
@@ -18,7 +19,7 @@ namespace Apps.Plunet.Actions;
 public class ResourceActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Search resources", Description = "Search for specific resources based on specific criteria")]
-    public async Task<ListResourceResponse> SearchResources([ActionParameter] SearchResourcesRequest input)
+    public async Task<SearchResponse<ResourceResponse>> SearchResources([ActionParameter] SearchResourcesRequest input)
     {
         var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await ResourceClient.searchAsync(Uuid,
             new Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource()
@@ -39,10 +40,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
 
         if (response.data is null)
         {
-            return new()
-            {
-                Resources = Enumerable.Empty<ResourceResponse>()
-            };
+            return new();
         }
 
         var results = new List<ResourceResponse>();
@@ -69,37 +67,31 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
                 }
             }
 
-            return new()
-            {
-                Resources = textModuleResources
-            };
+            return new(textModuleResources);
         }
 
-        return new()
-        {
-            Resources = results
-        };
+        return new(results);
     }
     
     [Action("Find resource", Description = "Find a specific resource based on specific criteria")]
-    public async Task<ResourceResponse?> FindResource([ActionParameter] SearchResourcesRequest request)
+    public async Task<FindResponse<ResourceResponse>> FindResource([ActionParameter] SearchResourcesRequest request)
     {
         var result = await SearchResources(request);
-        return result.Resources.FirstOrDefault();
+        return new(result.Items.FirstOrDefault(), result.TotalCount);
     }
 
     [Action("Find resource by text module", Description = "Find resources by text module")]
-    public async Task<ResourceResponse> FindResourceByTextModule([ActionParameter] FindByTextModuleRequest request)
+    public async Task<FindResponse<ResourceResponse>> FindResourceByTextModule([ActionParameter] FindByTextModuleRequest request)
     {
         var result = await SearchResources(new SearchResourcesRequest
             { TextModuleValue = request.TextModuleValue, Flag = request.Flag });
 
-        if (result.Resources.Any() == false)
+        if (result.Items.Any() == false)
         {
             throw new("No resources found with the given text module value");
         }
-
-        return result.Resources.First();
+        
+        return new(result.Items.FirstOrDefault(), result.TotalCount);
     }
 
     // Get resource price lists (optional source+target)

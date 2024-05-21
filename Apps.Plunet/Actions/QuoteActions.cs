@@ -19,7 +19,7 @@ namespace Apps.Plunet.Actions;
 public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Search quotes", Description = "Search for specific quotes based on specific criteria")]
-    public async Task<ListQuotesResponse> SearchQuotes([ActionParameter] SearchQuotesInput input)
+    public async Task<SearchResponse<QuoteResponse>> SearchQuotes([ActionParameter] SearchQuotesInput input)
     {
         var searchResult = await ExecuteWithRetry<IntegerArrayResult>(async () => await QuoteClient.searchAsync(Uuid, new()
         {
@@ -53,7 +53,7 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
             throw new(searchResult.statusMessage);
 
         if (searchResult.data is null)
-            return new(Enumerable.Empty<QuoteResponse>());
+            return new();
 
         var results = new List<QuoteResponse>();
         foreach (var id in searchResult.data.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
@@ -66,10 +66,10 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
     }
     
     [Action("Find quote", Description = "Find a quote based on specific criteria")]
-    public async Task<QuoteResponse?> FindQuote([ActionParameter] SearchQuotesInput request)
+    public async Task<FindResponse<QuoteResponse>> FindQuote([ActionParameter] SearchQuotesInput request)
     {
         var searchResult = await SearchQuotes(request);
-        return searchResult.Quotes.FirstOrDefault();
+        return new(searchResult.Items.FirstOrDefault(), searchResult.TotalCount);
     }
 
     [Action("Get quote", Description = "Get details for a Plunet quote")]
