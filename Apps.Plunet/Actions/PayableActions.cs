@@ -1,5 +1,6 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
+using Apps.Plunet.Models;
 using Apps.Plunet.Models.Payable.Request;
 using Apps.Plunet.Models.Payable.Response;
 using Blackbird.Applications.Sdk.Common;
@@ -13,7 +14,7 @@ namespace Apps.Plunet.Actions;
 public class PayableActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Search payables", Description = "Get a list of payables based on custom criteria")]
-    public async Task<SearchPayablesResponse> SearchPayables([ActionParameter] SearchPayablesRequest input)
+    public async Task<SearchResponse<PayableResponse>> SearchPayables([ActionParameter] SearchPayablesRequest input)
     {
         var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await PayableClient.searchAsync(Uuid, new()
         {
@@ -34,10 +35,7 @@ public class PayableActions(InvocationContext invocationContext) : PlunetInvocab
 
         if (response.data is null)
         {
-            return new()
-            {
-                Payables = Enumerable.Empty<PayableResponse>()
-            };
+            return new();
         }
 
         var results = new List<PayableResponse>();
@@ -47,17 +45,14 @@ public class PayableActions(InvocationContext invocationContext) : PlunetInvocab
             results.Add(payableResponse);
         }
 
-        return new()
-        {
-            Payables = results
-        };
+        return new(results);
     }
 
     [Action("Find payable", Description = "Find a payable based on search criteria")]
-    public async Task<PayableResponse?> FindPayable([ActionParameter] SearchPayablesRequest input)
+    public async Task<FindResponse<PayableResponse>> FindPayable([ActionParameter] SearchPayablesRequest input)
     {
         var result = await SearchPayables(input);
-        return result.Payables.FirstOrDefault();
+        return new(result.Items.FirstOrDefault(), result.TotalCount);
     }
 
     [Action("Get payable", Description = "Get details of a specific payable")]

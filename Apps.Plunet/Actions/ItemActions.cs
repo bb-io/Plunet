@@ -14,7 +14,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 {
     [Action("Search items",
         Description = "Search for items either under a specific order/quote or with a certain status")]
-    public async Task<ListItemResponse> SearchItems([ActionParameter] OptionalItemProjectRequest item,
+    public async Task<SearchResponse<ItemResponse>> SearchItems([ActionParameter] OptionalItemProjectRequest item,
         [ActionParameter] SearchItemsRequest searchParams,
         [ActionParameter] OptionalCurrencyTypeRequest currencyParams)
     {
@@ -72,19 +72,19 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (result.statusMessage != ApiResponses.Ok)
             throw new(result.statusMessage);
 
-        return new ListItemResponse
-        {
-            Items = result.data is null ? new List<ItemResponse>() : result.data.Take(searchParams.Limit ?? SystemConsts.SearchLimit).Select(x => new ItemResponse(x))
-        };
+        var items = result.data is null
+            ? new List<ItemResponse>()
+            : result.data.Take(searchParams.Limit ?? SystemConsts.SearchLimit).Select(x => new ItemResponse(x)).ToList();
+        return new SearchResponse<ItemResponse>(items);
     }
     
     [Action("Find item", Description = "Find a specific item based on specific criteria")]
-    public async Task<ItemResponse?> FindItem([ActionParameter] OptionalItemProjectRequest item,
+    public async Task<FindResponse<ItemResponse>> FindItem([ActionParameter] OptionalItemProjectRequest item,
         [ActionParameter] SearchItemsRequest searchParams,
         [ActionParameter] OptionalCurrencyTypeRequest currencyParams)
     {
         var result = await SearchItems(item, searchParams, currencyParams);
-        return result.Items.FirstOrDefault();
+        return new(result.Items.FirstOrDefault(), result.TotalCount);
     }
 
     [Action("Get item", Description = "Get details for a Plunet item")]

@@ -15,7 +15,7 @@ public class InvoiceDataHandler(InvocationContext invocationContext)
         var invoiceActions = new InvoiceActions(InvocationContext, null);
         var invoices = await invoiceActions.SearchInvoices(new SearchInvoicesRequest());
         
-        return invoices.Invoices
+        return invoices.Items
             .Where(x => context.SearchString == null ||
                         x.ProjectName.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
             .Take(20)

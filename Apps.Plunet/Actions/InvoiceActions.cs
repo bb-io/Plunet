@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.DataOutgoingInvoice30Service;
 using Apps.Plunet.Invocables;
+using Apps.Plunet.Models;
 using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Models.Invoices;
@@ -10,7 +11,6 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
-using Invoice = Apps.Plunet.Models.Invoices.Common.Invoice;
 using Tax = Apps.Plunet.Models.Invoices.Common.Tax;
 
 namespace Apps.Plunet.Actions;
@@ -20,7 +20,7 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
     : PlunetInvocable(invocationContext)
 {
     [Action("Search invoices", Description = "Search invoices")]
-    public async Task<SearchInvoicesResponse> SearchInvoices([ActionParameter] SearchInvoicesRequest request)
+    public async Task<SearchResponse<GetInvoiceResponse>> SearchInvoices([ActionParameter] SearchInvoicesRequest request)
     {
         var filter = new SearchFilter_Invoice
         {
@@ -47,25 +47,25 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
                 { InvoiceId = invoiceId.ToString() ?? throw new InvalidOperationException("Invoice ID is null") });
             invoices.Add(invoice);
         }
-
-        return new SearchInvoicesResponse { Invoices = invoices };
+        
+        return new(invoices);
     }
 
     [Action("Find invoice", Description = "Find invoice based on specific parameters")]
-    public async Task<GetInvoiceResponse?> FindInvoice([ActionParameter] FindInvoiceRequest request)
+    public async Task<FindResponse<GetInvoiceResponse>> FindInvoice([ActionParameter] FindInvoiceRequest request)
     {
         var invoices = await SearchInvoices(request);
 
         if (!string.IsNullOrEmpty(request.InvoiceNumber))
         {
-            invoices.Invoices = invoices.Invoices.Where(x => x.InvoiceNumber == request.InvoiceNumber).ToList();
+            invoices.Items = invoices.Items.Where(x => x.InvoiceNumber == request.InvoiceNumber).ToList();
         }
 
         if (!string.IsNullOrEmpty(request.Flag) && !string.IsNullOrEmpty(request.TextModuleValue))
         {
             var customPropertyActions = new CustomPropertyActions(invocationContext);
 
-            foreach (var invoice in invoices.Invoices)
+            foreach (var invoice in invoices.Items)
             {
                 var textModule = await customPropertyActions.GetTextmodule(new TextModuleRequest
                 {
@@ -76,12 +76,12 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
 
                 if (textModule.Value == request.TextModuleValue)
                 {
-                    return invoice;
+                    return new(invoice, invoices.TotalCount);
                 }
             }
         }
         
-        return invoices.Invoices.FirstOrDefault();
+        return new(invoices.Items.FirstOrDefault(), invoices.TotalCount);
     }
 
     [Action("Get invoice", Description = "Get invoice by ID")]

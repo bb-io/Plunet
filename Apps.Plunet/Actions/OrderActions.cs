@@ -22,7 +22,7 @@ namespace Apps.Plunet.Actions;
 public class OrderActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Search orders", Description = "Search for specific orders based on specific criteria")]
-    public async Task<ListOrderResponse> SearchOrders([ActionParameter] SearchOrderInput input)
+    public async Task<SearchResponse<OrderResponse>> SearchOrders([ActionParameter] SearchOrderInput input)
     {
         var searchResult = await ExecuteWithRetry<IntegerArrayResult>(async () => await OrderClient.searchAsync(Uuid,
             new()
@@ -56,7 +56,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             }
         }
 
-        return new ListOrderResponse { Orders = results };
+        return new SearchResponse<OrderResponse>(results);
     }
 
     [Action("Get order", Description = "Get the Plunet order")]
