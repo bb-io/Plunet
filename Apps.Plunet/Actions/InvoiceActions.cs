@@ -79,6 +79,8 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
                     return new(invoice, invoices.TotalCount);
                 }
             }
+            
+            return new(null, 0);
         }
         
         return new(invoices.Items.FirstOrDefault(), invoices.TotalCount);
