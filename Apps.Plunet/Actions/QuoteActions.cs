@@ -13,6 +13,7 @@ using Blackbird.Plugins.Plunet.DataQuote30Service;
 using IntegerArrayResult = Blackbird.Plugins.Plunet.DataQuote30Service.IntegerArrayResult;
 using IntegerResult = Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult;
 using Result = Blackbird.Plugins.Plunet.DataQuote30Service.Result;
+
 namespace Apps.Plunet.Actions;
 
 [ActionList]
@@ -21,33 +22,34 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
     [Action("Search quotes", Description = "Search for specific quotes based on specific criteria")]
     public async Task<SearchResponse<QuoteResponse>> SearchQuotes([ActionParameter] SearchQuotesInput input)
     {
-        var searchResult = await ExecuteWithRetry<IntegerArrayResult>(async () => await QuoteClient.searchAsync(Uuid, new()
-        {
-            sourceLanguage = input.SourceLanguage ?? string.Empty,
-            targetLanguage = input.TargetLanguage ?? string.Empty,
-            quoteStatus = ParseId(input.QuoteStatus),
-            timeFrame = input.DateFrom is not null || input.DateTo is not null
-                ? new()
-                {
-                    dateFrom = input.DateFrom ?? default,
-                    dateTo = input.DateTo ?? default
-                }
-                : default,
-            selectionEntryCustomer = input.CustomerMainId is not null || input.CustomerEntryType is not null
-                ? new()
-                {
-                    mainID = ParseId(input.CustomerMainId),
-                    customerEntryType = ParseId(input.CustomerEntryType)
-                }
-                : default,
-            SelectionEntry_Resource = input.ResourceMainId is not null || input.ResourceEntryType is not null
-                ? new()
-                {
-                    mainID = ParseId(input.ResourceMainId),
-                    resourceEntryType = ParseId(input.ResourceEntryType)
-                }
-                : default
-        }));
+        var searchResult = await ExecuteWithRetry<IntegerArrayResult>(async () => await QuoteClient.searchAsync(Uuid,
+            new()
+            {
+                sourceLanguage = input.SourceLanguage ?? string.Empty,
+                targetLanguage = input.TargetLanguage ?? string.Empty,
+                quoteStatus = ParseId(input.QuoteStatus),
+                timeFrame = input.DateFrom is not null || input.DateTo is not null
+                    ? new()
+                    {
+                        dateFrom = input.DateFrom ?? default,
+                        dateTo = input.DateTo ?? default
+                    }
+                    : default,
+                selectionEntryCustomer = input.CustomerMainId is not null || input.CustomerEntryType is not null
+                    ? new()
+                    {
+                        mainID = ParseId(input.CustomerMainId),
+                        customerEntryType = ParseId(input.CustomerEntryType)
+                    }
+                    : default,
+                SelectionEntry_Resource = input.ResourceMainId is not null || input.ResourceEntryType is not null
+                    ? new()
+                    {
+                        mainID = ParseId(input.ResourceMainId),
+                        resourceEntryType = ParseId(input.ResourceEntryType)
+                    }
+                    : default
+            }));
 
         if (searchResult.statusMessage != ApiResponses.Ok)
             throw new(searchResult.statusMessage);
@@ -64,7 +66,7 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
 
         return new(results);
     }
-    
+
     [Action("Find quote", Description = "Find a quote based on specific criteria")]
     public async Task<FindResponse<QuoteResponse>> FindQuote([ActionParameter] SearchQuotesInput request)
     {
@@ -75,7 +77,8 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
     [Action("Get quote", Description = "Get details for a Plunet quote")]
     public async Task<QuoteResponse> GetQuote([ActionParameter] GetQuoteRequest request)
     {
-        var quoteResult = await ExecuteWithRetry<QuoteResult>(async () => await QuoteClient.getQuoteObjectAsync(Uuid, ParseId(request.QuoteId)));
+        var quoteResult = await ExecuteWithRetry<QuoteResult>(async () =>
+            await QuoteClient.getQuoteObjectAsync(Uuid, ParseId(request.QuoteId)));
         if (quoteResult.statusMessage != ApiResponses.Ok)
             throw new(quoteResult.statusMessage);
 
@@ -86,8 +89,9 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
 
         var totalPrice = itemsResult.data?.Sum(x => x.totalPrice) ?? 0;
 
-        var customerIdResult = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>(async () =>
-            await QuoteClient.getCustomerIDAsync(Uuid, ParseId(request.QuoteId)));
+        var customerIdResult = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>(
+            async () =>
+                await QuoteClient.getCustomerIDAsync(Uuid, ParseId(request.QuoteId)));
 
         var contactIdResult =
             await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>(async () =>
@@ -95,12 +99,12 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
 
         var pmID = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>(async () =>
             await QuoteClient.getProjectmanagerIDAsync(Uuid, ParseId(request.QuoteId)));
-        
+
         var orderId = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>(async () =>
             await QuoteClient.getOrderIDFirstItemAsync(Uuid, ParseId(request.QuoteId)));
 
         var projectManagerID = string.Empty;
-        if(pmID == null)
+        if (pmID == null)
         {
             projectManagerID = null;
         }
@@ -108,13 +112,14 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
         {
             projectManagerID = pmID.data == 0 ? null : pmID.data.ToString();
         }
-        
-        var categoryResult = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.StringResult>(async () =>
-            await QuoteClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.QuoteId)));
-        
+
+        var categoryResult = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.StringResult>(
+            async () =>
+                await QuoteClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.QuoteId)));
+
         if (categoryResult.statusMessage != ApiResponses.Ok)
         {
-            if(categoryResult.statusMessage.Contains(ApiResponses.ProjectCategoryIsNotSet))
+            if (categoryResult.statusMessage.Contains(ApiResponses.ProjectCategoryIsNotSet))
             {
                 categoryResult = new Blackbird.Plugins.Plunet.DataQuote30Service.StringResult { data = string.Empty };
             }
@@ -123,11 +128,16 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
                 throw new(categoryResult.statusMessage);
             }
         }
-        
-        var projectStatus = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>(async () =>
+
+        var projectStatus = await ExecuteWithRetry<IntegerResult>(async () =>
             await QuoteClient.getProjectStatusAsync(Uuid, ParseId(request.QuoteId)));
         if (projectStatus.statusMessage != ApiResponses.Ok)
             throw new(projectStatus.statusMessage);
+
+        var items = await ExecuteWithRetry<ItemListResult>(async () =>
+            await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(request.QuoteId), 1));
+        var sourceLanguages = items.data?.Select(x => x.sourceLanguage).Distinct().ToList() ?? new();
+        var targetLanguages = items.data?.Select(x => x.targetLanguage).Distinct().ToList() ?? new();
 
         return new(quoteResult.data)
         {
@@ -137,12 +147,15 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
             ProjectManagerId = projectManagerID,
             OrderId = orderId.data == 0 ? null : orderId.data.ToString(),
             ProjectCategory = categoryResult.data,
-            ProjectStatus = projectStatus.data.ToString()
+            ProjectStatus = projectStatus.data.ToString(),
+            ItemsSourceLanguages = sourceLanguages,
+            ItemsTargetLanguages = targetLanguages
         };
     }
 
     [Action("Create quote", Description = "Create a new quote in Plunet, optionally using a template")]
-    public async Task<QuoteResponse> CreateQuote([ActionParameter] CreateQuoteRequest request, QuoteTemplateRequest template)
+    public async Task<QuoteResponse> CreateQuote([ActionParameter] CreateQuoteRequest request,
+        QuoteTemplateRequest template)
     {
         var quoteIn = new QuoteIN
         {
@@ -156,9 +169,10 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
             status = ParseId(request.Status)
         };
 
-        var quoteIdResult = template.TemplateId == null 
-            ? await ExecuteWithRetry<IntegerResult>(async () => await QuoteClient.insert2Async(Uuid,quoteIn))
-            : await ExecuteWithRetry<IntegerResult>(async () => await QuoteClient.insert_byTemplateAsync(Uuid, quoteIn, ParseId(template.TemplateId)));
+        var quoteIdResult = template.TemplateId == null
+            ? await ExecuteWithRetry<IntegerResult>(async () => await QuoteClient.insert2Async(Uuid, quoteIn))
+            : await ExecuteWithRetry<IntegerResult>(async () =>
+                await QuoteClient.insert_byTemplateAsync(Uuid, quoteIn, ParseId(template.TemplateId)));
 
         if (quoteIdResult.statusMessage != ApiResponses.Ok)
             throw new(quoteIdResult.statusMessage);
@@ -166,25 +180,31 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
         var quoteId = quoteIdResult.data;
 
         if (request.RequestId is not null)
-            await ExecuteWithRetry<Result>(async () => await QuoteClient.setRequestIDAsync(Uuid, quoteId, ParseId(request.RequestId)));
+            await ExecuteWithRetry<Result>(async () =>
+                await QuoteClient.setRequestIDAsync(Uuid, quoteId, ParseId(request.RequestId)));
 
         if (request.ProjectStatus is not null)
-            await ExecuteWithRetry<Result>(async () => await QuoteClient.setProjectStatusAsync(Uuid, quoteId, ParseId(request.ProjectStatus)));
+            await ExecuteWithRetry<Result>(async () =>
+                await QuoteClient.setProjectStatusAsync(Uuid, quoteId, ParseId(request.ProjectStatus)));
 
         if (request.ProjectManagerId is not null)
-            await ExecuteWithRetry<Result>(async () => await QuoteClient.setProjectmanagerIDAsync(Uuid, ParseId(request.ProjectManagerId), quoteId));
+            await ExecuteWithRetry<Result>(async () =>
+                await QuoteClient.setProjectmanagerIDAsync(Uuid, ParseId(request.ProjectManagerId), quoteId));
 
         if (request.ExternalId is not null)
-            await ExecuteWithRetry<Result>(async () => await QuoteClient.setExternalIDAsync(Uuid, quoteId, request.ExternalId));
+            await ExecuteWithRetry<Result>(async () =>
+                await QuoteClient.setExternalIDAsync(Uuid, quoteId, request.ExternalId));
 
         if (request.ContactId is not null)
-            await ExecuteWithRetry<Result>(async () => await QuoteClient.setCustomerContactIDAsync(Uuid, ParseId(request.ContactId), quoteId));
+            await ExecuteWithRetry<Result>(async () =>
+                await QuoteClient.setCustomerContactIDAsync(Uuid, ParseId(request.ContactId), quoteId));
 
         return await GetQuote(new GetQuoteRequest { QuoteId = quoteId.ToString() });
     }
-    
+
     [Action("Create quote from template", Description = "Create a new quote in Plunet using a template")]
-    public async Task<QuoteResponse> CreateQuoteFromTemplate([ActionParameter] CreateQuoteRequest request, [ActionParameter, Display("Template"), DataSource(typeof(QuoteTemplateDataHandler))] string templateId)
+    public async Task<QuoteResponse> CreateQuoteFromTemplate([ActionParameter] CreateQuoteRequest request,
+        [ActionParameter, Display("Template"), DataSource(typeof(QuoteTemplateDataHandler))] string templateId)
     {
         var quoteTemplateRequest = new QuoteTemplateRequest { TemplateId = templateId };
         return await CreateQuote(request, quoteTemplateRequest);
@@ -227,7 +247,8 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
     }
 
     [Action("Update quote", Description = "Update Plunet quote")]
-    public async Task<QuoteResponse> UpdateQuote([ActionParameter] GetQuoteRequest quote, [ActionParameter] CreateQuoteRequest request)
+    public async Task<QuoteResponse> UpdateQuote([ActionParameter] GetQuoteRequest quote,
+        [ActionParameter] CreateQuoteRequest request)
     {
         var result = await ExecuteWithRetry<Result>(async () => await QuoteClient.updateAsync(Uuid, new QuoteIN
         {
@@ -249,19 +270,22 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
     }
 
     [Action("Add language combination to quote", Description = "Add a new language combination to an existing quote")]
-    public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToQuote([ActionParameter] GetQuoteRequest quote, LanguageCombinationRequest request)
+    public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToQuote(
+        [ActionParameter] GetQuoteRequest quote, LanguageCombinationRequest request)
     {
         var sourceLanguage = await GetLanguageFromIsoOrFolderOrName(request.SourceLanguageCode);
         var targetLanguage = await GetLanguageFromIsoOrFolderOrName(request.TargetLanguageCode);
 
-        var result = await ExecuteWithRetry<IntegerResult>(async () => await QuoteClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, ParseId(quote.QuoteId)));
+        var result = await ExecuteWithRetry<IntegerResult>(async () =>
+            await QuoteClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name,
+                ParseId(quote.QuoteId)));
 
         return new()
         {
             LanguageCombinationId = result.data.ToString()
         };
     }
-    
+
     private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
         where T : Result
     {
@@ -269,13 +293,13 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
         while (true)
         {
             var result = await func();
-            
-            if(result.statusMessage == ApiResponses.Ok)
+
+            if (result.statusMessage == ApiResponses.Ok)
             {
                 return (T)result;
             }
-            
-            if(result.statusMessage.Contains("session-UUID used is invalid"))
+
+            if (result.statusMessage.Contains("session-UUID used is invalid"))
             {
                 if (attempts < maxRetries)
                 {
@@ -291,7 +315,7 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
             return (T)result;
         }
     }
-    
+
     private async Task<T> ExecuteWithRetry<T>(Func<Task<ItemListResult>> func, int maxRetries = 10, int delay = 1000)
         where T : ItemListResult
     {
@@ -299,25 +323,25 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
         while (true)
         {
             var result = await func();
-            
-            if(result.statusMessage == ApiResponses.Ok)
+
+            if (result.statusMessage == ApiResponses.Ok)
             {
                 return (T)result;
             }
-            
-            if(result.statusMessage.Contains("session-UUID used is invalid"))
+
+            if (result.statusMessage.Contains("session-UUID used is invalid"))
             {
-                if(attempts < maxRetries)
+                if (attempts < maxRetries)
                 {
                     await Task.Delay(delay);
                     await RefreshAuthToken();
                     attempts++;
                     continue;
                 }
-                
+
                 throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
-            
+
             return (T)result;
         }
     }
