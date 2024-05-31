@@ -95,6 +95,29 @@ public class PlunetInvocable : BaseInvocable
                 new LanguageCombination(languages.First(l => l.name == combination.source).folderName,
                     languages.First(l => l.name == combination.target).folderName));
     }
+    
+    protected async Task<List<string>> GetLanguageCodes(IEnumerable<string> languageName)
+    {
+        var languages = new List<string>();
+        foreach (var name in languageName)
+        {
+            var language = await GetLanguageCode(name);
+            languages.Add(language);
+        }
+        
+        return languages;
+    }
+    
+    protected async Task<string> GetLanguageCode(string languageName)
+    {
+        var languages = await GetSystemLanguages();
+        var language = languages.FirstOrDefault(x => x.name.Equals(languageName, StringComparison.OrdinalIgnoreCase));
+
+        if (language == null)
+            throw new($"Language {languageName} could not be found in your Plunet instance");
+
+        return language.folderName;
+    }
 
     protected async Task<Language> GetLanguageFromIsoOrFolderOrName(string isOrFolderOrName)
     {

@@ -33,6 +33,7 @@ namespace Apps.Plunet.DataSourceHandlers
                 throw new(quotes.QuoteListResult.statusMessage);
 
             return quotes.QuoteListResult.data
+                .Where(x => context.SearchString == null || x.projectName.Contains(context.SearchString))    
                 .Take(20)
                 .ToDictionary(x => x.quoteID.ToString(), x => x.projectName);
 
