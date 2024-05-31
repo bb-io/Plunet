@@ -47,6 +47,9 @@ public class QuoteResponse
     
     [Display("Items target languages")]
     public List<string> ItemsTargetLanguages { get; set; }
+    
+    [Display("Language combinations")]
+    public IEnumerable<LanguageCombination> LanguageCombinations { get; set; }
 
     public QuoteResponse(Blackbird.Plugins.Plunet.DataQuote30Service.Quote quote)
     {

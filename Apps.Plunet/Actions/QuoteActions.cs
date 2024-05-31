@@ -2,6 +2,7 @@
 using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
+using Apps.Plunet.Models.Order;
 using Apps.Plunet.Models.Quote.Request;
 using Apps.Plunet.Models.Quote.Response;
 using Blackbird.Applications.Sdk.Common;
@@ -136,8 +137,13 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
 
         var items = await ExecuteWithRetry<ItemListResult>(async () =>
             await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(request.QuoteId), 1));
-        var sourceLanguages = items.data?.Select(x => x.sourceLanguage).Distinct().ToList() ?? new();
-        var targetLanguages = items.data?.Select(x => x.targetLanguage).Distinct().ToList() ?? new();
+        var sourceLanguages = items.data?.Where(x => x.sourceLanguage != null).Select(x => x.sourceLanguage).Distinct().ToList() ?? new();
+        var targetLanguages = items.data?.Where(x => x.targetLanguage != null).Select(x => x.targetLanguage).Distinct().ToList() ?? new();
+        var languageCombinationsStrings = items.data?.Where(x => x.sourceLanguage != null && x.targetLanguage != null).Select(x => $"{x.sourceLanguage} - {x.targetLanguage}").Distinct().ToList() ?? new();
+        
+        var sourceLanguageCodes = await GetLanguageCodes(sourceLanguages);
+        var targetLanguageCodes = await GetLanguageCodes(targetLanguages);
+        var languageCombinations = await ParseLanguageCombinations(languageCombinationsStrings);
 
         return new(quoteResult.data)
         {
@@ -148,8 +154,24 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
             OrderId = orderId.data == 0 ? null : orderId.data.ToString(),
             ProjectCategory = categoryResult.data,
             ProjectStatus = projectStatus.data.ToString(),
-            ItemsSourceLanguages = sourceLanguages,
-            ItemsTargetLanguages = targetLanguages
+            ItemsSourceLanguages = sourceLanguageCodes,
+            ItemsTargetLanguages = targetLanguageCodes,
+            LanguageCombinations = languageCombinations
+        };
+    }
+    
+    [Action("Get quote item target languages for source",
+        Description = "Given a source language and an quote item")]
+    public async Task<LanguagesResponse> GetQuoteTargetLanguage([ActionParameter] GetQuoteRequest request,
+        [ActionParameter] SourceLanguageRequest language)
+    {
+        var quote = await GetQuote(request);
+        var response = quote.LanguageCombinations.Where(x => x.Source == language.SourceLanguageCode)
+            .Select(x => x.Target).Distinct();
+
+        return new LanguagesResponse
+        {
+            Languages = response,
         };
     }
 
