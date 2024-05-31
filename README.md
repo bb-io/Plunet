@@ -131,6 +131,7 @@ An example of the granularity at which orders (and other entities) can be select
   - Currency
   - Resource ID
 - **Get quote**
+- **Get quote item target languages for source**
 - **Create quote**
 - **Delete quote**
 - **Update order**
