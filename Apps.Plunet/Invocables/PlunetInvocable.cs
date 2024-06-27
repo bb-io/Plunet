@@ -87,10 +87,10 @@ public class PlunetInvocable : BaseInvocable
     {
         if (dashSeparatedStrings == null || !dashSeparatedStrings.Any())
             return new List<LanguageCombination>();
-
-        var languages = await GetSystemLanguages();
+        
         try
         {
+            var languages = await GetSystemLanguages();
             return dashSeparatedStrings
             .Select(combination => new { source = combination.Split(" - ")[0], target = combination.Split(" - ")[1] })
             .Select(combination =>
