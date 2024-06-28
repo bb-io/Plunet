@@ -106,8 +106,14 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
                 CustomerId = customerId
             }, new(request));
         }
-
-        return await GetCustomerById(new CustomerRequest { CustomerId = customerId });
+        try
+        {
+            return await GetCustomerById(new CustomerRequest { CustomerId = customerId });
+        }
+        catch 
+        {
+            return new GetCustomerResponse { CustomerId = customerId };
+        }
     }
 
     [Action("Update customer", Description = "Update Plunet customer")]

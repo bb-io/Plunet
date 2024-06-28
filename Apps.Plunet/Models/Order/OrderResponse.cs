@@ -74,8 +74,8 @@ public class OrderResponse
         ProjectName = order.projectName;
         Rate = order.rate;
         LanguageCombinations = combinations;
-        AllTargetLanguages = combinations.Select(x => x.Target).Distinct();
-        AllSourceLanguages = combinations.Select(x => x.Source).Distinct();
+        AllTargetLanguages = combinations == null || !combinations.Any() ? new List<string>() : combinations.Select(x => x.Target).Distinct();
+        AllSourceLanguages = combinations == null || !combinations.Any() ? new List<string>() : combinations.Select(x => x.Source).Distinct();
         RequestId = order.requestID.ToString();
     }
 }

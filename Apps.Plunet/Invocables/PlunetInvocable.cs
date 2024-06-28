@@ -85,15 +85,23 @@ public class PlunetInvocable : BaseInvocable
 
     protected async Task<IEnumerable<LanguageCombination>> ParseLanguageCombinations(IEnumerable<string> dashSeparatedStrings)
     {
-        if (dashSeparatedStrings == null)
+        if (dashSeparatedStrings == null || !dashSeparatedStrings.Any())
             return new List<LanguageCombination>();
-
-        var languages = await GetSystemLanguages();
-        return dashSeparatedStrings
+        
+        try
+        {
+            var languages = await GetSystemLanguages();
+            return dashSeparatedStrings
             .Select(combination => new { source = combination.Split(" - ")[0], target = combination.Split(" - ")[1] })
             .Select(combination =>
                 new LanguageCombination(languages.First(l => l.name == combination.source).folderName,
                     languages.First(l => l.name == combination.target).folderName));
+        }
+        catch 
+        {
+            return Enumerable.Empty<LanguageCombination>();
+        }
+        
     }
     
     protected async Task<List<string>> GetLanguageCodes(IEnumerable<string> languageName)
