@@ -2,6 +2,7 @@
 using Apps.Plunet.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Webhooks;
+using EventType = Apps.Plunet.Webhooks.Models.EventType;
 
 namespace Apps.Plunet.Webhooks.Handlers.Base;
 
