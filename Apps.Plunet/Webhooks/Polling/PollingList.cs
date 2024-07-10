@@ -7,13 +7,14 @@ using Blackbird.Applications.Sdk.Common.Polling;
 using Apps.Plunet.Actions;
 namespace Apps.Plunet.Webhooks.Polling
 {
+    [PollingEventList]
     public class PollingList : PlunetInvocable
     {
         public PollingList(InvocationContext invocationContext) : base(invocationContext)
         {
         }
 
-        [PollingEvent("On payables created", "On payables created")]
+        [PollingEvent("On payables created", "Triggered when payable is createdd")]
         public async Task<PollingEventResponse<PayableMemory, SearchResponse<PayableResponse>>> OnPayableCreated(
             PollingEventRequest<PayableMemory> request,
             [PollingEventParameter] PayableCreatedInput payableCreatedInput)
