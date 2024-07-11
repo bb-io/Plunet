@@ -1,4 +1,5 @@
-﻿using Apps.Plunet.Constants;
+﻿using System.Text;
+using Apps.Plunet.Constants;
 using Apps.Plunet.DataOutgoingInvoice30Service;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
@@ -11,6 +12,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
+using Newtonsoft.Json;
 using Tax = Apps.Plunet.Models.Invoices.Common.Tax;
 
 namespace Apps.Plunet.Actions;
@@ -205,9 +207,12 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
             ]
         };
 
-        var stream = invoiceObject.ToStream();
+        var json = JsonConvert.SerializeObject(invoiceObject);
+        var memoryStream = new MemoryStream(Encoding.UTF8.GetBytes(json));
+        memoryStream.Position = 0;
+        
         var fileReference =
-            await fileManagementClient.UploadAsync(stream, "application/json", $"{invoice.InvoiceNumber}.json");
+            await fileManagementClient.UploadAsync(memoryStream, "application/json", $"{invoice.InvoiceNumber}.json");
 
         return new ExportInvoiceResponse
         {
