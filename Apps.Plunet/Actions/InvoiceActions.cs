@@ -38,6 +38,11 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
         {
             filter.customerID = int.Parse(request.CustomerId);
         }
+        
+        if (!string.IsNullOrEmpty(request.InvoiceStatus))
+        {
+            filter.invoiceStatus = int.Parse(request.InvoiceStatus);
+        }
 
         var searchInvoices =
             await ExecuteWithRetry<IntegerArrayResult>(
