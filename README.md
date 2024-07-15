@@ -228,6 +228,10 @@ All webhooks return all data for the entity they were invoked on. All _status ch
 - **On resource created**
 - **On resource status changed**
 
+### Payables
+
+- **On payable created**
+
 ## Example
 
 ![1701866832560](image/README/1701866832560.png)

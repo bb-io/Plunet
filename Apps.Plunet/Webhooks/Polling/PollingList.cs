@@ -14,7 +14,7 @@ namespace Apps.Plunet.Webhooks.Polling
         {
         }
 
-        [PollingEvent("On payable created", "Triggered when payable is created")]
+        [PollingEvent("On payables created", "Triggered when payable is createdd")]
         public async Task<PollingEventResponse<PayableMemory, SearchResponse<PayableResponse>>> OnPayableCreated(
             PollingEventRequest<PayableMemory> request,
             [PollingEventParameter] PayableCreatedInput payableCreatedInput)
