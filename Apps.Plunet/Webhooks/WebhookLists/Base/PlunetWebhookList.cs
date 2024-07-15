@@ -72,8 +72,10 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
             Content = new StringContent(content),
             StatusCode = response.StatusCode
         };
-        response.Headers?.ToList().ForEach(headerParameter =>
-            httpResponseMessage.Headers.Add(headerParameter.Name ?? string.Empty, headerParameter.Value?.ToString()));
+        response.Headers?.Where(x => !x.Name.Contains("Transfer")).ToList().ForEach(headerParameter =>
+        {
+            httpResponseMessage.Headers.Add(headerParameter.Name ?? string.Empty, headerParameter.Value?.ToString());
+        });
 
         httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Xml);
 
