@@ -1,5 +1,7 @@
 ﻿using Apps.Plunet.DataSourceHandlers;
+using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Invoices;
@@ -17,4 +19,7 @@ public class SearchInvoicesRequest : SearchInputBase
 
     [Display("Customer ID"), DataSource(typeof(CustomerIdDataHandler))]
     public string? CustomerId { get; set; }
+
+    [Display("Invoice status"), StaticDataSource(typeof(InvoiceStatusDataHandler))]
+    public string? InvoiceStatus { get; set; }
 }
