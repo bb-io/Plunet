@@ -28,6 +28,6 @@ public class ResourceIdDataHandler(InvocationContext invocationContext)
 
         return resourcesResponse.ResourceListResult.data
             .Take(20)
-            .ToDictionary(x => x.resourceID.ToString(), x => $"{x.name1} {x.name2}");
+            .ToDictionary(x => x.resourceID.ToString(), x => $"{x.name2} {x.name1}");
     }
 }

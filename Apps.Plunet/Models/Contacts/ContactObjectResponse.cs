@@ -35,8 +35,8 @@ public class ContactObjectResponse : CustomerRequest
         Email = customerContact.email;
         ExternalId = customerContact.externalID;
         Fax = customerContact.fax;
-        FirstName = customerContact.name1;
-        LastName = customerContact.name2;
+        FirstName = customerContact.name2;
+        LastName = customerContact.name1;
         MobilePhone = customerContact.mobilePhone;
         Phone = customerContact.phone;
         UserId = customerContact.userId.ToString();
