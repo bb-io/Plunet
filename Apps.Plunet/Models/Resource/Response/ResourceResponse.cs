@@ -22,9 +22,9 @@ public class ResourceResponse
 
     [Display("Mobile phone")] public string MobilePhone { get; set; }
 
-    [Display("Name 1")] public string Name1 { get; set; }
+    [Display("Last name")] public string LastName { get; set; }
 
-    [Display("Name 2")] public string Name2 { get; set; }
+    [Display("First name")] public string FirstName { get; set; }
 
     [Display("Opening")] public string Opening { get; set; }
 
@@ -61,8 +61,8 @@ public class ResourceResponse
         FormOfAddress = resource.formOfAddress.ToString();
         FullName = resource.fullName;
         MobilePhone = resource.mobilePhone;
-        Name1 = resource.name1;
-        Name2 = resource.name2;
+        LastName = resource.name1;
+        FirstName = resource.name2;
         Opening = resource.opening;
         Phone = resource.phone;
         ResourceID = resource.resourceID.ToString();
