@@ -42,7 +42,7 @@ namespace Apps.Plunet.Actions
                 throw new(response.Result.statusMessage);
         }
 
-        [Action("Get text module", Description = "Get a text module value from any entity")]
+        [Action("Get text module value", Description = "Get a text module value from any entity")]
         public async Task<TextModuleResponse> GetTextmodule([ActionParameter] TextModuleRequest input)
         {
             var response = await ExecuteWithRetry<TextmoduleResult>(async () => await CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag, ParseId(input.UsageArea),
@@ -69,13 +69,40 @@ namespace Apps.Plunet.Actions
             };
         }
 
-        [Action("Set text module", Description = "Set a text module value for any entity")]
+        [Action("Get multiple text module values", Description = "Get the text module values from any entity for modules where multiple values can be selected")]
+        public async Task<MultipleTextModuleResponse> GetTextmoduleValues([ActionParameter] TextModuleRequest input)
+        {
+            var response = await ExecuteWithRetry<TextmoduleResult>(async () => await CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag, ParseId(input.UsageArea),
+                ParseId(input.MainId), Language));
+            if (response.statusMessage != ApiResponses.Ok)
+                throw new(response.statusMessage);
+
+            var values = new List<string>();
+            if (string.IsNullOrEmpty(response.data.stringValue) && response.data.selectedValues is null)
+            {
+            }
+            else if (string.IsNullOrEmpty(response.data.stringValue) && response.data.selectedValues.Any())
+            {
+                values = response.data.selectedValues.ToList();
+            }
+            else
+            {
+                values = new List<string>() { response.data.stringValue };
+            }
+
+            return new()
+            {
+                Values = values
+            };
+        }
+
+        [Action("Set text module value", Description = "Set a text module value for any entity")]
         public async Task SetTextmodule([ActionParameter] TextModuleRequest input,
             [ActionParameter] [Display("Value")] string value)
         {
             var response = await ExecuteWithRetry<Result>(async () => await CustomFieldsClient.setTextmoduleAsync(
                 Uuid,
-                new Blackbird.Plugins.Plunet.DataCustomFields30.TextmoduleIN
+                new TextmoduleIN
                 {
                     flag = input.Flag,
                     stringValue = value,
@@ -85,7 +112,24 @@ namespace Apps.Plunet.Actions
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
         }
-        
+
+        [Action("Set multiple text module values", Description = "Set a text module value for any entity where multiple values can be selected")]
+        public async Task SetTextmoduleValues([ActionParameter] TextModuleRequest input,
+            [ActionParameter][Display("Values")] IEnumerable<string> values)
+        {
+            var response = await ExecuteWithRetry<Result>(async () => await CustomFieldsClient.setTextmoduleAsync(
+                Uuid,
+                new TextmoduleIN
+                {
+                    flag = input.Flag,
+                    selectedValues = values.ToArray(),
+                    textModuleUsageArea = ParseId(input.UsageArea)
+                },
+                ParseId(input.MainId), Language));
+            if (response.statusMessage != ApiResponses.Ok)
+                throw new(response.statusMessage);
+        }
+
         private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
             where T : Result
         {
