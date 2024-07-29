@@ -15,7 +15,11 @@ public class OrderClient : IPlunetWebhookClient
         try
         {
             await Logger.LogAsync(new
-                { values, eventType = eventType.ToString(), message = "Subscribing callback" });
+                { 
+                    values, 
+                    eventType = eventType.ToString(), 
+                    message = "Subscribing callback" 
+                }); // random change
 
             var uuid = creds.GetAuthToken();
 
