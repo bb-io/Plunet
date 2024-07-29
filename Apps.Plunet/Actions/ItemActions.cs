@@ -189,10 +189,19 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
+        var result = new List<PricelineResponse>();
+
+        foreach (var priceLine in response.data) 
+        {
+            var priceUnit = await ItemClient.getPriceUnitAsync(Uuid, priceLine.priceUnitID, Language);
+            result.Add(CreatePricelineResponse(priceLine,priceUnit.data));
+        }
+    
         return new PricelinesResponse
         {
-            Pricelines = response.data.Select(CreatePricelineResponse),
+            Pricelines = result,
         };
+        
     }
 
     [Action("Create item priceline", Description = "Add a new pricline to an item")]
@@ -220,7 +229,8 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
-        return CreatePricelineResponse(response.data);
+        var priceUnit = await ItemClient.getPriceUnitAsync(Uuid, int.Parse(unit.PriceUnit) , Language);
+        return CreatePricelineResponse(response.data, priceUnit.data);
     }
 
     [Action("Delete item priceline", Description = "Delete a priceline from an item")]
@@ -260,11 +270,13 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
-        return CreatePricelineResponse(response.data);
+        var priceUnit = await ItemClient.getPriceUnitAsync(Uuid, int.Parse(unit.PriceUnit), Language);
+        return CreatePricelineResponse(response.data, priceUnit.data);
     }
 
-    private PricelineResponse CreatePricelineResponse(PriceLine line)
+    private PricelineResponse CreatePricelineResponse(PriceLine line, PriceUnit unit)
     {
+                           
         return new PricelineResponse
         {
             Amount = line.amount,
@@ -276,6 +288,8 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             TaxType = line.taxType.ToString(),
             TimePerUnit = line.time_perUnit,
             PriceUnitId = line.priceUnitID.ToString(),
+            PriceUnitDescription = unit.description,
+            PriceUnitService = unit.service
         };
     }
 
