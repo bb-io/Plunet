@@ -20,10 +20,11 @@ public class OrderClient : IPlunetWebhookClient
             var uuid = creds.GetAuthToken();
 
             await using var orderClient = Clients.GetOrderClient(creds.GetInstanceUrl());
-            await orderClient.registerCallback_NotifyAsync(uuid, "bbTestPlugin",
+            var result = await orderClient.registerCallback_NotifyAsync(uuid, "bbTestPlugin",
                 values[CredsNames.WebhookUrlKey] + "?wsdl",
                 (int)eventType);
-
+            
+            await Logger.LogAsync(new { result_message = result.statusMessage, status_code = result.statusCode });
             await creds.Logout();
         }
         catch (Exception e)
@@ -42,8 +43,9 @@ public class OrderClient : IPlunetWebhookClient
             var uuid = creds.GetAuthToken();
 
             await using var orderClient = Clients.GetOrderClient(creds.GetInstanceUrl());
-            await orderClient.deregisterCallback_NotifyAsync(uuid, (int)eventType);
+            var result = await orderClient.deregisterCallback_NotifyAsync(uuid, (int)eventType);
 
+            await Logger.LogAsync(new { result_message = result.statusMessage, status_code = result.statusCode });
             await creds.Logout();
         }
         catch (Exception e)
