@@ -28,8 +28,14 @@ namespace Apps.Plunet.Models
         [Display("Unit price")]
         public double UnitPrice { get; set; }
 
-        [Display("Price unit")]
+        [Display("Price unit ID")]
         public string PriceUnitId { get; set; }
+
+        [Display("Price unit descripion")]
+        public string PriceUnitDescription { get; set; }
+
+        [Display("Price unit service")]
+        public string PriceUnitService { get; set; }
 
     }
 }
