@@ -19,7 +19,7 @@ public static class Logger
         await LogAsync(new
         {
             Exception = e.Message,
-            StackTrace = e.StackTrace,
+            e.StackTrace,
             InnerException = e.InnerException?.Message,
             Type = e.GetType().Name
         });
