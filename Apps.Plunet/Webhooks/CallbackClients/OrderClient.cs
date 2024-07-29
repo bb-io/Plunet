@@ -20,7 +20,7 @@ public class OrderClient : IPlunetWebhookClient
                     values, 
                     eventType = eventType.ToString(), 
                     message = "Subscribing callback" 
-                }); // random change
+                });
 
             var uuid = creds.GetAuthToken();
 
@@ -62,9 +62,11 @@ public class OrderClient : IPlunetWebhookClient
             
             foreach(var callback in eventCallbacks.Where(x => x.serverAddress != values[CredsNames.WebhookUrlKey] + "?wsdl"))
             {
-                await orderClient.registerCallback_NotifyAsync(uuid, "bbTestPlugin",
-                    callback.serverAddress, (int)eventType);
-            }
+                await orderClient.registerCallback_NotifyAsync(uuid, 
+                    "bbTestPlugin",
+                    callback.serverAddress, 
+                    (int)eventType);
+            } 
             
             await creds.Logout();
         }
