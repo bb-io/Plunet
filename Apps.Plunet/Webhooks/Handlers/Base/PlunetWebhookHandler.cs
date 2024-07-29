@@ -16,5 +16,5 @@ public abstract class PlunetWebhookHandler : IWebhookEventHandler
 
     public Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds,
         Dictionary<string, string> values)
-        => Client.DeregisterCallback(creds, EventType);
+        => Client.DeregisterCallback(creds, values, EventType);
 }

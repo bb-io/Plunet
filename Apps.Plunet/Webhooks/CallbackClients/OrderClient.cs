@@ -15,7 +15,7 @@ public class OrderClient : IPlunetWebhookClient
         try
         {
             await Logger.LogAsync(new
-                { creds, values, eventType = eventType.ToString(), message = "Registering callback" });
+                { values, eventType = eventType.ToString(), message = "Subscribing callback" });
 
             var uuid = creds.GetAuthToken();
 
@@ -35,11 +35,12 @@ public class OrderClient : IPlunetWebhookClient
     }
 
     public async Task DeregisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
+        Dictionary<string, string> values,
         EventType eventType)
     {
         try
         {
-            await Logger.LogAsync(new { creds, eventType = eventType.ToString(), message = "Deregistering callback" });
+            await Logger.LogAsync(new { values, eventType = eventType.ToString(), message = "Unsubscribing callback" });
             var uuid = creds.GetAuthToken();
 
             await using var orderClient = Clients.GetOrderClient(creds.GetInstanceUrl());

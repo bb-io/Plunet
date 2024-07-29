@@ -22,6 +22,7 @@ public class ResourceClient : IPlunetWebhookClient
     }
 
     public async Task DeregisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
+        Dictionary<string, string> values,
         EventType eventType)
     {
         var uuid = creds.GetAuthToken();
