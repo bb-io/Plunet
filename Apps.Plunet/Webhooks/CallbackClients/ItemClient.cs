@@ -10,26 +10,20 @@ namespace Apps.Plunet.Webhooks.CallbackClients;
 public class ItemClient : IPlunetWebhookClient
 {
     public async Task RegisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
-        Dictionary<string, string> values, EventType eventType)
-    {
-        var uuid = creds.GetAuthToken();
-
+        Dictionary<string, string> values, EventType eventType, string? uuid = null)
+    { 
+        uuid ??= creds.GetAuthToken();
         await using var orderClient = Clients.GetItemClient(creds.GetInstanceUrl());
         await orderClient.registerCallback_NotifyAsync(uuid, "bbTestPlugin", values[CredsNames.WebhookUrlKey] + "?wsdl",
             (int)eventType);
-
-        await creds.Logout();
     }
 
     public async Task DeregisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
         Dictionary<string, string> values,
-        EventType eventType)
+        EventType eventType, 
+        string uuid)
     {
-        var uuid = creds.GetAuthToken();
-
         await using var orderClient = Clients.GetItemClient(creds.GetInstanceUrl());
         await orderClient.deregisterCallback_NotifyAsync(uuid, (int)eventType);
-
-        await creds.Logout();
     }
 }

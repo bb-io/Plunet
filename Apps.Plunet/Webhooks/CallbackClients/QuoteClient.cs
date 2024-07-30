@@ -10,10 +10,9 @@ namespace Apps.Plunet.Webhooks.CallbackClients;
 public class QuoteClient : IPlunetWebhookClient
 {
     public async Task RegisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
-        Dictionary<string, string> values, EventType eventType)
+        Dictionary<string, string> values, EventType eventType, string? uuid = null)
     {
-        var uuid = creds.GetAuthToken();
-
+        uuid ??= creds.GetAuthToken();
         await using var orderClient = Clients.GetQuoteClient(creds.GetInstanceUrl());
         await orderClient.registerCallback_NotifyAsync(uuid, "bbTestPlugin", values[CredsNames.WebhookUrlKey] + "?wsdl",
             (int)eventType);
@@ -23,10 +22,9 @@ public class QuoteClient : IPlunetWebhookClient
 
     public async Task DeregisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
         Dictionary<string, string> values,
-        EventType eventType)
+        EventType eventType,
+        string uuid)
     {
-        var uuid = creds.GetAuthToken();
-
         await using var orderClient = Clients.GetQuoteClient(creds.GetInstanceUrl());
         await orderClient.deregisterCallback_NotifyAsync(uuid, (int)eventType);
 
