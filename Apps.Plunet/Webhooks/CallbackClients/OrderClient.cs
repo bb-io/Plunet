@@ -42,13 +42,11 @@ public class OrderClient : IPlunetWebhookClient
 
         var callbacks = await dataAdminClient.getListOfRegisteredCallbacksAsync(uuid);
         var eventCallbacks = callbacks.data.Where(c => c.eventType == (int)eventType).ToList();
-            
-        await Logger.LogAsync(new { eventCallbacks });
-
+        
         await using var orderClient = Clients.GetOrderClient(creds.GetInstanceUrl());
         var result = await orderClient.deregisterCallback_NotifyAsync(uuid, (int)eventType);
 
-        await Logger.LogAsync(new { result_message = result.statusMessage, status_code = result.statusCode });
+        await Logger.LogAsync(new { result_message = result.statusMessage, status_code = result.statusCode, eventCallbacks });
             
         foreach(var callback in eventCallbacks.Where(x => x.serverAddress != values[CredsNames.WebhookUrlKey] + "?wsdl"))
         {
