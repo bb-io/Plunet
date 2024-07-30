@@ -6,8 +6,8 @@ namespace Apps.Plunet.Webhooks.CallbackClients.Base;
 public interface IPlunetWebhookClient
 {
     Task RegisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
-        Dictionary<string, string> values, EventType eventType);
+        Dictionary<string, string> values, EventType eventType, string? uuid = null);
     
     Task DeregisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
-        Dictionary<string, string> values, EventType eventType);
+        Dictionary<string, string> values, EventType eventType, string uuid);
 }
