@@ -4,7 +4,6 @@ using Apps.Plunet.Extensions;
 using Apps.Plunet.Webhooks.CallbackClients.Base;
 using Apps.Plunet.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common.Authentication;
-using Microsoft.Extensions.Logging;
 
 namespace Apps.Plunet.Webhooks.CallbackClients;
 
