@@ -30,6 +30,7 @@ public abstract class PlunetWebhookHandler : IWebhookEventHandler
         var eventCallbacks = callbacks.data.Where(c => c.eventType == (int)EventType).ToList();
         
         await Logger.LogAsync(new { eventCallbacks });
+        
         foreach(var callback in eventCallbacks.Where(x => x.serverAddress != values[CredsNames.WebhookUrlKey] + "?wsdl"))
         {
             values[CredsNames.WebhookUrlKey] = callback.serverAddress.Replace("?wsdl", string.Empty);
