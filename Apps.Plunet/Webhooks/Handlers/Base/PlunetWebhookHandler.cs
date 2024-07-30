@@ -23,11 +23,11 @@ public abstract class PlunetWebhookHandler : IWebhookEventHandler
         Dictionary<string, string> values)
     {
         var uuid = creds.GetAuthToken();
-        await Client.DeregisterCallback(creds, values, EventType, uuid);
-        
         var dataAdminClient = Clients.GetAdminClient(creds.GetInstanceUrl());
         var callbacks = await dataAdminClient.getListOfRegisteredCallbacksAsync(uuid);
         var eventCallbacks = callbacks.data.Where(c => c.eventType == (int)EventType).ToList();
+        
+        await Client.DeregisterCallback(creds, values, EventType, uuid);
         foreach(var callback in eventCallbacks.Where(x => x.serverAddress != values[CredsNames.WebhookUrlKey] + "?wsdl"))
         {
             values[CredsNames.WebhookUrlKey] = callback.serverAddress.Replace("?wsdl", string.Empty);
