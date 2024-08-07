@@ -189,6 +189,11 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
+        if (response.data is null)
+        {
+            return new PricelinesResponse();
+        }
+
         var result = new List<PricelineResponse>();
 
         foreach (var priceLine in response.data) 
@@ -196,7 +201,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             var priceUnit = await ItemClient.getPriceUnitAsync(Uuid, priceLine.priceUnitID, Language);
             result.Add(CreatePricelineResponse(priceLine,priceUnit.data));
         }
-    
+            
         return new PricelinesResponse
         {
             Pricelines = result,
@@ -274,7 +279,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         return CreatePricelineResponse(response.data, priceUnit.data);
     }
 
-    private PricelineResponse CreatePricelineResponse(PriceLine line, PriceUnit unit)
+    private PricelineResponse CreatePricelineResponse(PriceLine line, PriceUnit? unit)
     {
                            
         return new PricelineResponse
@@ -288,8 +293,8 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             TaxType = line.taxType.ToString(),
             TimePerUnit = line.time_perUnit,
             PriceUnitId = line.priceUnitID.ToString(),
-            PriceUnitDescription = unit.description,
-            PriceUnitService = unit.service
+            PriceUnitDescription = unit?.description ?? "",
+            PriceUnitService = unit?.service ?? ""
         };
     }
 
