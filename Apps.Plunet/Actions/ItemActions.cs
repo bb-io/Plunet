@@ -189,17 +189,17 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
+        if (response.data is null)
+        {
+            return new PricelinesResponse();
+        }
+
         var result = new List<PricelineResponse>();
 
         foreach (var priceLine in response.data) 
         {
             var priceUnit = await ItemClient.getPriceUnitAsync(Uuid, priceLine.priceUnitID, Language);
             result.Add(CreatePricelineResponse(priceLine,priceUnit.data));
-        }
-
-        if (result.Count == 0) 
-        {
-            return new PricelinesResponse();
         }
             
         return new PricelinesResponse
