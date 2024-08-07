@@ -196,7 +196,12 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             var priceUnit = await ItemClient.getPriceUnitAsync(Uuid, priceLine.priceUnitID, Language);
             result.Add(CreatePricelineResponse(priceLine,priceUnit.data));
         }
-    
+
+        if (result.Count == 0) 
+        {
+            return new PricelinesResponse();
+        }
+            
         return new PricelinesResponse
         {
             Pricelines = result,
@@ -274,7 +279,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         return CreatePricelineResponse(response.data, priceUnit.data);
     }
 
-    private PricelineResponse CreatePricelineResponse(PriceLine line, PriceUnit unit)
+    private PricelineResponse CreatePricelineResponse(PriceLine line, PriceUnit? unit)
     {
                            
         return new PricelineResponse
@@ -288,8 +293,8 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             TaxType = line.taxType.ToString(),
             TimePerUnit = line.time_perUnit,
             PriceUnitId = line.priceUnitID.ToString(),
-            PriceUnitDescription = unit.description,
-            PriceUnitService = unit.service
+            PriceUnitDescription = unit?.description ?? "",
+            PriceUnitService = unit?.service ?? ""
         };
     }
 
