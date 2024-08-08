@@ -46,7 +46,7 @@ namespace Apps.Plunet.Models.Item
         [Display("Total price")]
         public double TotalPrice { get; set; }
 
-        public ItemResponse(Blackbird.Plugins.Plunet.DataItem30Service.Item item) 
+        public ItemResponse(Blackbird.Plugins.Plunet.DataItem30Service.Item item, ItemProjectType projectType) 
         {
             BriefDescription = item.briefDescription;
             Comment = item.comment;
@@ -57,7 +57,7 @@ namespace Apps.Plunet.Models.Item
             InvoiceId = item.invoiceID.ToString();
             ItemId = item.itemID.ToString();
             Jobs = item.jobIDList == null ? new List<string> { } : item.jobIDList.Where(x => x.HasValue).Select(x => x.ToString()!);
-            OrderId = item.orderID.ToString();
+            OrderId = projectType == ItemProjectType.Order ? item.projectID.ToString() : item.orderID.ToString();
             ProjectId = item.projectID.ToString();
             ProjectType = item.projectType.ToString();
             Reference = item.reference;
