@@ -72,9 +72,10 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (result.statusMessage != ApiResponses.Ok)
             throw new(result.statusMessage);
 
+        var projectType = (ItemProjectType)int.Parse(item.ProjectType);
         var items = result.data is null
             ? new List<ItemResponse>()
-            : result.data.Take(searchParams.Limit ?? SystemConsts.SearchLimit).Select(x => new ItemResponse(x)).ToList();
+            : result.data.Take(searchParams.Limit ?? SystemConsts.SearchLimit).Select(x => new ItemResponse(x, projectType)).ToList();
         return new SearchResponse<ItemResponse>(items);
     }
     
@@ -99,7 +100,8 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (result.statusMessage != ApiResponses.Ok)
             throw new(result.statusMessage);
 
-        return new(result.data);
+        var projectType = (ItemProjectType)int.Parse(project.ProjectType);
+        return new(result.data, projectType);
     }
 
     [Action("Create item", Description = "Create a new item in Plunet")]
