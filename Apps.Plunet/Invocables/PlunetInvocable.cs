@@ -62,6 +62,12 @@ public class PlunetInvocable : BaseInvocable
         Uuid = Creds.GetAuthToken();
     }
 
+    public async Task<Callback[]> GetSubscribedWebhooks()
+    {
+        var res = await AdminClient.getListOfRegisteredCallbacksAsync(Uuid);
+        return res.data;
+    }
+
     protected int ParseId(string? value)
     {
         return IntParser.Parse(value, nameof(value)) ?? -1;

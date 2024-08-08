@@ -26,12 +26,14 @@ public abstract class PlunetWebhookHandler : IWebhookEventHandler
         var dataAdminClient = Clients.GetAdminClient(creds.GetInstanceUrl());
         var callbacks = await dataAdminClient.getListOfRegisteredCallbacksAsync(uuid);
         var eventCallbacks = callbacks.data.Where(c => c.eventType == (int)EventType).ToList();
-        
+        var currentCallback = eventCallbacks.Where(x => x.serverAddress == values[CredsNames.WebhookUrlKey] + "?wsdl").FirstOrDefault();
+        var otherCallbacksThatWillBeRemoved = eventCallbacks.Where(x => x.mainID != currentCallback?.mainID && x.dataService == currentCallback?.dataService);
+
         await Client.DeregisterCallback(creds, values, EventType, uuid);
-        foreach(var callback in eventCallbacks.Where(x => x.serverAddress != values[CredsNames.WebhookUrlKey] + "?wsdl"))
+
+        foreach (var callback in otherCallbacksThatWillBeRemoved)
         {
-            values[CredsNames.WebhookUrlKey] = callback.serverAddress.Replace("?wsdl", string.Empty);
-            await Client.RegisterCallback(creds, values, EventType, uuid);
+            await Client.RegisterCallback(creds, new Dictionary<string, string> { { CredsNames.WebhookUrlKey, callback.serverAddress.Replace("?wsdl", string.Empty) } }, EventType, uuid);
         } 
         
         await creds.Logout();
