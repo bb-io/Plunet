@@ -12,5 +12,6 @@ namespace Apps.Plunet.Models.Enums
         ItemService = 10,
         JobService = 11,
         OrderService = 9,
+        QuoteService = 8,
     }
 }
