@@ -22,7 +22,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
     public async Task<SearchResponse<ResourceResponse>> SearchResources([ActionParameter] SearchResourcesRequest input)
     {
         var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await ResourceClient.searchAsync(Uuid,
-            new Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource()
+            new SearchFilter_Resource()
             {
                 contact_resourceID = ParseId(input.ContactId),
                 email = input.Email ?? string.Empty,
@@ -114,6 +114,42 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
             throw new(paymentInfoResponse.statusMessage);
 
         return new(response.data, paymentInfoResponse.data);
+    }
+    
+    [Action("Update resource", Description = "Update a specific resource with new details")]
+    public async Task<ResourceResponse> UpdateResource([ActionParameter] UpdateResourceRequest request)
+    {
+        var response = await ExecuteWithRetry<ResourceResult>(async () =>
+            await ResourceClient.updateAsync(Uuid, new ResourceIN
+            {
+                resourceID = ParseId(request.ResourceId),
+                academicTitle = request.AcademicTitle, 
+                costCenter = request.CostCenter,
+                currency = request.Currency,
+                email = request.Email,
+                externalID = request.ExternalId, 
+                fax = request.Fax, 
+                formOfAddress = ParseId(request.FormOfAddress),
+                fullName = request.FullName,
+                mobilePhone = request.MobilePhone, 
+                name1 = request.Name1,
+                name2 = request.Name2,
+                opening = request.Opening,
+                phone = request.Phone, 
+                resourceType = 0,
+                skypeID = request.SkypeId, 
+                status = ParseId(request.Status), 
+                supervisor1 = request.Supervisor1,
+                supervisor2 = request.Supervisor2,
+                userId = ParseId(request.UserId),
+                website = request.Website, 
+                workingStatus = ParseId(request.WorkingStatus), 
+            }, true));
+        
+        if (response.statusMessage != ApiResponses.Ok) 
+            throw new(response.statusMessage);
+        
+        return await GetResource(request.ResourceId);
     }
 
     private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
