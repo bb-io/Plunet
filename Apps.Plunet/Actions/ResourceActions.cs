@@ -22,7 +22,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
     public async Task<SearchResponse<ResourceResponse>> SearchResources([ActionParameter] SearchResourcesRequest input)
     {
         var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await ResourceClient.searchAsync(Uuid,
-            new Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource()
+            new SearchFilter_Resource()
             {
                 contact_resourceID = ParseId(input.ContactId),
                 email = input.Email ?? string.Empty,
@@ -98,8 +98,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
 
     [Action("Get resource", Description = "Get details of a specific resource")]
     public async Task<ResourceResponse> GetResource(
-        [ActionParameter] [DataSource(typeof(ResourceIdDataHandler))] [Display("Resource ID")]
-        string resourceId)
+        [ActionParameter] [DataSource(typeof(ResourceIdDataHandler))] [Display("Resource ID")] string resourceId)
     {
         var response = await ExecuteWithRetry<ResourceResult>(async () =>
             await ResourceClient.getResourceObjectAsync(Uuid, ParseId(resourceId)));
@@ -114,6 +113,50 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
             throw new(paymentInfoResponse.statusMessage);
 
         return new(response.data, paymentInfoResponse.data);
+    }
+    
+    [Action("Update resource", Description = "Update a specific resource with new details")]
+    public async Task<ResourceResponse> UpdateResource([ActionParameter] UpdateResourceRequest request)
+    {
+        var formOfAddress = string.IsNullOrEmpty(request.FormOfAddress) 
+            ? (await ExecuteWithRetry<IntegerResult>(async () => await ResourceClient.getFormOfAddressAsync(Uuid, ParseId(request.ResourceId)))).data :
+            ParseId(request.FormOfAddress);
+        
+        var status = string.IsNullOrEmpty(request.Status) 
+            ? (await ExecuteWithRetry<IntegerResult>(async () => await ResourceClient.getStatusAsync(Uuid, ParseId(request.ResourceId)))).data 
+            : ParseId(request.Status);
+        
+        var response = await ExecuteWithRetry<Result>(async () =>
+            await ResourceClient.updateAsync(Uuid, new ResourceIN
+            {
+                resourceID = ParseId(request.ResourceId),
+                academicTitle = request.AcademicTitle, 
+                costCenter = request.CostCenter ?? string.Empty,
+                currency = request.Currency ?? string.Empty,
+                email = request.Email ?? string.Empty,
+                externalID = request.ExternalId ?? string.Empty, 
+                fax = request.Fax ?? string.Empty, 
+                formOfAddress = formOfAddress,
+                fullName = request.FullName ?? string.Empty,
+                mobilePhone = request.MobilePhone ?? string.Empty, 
+                name1 = request.Name1 ?? string.Empty,
+                name2 = request.Name2 ?? string.Empty,
+                opening = request.Opening ?? string.Empty,
+                phone = request.Phone ?? string.Empty, 
+                resourceType = 0,
+                skypeID = request.SkypeId ?? string.Empty, 
+                status = status,
+                supervisor1 = request.Supervisor1 ?? string.Empty,
+                supervisor2 = request.Supervisor2 ?? string.Empty,
+                userId = ParseId(request.UserId),
+                website = request.Website ?? string.Empty, 
+                workingStatus = ParseId(request.WorkingStatus)
+            }, false));
+        
+        if (response.statusMessage != ApiResponses.Ok)
+            throw new(response.statusMessage);
+        
+        return await GetResource(request.ResourceId);
     }
 
     private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)

@@ -164,7 +164,10 @@ An example of the granularity at which orders (and other entities) can be select
   - Source language
   - Target language
   - Working status
-- **Get resource**
+- **Get resource** Get details of a specific resource
+- **Find resource** Find a specific resource based on specific criteria
+- **Find resource by text module** Find resources by text module
+- **Update resource** Update a specific resource with new details
 
 ### Custom properties
 

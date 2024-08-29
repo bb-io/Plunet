@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
 		<Product>Plunet</Product>
 		<Description>The right translation management software</Description>
-		<Version>1.8.23</Version>
+		<Version>1.8.24</Version>
 		<AssemblyName>Apps.Plunet</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
@@ -21,5 +21,10 @@
     </ItemGroup>
 	<ItemGroup>
 		<EmbeddedResource CopyToOutputDirectory="Always" Include="image\icon.png" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Content Include="..\README.md">
+	    <Link>README.md</Link>
+	  </Content>
 	</ItemGroup>
 </Project>
