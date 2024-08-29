@@ -98,8 +98,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
 
     [Action("Get resource", Description = "Get details of a specific resource")]
     public async Task<ResourceResponse> GetResource(
-        [ActionParameter] [DataSource(typeof(ResourceIdDataHandler))] [Display("Resource ID")]
-        string resourceId)
+        [ActionParameter] [DataSource(typeof(ResourceIdDataHandler))] [Display("Resource ID")] string resourceId)
     {
         var response = await ExecuteWithRetry<ResourceResult>(async () =>
             await ResourceClient.getResourceObjectAsync(Uuid, ParseId(resourceId)));
@@ -119,36 +118,32 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
     [Action("Update resource", Description = "Update a specific resource with new details")]
     public async Task<ResourceResponse> UpdateResource([ActionParameter] UpdateResourceRequest request)
     {
-        var response = await ExecuteWithRetry<ResourceResult>(async () =>
+        var response = await ExecuteWithRetry<Result>(async () =>
             await ResourceClient.updateAsync(Uuid, new ResourceIN
             {
                 resourceID = ParseId(request.ResourceId),
                 academicTitle = request.AcademicTitle, 
-                costCenter = request.CostCenter,
-                currency = request.Currency,
-                email = request.Email,
-                externalID = request.ExternalId, 
-                fax = request.Fax, 
+                costCenter = request.CostCenter ?? string.Empty,
+                currency = request.Currency ?? string.Empty,
+                email = request.Email ?? string.Empty,
+                externalID = request.ExternalId ?? string.Empty, 
+                fax = request.Fax ?? string.Empty, 
                 formOfAddress = ParseId(request.FormOfAddress),
-                fullName = request.FullName,
-                mobilePhone = request.MobilePhone, 
-                name1 = request.Name1,
-                name2 = request.Name2,
-                opening = request.Opening,
-                phone = request.Phone, 
+                fullName = request.FullName ?? string.Empty,
+                mobilePhone = request.MobilePhone ?? string.Empty, 
+                name1 = request.Name1 ?? string.Empty,
+                name2 = request.Name2 ?? string.Empty,
+                opening = request.Opening ?? string.Empty,
+                phone = request.Phone ?? string.Empty, 
                 resourceType = 0,
-                skypeID = request.SkypeId, 
+                skypeID = request.SkypeId ?? string.Empty, 
                 status = ParseId(request.Status), 
-                supervisor1 = request.Supervisor1,
-                supervisor2 = request.Supervisor2,
+                supervisor1 = request.Supervisor1 ?? string.Empty,
+                supervisor2 = request.Supervisor2 ?? string.Empty,
                 userId = ParseId(request.UserId),
-                website = request.Website, 
-                workingStatus = ParseId(request.WorkingStatus), 
+                website = request.Website ?? string.Empty, 
+                workingStatus = ParseId(request.WorkingStatus)
             }, true));
-        
-        if (response.statusMessage != ApiResponses.Ok) 
-            throw new(response.statusMessage);
-        
         return await GetResource(request.ResourceId);
     }
 
