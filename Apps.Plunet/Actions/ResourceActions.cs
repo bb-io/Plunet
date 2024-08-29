@@ -151,7 +151,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
                 userId = ParseId(request.UserId),
                 website = request.Website ?? string.Empty, 
                 workingStatus = ParseId(request.WorkingStatus)
-            }, true));
+            }, false));
         
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
