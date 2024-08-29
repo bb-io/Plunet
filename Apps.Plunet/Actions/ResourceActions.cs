@@ -118,6 +118,14 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
     [Action("Update resource", Description = "Update a specific resource with new details")]
     public async Task<ResourceResponse> UpdateResource([ActionParameter] UpdateResourceRequest request)
     {
+        var formOfAddress = string.IsNullOrEmpty(request.FormOfAddress) 
+            ? (await ExecuteWithRetry<IntegerResult>(async () => await ResourceClient.getFormOfAddressAsync(Uuid, ParseId(request.ResourceId)))).data :
+            ParseId(request.FormOfAddress);
+        
+        var status = string.IsNullOrEmpty(request.Status) 
+            ? (await ExecuteWithRetry<IntegerResult>(async () => await ResourceClient.getStatusAsync(Uuid, ParseId(request.ResourceId)))).data 
+            : ParseId(request.Status);
+        
         var response = await ExecuteWithRetry<Result>(async () =>
             await ResourceClient.updateAsync(Uuid, new ResourceIN
             {
@@ -128,7 +136,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
                 email = request.Email ?? string.Empty,
                 externalID = request.ExternalId ?? string.Empty, 
                 fax = request.Fax ?? string.Empty, 
-                formOfAddress = ParseId(request.FormOfAddress),
+                formOfAddress = formOfAddress,
                 fullName = request.FullName ?? string.Empty,
                 mobilePhone = request.MobilePhone ?? string.Empty, 
                 name1 = request.Name1 ?? string.Empty,
@@ -137,13 +145,17 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
                 phone = request.Phone ?? string.Empty, 
                 resourceType = 0,
                 skypeID = request.SkypeId ?? string.Empty, 
-                status = ParseId(request.Status), 
+                status = status,
                 supervisor1 = request.Supervisor1 ?? string.Empty,
                 supervisor2 = request.Supervisor2 ?? string.Empty,
                 userId = ParseId(request.UserId),
                 website = request.Website ?? string.Empty, 
                 workingStatus = ParseId(request.WorkingStatus)
             }, true));
+        
+        if (response.statusMessage != ApiResponses.Ok)
+            throw new(response.statusMessage);
+        
         return await GetResource(request.ResourceId);
     }
 
