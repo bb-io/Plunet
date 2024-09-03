@@ -245,6 +245,19 @@ All webhooks return all data for the entity they were invoked on. All _status ch
 
 The following example shows how a bird can be setup that creates a new Wise batch transfer for all payables that are set to ready for payment and where the resources are on the Wise platform. An acompanying bird would update the payable status when the payment has succesfully been made in Wise.
 
+## Top Use-Cases
+
+1. **Synchronize Plunet and CRM data** - Blackbird supports CRM platforms like HubSpot, Notion, Salesforce, and Pipedrive.
+2. **Create Plunet orders from incoming TMS tasks with bucketing-batching** - We support systems such as Bureau Works, Lokalise, Crowdin, Phrase, Smartling, XTM, and many more.
+3. **Integrate CAT tools with Plunet (Bidirectional integration)**.
+4. **Pay vendors with Wise** - Plunet-Wise payment integration.
+5. **Integrate with QuickBooks Online**.
+6. **Integrate with Outlook, Gmail, Teams, and Slack** for better communication.
+7. **Sync data with BI tools**.
+8. **Plunet - Remote.com integration** - Synchronize key data between Plunet and Remote.
+
+Want to learn more? [Book a demo](https://www.blackbird.io/)
+
 ## Missing features
 
 A couple of features are still missing, if you are interested in any of these then let us know!
