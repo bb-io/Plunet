@@ -49,6 +49,11 @@ public class ResourceResponse
     [Display("Working status")] public string WorkingStatus { get; set; }
 
     [Display("Payment")] public ResourcePaymentResponse Payment { get; set; }
+    
+    [Display("First country")] public string FirstCountry { get; set; }
+
+    [Display("Countries")]
+    public List<string> Countries { get; set; }
 
     public ResourceResponse(Blackbird.Plugins.Plunet.DataResource30Service.Resource resource, Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfo paymentInfo)
     {
