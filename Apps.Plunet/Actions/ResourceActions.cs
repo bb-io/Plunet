@@ -116,22 +116,34 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
 
         var addresses = await ExecuteWithRetry<DataResourceAddress30Service.IntegerArrayResult>(async () =>
             await ResourceAddressClient.getAllAddressesAsync(Uuid, ParseId(resourceId)));
-        var countries = new List<string>();
+
+        var addressResponse = new AddressResponse();
         foreach (var id in addresses.data)
         {
             var countryResponse = await ExecuteWithRetry<DataResourceAddress30Service.StringResult>(async () =>
                 await ResourceAddressClient.getCountryAsync(Uuid, id.Value));
-            if (countryResponse.statusMessage != ApiResponses.Ok)
-                throw new(countryResponse.statusMessage);
-
-            countries.Add(countryResponse.data);
+            addressResponse.Countries.Add(countryResponse.data);
+            
+            var cityResponse = await ExecuteWithRetry<DataResourceAddress30Service.StringResult>(async () =>
+                await ResourceAddressClient.getCityAsync(Uuid, id.Value));
+            addressResponse.Cities.Add(cityResponse.data);
+            
+            var streetResponse = await ExecuteWithRetry<DataResourceAddress30Service.StringResult>(async () =>
+                await ResourceAddressClient.getStreetAsync(Uuid, id.Value));
+            addressResponse.Streets.Add(streetResponse.data);
+            
+            var zipCodeResponse = await ExecuteWithRetry<DataResourceAddress30Service.StringResult>(async () =>
+                await ResourceAddressClient.getZipAsync(Uuid, id.Value));
+            addressResponse.ZipCodes.Add(zipCodeResponse.data);
+            
+            var stateResponse = await ExecuteWithRetry<DataResourceAddress30Service.StringResult>(async () =>
+                await ResourceAddressClient.getStateAsync(Uuid, id.Value));
+            addressResponse.States.Add(stateResponse.data);
         }
 
-        countries = countries.Distinct().ToList();
         return new(response.data, paymentInfoResponse.data)
         {
-            FirstCountry = countries.FirstOrDefault() ?? string.Empty,
-            Countries = countries
+            AddressData = addressResponse
         };
     }
 
