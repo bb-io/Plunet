@@ -235,9 +235,22 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
+        if (response.data is null)
+        {
+            return new PricelinesResponse();
+        }
+        
+        var result = new List<PricelineResponse>();
+
+        foreach (var priceLine in response.data)
+        {
+            var priceUnit = await JobClient.getPriceUnitAsync(Uuid, priceLine.priceUnitID, Language);
+            result.Add(CreatePricelineResponse(priceLine, priceUnit.data));
+        }
+
         return new PricelinesResponse
         {
-            Pricelines = response.data.Select(CreatePricelineResponse),
+            Pricelines = result,
         };
     }
 
@@ -266,7 +279,13 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
-        return CreatePricelineResponse(response.data);
+        if (response.data is null)
+        {
+            return new PricelineResponse();
+        }
+
+        var priceUnit = await JobClient.getPriceUnitAsync(Uuid, response.data.priceUnitID, Language);
+        return CreatePricelineResponse(response.data, priceUnit.data);
     }
 
     [Action("Delete job priceline", Description = "Delete a priceline from a job")]
@@ -305,10 +324,17 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
 
-        return CreatePricelineResponse(response.data);
+        if (response.data is null)
+        {
+            return new PricelineResponse();
+        }
+
+        var priceUnit = await JobClient.getPriceUnitAsync(Uuid, response.data.priceUnitID, Language);
+        return CreatePricelineResponse(response.data, priceUnit.data);
+        
     }
 
-    private PricelineResponse CreatePricelineResponse(Blackbird.Plugins.Plunet.DataJob30Service.PriceLine line)
+    private PricelineResponse CreatePricelineResponse(Blackbird.Plugins.Plunet.DataJob30Service.PriceLine line, Blackbird.Plugins.Plunet.DataJob30Service.PriceUnit? unit)
     {
         return new PricelineResponse
         {
@@ -321,6 +347,8 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             TaxType = line.taxType.ToString(),
             TimePerUnit = line.time_perUnit,
             PriceUnitId = line.priceUnitID.ToString(),
+            PriceUnitDescription = unit?.description ?? "",
+            PriceUnitService = unit?.service ?? ""
         };
     }
 
