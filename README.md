@@ -118,6 +118,7 @@ An example of the granularity at which orders (and other entities) can be select
 
 - **Search payables** returns a list of payables based on numerous optional search parameters including:
 - **Get payable**
+- **Export payable** exports a payable to a JSON format that can be used in other apps.
 - **Update payable**
 
 ### Quotes
