@@ -141,6 +141,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
             addressResponse.States.Add(stateResponse.data);
         }
 
+        addressResponse.FirstCountry = addressResponse.Countries.FirstOrDefault() ?? string.Empty;
         return new(response.data, paymentInfoResponse.data)
         {
             AddressData = addressResponse
