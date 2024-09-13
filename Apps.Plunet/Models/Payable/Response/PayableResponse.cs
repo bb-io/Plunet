@@ -4,7 +4,7 @@ namespace Apps.Plunet.Models.Payable.Response;
 
 public class PayableResponse
 {
-    [Display("ID")]
+    [Display("Payable ID")]
     public string Id { get; set; }
 
     [Display("Status")]

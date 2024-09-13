@@ -8,18 +8,14 @@ using Apps.Plunet.Actions;
 namespace Apps.Plunet.Webhooks.Polling
 {
     [PollingEventList]
-    public class PollingList : PlunetInvocable
+    public class PollingList(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
     {
-        public PollingList(InvocationContext invocationContext) : base(invocationContext)
-        {
-        }
-
         [PollingEvent("On payables created", "Triggered when payable is createdd")]
         public async Task<PollingEventResponse<PayableMemory, SearchResponse<PayableResponse>>> OnPayableCreated(
             PollingEventRequest<PayableMemory> request,
             [PollingEventParameter] PayableCreatedInput payableCreatedInput)
         {
-            var payableActions = new PayableActions(InvocationContext);
+            var payableActions = new PayableActions(InvocationContext, null!);
             var allPayables = await payableActions.SearchPayables(new Plunet.Models.Payable.Request.SearchPayablesRequest()
             {
                 DateFrom = DateTime.MinValue,
