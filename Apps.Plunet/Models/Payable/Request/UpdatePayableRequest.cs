@@ -5,12 +5,8 @@ using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Models.Payable.Request
 {
-    public class UpdatePayableRequest
+    public class UpdatePayableRequest : PayableRequest
     {
-
-        [Display("Payable ID")]
-        public string Id { get; set; }
-
         [Display("Status")]
         [StaticDataSource(typeof(PayableStatusDataHandler))]
         public string? Status { get; set; }

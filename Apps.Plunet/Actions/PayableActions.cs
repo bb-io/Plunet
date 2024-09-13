@@ -47,7 +47,7 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
         var results = new List<PayableResponse>();
         foreach (var id in response.data.Where(x => x.HasValue))
         {
-            var payableResponse = await GetPayable(id!.Value.ToString());
+            var payableResponse = await GetPayable(new PayableRequest { PayableId = id!.Value.ToString() });
             results.Add(payableResponse);
         }
 
@@ -62,9 +62,9 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
     }
 
     [Action("Get payable", Description = "Get details of a specific payable")]
-    public async Task<PayableResponse> GetPayable([ActionParameter] [Display("Payable ID")] string payableId)
+    public async Task<PayableResponse> GetPayable([ActionParameter] PayableRequest request)
     {
-        var id = ParseId(payableId);
+        var id = ParseId(request.PayableId);
         var accountStatement =
             await GetString(ExecuteWithRetry<StringResult>(async () =>
                 await PayableClient.getAccountStatementAsync(Uuid, id)));
@@ -128,7 +128,7 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
 
         return new PayableResponse
         {
-            Id = payableId,
+            Id = request.PayableId,
             AccountStatement = accountStatement,
             CompanyCode = companyCode,
             CreditorAccount = creditorAccount,
@@ -151,9 +151,9 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
     }
 
     [Action("Export payable", Description = "Export a payable")]
-    public async Task<ExportInvoiceResponse> ExportPayable([ActionParameter] [Display("Payable ID")] string payableId)
+    public async Task<ExportInvoiceResponse> ExportPayable([ActionParameter] PayableRequest request)
     {
-        var payable = await GetPayable(payableId);
+        var payable = await GetPayable(request);
 
         var lineItems = new List<LineItem>();
         foreach (var item in payable.Items)
@@ -228,7 +228,7 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
     [Action("Update payable", Description = "Edit the fields of a payable")]
     public async Task<PayableResponse> UpdatePayable([ActionParameter] UpdatePayableRequest input)
     {
-        var id = ParseId(input.Id);
+        var id = ParseId(input.PayableId);
 
         if (input.Status != null)
             await ExecuteWithRetry<Result>(async () =>
@@ -269,7 +269,7 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
             await ExecuteWithRetry<Result>(async () =>
                 await PayableClient.setValueDateAsync(Uuid, input.ValueDate.Value, id));
 
-        return await GetPayable(input.Id);
+        return await GetPayable(input);
     }
 
 
