@@ -72,7 +72,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
 
         return new(results);
     }
-    
+
     [Action("Find resource", Description = "Find a specific resource based on specific criteria")]
     public async Task<FindResponse<ResourceResponse>> FindResource([ActionParameter] SearchResourcesRequest request)
     {
@@ -81,7 +81,8 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
     }
 
     [Action("Find resource by text module", Description = "Find resources by text module")]
-    public async Task<FindResponse<ResourceResponse>> FindResourceByTextModule([ActionParameter] FindByTextModuleRequest request)
+    public async Task<FindResponse<ResourceResponse>> FindResourceByTextModule(
+        [ActionParameter] FindByTextModuleRequest request)
     {
         var result = await SearchResources(new SearchResourcesRequest
             { TextModuleValue = request.TextModuleValue, Flag = request.Flag });
@@ -90,7 +91,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
         {
             throw new("No resources found with the given text module value");
         }
-        
+
         return new(result.Items.FirstOrDefault(), result.TotalCount);
     }
 
@@ -98,7 +99,8 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
 
     [Action("Get resource", Description = "Get details of a specific resource")]
     public async Task<ResourceResponse> GetResource(
-        [ActionParameter] [DataSource(typeof(ResourceIdDataHandler))] [Display("Resource ID")] string resourceId)
+        [ActionParameter] [DataSource(typeof(ResourceIdDataHandler))] [Display("Resource ID")]
+        string resourceId)
     {
         var response = await ExecuteWithRetry<ResourceResult>(async () =>
             await ResourceClient.getResourceObjectAsync(Uuid, ParseId(resourceId)));
@@ -112,50 +114,83 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
         if (paymentInfoResponse.statusMessage != ApiResponses.Ok)
             throw new(paymentInfoResponse.statusMessage);
 
-        return new(response.data, paymentInfoResponse.data);
+        var addresses = await ExecuteWithRetry<DataResourceAddress30Service.IntegerArrayResult>(async () =>
+            await ResourceAddressClient.getAllAddressesAsync(Uuid, ParseId(resourceId)));
+
+        var addressResponse = new AddressResponse();
+        foreach (var id in addresses.data)
+        {
+            var countryResponse = await ExecuteWithRetry<DataResourceAddress30Service.StringResult>(async () =>
+                await ResourceAddressClient.getCountryAsync(Uuid, id.Value));
+            addressResponse.Countries.Add(countryResponse.data);
+            
+            var cityResponse = await ExecuteWithRetry<DataResourceAddress30Service.StringResult>(async () =>
+                await ResourceAddressClient.getCityAsync(Uuid, id.Value));
+            addressResponse.Cities.Add(cityResponse.data);
+            
+            var streetResponse = await ExecuteWithRetry<DataResourceAddress30Service.StringResult>(async () =>
+                await ResourceAddressClient.getStreetAsync(Uuid, id.Value));
+            addressResponse.Streets.Add(streetResponse.data);
+            
+            var zipCodeResponse = await ExecuteWithRetry<DataResourceAddress30Service.StringResult>(async () =>
+                await ResourceAddressClient.getZipAsync(Uuid, id.Value));
+            addressResponse.ZipCodes.Add(zipCodeResponse.data);
+            
+            var stateResponse = await ExecuteWithRetry<DataResourceAddress30Service.StringResult>(async () =>
+                await ResourceAddressClient.getStateAsync(Uuid, id.Value));
+            addressResponse.States.Add(stateResponse.data);
+        }
+
+        addressResponse.FirstCountry = addressResponse.Countries.FirstOrDefault() ?? string.Empty;
+        return new(response.data, paymentInfoResponse.data)
+        {
+            AddressData = addressResponse
+        };
     }
-    
+
     [Action("Update resource", Description = "Update a specific resource with new details")]
     public async Task<ResourceResponse> UpdateResource([ActionParameter] UpdateResourceRequest request)
     {
-        var formOfAddress = string.IsNullOrEmpty(request.FormOfAddress) 
-            ? (await ExecuteWithRetry<IntegerResult>(async () => await ResourceClient.getFormOfAddressAsync(Uuid, ParseId(request.ResourceId)))).data :
-            ParseId(request.FormOfAddress);
-        
-        var status = string.IsNullOrEmpty(request.Status) 
-            ? (await ExecuteWithRetry<IntegerResult>(async () => await ResourceClient.getStatusAsync(Uuid, ParseId(request.ResourceId)))).data 
+        var formOfAddress = string.IsNullOrEmpty(request.FormOfAddress)
+            ? (await ExecuteWithRetry<IntegerResult>(async () =>
+                await ResourceClient.getFormOfAddressAsync(Uuid, ParseId(request.ResourceId)))).data
+            : ParseId(request.FormOfAddress);
+
+        var status = string.IsNullOrEmpty(request.Status)
+            ? (await ExecuteWithRetry<IntegerResult>(async () =>
+                await ResourceClient.getStatusAsync(Uuid, ParseId(request.ResourceId)))).data
             : ParseId(request.Status);
-        
+
         var response = await ExecuteWithRetry<Result>(async () =>
             await ResourceClient.updateAsync(Uuid, new ResourceIN
             {
                 resourceID = ParseId(request.ResourceId),
-                academicTitle = request.AcademicTitle, 
+                academicTitle = request.AcademicTitle,
                 costCenter = request.CostCenter ?? string.Empty,
                 currency = request.Currency ?? string.Empty,
                 email = request.Email ?? string.Empty,
-                externalID = request.ExternalId ?? string.Empty, 
-                fax = request.Fax ?? string.Empty, 
+                externalID = request.ExternalId ?? string.Empty,
+                fax = request.Fax ?? string.Empty,
                 formOfAddress = formOfAddress,
                 fullName = request.FullName ?? string.Empty,
-                mobilePhone = request.MobilePhone ?? string.Empty, 
+                mobilePhone = request.MobilePhone ?? string.Empty,
                 name1 = request.Name1 ?? string.Empty,
                 name2 = request.Name2 ?? string.Empty,
                 opening = request.Opening ?? string.Empty,
-                phone = request.Phone ?? string.Empty, 
+                phone = request.Phone ?? string.Empty,
                 resourceType = 0,
-                skypeID = request.SkypeId ?? string.Empty, 
+                skypeID = request.SkypeId ?? string.Empty,
                 status = status,
                 supervisor1 = request.Supervisor1 ?? string.Empty,
                 supervisor2 = request.Supervisor2 ?? string.Empty,
                 userId = ParseId(request.UserId),
-                website = request.Website ?? string.Empty, 
+                website = request.Website ?? string.Empty,
                 workingStatus = ParseId(request.WorkingStatus)
             }, false));
-        
+
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
-        
+
         return await GetResource(request.ResourceId);
     }
 
@@ -198,7 +233,69 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
                 return (T)result;
             }
 
-            if(result.statusMessage.Contains("session-UUID used is invalid"))
+            if (result.statusMessage.Contains("session-UUID used is invalid"))
+            {
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+            }
+
+            return (T)result;
+        }
+    }
+
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<DataResourceAddress30Service.IntegerArrayResult>> func,
+        int maxRetries = 10, int delay = 1000)
+        where T : DataResourceAddress30Service.IntegerArrayResult
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+
+            if (result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+
+            if (result.statusMessage.Contains("session-UUID used is invalid"))
+            {
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+            }
+
+            return (T)result;
+        }
+    }
+
+    private async Task<T> ExecuteWithRetry<T>(Func<Task<DataResourceAddress30Service.StringResult>> func,
+        int maxRetries = 10, int delay = 1000)
+        where T : DataResourceAddress30Service.StringResult
+    {
+        var attempts = 0;
+        while (true)
+        {
+            var result = await func();
+
+            if (result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+
+            if (result.statusMessage.Contains("session-UUID used is invalid"))
             {
                 if (attempts < maxRetries)
                 {

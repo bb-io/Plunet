@@ -49,6 +49,9 @@ public class ResourceResponse
     [Display("Working status")] public string WorkingStatus { get; set; }
 
     [Display("Payment")] public ResourcePaymentResponse Payment { get; set; }
+    
+    [Display("Address data")]
+    public AddressResponse AddressData { get; set; }
 
     public ResourceResponse(Blackbird.Plugins.Plunet.DataResource30Service.Resource resource, Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfo paymentInfo)
     {
@@ -86,6 +89,31 @@ public class ResourceResponse
             PreselectdTaxId = paymentInfo.preselectedTaxID.ToString(),
             SalesTaxId = paymentInfo.salesTaxID,
         };
-
     }
+}
+
+public class AddressResponse
+{
+    [Display("First country")]
+    public string FirstCountry { get; set; } = string.Empty;
+    
+    [Display("Countries")]
+    public List<string> Countries { get; set; } = new();
+    
+    [Display("Cities")]
+    public List<string> Cities { get; set; } = new();
+    
+    public List<string> States { get; set; } = new();
+
+    [Display("ZIP codes")]
+    public List<string> ZipCodes { get; set; } = new();
+    
+    [Display("ZIP codes of PO box")] 
+    public List<string> ZipCodeOfPoBox { get; set; } = new();
+    
+    [Display("PO boxes")]
+    public List<string> PoBox { get; set; } = new();
+    
+    [Display("Streets")]
+    public List<string> Streets { get; set; } = new();
 }
