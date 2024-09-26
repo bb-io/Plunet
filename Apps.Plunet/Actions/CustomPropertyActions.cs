@@ -106,6 +106,7 @@ namespace Apps.Plunet.Actions
                 {
                     flag = input.Flag,
                     stringValue = value,
+                    selectedValues = [value],
                     textModuleUsageArea = ParseId(input.UsageArea)
                 },
                 ParseId(input.MainId), Language));
