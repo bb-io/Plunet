@@ -19,7 +19,7 @@ namespace Apps.Plunet.Actions;
 public class PayableActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : PlunetInvocable(invocationContext)
 {
     [Action("Search payables", Description = "Get a list of payables based on custom criteria")]
-    public async Task<SearchResponse<PayableResponse>> SearchPayables([ActionParameter] SearchPayablesRequest input)
+    public async Task<SearchResponse<PayableResponse>> SearchPayables([ActionParameter] SearchPayablesRequest input, [ActionParameter][Display("Only IDs", Description = "If set to true, only the IDs of the payables will be returned. This will make larger queries not time-out.")] bool? simple = false)
     {
         var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await PayableClient.searchAsync(Uuid,
             new()
@@ -47,8 +47,15 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
         var results = new List<PayableResponse>();
         foreach (var id in response.data.Where(x => x.HasValue))
         {
-            var payableResponse = await GetPayable(new PayableRequest { PayableId = id!.Value.ToString() });
-            results.Add(payableResponse);
+            if (simple.HasValue && simple.Value)
+            {
+                results.Add(new PayableResponse { Id = id!.Value.ToString() });
+            }
+            else
+            {
+                var payableResponse = await GetPayable(new PayableRequest { PayableId = id!.Value.ToString() });
+                results.Add(payableResponse);
+            }
         }
 
         return new(results);
