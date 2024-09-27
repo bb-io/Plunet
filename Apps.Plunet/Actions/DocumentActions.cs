@@ -72,6 +72,8 @@ namespace Apps.Plunet.Actions
             var files = new List<FileReference>();
             foreach (var path in response.data)
             {
+                if (request.Filters != null && request.Filters.Any(path.Contains)) continue;
+
                 var file = await DownloadFile(new DownloadDocumentRequest
                     { MainId = request.MainId, FolderType = request.FolderType, FilePathName = path });
                 files.Add(file.File);

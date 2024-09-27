@@ -16,4 +16,7 @@ public class ListFilesRequest
 
     [Display("Subfolder")]
     public string? Subfolder { get; set; }
+
+    [Display("Ignore files", Description = "Ignores files that contain any of the following substrings. Can be used to f.e. filter file types like '.rtf' from the result.")]
+    public IEnumerable<string>? Filters { get; set; }
 }
