@@ -59,6 +59,9 @@ namespace Apps.Plunet.Actions
             var response = await ExecuteWithRetry<StringArrayResult>(async () =>
                 await DocumentClient.getFileListAsync(Uuid, ParseId(request.MainId), ParseId(request.FolderType)));
 
+            if (response.data == null)
+                return new ListFilesResponse { Files = new List<FileReference>() };
+
             if (request.Subfolder != null)
                 response.data = response.data.Where(folder =>
                     folder.StartsWith($"\\{request.Subfolder.Replace("/", "\\").ToLower()}\\")).ToArray();
