@@ -8,6 +8,6 @@ namespace Apps.Plunet.Webhooks.Handlers.Impl.Quotes;
 
 public class QuoteCreatedEventHandler(InvocationContext invocationContext) : PlunetWebhookHandler(invocationContext)
 {
-    protected override IPlunetWebhookClient Client => new QuoteClient();
+    protected override IPlunetWebhookClient Client => new QuoteClient(InvocationContext);
     protected override EventType EventType => EventType.NewEntryCreated;
 }
