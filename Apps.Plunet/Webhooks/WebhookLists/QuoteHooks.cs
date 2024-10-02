@@ -17,18 +17,13 @@ using Blackbird.Applications.Sdk.Common.Dictionaries;
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
 [WebhookList]
-public class QuoteHooks : PlunetWebhookList<QuoteResponse>
+public class QuoteHooks(InvocationContext invocationContext) : PlunetWebhookList<QuoteResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackQuote30";
     protected override string TriggerResponse => SoapResponses.OtherOk;
 
     private const string XmlIdTagName = "QuoteID";
-    private QuoteActions Actions { get; set; }
-
-    public QuoteHooks(InvocationContext invocationContext) : base(invocationContext)
-    {
-        Actions = new QuoteActions(invocationContext);
-    }
+    private QuoteActions Actions { get; set; } = new(invocationContext);
 
     protected override async Task<QuoteResponse> GetEntity(XDocument doc)
     {
