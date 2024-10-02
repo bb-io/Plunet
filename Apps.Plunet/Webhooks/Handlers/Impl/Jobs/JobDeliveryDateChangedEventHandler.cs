@@ -8,6 +8,6 @@ namespace Apps.Plunet.Webhooks.Handlers.Impl.Jobs;
 
 public class JobDeliveryDateChangedEventHandler(InvocationContext invocationContext) : PlunetWebhookHandler(invocationContext)
 {
-    protected override IPlunetWebhookClient Client => new JobClient();
+    protected override IPlunetWebhookClient Client => new JobClient(InvocationContext);
     protected override EventType EventType => EventType.DeliveryDateChanged;
 }

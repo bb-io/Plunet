@@ -8,6 +8,6 @@ namespace Apps.Plunet.Webhooks.Handlers.Impl.Requests;
 
 public class RequestChangedEventHandler(InvocationContext invocationContext) : PlunetWebhookHandler(invocationContext)
 {
-    protected override IPlunetWebhookClient Client => new RequestClient();
+    protected override IPlunetWebhookClient Client => new RequestClient(InvocationContext);
     protected override EventType EventType => EventType.StatusChanged;
 }

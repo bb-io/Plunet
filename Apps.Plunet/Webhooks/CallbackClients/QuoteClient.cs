@@ -15,8 +15,8 @@ public class QuoteClient(InvocationContext invocationContext) : PlunetInvocable(
     public async Task RegisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
         Dictionary<string, string> values, EventType eventType, string? uuid = null)
     {
-        await using var orderClient = Clients.GetQuoteClient(creds.GetInstanceUrl());
-        await ExecuteWithRetry<Result>(async () => await orderClient.registerCallback_NotifyAsync(Uuid, "bbTestPlugin",
+        await using var quoteClient = Clients.GetQuoteClient(creds.GetInstanceUrl());
+        await ExecuteWithRetry<Result>(async () => await quoteClient.registerCallback_NotifyAsync(Uuid, "bbTestPlugin",
             values[CredsNames.WebhookUrlKey] + "?wsdl",
             (int)eventType));
 
@@ -28,9 +28,9 @@ public class QuoteClient(InvocationContext invocationContext) : PlunetInvocable(
         EventType eventType,
         string uuid)
     {
-        await using var orderClient = Clients.GetQuoteClient(creds.GetInstanceUrl());
+        await using var quoteClient = Clients.GetQuoteClient(creds.GetInstanceUrl());
         await ExecuteWithRetry<Result>(async () =>
-            await orderClient.deregisterCallback_NotifyAsync(Uuid, (int)eventType));
+            await quoteClient.deregisterCallback_NotifyAsync(Uuid, (int)eventType));
 
         await creds.Logout();
     }

@@ -8,6 +8,6 @@ namespace Apps.Plunet.Webhooks.Handlers.Impl.Items;
 
 public class ItemChangedEventHandler(InvocationContext invocationContext) : PlunetWebhookHandler(invocationContext)
 {
-    protected override IPlunetWebhookClient Client => new ItemClient();
+    protected override IPlunetWebhookClient Client => new ItemClient(InvocationContext);
     protected override EventType EventType => EventType.StatusChanged;
 }

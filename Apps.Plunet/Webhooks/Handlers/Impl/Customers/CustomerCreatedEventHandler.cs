@@ -8,6 +8,6 @@ namespace Apps.Plunet.Webhooks.Handlers.Impl.Customers;
 
 public class CustomerCreatedEventHandler(InvocationContext invocationContext) : PlunetWebhookHandler(invocationContext)
 {
-    protected override IPlunetWebhookClient Client => new CustomerClient();
+    protected override IPlunetWebhookClient Client => new CustomerClient(InvocationContext);
     protected override EventType EventType => EventType.NewEntryCreated;
 }

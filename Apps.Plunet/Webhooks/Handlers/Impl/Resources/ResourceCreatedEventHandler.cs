@@ -8,6 +8,6 @@ namespace Apps.Plunet.Webhooks.Handlers.Impl.Resources;
 
 public class ResourceCreatedEventHandler(InvocationContext invocationContext) : PlunetWebhookHandler(invocationContext)
 {
-    protected override IPlunetWebhookClient Client => new ResourceClient();
+    protected override IPlunetWebhookClient Client => new ResourceClient(InvocationContext);
     protected override EventType EventType => EventType.NewEntryCreated;
 }

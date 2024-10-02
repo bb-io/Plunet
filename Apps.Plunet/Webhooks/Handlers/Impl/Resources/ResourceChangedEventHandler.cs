@@ -8,6 +8,6 @@ namespace Apps.Plunet.Webhooks.Handlers.Impl.Resources;
 
 public class ResourceChangedEventHandler(InvocationContext invocationContext) : PlunetWebhookHandler(invocationContext)
 {
-    protected override IPlunetWebhookClient Client => new ResourceClient();
+    protected override IPlunetWebhookClient Client => new ResourceClient(InvocationContext);
     protected override EventType EventType => EventType.StatusChanged;
 }

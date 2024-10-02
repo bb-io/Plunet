@@ -8,6 +8,6 @@ namespace Apps.Plunet.Webhooks.Handlers.Impl.Orders;
 
 public class OrderChangedEventHandler(InvocationContext invocationContext) : PlunetWebhookHandler(invocationContext)
 {
-    protected override IPlunetWebhookClient Client => new OrderClient();
+    protected override IPlunetWebhookClient Client => new OrderClient(InvocationContext);
     protected override EventType EventType => EventType.StatusChanged;
 }
