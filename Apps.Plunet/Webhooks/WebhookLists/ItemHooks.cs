@@ -12,6 +12,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using System.Xml.Linq;
+using Apps.Plunet.Models;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
@@ -49,8 +50,13 @@ public class ItemHooks : PlunetWebhookList<ItemResponse>
 
     [Webhook("On item status changed", typeof(ItemChangedEventHandler),
         Description = "Triggered when an item status is changed")]
-    public Task<WebhookResponse<ItemResponse>> ItemStatusChanged(WebhookRequest webhookRequest, [WebhookParameter][Display("New status")][StaticDataSource(typeof(ItemStatusDataHandler))] string? newStatus)
-        => HandleWebhook(webhookRequest, item => newStatus == null || newStatus == item.Status);
+    public Task<WebhookResponse<ItemResponse>> ItemStatusChanged(WebhookRequest webhookRequest, 
+        [WebhookParameter][Display("New status")][StaticDataSource(typeof(ItemStatusDataHandler))] string? newStatus,
+        [WebhookParameter] GetProjectOptionalRequest projectRequest,
+        [WebhookParameter] GetItemOptionalRequest itemRequest)
+        => HandleWebhook(webhookRequest, item => (newStatus == null || newStatus == item.Status) 
+                                                 && (projectRequest.ProjectId == null || projectRequest.ProjectId == item.ProjectId) 
+                                                 && (itemRequest.ItemId == null || itemRequest.ItemId == item.ItemId));
 
     [Webhook("On item delivery date changed", typeof(ItemDeliveryDateChangedEventHandler),
         Description = "Triggered when an item delivery date is changed")]

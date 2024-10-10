@@ -11,12 +11,13 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
+using Apps.Plunet.Models.Request.Request;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
 [WebhookList]
-public class RequestHooks : PlunetWebhookList<RequestResponse>
+public class RequestHooks(InvocationContext invocationContext) : PlunetWebhookList<RequestResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackRequest30"; 
     protected override string TriggerResponse => SoapResponses.OtherOk;
@@ -24,13 +25,8 @@ public class RequestHooks : PlunetWebhookList<RequestResponse>
 
     private const string XmlIdTagName = "RequestID";
 
-    private RequestActions Actions { get; set; }
+    private RequestActions Actions { get; set; } = new(invocationContext);
 
-
-    public RequestHooks(InvocationContext invocationContext) : base(invocationContext)
-    {
-        Actions = new RequestActions(invocationContext);
-    }
 
     protected override async Task<RequestResponse> GetEntity(XDocument doc)
     {
@@ -50,6 +46,9 @@ public class RequestHooks : PlunetWebhookList<RequestResponse>
 
     [Webhook("On request status changed", typeof(RequestChangedEventHandler),
         Description = "Triggered when a request status is changed")]
-    public Task<WebhookResponse<RequestResponse>> RequestChanged(WebhookRequest webhookRequest, [WebhookParameter][Display("New status")][StaticDataSource(typeof(RequestStatusDataHandler))] string? newStatus)
-        => HandleWebhook(webhookRequest, request => newStatus == null || newStatus == request.Status);
+    public Task<WebhookResponse<RequestResponse>> RequestChanged(WebhookRequest webhookRequest, 
+        [WebhookParameter][Display("New status")][StaticDataSource(typeof(RequestStatusDataHandler))] string? newStatus,
+        [WebhookParameter] GetRequestOptionalRequest optonalRequest)
+        => HandleWebhook(webhookRequest, request => (newStatus == null || newStatus == request.Status) && 
+                                                    (optonalRequest.RequestId == null || optonalRequest.RequestId == request.RequestId));
 }

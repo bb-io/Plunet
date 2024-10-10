@@ -49,16 +49,21 @@ public class JobHooks : PlunetWebhookList<JobResponse>
 
     [Webhook("On job status changed", typeof(JobChangedEventHandler),
         Description = "Triggered when a job status is changed")]
-    public Task<WebhookResponse<JobResponse>> JobStatusChanged(WebhookRequest webhookRequest, [WebhookParameter][Display("New status")][StaticDataSource(typeof(JobStatusDataHandler))] string? newStatus)
-        => HandleWebhook(webhookRequest, job => newStatus == null || newStatus == job.Status);
+    public Task<WebhookResponse<JobResponse>> JobStatusChanged(WebhookRequest webhookRequest, 
+        [WebhookParameter][Display("New status")][StaticDataSource(typeof(JobStatusDataHandler))] string? newStatus,
+        [WebhookParameter] GetJobOptionalRequest request)
+        => HandleWebhook(webhookRequest, job => (newStatus == null || newStatus == job.Status) 
+                                                && (request.JobId == null || request.JobId == job.JobId));
 
     [Webhook("On job delivery date changed", typeof(JobDeliveryDateChangedEventHandler),
         Description = "Triggered when a job delivery date is changed")]
-    public Task<WebhookResponse<JobResponse>> JobDeliveryDateChanged(WebhookRequest webhookRequest)
-        => HandleWebhook(webhookRequest, job => true);
+    public Task<WebhookResponse<JobResponse>> JobDeliveryDateChanged(WebhookRequest webhookRequest,
+        [WebhookParameter] GetJobOptionalRequest request)
+        => HandleWebhook(webhookRequest, job => request.JobId == null || request.JobId == job.JobId);
 
     [Webhook("On job start date changed", typeof(JobStartDateChangedEventHandler),
         Description = "Triggered when a job start date is changed")]
-    public Task<WebhookResponse<JobResponse>> JobStartDateChanged(WebhookRequest webhookRequest)
-        => HandleWebhook(webhookRequest, job => true);
+    public Task<WebhookResponse<JobResponse>> JobStartDateChanged(WebhookRequest webhookRequest,
+        [WebhookParameter] GetJobOptionalRequest request)
+        => HandleWebhook(webhookRequest, job => request.JobId == null || request.JobId == job.JobId);
 }

@@ -49,9 +49,11 @@ public class OrderHooks : PlunetWebhookList<OrderResponse>
     public Task<WebhookResponse<OrderResponse>> OrderStatusChanged(WebhookRequest webhookRequest,
         [WebhookParameter] [Display("New status")] [StaticDataSource(typeof(OrderStatusDataHandler))] string? newStatus,
         [WebhookParameter] [Display("Project category")] string? category,
-        [WebhookParameter] [Display("Project status"), StaticDataSource(typeof(ProjectStatusDataHandler))] string? projectStatus)
+        [WebhookParameter] [Display("Project status"), StaticDataSource(typeof(ProjectStatusDataHandler))] string? projectStatus,
+        [WebhookParameter] GetOrderOptionalRequest orderOptionalRequest)
         => HandleWebhook(webhookRequest,
             order => (newStatus == null || newStatus == order.Status) &&
                      (category == null || category == order.ProjectCategory) &&
-                     (projectStatus == null || projectStatus == order.ProjectStatus));
+                     (projectStatus == null || projectStatus == order.ProjectStatus) &&
+                     (orderOptionalRequest.OrderId == null || orderOptionalRequest.OrderId == order.OrderId));
 }
