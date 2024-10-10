@@ -44,9 +44,11 @@ public class QuoteHooks(InvocationContext invocationContext) : PlunetWebhookList
     public Task<WebhookResponse<QuoteResponse>> QuoteStatusChanged(WebhookRequest webhookRequest,
         [WebhookParameter] [Display("Quote status")] [StaticDataSource(typeof(QuoteStatusDataHandler))] string? newStatus,
         [WebhookParameter] [Display("Project category")] string? category,
-        [WebhookParameter] [Display("Project status"), StaticDataSource(typeof(ProjectStatusDataHandler))] string? projectStatus)
+        [WebhookParameter] [Display("Project status"), StaticDataSource(typeof(ProjectStatusDataHandler))] string? projectStatus,
+        [WebhookParameter] GetQuoteOptionalRequest quoteOptionalRequest)
         => HandleWebhook(webhookRequest,
             quote => (newStatus == null || newStatus == quote.Status) &&
                      (category == null || category == quote.ProjectCategory) && 
-                     (projectStatus == null || projectStatus == quote.ProjectStatus));
+                     (projectStatus == null || projectStatus == quote.ProjectStatus) &&
+                     (quoteOptionalRequest.QuoteId == null || quoteOptionalRequest.QuoteId == quote.QuoteId));
 }

@@ -2,8 +2,8 @@
 
 namespace Apps.Plunet.Models.Item;
 
-public class GetItemRequest
+public class GetItemOptionalRequest
 {
     [Display("Item ID")]
-    public string ItemId { get; set; }
+    public string? ItemId { get; set; }
 }

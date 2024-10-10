@@ -12,24 +12,20 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using System.Xml.Linq;
+using Apps.Plunet.Models.Resource.Request;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
 [WebhookList]
-public class ResourceHooks : PlunetWebhookList<ResourceResponse>
+public class ResourceHooks(InvocationContext invocationContext) : PlunetWebhookList<ResourceResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackResource30";
     protected override string TriggerResponse => SoapResponses.CustomerAndResourceOk;
 
     private const string XmlIdTagName = "ResourceID";
 
-    private ResourceActions Actions { get; set; }
-
-    public ResourceHooks(InvocationContext invocationContext) : base(invocationContext)
-    {
-        Actions = new ResourceActions(invocationContext);
-    }
+    private ResourceActions Actions { get; set; } = new(invocationContext);
 
     protected override async Task<ResourceResponse> GetEntity(XDocument doc)
     {
@@ -49,6 +45,9 @@ public class ResourceHooks : PlunetWebhookList<ResourceResponse>
 
     [Webhook("On resource status changed", typeof(ResourceChangedEventHandler),
         Description = "Triggered when a resource status is changed")]
-    public Task<WebhookResponse<ResourceResponse>> ResourceChanged(WebhookRequest webhookRequest, [WebhookParameter][Display("New status")][StaticDataSource(typeof(ResourceStatusDataHandler))] string? newStatus)
-        => HandleWebhook(webhookRequest, resource => newStatus == null || newStatus == resource.Status);
+    public Task<WebhookResponse<ResourceResponse>> ResourceChanged(WebhookRequest webhookRequest, 
+        [WebhookParameter][Display("New status")][StaticDataSource(typeof(ResourceStatusDataHandler))] string? newStatus,
+        [WebhookParameter] GetResourceOptionalRequest optonalResource)
+        => HandleWebhook(webhookRequest, resource => (newStatus == null || newStatus == resource.Status) && 
+                                                     (optonalResource.ResourceId == null || optonalResource.ResourceId == resource.ResourceID));
 }
