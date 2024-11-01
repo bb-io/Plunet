@@ -4,6 +4,7 @@ using Apps.Plunet.DataOutgoingInvoice30Service;
 using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
+using Blackbird.Plugins.Plunet.DataCustomFields30;
 using Blackbird.Plugins.Plunet.DataDocument30Service;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataJob30Service;
@@ -37,6 +38,7 @@ public static class Clients
     public static DataOutgoingInvoice30Client GetOutgoingInvoiceClient(string url) => GetClient<DataOutgoingInvoice30Client>(url, "DataOutgoingInvoice30");
     public static DataResourceAddress30Client GetResourceAddressClient(string url) => GetClient<DataResourceAddress30Client>(url, "DataResourceAddress30");
     public static DataCustomerAddress30Client GetCustomerAddressClient(string url) => GetClient<DataCustomerAddress30Client>(url, "DataCustomerAddress30");
+    public static DataCustomFields30Client GetCustomFieldsClient(string url) => GetClient<DataCustomFields30Client>(url, "DataCustomFields30");
 
     public static TClient GetClient<TClient>(string url, string endpointSuffix) where TClient : class
     {
