@@ -1,4 +1,5 @@
-﻿using Apps.Plunet.Constants;
+﻿using Apps.Plunet.Api;
+using Apps.Plunet.Constants;
 using Apps.Plunet.DataOutgoingInvoice30Service;
 using Apps.Plunet.Extensions;
 using Apps.Plunet.Models;
@@ -40,22 +41,22 @@ public class PlunetInvocable : BaseInvocable
         Uuid = await AuthClient.loginAsync(Creds.GetUsername(), Creds.GetPassword());
     }
 
-    protected PlunetAPIClient AuthClient => new(PlunetAPIClient.EndpointConfiguration.PlunetAPIPort, Url.TrimEnd('/') + "/PlunetAPI");
-    protected DataCustomer30Client CustomerClient => new(DataCustomer30Client.EndpointConfiguration.DataCustomer30Port, Url.TrimEnd('/') + "/DataCustomer30");
-    protected DataCustomerContact30Client ContactClient => new(DataCustomerContact30Client.EndpointConfiguration.DataCustomerContact30Port, Url.TrimEnd('/') + "/DataCustomerContact30");
-    protected DataAdmin30Client AdminClient => new(DataAdmin30Client.EndpointConfiguration.DataAdmin30Port, Url.TrimEnd('/') + "/DataAdmin30");
-    protected DataDocument30Client DocumentClient => new(DataDocument30Client.EndpointConfiguration.DataDocument30Port, Url.TrimEnd('/') + "/DataDocument30");
-    protected DataItem30Client ItemClient => new(DataItem30Client.EndpointConfiguration.DataItem30Port, Url.TrimEnd('/') + "/DataItem30");
-    protected DataOrder30Client OrderClient => new(DataOrder30Client.EndpointConfiguration.DataOrder30Port, Url.TrimEnd('/') + "/DataOrder30");
-    protected DataPayable30Client PayableClient => new(DataPayable30Client.EndpointConfiguration.DataPayable30Port, Url.TrimEnd('/') + "/DataPayable30");
-    protected DataResource30Client ResourceClient => new(DataResource30Client.EndpointConfiguration.DataResource30Port, Url.TrimEnd('/') + "/DataResource30");
-    protected DataRequest30Client RequestClient => new(DataRequest30Client.EndpointConfiguration.DataRequest30Port, Url.TrimEnd('/') + "/DataRequest30");
-    protected DataQuote30Client QuoteClient => new(DataQuote30Client.EndpointConfiguration.DataQuote30Port, Url.TrimEnd('/') + "/DataQuote30");
-    protected DataJob30Client JobClient => new(DataJob30Client.EndpointConfiguration.DataJob30Port, Url.TrimEnd('/') + "/DataJob30");
-    protected DataOutgoingInvoice30Client OutgoingInvoiceClient => new(DataOutgoingInvoice30Client.EndpointConfiguration.DataOutgoingInvoice30Port, Url.TrimEnd('/') + "/DataOutgoingInvoice30");
-    protected DataResourceAddress30Client ResourceAddressClient => new(DataResourceAddress30Client.EndpointConfiguration.DataResourceAddress30Port, Url.TrimEnd('/') + "/DataResourceAddress30");
-    protected DataCustomerAddress30Client CustomerAddressClient => new(DataCustomerAddress30Client.EndpointConfiguration.DataCustomerAddress30Port, Url.TrimEnd('/') + "/DataCustomerAddress30");
-    protected DataCustomFields30Client CustomFieldsClient => new(DataCustomFields30Client.EndpointConfiguration.DataCustomFields30Port, Url.TrimEnd('/') + "/DataCustomFields30");
+    protected PlunetAPIClient AuthClient => Clients.GetAuthClient(Creds.GetInstanceUrl());
+    protected DataCustomer30Client CustomerClient => Clients.GetCustomerClient(Creds.GetInstanceUrl());
+    protected DataCustomerContact30Client ContactClient => Clients.GetContactClient(Creds.GetInstanceUrl());
+    protected DataAdmin30Client AdminClient => Clients.GetAdminClient(Creds.GetInstanceUrl());
+    protected DataDocument30Client DocumentClient => Clients.GetDocumentClient(Creds.GetInstanceUrl());
+    protected DataItem30Client ItemClient => Clients.GetItemClient(Creds.GetInstanceUrl());
+    protected DataOrder30Client OrderClient => Clients.GetOrderClient(Creds.GetInstanceUrl());
+    protected DataPayable30Client PayableClient => Clients.GetPayableClient(Creds.GetInstanceUrl());
+    protected DataResource30Client ResourceClient => Clients.GetResourceClient(Creds.GetInstanceUrl());
+    protected DataRequest30Client RequestClient => Clients.GetRequestClient(Creds.GetInstanceUrl());
+    protected DataQuote30Client QuoteClient => Clients.GetQuoteClient(Creds.GetInstanceUrl());
+    protected DataJob30Client JobClient => Clients.GetJobClient(Creds.GetInstanceUrl());
+    protected DataOutgoingInvoice30Client OutgoingInvoiceClient => Clients.GetOutgoingInvoiceClient(Creds.GetInstanceUrl());
+    protected DataResourceAddress30Client ResourceAddressClient => Clients.GetResourceAddressClient(Creds.GetInstanceUrl());
+    protected DataCustomerAddress30Client CustomerAddressClient => Clients.GetCustomerAddressClient(Creds.GetInstanceUrl());
+    protected DataCustomFields30Client CustomFieldsClient => Clients.GetCustomFieldsClient(Creds.GetInstanceUrl());
 
     public PlunetInvocable(InvocationContext invocationContext) : base(invocationContext)
     {

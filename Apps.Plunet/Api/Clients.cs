@@ -1,7 +1,10 @@
-﻿using Apps.Plunet.DataOutgoingInvoice30Service;
+﻿using System.ServiceModel;
+using System.ServiceModel.Channels;
+using Apps.Plunet.DataOutgoingInvoice30Service;
 using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
+using Blackbird.Plugins.Plunet.DataCustomFields30;
 using Blackbird.Plugins.Plunet.DataDocument30Service;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataJob30Service;
@@ -18,20 +21,78 @@ namespace Apps.Plunet.Api;
 
 public static class Clients
 {
-    public static PlunetAPIClient GetAuthClient(string url) => new(PlunetAPIClient.EndpointConfiguration.PlunetAPIPort, url.TrimEnd('/') + "/PlunetAPI");
-    public static DataCustomer30Client GetCustomerClient(string url) => new(DataCustomer30Client.EndpointConfiguration.DataCustomer30Port, url.TrimEnd('/') + "/DataCustomer30");
-    public static DataCustomerContact30Client GetContactClient(string url) => new(DataCustomerContact30Client.EndpointConfiguration.DataCustomerContact30Port, url.TrimEnd('/') + "/DataCustomerContact30");
-    public static DataAdmin30Client GetAdminClient(string url) => new(DataAdmin30Client.EndpointConfiguration.DataAdmin30Port, url.TrimEnd('/') + "/DataAdmin30");
-    public static DataDocument30Client GetDocumentClient(string url) => new(DataDocument30Client.EndpointConfiguration.DataDocument30Port, url.TrimEnd('/') + "/DataDocument30");
-    public static DataItem30Client GetItemClient(string url) => new(DataItem30Client.EndpointConfiguration.DataItem30Port, url.TrimEnd('/') + "/DataItem30");
-    public static DataOrder30Client GetOrderClient(string url) => new(DataOrder30Client.EndpointConfiguration.DataOrder30Port, url.TrimEnd('/') + "/DataOrder30");
-    public static DataPayable30Client GetPayableClient(string url) => new(DataPayable30Client.EndpointConfiguration.DataPayable30Port, url.TrimEnd('/') + "/DataPayable30");
-    public static DataResource30Client GetResourceClient(string url) => new(DataResource30Client.EndpointConfiguration.DataResource30Port, url.TrimEnd('/') + "/DataResource30");
-    public static DataRequest30Client GetRequestClient(string url) => new(DataRequest30Client.EndpointConfiguration.DataRequest30Port, url.TrimEnd('/') + "/DataRequest30");
-    public static DataQuote30Client GetQuoteClient(string url) => new(DataQuote30Client.EndpointConfiguration.DataQuote30Port, url.TrimEnd('/') + "/DataQuote30");
-    public static DataJob30Client GetJobClient(string url) => new(DataJob30Client.EndpointConfiguration.DataJob30Port, url.TrimEnd('/') + "/DataJob30");
-    public static DataOutgoingInvoice30Client GetOutgoingInvoiceClient(string url) => new(DataOutgoingInvoice30Client.EndpointConfiguration.DataOutgoingInvoice30Port, url.TrimEnd('/') + "/DataOutgoingInvoice30");
-    public static DataResourceAddress30Client GetResourceAddressClient(string url) => new(DataResourceAddress30Client.EndpointConfiguration.DataResourceAddress30Port, url.TrimEnd('/') + "/DataResourceAddress30");
-    public static DataCustomerAddress30Client GetCustomerAddressClient(string url) => new(DataCustomerAddress30Client.EndpointConfiguration.DataCustomerAddress30Port, url.TrimEnd('/') + "/DataCustomerAddress30");
+    public static PlunetAPIClient GetAuthClient(string url) => GetClient<PlunetAPIClient>(url, "PlunetAPI");
+    
+    public static DataCustomer30Client GetCustomerClient(string url) => GetClient<DataCustomer30Client>(url, "DataCustomer30");
+    
+    public static DataCustomerContact30Client GetContactClient(string url) => GetClient<DataCustomerContact30Client>(url, "DataCustomerContact30");
+    public static DataAdmin30Client GetAdminClient(string url) => GetClient<DataAdmin30Client>(url, "DataAdmin30");
+    public static DataDocument30Client GetDocumentClient(string url) => GetClient<DataDocument30Client>(url, "DataDocument30");
+    public static DataItem30Client GetItemClient(string url) => GetClient<DataItem30Client>(url, "DataItem30");
+    public static DataOrder30Client GetOrderClient(string url) => GetClient<DataOrder30Client>(url, "DataOrder30");
+    public static DataPayable30Client GetPayableClient(string url) => GetClient<DataPayable30Client>(url, "DataPayable30");
+    public static DataResource30Client GetResourceClient(string url) => GetClient<DataResource30Client>(url, "DataResource30");
+    public static DataRequest30Client GetRequestClient(string url) => GetClient<DataRequest30Client>(url, "DataRequest30");
+    public static DataQuote30Client GetQuoteClient(string url) => GetClient<DataQuote30Client>(url, "DataQuote30");
+    public static DataJob30Client GetJobClient(string url) => GetClient<DataJob30Client>(url, "DataJob30");
+    public static DataOutgoingInvoice30Client GetOutgoingInvoiceClient(string url) => GetClient<DataOutgoingInvoice30Client>(url, "DataOutgoingInvoice30");
+    public static DataResourceAddress30Client GetResourceAddressClient(string url) => GetClient<DataResourceAddress30Client>(url, "DataResourceAddress30");
+    public static DataCustomerAddress30Client GetCustomerAddressClient(string url) => GetClient<DataCustomerAddress30Client>(url, "DataCustomerAddress30");
+    public static DataCustomFields30Client GetCustomFieldsClient(string url) => GetClient<DataCustomFields30Client>(url, "DataCustomFields30");
 
+    public static TClient GetClient<TClient>(string url, string endpointSuffix) where TClient : class
+    {
+        if (url.StartsWith("https://"))
+        {
+            var endpointAddress = url.TrimEnd('/') + "/" + endpointSuffix;
+
+            var endpointConfigurationType = typeof(TClient).GetNestedType("EndpointConfiguration");
+
+            if (endpointConfigurationType != null)
+            {
+                string enumName = endpointSuffix + "Port";
+
+                var endpointConfigValue = Enum.Parse(endpointConfigurationType, enumName);
+                var constructor = typeof(TClient).GetConstructor(new Type[] { endpointConfigurationType, typeof(string) });
+
+                if (constructor != null)
+                {
+                    var client = (TClient)constructor.Invoke(new object[] { endpointConfigValue, endpointAddress });
+                    return client;
+                }
+
+                throw new InvalidOperationException($"Cannot find constructor with (EndpointConfiguration, string) in {typeof(TClient).Name}");
+            }
+
+            throw new InvalidOperationException($"Cannot find EndpointConfiguration enum in {typeof(TClient).Name}");
+        }
+        else
+        {
+            var endpointAddress = new EndpointAddress(url.TrimEnd('/') + "/" + endpointSuffix);
+
+            var envelopeVersion = EnvelopeVersion.Soap12;
+            var addressingVersion = AddressingVersion.None;
+
+            var messageVersion = MessageVersion.CreateVersion(envelopeVersion, addressingVersion);
+
+            var textBindingElement = new TextMessageEncodingBindingElement
+            {
+                MessageVersion = messageVersion,
+                WriteEncoding = System.Text.Encoding.UTF8
+            };
+
+            var httpBindingElement = new HttpTransportBindingElement();
+
+            var binding = new CustomBinding(textBindingElement, httpBindingElement);
+
+            var constructor = typeof(TClient).GetConstructor(new Type[] { typeof(Binding), typeof(EndpointAddress) });
+            if (constructor != null)
+            {
+                var client = (TClient)constructor.Invoke(new object[] { binding, endpointAddress });
+                return client;
+            }
+
+            throw new InvalidOperationException($"Cannot find constructor with (Binding, EndpointAddress) in {typeof(TClient).Name}");
+        }
+    }
 }
