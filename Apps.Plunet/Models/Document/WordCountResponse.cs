@@ -14,7 +14,7 @@ public class WordCountResponse
 public class WordCountItem
 {
     [Display("Document name")]
-    public string DocumentName { get; set; }
+    public string DocumentName { get; set; } = string.Empty;
 
     [Display("Word count")]
     public double WordCount { get; set; }

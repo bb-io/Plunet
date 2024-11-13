@@ -6,13 +6,15 @@
         <Nullable>enable</Nullable>
 		<Product>Plunet</Product>
 		<Description>The right translation management software</Description>
-		<Version>1.8.34</Version>
+		<Version>1.8.35</Version>
 		<AssemblyName>Apps.Plunet</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.8.0" />
         <PackageReference Include="Blackbird.Applications.SDK.Extensions.FileManagement" Version="1.0.2-alpha1" />
         <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.25" />
+        <PackageReference Include="DocumentFormat.OpenXml" Version="3.1.1" />
+        <PackageReference Include="PdfPig" Version="0.1.10-alpha-20241103-132ad" />
         <PackageReference Include="System.ServiceModel.Duplex" Version="4.10.3" />
         <PackageReference Include="System.ServiceModel.Federation" Version="4.10.*" />
         <PackageReference Include="System.ServiceModel.Http" Version="4.10.3" />

@@ -62,7 +62,7 @@ If you are unable to connect, please check the following:
 - **Upload file** uploads a file to a specific folder of any entity that can have files attached to it
 - **Download file** can download a file of any entity that can have files attached to it
 - **Download all files in folder**
-- **Calculate word count** calculates the word count of documents. Only text files such as .txt, .html, and .xliff are supported.
+- **Calculate word count** calculate the word count of documents. Only text files such as .txt, .html, .xliff, .docx and .pdf are supported.
 
 ### Items
 

@@ -12,6 +12,8 @@ using Blackbird.Applications.Sdk.Common.Files;
 using Apps.Plunet.Models.Item;
 using Blackbird.Plugins.Plunet.DataDocument30Service;
 using Blackbird.Plugins.Plunet.DataItem30Service;
+using DocumentFormat.OpenXml.Packaging;
+using UglyToad.PdfPig;
 using Result = Blackbird.Plugins.Plunet.DataDocument30Service.Result;
 using StringArrayResult = Blackbird.Plugins.Plunet.DataDocument30Service.StringArrayResult;
 
@@ -33,7 +35,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         if (response.Result.statusMessage.Contains("already exists") &&
             request.IgnoreIfFileAlreadyExists.HasValue && request.IgnoreIfFileAlreadyExists.Value)
             return;
-            
+
         if (response.Result.statusMessage != ApiResponses.Ok)
             throw new(response.Result.statusMessage);
     }
@@ -41,7 +43,8 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
     [Action("Download file", Description = "Download a file from an entity")]
     public async Task<FileResponse> DownloadFile([ActionParameter] DownloadDocumentRequest request)
     {
-        var response = await ExecuteWithRetry<FileResult>(async () => await DocumentClient.download_DocumentAsync(Uuid, ParseId(request.MainId),
+        var response = await ExecuteWithRetry<FileResult>(async () => await DocumentClient.download_DocumentAsync(Uuid,
+            ParseId(request.MainId),
             ParseId(request.FolderType), request.FilePathName.Replace("/", "\\")));
 
         if (response.statusMessage != ApiResponses.Ok)
@@ -88,15 +91,18 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         [ActionParameter] UploadCatReportRequest input)
     {
         var fileBytes = fileManagementClient.DownloadAsync(input.File).Result.GetByteData().Result;
-        var response = await ExecuteWithRetry(async () => await ItemClient.setCatReport2Async(Uuid, fileBytes, input.File.Name, fileBytes.Length,
+        var response = await ExecuteWithRetry(async () => await ItemClient.setCatReport2Async(Uuid, fileBytes,
+            input.File.Name, fileBytes.Length,
             input.OverwriteExistingPricelines, ParseId(input.CatType), ParseId(input.ProjectType),
             input.CopyResultsToItem, ParseId(item.ItemId)));
 
         if (response.Result.statusMessage != ApiResponses.Ok)
             throw new(response.Result.statusMessage);
     }
-        
-    [Action("Calculate word count", Description = "Calculate the word count of documents. Only text files such as .txt, .html, and .xliff are supported.")]
+
+    [Action("Calculate word count",
+        Description =
+            "Calculate the word count of documents. Only text files such as .txt, .html, .xliff, .docx and .pdf are supported.")]
     public async Task<WordCountResponse> GetWordCount([ActionParameter] ListFilesRequest request)
     {
         var getFilesResponse = await ExecuteWithRetry<StringArrayResult>(async () =>
@@ -113,40 +119,85 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
 
         if (getFilesResponse.statusMessage != ApiResponses.Ok)
             throw new(getFilesResponse.statusMessage);
-        
+
         var wordCount = 0;
         var wordCountItems = new List<WordCountItem>();
         foreach (var path in getFilesResponse.data)
         {
             if (request.Filters != null && request.Filters.Any(path.Contains)) continue;
 
-            var response = await ExecuteWithRetry<FileResult>(async () => await DocumentClient.download_DocumentAsync(Uuid, ParseId(request.MainId),
-                ParseId(request.FolderType), path));
-
-            if (response.statusMessage != ApiResponses.Ok)
-                throw new(response.statusMessage);
-
-            using var stream = new MemoryStream(response.fileContent);
-            
-            try
-            {
-                var content = await new StreamReader(stream).ReadToEndAsync();
-
-                var words = content.Split(new[] { ' ', '\n', '\r', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-                wordCount += words.Length;
-                wordCountItems.Add(new WordCountItem { DocumentName = path, WordCount = words.Length });
-            }
-            catch (Exception e)
-            {
-                throw new($"Error reading file {path}: {e.Message}. Make sure the file is a text file (not the docx, pdf, etc.)");
-            }
+            var fileContent = await DownloadFileContent(request.MainId, request.FolderType, path);
+            var words = ProcessFileContent(path, fileContent);
+            wordCount += words;
+            wordCountItems.Add(new WordCountItem { DocumentName = path, WordCount = words });
         }
-        
+
         return new WordCountResponse
         {
             TotalWordCount = wordCount,
             DocumentWordCountItems = wordCountItems
         };
+    }
+
+    private async Task<byte[]> DownloadFileContent(string mainId, string folderType, string path)
+    {
+        var response = await ExecuteWithRetry<FileResult>(async () => await DocumentClient.download_DocumentAsync(Uuid,
+            ParseId(mainId),
+            ParseId(folderType), path));
+
+        if (response.statusMessage != ApiResponses.Ok)
+            throw new(response.statusMessage);
+
+        return response.fileContent;
+    }
+
+    private int ProcessFileContent(string path, byte[] fileContent)
+    {
+        using var stream = new MemoryStream(fileContent);
+        string content;
+
+        if (path.EndsWith(".docx") || path.EndsWith(".doc"))
+        {
+            content = ReadDocxFile(stream);
+        }
+        else if (path.EndsWith(".pdf"))
+        {
+            content = ReadPdfFile(stream);
+        }
+        else
+        {
+            content = ReadTxtFile(stream).Result;
+        }
+
+        return CountWords(content);
+    }
+
+    private static string ReadPdfFile(Stream file)
+    {
+        var document = PdfDocument.Open(file);
+        var text = string.Join(" ", document.GetPages().Select(x => x.Text));
+        return text;
+    }
+
+    private static string ReadDocxFile(Stream file)
+    {
+        var document = WordprocessingDocument.Open(file, false);
+        var text = document.MainDocumentPart?.Document?.Body?.InnerText ??
+                   throw new("Failed to read document body of docx file.");
+        return text;
+    }
+
+    private static async Task<string> ReadTxtFile(Stream file)
+    {
+        using var reader = new StreamReader(file);
+        return await reader.ReadToEndAsync();
+    }
+
+    private static int CountWords(string text)
+    {
+        char[] punctuationCharacters = text.Where(char.IsPunctuation).Distinct().ToArray();
+        var words = text.Split().Select(x => x.Trim(punctuationCharacters));
+        return words.Count(x => !string.IsNullOrWhiteSpace(x));
     }
 
     private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
@@ -162,7 +213,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
                 return (T)result;
             }
 
-            if(result.statusMessage.Contains("session-UUID used is invalid"))
+            if (result.statusMessage.Contains("session-UUID used is invalid"))
             {
                 if (attempts < maxRetries)
                 {
@@ -178,8 +229,9 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
             return (T)result;
         }
     }
-        
-    private async Task<upload_DocumentResponse> ExecuteWithRetry(Func<Task<upload_DocumentResponse>> func, int maxRetries = 10, int delay = 1000)
+
+    private async Task<upload_DocumentResponse> ExecuteWithRetry(Func<Task<upload_DocumentResponse>> func,
+        int maxRetries = 10, int delay = 1000)
     {
         var attempts = 0;
         while (true)
@@ -191,7 +243,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
                 return result;
             }
 
-            if(result.Result.statusMessage.Contains("session-UUID used is invalid"))
+            if (result.Result.statusMessage.Contains("session-UUID used is invalid"))
             {
                 if (attempts < maxRetries)
                 {
@@ -201,14 +253,16 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
                     continue;
                 }
 
-                throw new($"No more retries left. Last error: {result.Result.statusMessage}, Session UUID used is invalid.");
+                throw new(
+                    $"No more retries left. Last error: {result.Result.statusMessage}, Session UUID used is invalid.");
             }
 
             return result;
         }
     }
-        
-    private async Task<setCatReport2Response> ExecuteWithRetry(Func<Task<setCatReport2Response>> func, int maxRetries = 10, int delay = 1000)
+
+    private async Task<setCatReport2Response> ExecuteWithRetry(Func<Task<setCatReport2Response>> func,
+        int maxRetries = 10, int delay = 1000)
     {
         var attempts = 0;
         while (true)
@@ -220,7 +274,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
                 return result;
             }
 
-            if(result.Result.statusMessage.Contains("session-UUID used is invalid"))
+            if (result.Result.statusMessage.Contains("session-UUID used is invalid"))
             {
                 if (attempts < maxRetries)
                 {
@@ -230,7 +284,8 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
                     continue;
                 }
 
-                throw new($"No more retries left. Last error: {result.Result.statusMessage}, Session UUID used is invalid.");
+                throw new(
+                    $"No more retries left. Last error: {result.Result.statusMessage}, Session UUID used is invalid.");
             }
 
             return result;
