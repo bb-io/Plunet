@@ -213,6 +213,10 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
             await ExecuteWithRetry<Result>(async () =>
                 await QuoteClient.setProjectmanagerIDAsync(Uuid, ParseId(request.ProjectManagerId), quoteId));
 
+        if (request.ProjectCategory is not null)
+            await ExecuteWithRetry<Result>(async () =>
+                await QuoteClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, quoteId));
+
         if (request.ExternalId is not null)
             await ExecuteWithRetry<Result>(async () =>
                 await QuoteClient.setExternalIDAsync(Uuid, quoteId, request.ExternalId));
