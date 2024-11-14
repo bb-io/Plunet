@@ -12,8 +12,6 @@ using Blackbird.Applications.Sdk.Common.Files;
 using Apps.Plunet.Models.Item;
 using Blackbird.Plugins.Plunet.DataDocument30Service;
 using Blackbird.Plugins.Plunet.DataItem30Service;
-using DocumentFormat.OpenXml.Packaging;
-using UglyToad.PdfPig;
 using Result = Blackbird.Plugins.Plunet.DataDocument30Service.Result;
 using StringArrayResult = Blackbird.Plugins.Plunet.DataDocument30Service.StringArrayResult;
 
