@@ -48,4 +48,7 @@ public class CreateQuoteRequest
 
     [Display("Request ID")]
     public string? RequestId { get; set; }
+
+    [Display("Project category")]
+    public string? ProjectCategory { get; set; }
 }
