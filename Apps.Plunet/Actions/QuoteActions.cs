@@ -292,6 +292,18 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
         if (result.statusMessage != ApiResponses.Ok)
             throw new(result.statusMessage);
 
+        if (request.ProjectStatus is not null)
+            await ExecuteWithRetry<Result>(async () =>
+                await QuoteClient.setProjectStatusAsync(Uuid, ParseId(quote.QuoteId), ParseId(request.ProjectStatus)));
+
+        if (request.ProjectManagerId is not null)
+            await ExecuteWithRetry<Result>(async () =>
+                await QuoteClient.setProjectmanagerIDAsync(Uuid, ParseId(request.ProjectManagerId), ParseId(quote.QuoteId)));
+
+        if (request.ProjectCategory is not null)
+            await ExecuteWithRetry<Result>(async () =>
+                await QuoteClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, ParseId(quote.QuoteId)));
+
         return await GetQuote(quote);
     }
 
