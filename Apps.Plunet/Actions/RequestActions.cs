@@ -1,10 +1,15 @@
 ﻿using Apps.Plunet.Constants;
+using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
+using Apps.Plunet.Models.Order;
+using Apps.Plunet.Models.Quote.Request;
+using Apps.Plunet.Models.Quote.Response;
 using Apps.Plunet.Models.Request.Request;
 using Apps.Plunet.Models.Request.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataRequest30Service;
 
@@ -153,6 +158,26 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
     public async Task DeleteRequest([ActionParameter] [Display("Request ID")] string requestId)
     {
         await ExecuteWithRetry<Result>(async () => await RequestClient.deleteAsync(Uuid, ParseId(requestId)));
+    }
+
+    [Action("Create quote from request", Description = "Create quote from request")]
+    public async Task<QuoteResponse> CreateQuoteFromRequest([ActionParameter][Display("Request ID")] string requestId,
+        [ActionParameter][Display("Request ID")] QuoteTemplateRequest quoteTemplateID)
+    {
+        var result = await ExecuteWithRetry<IntegerResult>(async () =>
+            await RequestClient.quoteRequest_byTemplateAsync(Uuid, ParseId(requestId), quoteTemplateID?.TemplateId is null ? 0 : ParseId(quoteTemplateID.TemplateId)));
+        var actions = new QuoteActions(invocationContext);
+        return await actions.GetQuote(new GetQuoteRequest { QuoteId = result.data.ToString() });
+    }
+
+    [Action("Create order from request", Description = "Create quote from request")]
+    public async Task<OrderResponse> CreateOrderFromRequest([ActionParameter][Display("Request ID")] string requestId, [ActionParameter, Display("Template"), DataSource(typeof(TemplateDataHandler))]
+        string? templateId)
+    {
+        var result = await ExecuteWithRetry<IntegerResult>(async () =>
+            await RequestClient.orderRequest_byTemplateAsync(Uuid, ParseId(requestId), templateId is null ? 0 : ParseId(templateId)));
+        var actions = new OrderActions(invocationContext);
+        return await actions.GetOrder(new OrderRequest { OrderId = result.data.ToString()});
     }
 
     [Action("Add language combination to request", Description = "Add a language combination to the specific request")]

@@ -154,6 +154,8 @@ An example of the granularity at which orders (and other entities) can be select
 - **Delete request**
 - **Update request**
 - **Add language combination to request**
+- **Create quote from request**
+- **Create order from request**
 
 ### Resources
 
