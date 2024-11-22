@@ -211,7 +211,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         
     }
 
-    [Action("Create item priceline", Description = "Add a new pricline to an item")]
+    [Action("Create item priceline", Description = "Add a new priceline to an item")]
     public async Task<PricelineResponse> CreateItemPriceline([ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest item, [ActionParameter] ItemPriceUnitRequest unit,
         [ActionParameter] PricelineRequest input)
@@ -251,7 +251,10 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             throw new(response.statusMessage);
     }
 
-    [Action("Update item priceline", Description = "Update an existing item pricline")]
+
+
+
+    [Action("Update item priceline", Description = "Update an existing item priceline")]
     public async Task<PricelineResponse> UpdateItemPriceline([ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest item, [ActionParameter] ItemPriceUnitRequest unit,
         [ActionParameter] PricelineIdRequest line, [ActionParameter] PricelineRequest input)
@@ -276,6 +279,13 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
+        
+        /// Make it seperate action or method
+        var updatePriceResult = await ExecuteWithRetry<Result>(async () => await ItemClient.updatePricesAsync(Uuid,ParseId(project.ProjectType), ParseId(item.ItemId)));
+
+        if (updatePriceResult.statusMessage != ApiResponses.Ok)
+            throw new(updatePriceResult.statusMessage);
+        ///
 
         var priceUnit = await ItemClient.getPriceUnitAsync(Uuid, int.Parse(unit.PriceUnit), Language);
         return CreatePricelineResponse(response.data, priceUnit.data);
@@ -297,6 +307,40 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             PriceUnitId = line.priceUnitID.ToString(),
             PriceUnitDescription = unit?.description ?? "",
             PriceUnitService = unit?.service ?? ""
+        };
+    }
+
+
+    [Action("Set item pricelist", Description ="Set a new pricelist for an item and update all related pricelines")]
+    public async Task<Result> SetItemPricelist([ActionParameter] ProjectTypeRequest project,
+        [ActionParameter] GetItemRequest item, [ActionParameter]string priceListID)
+    {
+        if (string.IsNullOrEmpty(priceListID))
+        {
+            throw new ArgumentNullException("pricelist ID cannot be null or empty",nameof(priceListID));
+        }
+
+        //Here we change set the pricelist
+        var setPriceListResult = await ExecuteWithRetry<Result>(async() =>
+        await ItemClient.setPricelistAsync(Uuid,ParseId(item.ItemId), ParseId(project.ProjectType), ParseId(priceListID)));
+
+        if (setPriceListResult.statusMessage != ApiResponses.Ok)
+        {
+            throw new(setPriceListResult.statusMessage);
+        }
+
+        //Updating all pricelines
+        var updatePriceResult = await ExecuteWithRetry<Result>(async() => 
+        await ItemClient.updatePricesAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId)));
+
+        if (updatePriceResult.statusMessage != ApiResponses.Ok)
+        {
+            throw new(updatePriceResult.statusMessage );
+        }
+
+        return new Result
+        {
+            statusMessage = ApiResponses.Ok
         };
     }
 
