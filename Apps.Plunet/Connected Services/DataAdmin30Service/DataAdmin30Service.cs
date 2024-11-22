@@ -7,6 +7,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.ServiceModel;
+
 namespace Blackbird.Plugins.Plunet.DataAdmin30Service
 {
     
@@ -15,7 +17,12 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
     [System.ServiceModel.ServiceContractAttribute(Namespace="http://API.Integration/", ConfigurationName="Blackbird.Plugins.Plunet.DataAdmin30Service.DataAdmin30")]
     public interface DataAdmin30
     {
-        
+        [System.ServiceModel.OperationContractAttribute(Action = "http://API.Integration/DataAdmin30/getLanguageCatCode", ReplyAction = "http://API.Integration/DataAdmin30/getLanguageCatCode")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style = System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults = true)]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
+        [return: System.ServiceModel.MessageParameterAttribute(Name = "LanguageCatCodeResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.LanguageCatCodeResult> getLanguageCatCodeAsync(string UUID, string languageName,string catType);
+
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getAvailableServicesRequest", ReplyAction="http://API.Integration/DataAdmin30/getAvailableServicesResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
@@ -64,7 +71,87 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
         [return: System.ServiceModel.MessageParameterAttribute(Name="CallbackListResult")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CallbackListResult> getListOfRegisteredCallbacksAsync(string UUID);
     }
-    
+
+
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://API.Integration/")]
+    public partial class LanguageCatCodeResult : Result
+    {
+        private LanguageCatCode dataField;
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("data", Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = true, Order = 0)]
+        public LanguageCatCode data
+        {
+            get
+            {
+                return this.dataField;
+            }
+            set
+            {
+                this.dataField = value;
+            }
+        }
+    }
+
+
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://API.Integration/")]
+    public partial class LanguageCatCode
+    {
+        private string languageCodeField;
+        private string catCodeField;
+        private string catToolNameField;
+
+        ///<remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("data", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
+        public string LanguageCode
+    {
+            get
+            {
+                return this.languageCodeField;
+            }
+            set
+            {
+                this.languageCodeField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified, Order = 1)]
+        public string CatCode
+        {
+            get
+            {
+                return this.catCodeField;
+            }
+            set
+            {
+                this.catCodeField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified, Order = 2)]
+        public string CatToolName
+        {
+            get
+            {
+                return this.catToolNameField;
+            }
+            set
+            {
+                this.catToolNameField = value;
+            }
+        }
+    }
+
+
+
     /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
@@ -899,6 +986,11 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
         {
         }
         
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.LanguageCatCodeResult> getLanguageCatCodeAsync(string UUID, string languageName, string catType)
+        {
+            return base.Channel.getLanguageCatCodeAsync(UUID, languageName, catType);
+        }
+
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.ServiceListResult> getAvailableServicesAsync(string UUID, string languageCode)
         {
             return base.Channel.getAvailableServicesAsync(UUID, languageCode);
@@ -985,7 +1077,7 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
         {
             return DataAdmin30Client.GetEndpointAddress(EndpointConfiguration.DataAdmin30Port, url);
         }
-        
+
         public enum EndpointConfiguration
         {
             
