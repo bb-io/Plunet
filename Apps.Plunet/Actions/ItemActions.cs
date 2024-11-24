@@ -2,10 +2,12 @@
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Item;
+using Apps.Plunet.Models.Request.Request;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataItem30Service;
+using System;
 
 namespace Apps.Plunet.Actions;
 
@@ -304,10 +306,38 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         };
     }
 
+    [Action("Get language CAT code", Description = "Get language CAT code")]
+    public async Task<string> GetLanguageCatCodeAsync([ActionParameter]  LanguageCatCodeRequest input)
+    {
+        if (string.IsNullOrWhiteSpace(Uuid))
+            throw new ArgumentException("UUID cannot be null or empty", nameof(Uuid));
+
+        if (string.IsNullOrWhiteSpace(input.LanguageName))
+            throw new ArgumentException("Language name cannot be null or empty", nameof(input.LanguageName));
+
+        if (string.IsNullOrWhiteSpace(input.CatType))
+            throw new ArgumentException("Category type cannot be null or empty", nameof(input.CatType));
+
+        try 
+        {
+            var response = await AdminClient.getLanguageCatCodeAsync(Uuid, input.LanguageName,input.CatType);
+
+            if (response == null || string.IsNullOrEmpty(response.ToString()))
+                throw new Exception("No language CAT code found for the given inputs.");
+
+            return response.ToString();
+        }
+        catch (Exception ex)
+        {
+            throw new (ex.Message);
+        }
+
+
+    }
 
     [Action("Set item pricelist", Description ="Set a new pricelist for an item and update all related pricelines")]
     public async Task<Result> SetItemPricelist([ActionParameter] ProjectTypeRequest project,
-        [ActionParameter] GetItemRequest item, [ActionParameter]string priceListID)
+        [ActionParameter] GetItemRequest item, [ActionParameter][Display("Price list ID")]string priceListID)
     {
         if (string.IsNullOrEmpty(priceListID))
         {
