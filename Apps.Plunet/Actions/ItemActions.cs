@@ -279,13 +279,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
         if (response.statusMessage != ApiResponses.Ok)
             throw new(response.statusMessage);
-        
-        /// Make it seperate action or method
-        var updatePriceResult = await ExecuteWithRetry<Result>(async () => await ItemClient.updatePricesAsync(Uuid,ParseId(project.ProjectType), ParseId(item.ItemId)));
-
-        if (updatePriceResult.statusMessage != ApiResponses.Ok)
-            throw new(updatePriceResult.statusMessage);
-        ///
+       
 
         var priceUnit = await ItemClient.getPriceUnitAsync(Uuid, int.Parse(unit.PriceUnit), Language);
         return CreatePricelineResponse(response.data, priceUnit.data);
