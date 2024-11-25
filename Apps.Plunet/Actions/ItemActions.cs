@@ -3,6 +3,7 @@ using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Request.Request;
+using Apps.Plunet.Models.Request.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -307,7 +308,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     }
 
     [Action("Get language CAT code", Description = "Get language CAT code")]
-    public async Task<string> GetLanguageCatCodeAsync([ActionParameter]  LanguageCatCodeRequest input)
+    public async Task<LanguageCatCodeResponse> GetLanguageCatCodeAsync([ActionParameter]  LanguageCatCodeRequest input)
     {
         if (string.IsNullOrWhiteSpace(Uuid))
             throw new ArgumentException("UUID cannot be null or empty", nameof(Uuid));
@@ -325,14 +326,15 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             if (response == null || string.IsNullOrEmpty(response.ToString()))
                 throw new Exception("No language CAT code found for the given inputs.");
 
-            return response.ToString();
+            return new LanguageCatCodeResponse
+            {
+                Text = response.ToString()
+            };
         }
         catch (Exception ex)
         {
             throw new (ex.Message);
         }
-
-
     }
 
     [Action("Set item pricelist", Description ="Set a new pricelist for an item and update all related pricelines")]

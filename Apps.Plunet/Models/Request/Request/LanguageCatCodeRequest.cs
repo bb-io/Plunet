@@ -10,7 +10,7 @@ namespace Apps.Plunet.Models.Request.Request
     public class LanguageCatCodeRequest
     {
         [Display("Language name")]
-        [DataSource(typeof(LanguageIsoDataHandler))]
+        [DataSource(typeof(LanguageNameDataHandler))]
         public string LanguageName { get; set; }
 
         [Display("CAT type")]
