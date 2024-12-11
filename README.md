@@ -159,7 +159,7 @@ An example of the granularity at which orders (and other entities) can be select
 
 ### Resources
 
-- **Search resource** returns a list of resources based on numerous optional search parameters including:
+- **Search resources** returns a list of resources based on numerous optional search parameters including:
   - Contact ID
   - Resource type
   - Email
@@ -172,6 +172,7 @@ An example of the granularity at which orders (and other entities) can be select
 - **Find resource** Find a specific resource based on specific criteria
 - **Find resource by text module** Find resources by text module
 - **Update resource** Update a specific resource with new details
+- **Assign resource to job** assigns a resource to a job
 
 ### Custom properties
 
@@ -264,14 +265,7 @@ Want to learn more? [Book a demo](https://www.blackbird.io/)
 
 ## Missing features
 
-A couple of features are still missing, if you are interested in any of these then let us know!
-
-- Customer address manipulation
-- Payable item manipulation
-- Resource creation and manipulation
-- Job rounds
-- CAT analysis imports
-- Invoices (halfway implemented)
+Are you missing a particular feature? Let us know!
 
 ## Feedback
 
