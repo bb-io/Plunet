@@ -18,6 +18,16 @@ namespace Apps.Plunet.Actions;
 [ActionList]
 public class ResourceActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
+
+    [Action("Create resource", Description = "Create a new, empty resource dataset")]
+    public async Task<IntegerResult> CreateResource([ActionParameter] CreateResourceRequest request)
+    {
+        var response = await ExecuteWithRetry<IntegerResult>(async () => 
+        await ResourceClient.insertAsync(Uuid, int.Parse(request.WorkingStatus)));
+        return response;
+    }
+
+
     [Action("Search resources", Description = "Search for specific resources based on specific criteria")]
     public async Task<SearchResponse<ResourceResponse>> SearchResources([ActionParameter] SearchResourcesRequest input)
     {
