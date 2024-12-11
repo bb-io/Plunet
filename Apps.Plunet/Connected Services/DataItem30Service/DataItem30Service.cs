@@ -7,6 +7,8 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
+using System.ServiceModel;
+
 namespace Blackbird.Plugins.Plunet.DataItem30Service
 {
     
@@ -15,7 +17,11 @@ namespace Blackbird.Plugins.Plunet.DataItem30Service
     [System.ServiceModel.ServiceContractAttribute(Namespace="http://API.Integration/", ConfigurationName="Blackbird.Plugins.Plunet.DataItem30Service.DataItem30")]
     public interface DataItem30
     {
-        
+        [System.ServiceModel.OperationContractAttribute(Action = "http://API.Integration/DataItem30/updatePrices", ReplyAction = "http://API.Integration/DataItem30/updatePrices")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style = System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults = true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataItem30Service.Result> updatePricesAsync(string UUID, int projectType, int itemID);
+
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataItem30/updateRequest", ReplyAction="http://API.Integration/DataItem30/updateResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
@@ -2286,7 +2292,13 @@ namespace Blackbird.Plugins.Plunet.DataItem30Service
         {
             return DataItem30Client.GetEndpointAddress(EndpointConfiguration.DataItem30Port, url);
         }
-        
+
+        [return: MessageParameter(Name = "Result")]
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataItem30Service.Result> updatePricesAsync(string UUID, int projectType, int itemID)
+        {
+            return base.Channel.updatePricesAsync(UUID, projectType, itemID);
+        }
+
         public enum EndpointConfiguration
         {
             
