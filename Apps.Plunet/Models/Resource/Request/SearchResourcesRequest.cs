@@ -37,7 +37,7 @@ namespace Apps.Plunet.Models.Resource.Request
         [DataSource(typeof(LanguageIsoDataHandler))]
         public string? TargetLanguageCode { get; set; }
 
-        [Display("Workingi status")]
+        [Display("Working status")]
         [StaticDataSource(typeof(WorkingStatusDataHandler))]
         public string? WorkingStatus { get; set; }
         
