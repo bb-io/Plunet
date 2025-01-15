@@ -44,20 +44,29 @@ public static class Clients
     {
         if (url.StartsWith("https://"))
         {
+
             var endpointAddress = url.TrimEnd('/') + "/" + endpointSuffix;
 
             var endpointConfigurationType = typeof(TClient).GetNestedType("EndpointConfiguration");
+
+            var binding = new BasicHttpsBinding(BasicHttpsSecurityMode.Transport)
+            {
+                SendTimeout = TimeSpan.FromMinutes(5),
+                ReceiveTimeout = TimeSpan.FromMinutes(5),
+                OpenTimeout = TimeSpan.FromMinutes(5),
+                CloseTimeout = TimeSpan.FromMinutes(5)
+            };
 
             if (endpointConfigurationType != null)
             {
                 string enumName = endpointSuffix + "Port";
 
                 var endpointConfigValue = Enum.Parse(endpointConfigurationType, enumName);
-                var constructor = typeof(TClient).GetConstructor(new Type[] { endpointConfigurationType, typeof(string) });
+                var constructor = typeof(TClient).GetConstructor(new Type[] {typeof(Binding) ,endpointConfigurationType, typeof(string) });
 
                 if (constructor != null)
                 {
-                    var client = (TClient)constructor.Invoke(new object[] { endpointConfigValue, endpointAddress });
+                    var client = (TClient)constructor.Invoke(new object[] {binding, endpointConfigValue, endpointAddress });
                     return client;
                 }
 
@@ -82,6 +91,14 @@ public static class Clients
             };
 
             var httpBindingElement = new HttpTransportBindingElement();
+
+            var customBinding= new CustomBinding(textBindingElement, httpBindingElement) 
+            {
+                SendTimeout = TimeSpan.FromMinutes(5),
+                ReceiveTimeout = TimeSpan.FromMinutes(5),
+                OpenTimeout = TimeSpan.FromMinutes(5),
+                CloseTimeout = TimeSpan.FromMinutes(5)
+            };
 
             var binding = new CustomBinding(textBindingElement, httpBindingElement);
 
