@@ -108,7 +108,7 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
         }));
 
         if (contactIdResult.statusMessage != ApiResponses.Ok)
-            throw new(contactIdResult.statusMessage);
+            throw new PluginApplicationException($"Error: {contactIdResult.statusMessage}");
 
         return await GetContactById(new ContactRequest { ContactId = contactIdResult.data.ToString()});
     }
