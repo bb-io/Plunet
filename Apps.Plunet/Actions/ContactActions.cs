@@ -153,12 +153,7 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("The SSL connection could not be established, see inner exception."))
-                {
-                    throw new PluginApplicationException("SSL connection error occurred.", ex);
-                }
-
-                throw new PluginApplicationException($"Error: {ex.Message}");
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
             }
 
             if (result.statusMessage == ApiResponses.Ok)
