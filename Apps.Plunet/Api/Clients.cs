@@ -22,9 +22,9 @@ namespace Apps.Plunet.Api;
 public static class Clients
 {
     public static PlunetAPIClient GetAuthClient(string url) => GetClient<PlunetAPIClient>(url, "PlunetAPI");
-    
+
     public static DataCustomer30Client GetCustomerClient(string url) => GetClient<DataCustomer30Client>(url, "DataCustomer30");
-    
+
     public static DataCustomerContact30Client GetContactClient(string url) => GetClient<DataCustomerContact30Client>(url, "DataCustomerContact30");
     public static DataAdmin30Client GetAdminClient(string url) => GetClient<DataAdmin30Client>(url, "DataAdmin30");
     public static DataDocument30Client GetDocumentClient(string url) => GetClient<DataDocument30Client>(url, "DataDocument30");
@@ -44,29 +44,20 @@ public static class Clients
     {
         if (url.StartsWith("https://"))
         {
-
             var endpointAddress = url.TrimEnd('/') + "/" + endpointSuffix;
 
             var endpointConfigurationType = typeof(TClient).GetNestedType("EndpointConfiguration");
-
-            var binding = new BasicHttpsBinding(BasicHttpsSecurityMode.Transport)
-            {
-                SendTimeout = TimeSpan.FromMinutes(5),
-                ReceiveTimeout = TimeSpan.FromMinutes(5),
-                OpenTimeout = TimeSpan.FromMinutes(5),
-                CloseTimeout = TimeSpan.FromMinutes(5)
-            };
 
             if (endpointConfigurationType != null)
             {
                 string enumName = endpointSuffix + "Port";
 
                 var endpointConfigValue = Enum.Parse(endpointConfigurationType, enumName);
-                var constructor = typeof(TClient).GetConstructor(new Type[] {typeof(Binding) ,endpointConfigurationType, typeof(string) });
+                var constructor = typeof(TClient).GetConstructor(new Type[] { endpointConfigurationType, typeof(string) });
 
                 if (constructor != null)
                 {
-                    var client = (TClient)constructor.Invoke(new object[] {binding, endpointConfigValue, endpointAddress });
+                    var client = (TClient)constructor.Invoke(new object[] { endpointConfigValue, endpointAddress });
                     return client;
                 }
 
@@ -91,14 +82,6 @@ public static class Clients
             };
 
             var httpBindingElement = new HttpTransportBindingElement();
-
-            var customBinding= new CustomBinding(textBindingElement, httpBindingElement) 
-            {
-                SendTimeout = TimeSpan.FromMinutes(5),
-                ReceiveTimeout = TimeSpan.FromMinutes(5),
-                OpenTimeout = TimeSpan.FromMinutes(5),
-                CloseTimeout = TimeSpan.FromMinutes(5)
-            };
 
             var binding = new CustomBinding(textBindingElement, httpBindingElement);
 
