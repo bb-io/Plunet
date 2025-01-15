@@ -4,6 +4,7 @@ using Apps.Plunet.Models;
 using Apps.Plunet.Models.Customer;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 
@@ -242,9 +243,22 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         var attempts = 0;
         while (true)
         {
-            var result = await func();
-            
-            if(result.statusMessage == ApiResponses.Ok)
+            Result? result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("The SSL connection could not be established, see inner exception."))
+                {
+                    throw new PluginApplicationException("SSL connection error occurred.", ex);
+                }
+
+                throw new PluginApplicationException($"Error: {ex.Message}");
+            }
+
+            if (result.statusMessage == ApiResponses.Ok)
             {
                 return (T)result;
             }
@@ -259,7 +273,7 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
                     continue;
                 }
 
-                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
             return (T)result;
@@ -272,9 +286,22 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         var attempts = 0;
         while (true)
         {
-            var result = await func();
-            
-            if(result.statusMessage == ApiResponses.Ok)
+            DataCustomerAddress30Service.Result? result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                if (ex.Message.Contains("The SSL connection could not be established, see inner exception."))
+                {
+                    throw new PluginApplicationException("SSL connection error occurred.", ex);
+                }
+
+                throw new PluginApplicationException($"Error: {ex.Message}");
+            }
+
+            if (result.statusMessage == ApiResponses.Ok)
             {
                 return (T)result;
             }
@@ -289,7 +316,7 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
                     continue;
                 }
 
-                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
             return (T)result;
