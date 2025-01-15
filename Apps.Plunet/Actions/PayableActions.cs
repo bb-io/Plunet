@@ -8,6 +8,7 @@ using Apps.Plunet.Models.Payable.Request;
 using Apps.Plunet.Models.Payable.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Interfaces;
 using Blackbird.Plugins.Plunet.DataPayable30Service;
@@ -343,7 +344,15 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
         var attempts = 0;
         while (true)
         {
-            var result = await func();
+            Result? result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
 
             if (result.statusMessage == ApiResponses.Ok)
             {
@@ -360,7 +369,7 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
                     continue;
                 }
 
-                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
             return (T)result;

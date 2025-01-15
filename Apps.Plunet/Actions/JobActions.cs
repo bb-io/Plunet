@@ -392,7 +392,15 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         var attempts = 0;
         while (true)
         {
-            var result = await func();
+            Result? result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
 
             if (result.statusMessage == ApiResponses.Ok)
             {
@@ -418,7 +426,15 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         var attempts = 0;
         while (true)
         {
-            var result = await func();
+            Blackbird.Plugins.Plunet.DataItem30Service.Result? result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
 
             if (result.statusMessage == ApiResponses.Ok)
             {
@@ -444,7 +460,15 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         var attempts = 0;
         while (true)
         {
-            var result = await func();
+            Blackbird.Plugins.Plunet.DataCustomFields30.Result? result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
 
             if (result.statusMessage == ApiResponses.Ok)
             {
@@ -461,7 +485,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
                     continue;
                 }
 
-                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
             return (T)result;
