@@ -174,7 +174,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
                 ParseId(contactPerson.ResourceId)));
 
             if (result.statusMessage != ApiResponses.Ok)
-                throw new Exception(result.statusMessage);
+                throw new PluginApplicationException(result.statusMessage);
         }
 
         return await GetJob(new GetJobRequest { ProjectType = project.ProjectType, JobId = jobId });
