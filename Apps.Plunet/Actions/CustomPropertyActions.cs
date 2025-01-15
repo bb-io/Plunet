@@ -5,6 +5,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Constants;
 using Blackbird.Plugins.Plunet.DataCustomFields30;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Plunet.Actions
 {
@@ -137,7 +138,15 @@ namespace Apps.Plunet.Actions
             var attempts = 0;
             while (true)
             {
-                var result = await func();
+                Result? result;
+                try
+                {
+                    result = await func();
+                }
+                catch (Exception ex)
+                {
+                    throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+                }
 
                 if (result.statusMessage == ApiResponses.Ok)
                 {
@@ -154,10 +163,10 @@ namespace Apps.Plunet.Actions
                         continue;
                     }
 
-                    throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+                    throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
                 }
 
-                return (T)result;
+                throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
             }
         }
         
@@ -166,7 +175,15 @@ namespace Apps.Plunet.Actions
             var attempts = 0;
             while (true)
             {
-                var result = await func();
+                setPropertyValueListResponse result;
+                try
+                {
+                     result = await func();
+                }
+                catch (Exception ex)
+                {
+                    throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+                }
 
                 if (result.Result.statusMessage == ApiResponses.Ok)
                 {
@@ -186,7 +203,7 @@ namespace Apps.Plunet.Actions
                     throw new($"No more retries left. Last error: {result.Result.statusMessage}, Session UUID used is invalid.");
                 }
 
-                return result;
+                throw new PluginApplicationException($"Error while calling Plunet: {result.Result.statusMessage}");
             }
         }
     }

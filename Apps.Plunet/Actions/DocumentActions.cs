@@ -14,6 +14,7 @@ using Blackbird.Plugins.Plunet.DataDocument30Service;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Result = Blackbird.Plugins.Plunet.DataDocument30Service.Result;
 using StringArrayResult = Blackbird.Plugins.Plunet.DataDocument30Service.StringArrayResult;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Plunet.Actions;
 
@@ -104,7 +105,15 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         var attempts = 0;
         while (true)
         {
-            var result = await func();
+            Result? result;
+            try
+            {
+                 result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
 
             if (result.statusMessage == ApiResponses.Ok)
             {
@@ -121,10 +130,10 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
                     continue;
                 }
 
-                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
 
@@ -134,7 +143,15 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         var attempts = 0;
         while (true)
         {
-            var result = await func();
+            upload_DocumentResponse result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
 
             if (result.Result.statusMessage == ApiResponses.Ok)
             {
@@ -151,7 +168,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
                     continue;
                 }
 
-                throw new(
+                throw new PluginApplicationException(
                     $"No more retries left. Last error: {result.Result.statusMessage}, Session UUID used is invalid.");
             }
 
@@ -165,8 +182,16 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         var attempts = 0;
         while (true)
         {
-            var result = await func();
+            setCatReport2Response result;
 
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
             if (result.Result.statusMessage == ApiResponses.Ok)
             {
                 return result;
@@ -182,7 +207,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
                     continue;
                 }
 
-                throw new(
+                throw new PluginApplicationException(
                     $"No more retries left. Last error: {result.Result.statusMessage}, Session UUID used is invalid.");
             }
 

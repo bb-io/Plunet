@@ -174,7 +174,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
                 ParseId(contactPerson.ResourceId)));
 
             if (result.statusMessage != ApiResponses.Ok)
-                throw new Exception(result.statusMessage);
+                throw new PluginApplicationException(result.statusMessage);
         }
 
         return await GetJob(new GetJobRequest { ProjectType = project.ProjectType, JobId = jobId });
@@ -392,7 +392,15 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         var attempts = 0;
         while (true)
         {
-            var result = await func();
+            Result? result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
 
             if (result.statusMessage == ApiResponses.Ok)
             {
@@ -407,7 +415,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
                 continue;
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
 
@@ -418,7 +426,15 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         var attempts = 0;
         while (true)
         {
-            var result = await func();
+            Blackbird.Plugins.Plunet.DataItem30Service.Result? result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
 
             if (result.statusMessage == ApiResponses.Ok)
             {
@@ -433,7 +449,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
                 continue;
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
     
@@ -444,7 +460,15 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         var attempts = 0;
         while (true)
         {
-            var result = await func();
+            Blackbird.Plugins.Plunet.DataCustomFields30.Result? result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
 
             if (result.statusMessage == ApiResponses.Ok)
             {
@@ -461,10 +485,10 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
                     continue;
                 }
 
-                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
 

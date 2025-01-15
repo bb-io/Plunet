@@ -6,6 +6,7 @@ using Apps.Plunet.Models.Order;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
@@ -317,7 +318,15 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
 
         while (true)
         {
-            var result = await func();
+            Result? result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex.InnerException);
+            }
 
             if (result.statusMessage == ApiResponses.Ok)
             {
@@ -345,10 +354,10 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                     continue;
                 }
 
-                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
 
@@ -360,7 +369,15 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
 
         while (true)
         {
-            var result = await func();
+            T? result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
 
             if (result.statusMessage == ApiResponses.Ok)
             {
@@ -388,10 +405,10 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                     continue;
                 }
 
-                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
+                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
 
