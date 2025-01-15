@@ -182,8 +182,16 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         var attempts = 0;
         while (true)
         {
-            var result = await func();
+            setCatReport2Response result;
 
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
             if (result.Result.statusMessage == ApiResponses.Ok)
             {
                 return result;
@@ -199,7 +207,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
                     continue;
                 }
 
-                throw new(
+                throw new PluginApplicationException(
                     $"No more retries left. Last error: {result.Result.statusMessage}, Session UUID used is invalid.");
             }
 
