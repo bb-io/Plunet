@@ -156,6 +156,11 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
                 throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
             }
 
+            if (result.statusMessage != ApiResponses.Ok)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
+            }
+
             if (result.statusMessage == ApiResponses.Ok)
             {
                 return (T)result;
