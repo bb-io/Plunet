@@ -6,11 +6,11 @@
         <Nullable>enable</Nullable>
 		<Product>Plunet</Product>
 		<Description>The right translation management software</Description>
-		<Version>1.8.39</Version>
+		<Version>1.8.40</Version>
 		<AssemblyName>Apps.Plunet</AssemblyName>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.8.0" />
+        <PackageReference Include="Blackbird.Applications.Sdk.Common" Version="2.11.0" />
         <PackageReference Include="Blackbird.Applications.SDK.Extensions.FileManagement" Version="1.0.2-alpha1" />
         <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.25" />
         <PackageReference Include="System.ServiceModel.Duplex" Version="4.10.3" />

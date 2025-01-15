@@ -8,6 +8,7 @@ using Apps.Plunet.Models.Resource.Request;
 using Apps.Plunet.Models.Resource.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataCustomFields30;
 using Blackbird.Plugins.Plunet.DataItem30Service;
@@ -183,6 +184,9 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
     public async Task<AssignResourceResponse> AssignResourceToJob([ActionParameter] GetJobRequest request,
         [ActionParameter] ResourceRequest resource)
     {
+        if (!string.IsNullOrEmpty(resource.ResourceId) && !int.TryParse(resource.ResourceId, out _))
+            throw new PluginMisconfigurationException("\"Resource ID\" must be an integer type");
+
         var result = await ExecuteWithRetry<Result>(async () => await JobClient.setResourceIDAsync(Uuid, ParseId(request.ProjectType),
             ParseId(resource.ResourceId), ParseId(request.JobId)));
 
