@@ -271,7 +271,7 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
                 throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
     
@@ -309,7 +309,7 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
                 throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
 }
