@@ -6,7 +6,7 @@ namespace Apps.Plunet.Models.Resource.Request;
 
 public class ResourceRequest
 {
-    [Display("Resource")]
+    [Display("Resource ID")]
     [DataSource(typeof(ResourceIdDataHandler))]
     public string ResourceId { get; set; }
 }
