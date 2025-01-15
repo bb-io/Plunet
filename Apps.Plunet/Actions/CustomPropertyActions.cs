@@ -166,7 +166,7 @@ namespace Apps.Plunet.Actions
                     throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
                 }
 
-                return (T)result;
+                throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
             }
         }
         
@@ -203,7 +203,7 @@ namespace Apps.Plunet.Actions
                     throw new($"No more retries left. Last error: {result.Result.statusMessage}, Session UUID used is invalid.");
                 }
 
-                return result;
+                throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
             }
         }
     }

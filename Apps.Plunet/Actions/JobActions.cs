@@ -415,7 +415,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
                 continue;
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
 
@@ -449,7 +449,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
                 continue;
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
     
@@ -488,7 +488,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
                 throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
 

@@ -323,7 +323,7 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
                 throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
 }

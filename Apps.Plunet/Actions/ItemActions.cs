@@ -427,15 +427,20 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
                 return (T)result;
             }
 
-            if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            if (result.statusMessage.Contains("session-UUID used is invalid"))
             {
-                await Task.Delay(delay);
-                await RefreshAuthToken();
-                attempts++;
-                continue;
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
 
@@ -461,15 +466,20 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
                 return (T)result;
             }
 
-            if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            if (result.statusMessage.Contains("session-UUID used is invalid"))
             {
-                await Task.Delay(delay);
-                await RefreshAuthToken();
-                attempts++;
-                continue;
+                if (attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
+
+                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
     
@@ -508,7 +518,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
                 throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
             }
 
-            return (T)result;
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
 }
