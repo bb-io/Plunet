@@ -80,11 +80,16 @@ public static class Clients
             };
         }
 
+        var bindingAddressConstructor = typeof(TClient).GetConstructor(new[] { typeof(Binding), typeof(EndpointAddress) });
+        if (bindingAddressConstructor != null)
+        {
+            return (TClient)bindingAddressConstructor.Invoke(new object[] { binding, endpointAddress });
+        }
+
         var endpointConfigurationType = typeof(TClient).GetNestedType("EndpointConfiguration");
         if (endpointConfigurationType != null)
         {
             string enumName = endpointSuffix + "Port";
-
             var endpointConfigValue = Enum.Parse(endpointConfigurationType, enumName);
 
             var constructor = typeof(TClient).GetConstructor(new[] { typeof(Binding), endpointConfigurationType, typeof(string) });
@@ -92,19 +97,11 @@ public static class Clients
             {
                 return (TClient)constructor.Invoke(new object[] { binding, endpointConfigValue, endpointAddress.Uri.AbsoluteUri });
             }
-
-            throw new InvalidOperationException($"Cannot find constructor with (Binding, EndpointConfiguration, string) in {typeof(TClient).Name}");
-        }
-
-        var fallbackConstructor = typeof(TClient).GetConstructor(new[] { typeof(Binding), typeof(EndpointAddress) });
-        if (fallbackConstructor != null)
-        {
-            return (TClient)fallbackConstructor.Invoke(new object[] { binding, endpointAddress });
         }
 
         throw new InvalidOperationException(
             $"No suitable constructor found for {typeof(TClient).Name}. " +
-            $"Expected constructors: (Binding, EndpointConfiguration, string) or (Binding, EndpointAddress)."
+            $"Expected constructors: (Binding, EndpointAddress) or (Binding, EndpointConfiguration, string)."
         );
     }
 

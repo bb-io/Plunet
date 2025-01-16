@@ -183,16 +183,26 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
     }
 
     [Action("Assign resource to job", Description = "Assign a resource to a Plunet job")]
-    public async Task AssignResourceToJob([ActionParameter] AssignResourceRequest request)
+    public async Task<AssignResourceResponse> AssignResourceToJob([ActionParameter] AssignResourceRequest input,
+        [ActionParameter] GetJobRequest request)
     {
         var result = await ExecuteWithRetry<DataJobRound30Service.Result>(async () =>
-        await JobRoundClient.assignResourceAsync(Uuid, ParseId(request.ResourceId), ParseId(request.ResourceContactId), ParseId(request.RoundId)));
+        await JobRoundClient.assignResourceAsync(Uuid, ParseId(input.ResourceId), ParseId(input.ResourceContactId), ParseId(input.RoundId)));
 
         if (result.statusMessage != ApiResponses.Ok)
         {
             throw new PluginApplicationException($"Error while assigning resource: {result.statusMessage}");
         }
+
+        var jobResource =
+           await ExecuteWithRetry<IntegerResult>(async () => await JobClient.getResourceIDAsync(Uuid, ParseId(request.ProjectType), ParseId(request.JobId)));
+
+        if (jobResource.statusMessage != ApiResponses.Ok)
+            throw new(jobResource.statusMessage);
+
+        return new AssignResourceResponse { ResourceId = jobResource.data.ToString() };
     }
+
 
     [Action("Update job", Description = "Update an existing job in Plunet")]
     public async Task<JobResponse> UpdateJob([ActionParameter] GetJobRequest request,
