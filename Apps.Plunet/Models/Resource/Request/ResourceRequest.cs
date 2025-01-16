@@ -9,4 +9,7 @@ public class ResourceRequest
     [Display("Resource ID")]
     [DataSource(typeof(ResourceIdDataHandler))]
     public string ResourceId { get; set; }
+
+    [Display("Resource contact ID")]
+    public string? ResourceContactId { get; set; }
 }

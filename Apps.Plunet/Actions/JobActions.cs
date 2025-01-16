@@ -13,6 +13,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataCustomFields30;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataJob30Service;
+using DataJobRound30Service;
 using DateResult = Blackbird.Plugins.Plunet.DataJob30Service.DateResult;
 using IntegerResult = Blackbird.Plugins.Plunet.DataJob30Service.IntegerResult;
 using PriceLineListResult = Blackbird.Plugins.Plunet.DataJob30Service.PriceLineListResult;
@@ -30,9 +31,9 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         [ActionParameter] GetItemRequest request, [ActionParameter] OptionalJobStatusRequest status)
     {
         var result = status.Status == null
-            ? await ExecuteWithRetry<IntegerArrayResult>(async () =>
+            ? await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataItem30Service.IntegerArrayResult>(async () =>
                 await ItemClient.getJobsAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)))
-            : await ExecuteWithRetry<IntegerArrayResult>(async () =>
+            : await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataItem30Service.IntegerArrayResult>(async () =>
                 await ItemClient.getJobsWithStatusAsync(Uuid, ParseId(status.Status), ParseId(project.ProjectType),
                     ParseId(request.ItemId)));
 
@@ -182,22 +183,21 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
 
     [Action("Assign resource to job", Description = "Assign a resource to a Plunet job")]
     public async Task<AssignResourceResponse> AssignResourceToJob([ActionParameter] GetJobRequest request,
-        [ActionParameter] ResourceRequest resource)
+        [ActionParameter] ResourceRequest resource, [ActionParameter][Display("Round ID")] string roundId)
     {
         if (!string.IsNullOrEmpty(resource.ResourceId) && !int.TryParse(resource.ResourceId, out _))
             throw new PluginMisconfigurationException("\"Resource ID\" must be an integer type");
 
-        var result = await ExecuteWithRetry<Result>(async () => await JobClient.setResourceIDAsync(Uuid, ParseId(request.ProjectType),
-            ParseId(resource.ResourceId), ParseId(request.JobId)));
+        var result = await ExecuteWithRetry<DataJobRound30Service.Result>(async () => 
+        await JobRoundClient.assignResourceAsync(Uuid,ParseId(resource.ResourceId),ParseId(resource.ResourceContactId), ParseId(roundId)));
 
         if (result.statusMessage != ApiResponses.Ok)
-            throw new(result.statusMessage);
+            throw new PluginMisconfigurationException(result.statusMessage);
 
         var jobResource =
             await ExecuteWithRetry<IntegerResult>(async () => await JobClient.getResourceIDAsync(Uuid, ParseId(request.ProjectType), ParseId(request.JobId)));
-
         if (jobResource.statusMessage != ApiResponses.Ok)
-            throw new(jobResource.statusMessage);
+            throw new PluginMisconfigurationException(jobResource.statusMessage);
 
         return new AssignResourceResponse { ResourceId = jobResource.data.ToString() };
     }
@@ -452,7 +452,44 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
         }
     }
-    
+
+    private async Task<T> ExecuteWithRetry<T>(
+    Func<Task<DataJobRound30Service.Result>> func,
+    int maxRetries = 10,
+    int delay = 1000)
+    where T : DataJobRound30Service.Result
+    {
+        var attempts = 0;
+        while (true)
+        {
+            DataJobRound30Service.Result? result;
+            try
+            {
+                result = await func();
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
+            }
+
+            if (result.statusMessage == ApiResponses.Ok)
+            {
+                return (T)result;
+            }
+
+            if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            {
+                await Task.Delay(delay);
+                await RefreshAuthToken();
+                attempts++;
+                continue;
+            }
+
+            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
+        }
+    }
+
+
     private async Task<T> ExecuteWithRetry<T>(Func<Task<Blackbird.Plugins.Plunet.DataCustomFields30.Result>> func,
         int maxRetries = 10, int delay = 1000)
         where T : Blackbird.Plugins.Plunet.DataCustomFields30.Result

@@ -15,6 +15,7 @@ using Blackbird.Plugins.Plunet.DataRequest30Service;
 using Blackbird.Plugins.Plunet.DataResource30Service;
 using Blackbird.Plugins.Plunet.PlunetAPIService;
 using DataCustomerAddress30Service;
+using DataJobRound30Service;
 using DataResourceAddress30Service;
 
 namespace Apps.Plunet.Api;
@@ -23,6 +24,7 @@ public static class Clients
 {
     public static PlunetAPIClient GetAuthClient(string url) => GetClient<PlunetAPIClient>(url, "PlunetAPI");
 
+    public static DataJobRound30Client GetJobRoundClient(string url) => GetClient<DataJobRound30Client>(url, "DataJobRound30");
     public static DataCustomer30Client GetCustomerClient(string url) => GetClient<DataCustomer30Client>(url, "DataCustomer30");
 
     public static DataCustomerContact30Client GetContactClient(string url) => GetClient<DataCustomerContact30Client>(url, "DataCustomerContact30");
@@ -46,25 +48,40 @@ public static class Clients
         {
             var endpointAddress = url.TrimEnd('/') + "/" + endpointSuffix;
 
-            var endpointConfigurationType = typeof(TClient).GetNestedType("EndpointConfiguration");
+            var binding = new BasicHttpsBinding(BasicHttpsSecurityMode.Transport)
+            {
+                SendTimeout = TimeSpan.FromMinutes(5),
+                ReceiveTimeout = TimeSpan.FromMinutes(5),
+                OpenTimeout = TimeSpan.FromMinutes(5),
+                CloseTimeout = TimeSpan.FromMinutes(5)
+            };
 
+            var endpointConfigurationType = typeof(TClient).GetNestedType("EndpointConfiguration");
             if (endpointConfigurationType != null)
             {
                 string enumName = endpointSuffix + "Port";
-
                 var endpointConfigValue = Enum.Parse(endpointConfigurationType, enumName);
-                var constructor = typeof(TClient).GetConstructor(new Type[] { endpointConfigurationType, typeof(string) });
+
+                var constructor = typeof(TClient).GetConstructor(
+                    new Type[] { typeof(Binding), endpointConfigurationType, typeof(string) }
+                );
 
                 if (constructor != null)
                 {
-                    var client = (TClient)constructor.Invoke(new object[] { endpointConfigValue, endpointAddress });
+                    var client = (TClient)constructor.Invoke(
+                        new object[] { binding, endpointConfigValue, endpointAddress }
+                    );
                     return client;
                 }
 
-                throw new InvalidOperationException($"Cannot find constructor with (EndpointConfiguration, string) in {typeof(TClient).Name}");
+                throw new InvalidOperationException(
+                    $"Cannot find constructor with (Binding, EndpointConfiguration, string) in {typeof(TClient).Name}"
+                );
             }
 
-            throw new InvalidOperationException($"Cannot find EndpointConfiguration enum in {typeof(TClient).Name}");
+            throw new InvalidOperationException(
+                $"Cannot find EndpointConfiguration enum in {typeof(TClient).Name}"
+            );
         }
         else
         {
@@ -72,7 +89,6 @@ public static class Clients
 
             var envelopeVersion = EnvelopeVersion.Soap12;
             var addressingVersion = AddressingVersion.None;
-
             var messageVersion = MessageVersion.CreateVersion(envelopeVersion, addressingVersion);
 
             var textBindingElement = new TextMessageEncodingBindingElement
@@ -81,18 +97,28 @@ public static class Clients
                 WriteEncoding = System.Text.Encoding.UTF8
             };
 
-            var httpBindingElement = new HttpTransportBindingElement();
+            var httpBindingElement = new HttpTransportBindingElement(){};
 
-            var binding = new CustomBinding(textBindingElement, httpBindingElement);
+            var customBinding = new CustomBinding(textBindingElement, httpBindingElement)
+            {
+                SendTimeout = TimeSpan.FromMinutes(5),
+                ReceiveTimeout = TimeSpan.FromMinutes(5),
+                OpenTimeout = TimeSpan.FromMinutes(5),
+                CloseTimeout = TimeSpan.FromMinutes(5)
+            };
 
-            var constructor = typeof(TClient).GetConstructor(new Type[] { typeof(Binding), typeof(EndpointAddress) });
+            var constructor = typeof(TClient).GetConstructor(
+                new Type[] { typeof(Binding), typeof(EndpointAddress) }
+            );
             if (constructor != null)
             {
-                var client = (TClient)constructor.Invoke(new object[] { binding, endpointAddress });
+                var client = (TClient)constructor.Invoke(new object[] { customBinding, endpointAddress });
                 return client;
             }
 
-            throw new InvalidOperationException($"Cannot find constructor with (Binding, EndpointAddress) in {typeof(TClient).Name}");
+            throw new InvalidOperationException(
+                $"Cannot find constructor with (Binding, EndpointAddress) in {typeof(TClient).Name}"
+            );
         }
     }
 }
