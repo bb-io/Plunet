@@ -50,14 +50,18 @@ public static class Clients
 
         if (url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
         {
-            binding = new BasicHttpsBinding(BasicHttpsSecurityMode.Transport)
+            var basicHttpsBinding = new BasicHttpsBinding(BasicHttpsSecurityMode.Transport)
             {
                 SendTimeout = TimeSpan.FromMinutes(5),
                 ReceiveTimeout = TimeSpan.FromMinutes(5),
                 OpenTimeout = TimeSpan.FromMinutes(5),
                 CloseTimeout = TimeSpan.FromMinutes(5),
-                MaxReceivedMessageSize = int.MaxValue
+                MaxReceivedMessageSize = int.MaxValue,
+                MessageEncoding = WSMessageEncoding.Text,
+                TextEncoding = System.Text.Encoding.UTF8
             };
+
+            binding = basicHttpsBinding;
         }
         else
         {
