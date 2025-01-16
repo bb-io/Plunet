@@ -13,6 +13,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataCustomFields30;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataJob30Service;
+using Blackbird.Plugins.Plunet.DataResource30Service;
 using DataJobRound30Service;
 using DateResult = Blackbird.Plugins.Plunet.DataJob30Service.DateResult;
 using IntegerResult = Blackbird.Plugins.Plunet.DataJob30Service.IntegerResult;
@@ -182,24 +183,15 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
     }
 
     [Action("Assign resource to job", Description = "Assign a resource to a Plunet job")]
-    public async Task<AssignResourceResponse> AssignResourceToJob([ActionParameter] GetJobRequest request,
-        [ActionParameter] ResourceRequest resource, [ActionParameter][Display("Round ID")] string roundId)
+    public async Task AssignResourceToJob([ActionParameter] AssignResourceRequest request)
     {
-        if (!string.IsNullOrEmpty(resource.ResourceId) && !int.TryParse(resource.ResourceId, out _))
-            throw new PluginMisconfigurationException("\"Resource ID\" must be an integer type");
-
-        var result = await ExecuteWithRetry<DataJobRound30Service.Result>(async () => 
-        await JobRoundClient.assignResourceAsync(Uuid,ParseId(resource.ResourceId),ParseId(resource.ResourceContactId), ParseId(roundId)));
+        var result = await ExecuteWithRetry<DataJobRound30Service.Result>(async () =>
+        await JobRoundClient.assignResourceAsync(Uuid, ParseId(request.ResourceId), ParseId(request.ResourceContactId), ParseId(request.RoundId)));
 
         if (result.statusMessage != ApiResponses.Ok)
-            throw new PluginMisconfigurationException(result.statusMessage);
-
-        var jobResource =
-            await ExecuteWithRetry<IntegerResult>(async () => await JobClient.getResourceIDAsync(Uuid, ParseId(request.ProjectType), ParseId(request.JobId)));
-        if (jobResource.statusMessage != ApiResponses.Ok)
-            throw new PluginMisconfigurationException(jobResource.statusMessage);
-
-        return new AssignResourceResponse { ResourceId = jobResource.data.ToString() };
+        {
+            throw new PluginApplicationException($"Error while assigning resource: {result.statusMessage}");
+        }
     }
 
     [Action("Update job", Description = "Update an existing job in Plunet")]

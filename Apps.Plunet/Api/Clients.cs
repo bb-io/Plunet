@@ -41,31 +41,67 @@ public static class Clients
     public static DataCustomerAddress30Client GetCustomerAddressClient(string url) => GetClient<DataCustomerAddress30Client>(url, "DataCustomerAddress30");
     public static DataCustomFields30Client GetCustomFieldsClient(string url) => GetClient<DataCustomFields30Client>(url, "DataCustomFields30");
 
+
     public static TClient GetClient<TClient>(string url, string endpointSuffix) where TClient : class
     {
-        if (url.StartsWith("https://"))
+        if (url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
         {
             var endpointAddress = url.TrimEnd('/') + "/" + endpointSuffix;
 
             var endpointConfigurationType = typeof(TClient).GetNestedType("EndpointConfiguration");
-
             if (endpointConfigurationType != null)
             {
                 string enumName = endpointSuffix + "Port";
-
                 var endpointConfigValue = Enum.Parse(endpointConfigurationType, enumName);
-                var constructor = typeof(TClient).GetConstructor(new Type[] { endpointConfigurationType, typeof(string) });
 
-                if (constructor != null)
+                var binding = new BasicHttpsBinding(BasicHttpsSecurityMode.Transport)
                 {
-                    var client = (TClient)constructor.Invoke(new object[] { endpointConfigValue, endpointAddress });
+                    SendTimeout = TimeSpan.FromMinutes(5),
+                    ReceiveTimeout = TimeSpan.FromMinutes(5),
+                    OpenTimeout = TimeSpan.FromMinutes(5),
+                    CloseTimeout = TimeSpan.FromMinutes(5)
+                };
+
+                var constructor1 = typeof(TClient).GetConstructor(new[] { endpointConfigurationType, typeof(string) });
+                if (constructor1 != null)
+                {
+                    var client = (TClient)constructor1.Invoke(new object[] { endpointConfigValue, endpointAddress });
                     return client;
                 }
 
-                throw new InvalidOperationException($"Cannot find constructor with (EndpointConfiguration, string) in {typeof(TClient).Name}");
-            }
+                var constructor2 = typeof(TClient).GetConstructor(new[] { typeof(Binding), endpointConfigurationType, typeof(string) });
+                if (constructor2 != null)
+                {
+                    var client = (TClient)constructor2.Invoke(new object[] { binding, endpointConfigValue, endpointAddress });
+                    return client;
+                }
 
-            throw new InvalidOperationException($"Cannot find EndpointConfiguration enum in {typeof(TClient).Name}");
+                throw new InvalidOperationException(
+                    $"No suitable constructor found in {typeof(TClient).Name} for HTTPS. " +
+                    $"Tried (EndpointConfiguration, string) and (Binding, EndpointConfiguration, string)."
+                );
+            }
+            else
+            {
+                var binding = new BasicHttpsBinding(BasicHttpsSecurityMode.Transport)
+                {
+                    SendTimeout = TimeSpan.FromMinutes(5),
+                    ReceiveTimeout = TimeSpan.FromMinutes(5),
+                    OpenTimeout = TimeSpan.FromMinutes(5),
+                    CloseTimeout = TimeSpan.FromMinutes(5)
+                };
+
+                var addr = new EndpointAddress(endpointAddress);
+
+                var ctor = typeof(TClient).GetConstructor(new[] { typeof(Binding), typeof(EndpointAddress) });
+                if (ctor != null)
+                {
+                    var client = (TClient)ctor.Invoke(new object[] { binding, addr });
+                    return client;
+                }
+
+                throw new InvalidOperationException($"Cannot find (Binding, EndpointAddress) in {typeof(TClient).Name} for HTTPS");
+            }
         }
         else
         {
@@ -73,7 +109,6 @@ public static class Clients
 
             var envelopeVersion = EnvelopeVersion.Soap12;
             var addressingVersion = AddressingVersion.None;
-
             var messageVersion = MessageVersion.CreateVersion(envelopeVersion, addressingVersion);
 
             var textBindingElement = new TextMessageEncodingBindingElement
@@ -84,16 +119,24 @@ public static class Clients
 
             var httpBindingElement = new HttpTransportBindingElement();
 
-            var binding = new CustomBinding(textBindingElement, httpBindingElement);
+            var customBinding = new CustomBinding(textBindingElement, httpBindingElement)
+            {
+                SendTimeout = TimeSpan.FromMinutes(5),
+                ReceiveTimeout = TimeSpan.FromMinutes(5),
+                OpenTimeout = TimeSpan.FromMinutes(5),
+                CloseTimeout = TimeSpan.FromMinutes(5)
+            };
 
-            var constructor = typeof(TClient).GetConstructor(new Type[] { typeof(Binding), typeof(EndpointAddress) });
+            var constructor = typeof(TClient).GetConstructor(new[] { typeof(Binding), typeof(EndpointAddress) });
             if (constructor != null)
             {
-                var client = (TClient)constructor.Invoke(new object[] { binding, endpointAddress });
+                var client = (TClient)constructor.Invoke(new object[] { customBinding, endpointAddress });
                 return client;
             }
 
-            throw new InvalidOperationException($"Cannot find constructor with (Binding, EndpointAddress) in {typeof(TClient).Name}");
+            throw new InvalidOperationException(
+                $"Cannot find constructor (Binding, EndpointAddress) in {typeof(TClient).Name} for HTTP"
+            );
         }
     }
 }
