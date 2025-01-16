@@ -42,12 +42,18 @@ public static class Clients
     public static DataCustomerAddress30Client GetCustomerAddressClient(string url) => GetClient<DataCustomerAddress30Client>(url, "DataCustomerAddress30");
     public static DataCustomFields30Client GetCustomFieldsClient(string url) => GetClient<DataCustomFields30Client>(url, "DataCustomFields30");
 
-    public static TClient GetClient<TClient>(string url, string endpointSuffix) where TClient : class
+    public static TClient GetClient<TClient>(string url, string endpointSuffix)
+           where TClient : class
     {
-        if (url.StartsWith("https://"))
+        if (url.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
         {
-            var endpointAddress = url.TrimEnd('/') + "/" + endpointSuffix;
+            // ----------------
+            // HTTPS блок
+            // ----------------
+            var addressString = url.TrimEnd('/') + "/" + endpointSuffix;
+            var endpointAddr = new EndpointAddress(addressString);
 
+            // 1) Створюємо BasicHttpsBinding з великими таймаутами
             var binding = new BasicHttpsBinding(BasicHttpsSecurityMode.Transport)
             {
                 SendTimeout = TimeSpan.FromMinutes(5),
@@ -56,36 +62,66 @@ public static class Clients
                 CloseTimeout = TimeSpan.FromMinutes(5)
             };
 
+            // 2) На випадок, якщо TClient має enum EndpointConfiguration
             var endpointConfigurationType = typeof(TClient).GetNestedType("EndpointConfiguration");
             if (endpointConfigurationType != null)
             {
+                // Наприклад, "PlunetAPIPort"
                 string enumName = endpointSuffix + "Port";
                 var endpointConfigValue = Enum.Parse(endpointConfigurationType, enumName);
 
-                var constructor = typeof(TClient).GetConstructor(
-                    new Type[] { typeof(Binding), endpointConfigurationType, typeof(string) }
+                // Спочатку пробуємо (Binding, EndpointConfiguration, string)
+                var ctor1 = typeof(TClient).GetConstructor(
+                    new[] { typeof(Binding), endpointConfigurationType, typeof(string) }
                 );
-
-                if (constructor != null)
+                if (ctor1 != null)
                 {
-                    var client = (TClient)constructor.Invoke(
-                        new object[] { binding, endpointConfigValue, endpointAddress }
-                    );
-                    return client;
+                    // Якщо є — використовуємо
+                    return (TClient)ctor1.Invoke(new object[] {
+                            binding,
+                            endpointConfigValue,
+                            addressString
+                        });
+                }
+
+                // Інакше — фолбек: шукаємо (Binding, EndpointAddress)
+                var ctor2 = typeof(TClient).GetConstructor(
+                    new[] { typeof(Binding), typeof(EndpointAddress) }
+                );
+                if (ctor2 != null)
+                {
+                    return (TClient)ctor2.Invoke(new object[] {
+                            binding,
+                            endpointAddr
+                        });
+                }
+
+                // Якщо не знайдено жодного
+                throw new InvalidOperationException(
+                    $"No suitable constructor found in {typeof(TClient).Name} (tried (Binding, EndpointConfiguration, string) and (Binding, EndpointAddress))"
+                );
+            }
+            else
+            {
+                // 3) Якщо EndpointConfiguration enum не знайдено —
+                // напряму шукаємо (Binding, EndpointAddress)
+                var ctor = typeof(TClient).GetConstructor(
+                    new[] { typeof(Binding), typeof(EndpointAddress) }
+                );
+                if (ctor != null)
+                {
+                    return (TClient)ctor.Invoke(new object[] { binding, endpointAddr });
                 }
 
                 throw new InvalidOperationException(
-                    $"Cannot find constructor with (Binding, EndpointConfiguration, string) in {typeof(TClient).Name}"
+                    $"Cannot find constructor (Binding, EndpointAddress) or EndpointConfiguration for {typeof(TClient).Name}"
                 );
             }
-
-            throw new InvalidOperationException(
-                $"Cannot find EndpointConfiguration enum in {typeof(TClient).Name}"
-            );
         }
         else
         {
-            var endpointAddress = new EndpointAddress(url.TrimEnd('/') + "/" + endpointSuffix);
+            var addressString = url.TrimEnd('/') + "/" + endpointSuffix;
+            var endpointAddr = new EndpointAddress(addressString);
 
             var envelopeVersion = EnvelopeVersion.Soap12;
             var addressingVersion = AddressingVersion.None;
@@ -97,7 +133,7 @@ public static class Clients
                 WriteEncoding = System.Text.Encoding.UTF8
             };
 
-            var httpBindingElement = new HttpTransportBindingElement(){};
+            var httpBindingElement = new HttpTransportBindingElement{};
 
             var customBinding = new CustomBinding(textBindingElement, httpBindingElement)
             {
@@ -106,14 +142,14 @@ public static class Clients
                 OpenTimeout = TimeSpan.FromMinutes(5),
                 CloseTimeout = TimeSpan.FromMinutes(5)
             };
-
             var constructor = typeof(TClient).GetConstructor(
-                new Type[] { typeof(Binding), typeof(EndpointAddress) }
+                new[] { typeof(Binding), typeof(EndpointAddress) }
             );
             if (constructor != null)
             {
-                var client = (TClient)constructor.Invoke(new object[] { customBinding, endpointAddress });
-                return client;
+                return (TClient)constructor.Invoke(new object[] {
+                        customBinding, endpointAddr
+                    });
             }
 
             throw new InvalidOperationException(
