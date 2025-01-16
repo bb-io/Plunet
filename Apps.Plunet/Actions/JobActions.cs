@@ -183,8 +183,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
     }
 
     [Action("Assign resource to job", Description = "Assign a resource to a Plunet job")]
-    public async Task<AssignResourceResponse> AssignResourceToJob([ActionParameter] AssignResourceRequest input,
-        [ActionParameter] GetJobRequest request)
+    public async Task<AssignResourceResponse> AssignResourceToJob([ActionParameter] AssignResourceRequest input)
     {
         var result = await ExecuteWithRetry<DataJobRound30Service.Result>(async () =>
         await JobRoundClient.assignResourceAsync(Uuid, ParseId(input.ResourceId), ParseId(input.ResourceContactId), ParseId(input.RoundId)));
@@ -195,7 +194,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         }
 
         var jobResource =
-           await ExecuteWithRetry<IntegerResult>(async () => await JobClient.getResourceIDAsync(Uuid, ParseId(request.ProjectType), ParseId(request.JobId)));
+           await ExecuteWithRetry<IntegerResult>(async () => await JobClient.getResourceIDAsync(Uuid, ParseId(input.ProjectType), ParseId(input.JobId)));
 
         if (jobResource.statusMessage != ApiResponses.Ok)
             throw new(jobResource.statusMessage);
