@@ -21,6 +21,7 @@ using Blackbird.Plugins.Plunet.DataRequest30Service;
 using Blackbird.Plugins.Plunet.DataResource30Service;
 using Blackbird.Plugins.Plunet.PlunetAPIService;
 using DataCustomerAddress30Service;
+using DataJobRound30Service;
 using DataResourceAddress30Service;
 
 namespace Apps.Plunet.Invocables;
@@ -42,6 +43,7 @@ public class PlunetInvocable : BaseInvocable
     }
 
     protected PlunetAPIClient AuthClient => Clients.GetAuthClient(Creds.GetInstanceUrl());
+    protected DataJobRound30Client JobRoundClient => Clients.GetJobRoundClient(Creds.GetInstanceUrl());
     protected DataCustomer30Client CustomerClient => Clients.GetCustomerClient(Creds.GetInstanceUrl());
     protected DataCustomerContact30Client ContactClient => Clients.GetContactClient(Creds.GetInstanceUrl());
     protected DataAdmin30Client AdminClient => Clients.GetAdminClient(Creds.GetInstanceUrl());

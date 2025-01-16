@@ -15,6 +15,7 @@ using Blackbird.Plugins.Plunet.DataRequest30Service;
 using Blackbird.Plugins.Plunet.DataResource30Service;
 using Blackbird.Plugins.Plunet.PlunetAPIService;
 using DataCustomerAddress30Service;
+using DataJobRound30Service;
 using DataResourceAddress30Service;
 
 namespace Apps.Plunet.Api;
@@ -22,9 +23,9 @@ namespace Apps.Plunet.Api;
 public static class Clients
 {
     public static PlunetAPIClient GetAuthClient(string url) => GetClient<PlunetAPIClient>(url, "PlunetAPI");
-    
+
     public static DataCustomer30Client GetCustomerClient(string url) => GetClient<DataCustomer30Client>(url, "DataCustomer30");
-    
+    public static DataJobRound30Client GetJobRoundClient(string url) => GetClient<DataJobRound30Client>(url, "DataJobRound30");
     public static DataCustomerContact30Client GetContactClient(string url) => GetClient<DataCustomerContact30Client>(url, "DataCustomerContact30");
     public static DataAdmin30Client GetAdminClient(string url) => GetClient<DataAdmin30Client>(url, "DataAdmin30");
     public static DataDocument30Client GetDocumentClient(string url) => GetClient<DataDocument30Client>(url, "DataDocument30");
@@ -39,6 +40,7 @@ public static class Clients
     public static DataResourceAddress30Client GetResourceAddressClient(string url) => GetClient<DataResourceAddress30Client>(url, "DataResourceAddress30");
     public static DataCustomerAddress30Client GetCustomerAddressClient(string url) => GetClient<DataCustomerAddress30Client>(url, "DataCustomerAddress30");
     public static DataCustomFields30Client GetCustomFieldsClient(string url) => GetClient<DataCustomFields30Client>(url, "DataCustomFields30");
+
 
     public static TClient GetClient<TClient>(string url, string endpointSuffix) where TClient : class
     {
@@ -96,3 +98,4 @@ public static class Clients
         }
     }
 }
+
