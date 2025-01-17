@@ -158,6 +158,8 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             referenceNumber = request.ReferenceNumber,
         };
 
+        OrderClient.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
+        OrderClient.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(5);
         var response = templateRequest.TemplateId == null
             ? await ExecuteWithRetry<IntegerResult>(async () => await OrderClient.insert2Async(Uuid, orderIn))
             : await ExecuteWithRetry<IntegerResult>(async () =>

@@ -89,6 +89,8 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
     [Action("Create contact", Description = "Create a new contact in Plunet")]
     public async Task<ContactObjectResponse> CreateContact([ActionParameter] CreateContactRequest request)
     {
+        ContactClient.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
+        ContactClient.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(5);
         var contactIdResult =  await ExecuteWithRetry<IntegerResult>(async () => await ContactClient.insert2Async(Uuid, new()
         {
             customerID = ParseId(request.CustomerId),

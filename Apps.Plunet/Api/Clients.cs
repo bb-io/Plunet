@@ -60,11 +60,6 @@ public static class Clients
                 if (constructor != null)
                 {
                     var client = (TClient)constructor.Invoke(new object[] { endpointConfigValue, endpointAddress });
-                    if (client is IClientChannel channel)
-                    {
-                        channel.OperationTimeout = TimeSpan.FromMinutes(5);
-                    }
-
                     return client;
                 }
 
@@ -96,10 +91,6 @@ public static class Clients
             if (constructor != null)
             {
                 var client = (TClient)constructor.Invoke(new object[] { binding, endpointAddress });
-                if (client is IClientChannel channel)
-                {
-                    channel.OperationTimeout = TimeSpan.FromMinutes(5);
-                }
                 return client;
             }
 
@@ -107,4 +98,3 @@ public static class Clients
         }
     }
 }
-
