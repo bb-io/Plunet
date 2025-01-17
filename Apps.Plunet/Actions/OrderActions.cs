@@ -190,7 +190,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
 
     [Action("Create order by template", Description = "Create a new order in Plunet by template")]
     public async Task<OrderResponse> CreateOrderByTemplate(
-        [ActionParameter, Display("Template"), DataSource(typeof(TemplateDataHandler))]
+        [ActionParameter, Display("Template ID"), DataSource(typeof(TemplateDataHandler))]
         string templateId,
         [ActionParameter] CreateOrderByTemplateRequest request)
     {

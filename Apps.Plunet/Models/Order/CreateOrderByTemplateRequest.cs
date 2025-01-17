@@ -8,13 +8,13 @@ namespace Apps.Plunet.Models.Order;
 
 public class CreateOrderByTemplateRequest
 {
-    [Display("Project manager")]
+    [Display("Project manager ID")]
     [DataSource(typeof(ProjectManagerIdDataHandler))]
-    public string ProjectManagerId { get; set; }
+    public string? ProjectManagerId { get; set; }
     
-    [Display("Customer")]
+    [Display("Customer ID")]
     [DataSource(typeof(CustomerIdDataHandler))]
-    public string? CustomerId { get; set; }
+    public string CustomerId { get; set; }
 
     [Display("Project name")]
     public string? ProjectName { get; set; }
