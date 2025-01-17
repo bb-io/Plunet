@@ -20,7 +20,7 @@ public class ResourceClient(InvocationContext invocationContext) : PlunetInvocab
             values[CredsNames.WebhookUrlKey] + "?wsdl",
             (int)eventType));
 
-        await creds.Logout();
+        await Logout();
     }
 
     public async Task DeregisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
@@ -31,7 +31,7 @@ public class ResourceClient(InvocationContext invocationContext) : PlunetInvocab
         await using var resourceClient = Clients.GetResourceClient(creds.GetInstanceUrl());
         await ExecuteWithRetry<Result>(async () =>
             await resourceClient.deregisterCallback_NotifyAsync(Uuid, (int)eventType));
-        await creds.Logout();
+        await Logout();
     }
     
     private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)

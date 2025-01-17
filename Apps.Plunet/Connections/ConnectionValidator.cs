@@ -1,6 +1,8 @@
-﻿using Apps.Plunet.Extensions;
+﻿using Apps.Plunet.Api;
+using Apps.Plunet.Extensions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Connections;
+using Blackbird.Plugins.Plunet.DataResource30Service;
 
 namespace Apps.Plunet.Connections;
 
@@ -12,6 +14,8 @@ public class ConnectionValidator : IConnectionValidator
         try
         {
             var uuid = authProviders.GetAuthToken();
+            await using var plunetApiClient = Clients.GetAuthClient(authProviders.GetInstanceUrl());
+            await plunetApiClient.logoutAsync(uuid);
 
             if (uuid == "refused")
                 return new()
@@ -32,10 +36,6 @@ public class ConnectionValidator : IConnectionValidator
                 IsValid = false,
                 Message = ex.Message
             };
-        }
-        finally
-        {
-            await authProviders.Logout();
         }
     }
 }

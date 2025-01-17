@@ -65,6 +65,12 @@ public class PlunetInvocable : BaseInvocable
         Uuid = Creds.GetAuthToken();
     }
 
+    public async Task Logout()
+    {
+        await using var plunetApiClient = Clients.GetAuthClient(Url);
+        await plunetApiClient.logoutAsync(Uuid);
+    }
+
     public async Task<Callback[]> GetSubscribedWebhooks()
     {
         var res = await AdminClient.getListOfRegisteredCallbacksAsync(Uuid);

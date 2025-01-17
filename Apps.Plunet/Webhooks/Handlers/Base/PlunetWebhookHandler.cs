@@ -20,7 +20,7 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
     public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds, Dictionary<string, string> values)
     {
         await Client.RegisterCallback(creds, values, EventType);
-        await creds.Logout();
+        await Logout();
     }
 
     public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds,
@@ -39,7 +39,7 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
             await Client.RegisterCallback(creds, new Dictionary<string, string> { { CredsNames.WebhookUrlKey, callback.serverAddress.Replace("?wsdl", string.Empty) } }, EventType);
         } 
         
-        await creds.Logout();
+        await Logout();
     }
     
     private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
