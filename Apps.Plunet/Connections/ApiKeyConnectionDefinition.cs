@@ -26,12 +26,11 @@ public class ApiKeyConnectionDefinition : IConnectionDefinition
     public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(
         Dictionary<string, string> values)
     {
-        return new[]
+        return new AuthenticationCredentialsProvider[]
         {
-            CreateAuthorizationCredentialsProvider(values),
-            new(AuthenticationCredentialsRequestLocation.None, CredsNames.UrlNameKey, values[CredsNames.UrlNameKey].TrimEnd('/')),
-            new(AuthenticationCredentialsRequestLocation.None, CredsNames.UserNameKey, values[CredsNames.UserNameKey]),
-            new(AuthenticationCredentialsRequestLocation.None, CredsNames.PasswordKey, values[CredsNames.PasswordKey]),
+            new(CredsNames.UrlNameKey, values[CredsNames.UrlNameKey].TrimEnd('/')),
+            new(CredsNames.UserNameKey, values[CredsNames.UserNameKey]),
+            new(CredsNames.PasswordKey, values[CredsNames.PasswordKey]),
         };
     }
 
@@ -41,18 +40,7 @@ public class ApiKeyConnectionDefinition : IConnectionDefinition
         {
             AuthenticationType = ConnectionAuthenticationType.Undefined,
             ConnectionProperties = ConnectionProperties,
-            ConnectionUsage = ConnectionUsage.Webhooks,
             Name = "Plunet Connection"
         }
     };
-
-    private AuthenticationCredentialsProvider CreateAuthorizationCredentialsProvider(Dictionary<string, string> values)
-    {
-        using var plunetApiClient = Clients.GetAuthClient(values[CredsNames.UrlNameKey]);
-        var uuid = plunetApiClient.loginAsync(values[CredsNames.UserNameKey], values[CredsNames.PasswordKey])
-            .GetAwaiter().GetResult();
-
-        return new AuthenticationCredentialsProvider(AuthenticationCredentialsRequestLocation.None,
-            CredsNames.ApiKeyName, uuid);
-    }
 }

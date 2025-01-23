@@ -5,52 +5,52 @@ using Blackbird.Applications.Sdk.Common;
 
 namespace Apps.Plunet.Models.Invoices;
 
-public class GetInvoiceResponse(InvoiceResult result, GetCustomerResponse? customer)
+public class GetInvoiceResponse(Invoice result, GetCustomerResponse? customer)
 {
     [Display("Invoice ID")]
-    public string InvoiceId { get; set; } = result.data.invoiceID.ToString();
+    public string InvoiceId { get; set; } = result.invoiceID.ToString();
 
     [Display("Project name")]
-    public string ProjectName { get; set; } = result.data.briefDescription;
+    public string ProjectName { get; set; } = result.briefDescription;
 
     [Display("Customer ID")]
-    public string CustomerId { get; set; } = result.data.customerID.ToString();
+    public string CustomerId { get; set; } = result.customerID.ToString();
     
     [Display("Customer")]
     public GetCustomerResponse? Customer { get; set; } = customer;
 
     [Display("Description")]
-    public string Description { get; set; } = result.data.subject;
+    public string Description { get; set; } = result.subject;
 
     [Display("Status")]
-    public string Status { get; set; } = result.data.status.ToString();
+    public string Status { get; set; } = result.status.ToString();
 
     [Display("Currency code")]
-    public string CurrencyCode { get; set; } = result.data.currencyCode;
+    public string CurrencyCode { get; set; } = result.currencyCode;
 
     [Display("Gross")]
-    public double Gross { get; set; } = result.data.gross;
+    public double Gross { get; set; } = result.gross;
 
     [Display("Invoice date")]
-    public DateTime InvoiceDate { get; set; } = result.data.invoiceDate;
+    public DateTime InvoiceDate { get; set; } = result.invoiceDate;
 
     [Display("Invoice number")]
-    public string InvoiceNumber { get; set; } = result.data.invoiceNr;
+    public string InvoiceNumber { get; set; } = result.invoiceNr;
 
     [Display("Net")]
-    public double Net { get; set; } = result.data.net;
+    public double Net { get; set; } = result.net;
 
     [Display("Outgoing")]
-    public double Outgoing { get; set; } = result.data.outgoing;
+    public double Outgoing { get; set; } = result.outgoing;
 
     [Display("Paid")]
-    public double Paid { get; set; } = result.data.paid;
+    public double Paid { get; set; } = result.paid;
 
     [Display("Tax")]
-    public double Tax { get; set; } = result.data.tax;
+    public double Tax { get; set; } = result.tax;
 
     [Display("Value date")]
-    public DateTime ValueDate { get; set; } = result.data.valueDate;
+    public DateTime ValueDate { get; set; } = result.valueDate;
 
     [Display("Invoice items")]
     public List<InvoiceItemResponse> InvoiceItems { get; set; }

@@ -7,9 +7,14 @@ namespace Apps.Plunet.Extensions;
 
 public static class AuthProvidersExtension
 {
-    public static string GetAuthToken(this IEnumerable<AuthenticationCredentialsProvider> source) =>
-        source.FirstOrDefault(x => x.KeyName == CredsNames.ApiKeyName)
-            ?.Value ?? string.Empty;
+    public static string GetAuthToken(this IEnumerable<AuthenticationCredentialsProvider> source)
+    {
+        using var plunetApiClient = Clients.GetAuthClient(source.GetInstanceUrl());
+        var uuid = plunetApiClient.loginAsync(source.GetUsername(), source.GetPassword())
+            .GetAwaiter().GetResult();
+
+        return uuid;
+    }
 
     public static string GetInstanceUrl(this IEnumerable<AuthenticationCredentialsProvider> source)
     {
@@ -32,13 +37,5 @@ public static class AuthProvidersExtension
     {
         return source.FirstOrDefault(x => x.KeyName == CredsNames.PasswordKey)
             ?.Value ?? string.Empty;
-    }
-
-    public static async Task Logout(this IEnumerable<AuthenticationCredentialsProvider> source)
-    {
-        var uuid = source.GetAuthToken();
-      
-        await using var plunetApiClient = Clients.GetAuthClient(source.GetInstanceUrl());
-        await plunetApiClient.logoutAsync(uuid);
     }
 }

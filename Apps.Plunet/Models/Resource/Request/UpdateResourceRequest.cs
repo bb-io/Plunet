@@ -6,7 +6,7 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Resource.Request;
 
-public class UpdateResourceRequest : ResourceRequest
+public class ResourceParameters
 {
     [Display("Academic title")] 
     public string? AcademicTitle { get; set; }
@@ -35,10 +35,10 @@ public class UpdateResourceRequest : ResourceRequest
     [Display("Mobile phone")] 
     public string? MobilePhone { get; set; }
     
-    [Display("Name 1")] 
+    [Display("Last name")] 
     public string? Name1 { get; set; }
     
-    [Display("Name 2")] 
+    [Display("First name")] 
     public string? Name2 { get; set; }
     
     [Display("Opening")] 

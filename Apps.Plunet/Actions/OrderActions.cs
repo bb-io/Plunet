@@ -25,7 +25,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
     [Action("Search orders", Description = "Search for specific orders based on specific criteria")]
     public async Task<SearchResponse<OrderResponse>> SearchOrders([ActionParameter] SearchOrderInput input)
     {
-        var searchResult = await ExecuteWithRetry<IntegerArrayResult>(async () => await OrderClient.searchAsync(Uuid,
+        var searchResult = await ExecuteWithRetry(() => OrderClient.searchAsync(Uuid,
             new()
             {
                 sourceLanguage = input.SourceLanguage ?? string.Empty,
@@ -43,14 +43,11 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                 projectType = ParseId(input.ProjectType),
                 projectDescription = input.ProjectDescription ?? string.Empty,
             }));
-
-        if (searchResult.statusMessage != ApiResponses.Ok)
-            throw new(searchResult.statusMessage);
         
         var results = new List<OrderResponse>();
-        if (searchResult.data != null)
+        if (searchResult != null)
         {
-            foreach (var id in searchResult.data.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
+            foreach (var id in searchResult.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
             {
                 var orderResponse = await GetOrder(new OrderRequest { OrderId = id!.Value.ToString() });
                 results.Add(orderResponse);
@@ -63,59 +60,31 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
     [Action("Get order", Description = "Get the Plunet order")]
     public async Task<OrderResponse> GetOrder([ActionParameter] OrderRequest request)
     {
-        var orderResult = await ExecuteWithRetry<OrderResult>(async () =>
-            await OrderClient.getOrderObjectAsync(Uuid, ParseId(request.OrderId)));
-        if (orderResult.statusMessage != ApiResponses.Ok)
-            throw new(orderResult.statusMessage);
+        var order = await ExecuteWithRetry(() => OrderClient.getOrderObjectAsync(Uuid, ParseId(request.OrderId)));
 
-        var languageCombinations = await ExecuteWithRetry<StringArrayResult>(async () =>
-            await OrderClient.getLanguageCombinationAsync(Uuid, ParseId(request.OrderId)));
-        if (languageCombinations.statusMessage != ApiResponses.Ok)
-            throw new(languageCombinations.statusMessage);
+        var languageCombinations = await ExecuteWithRetry(() => OrderClient.getLanguageCombinationAsync(Uuid, ParseId(request.OrderId)));
 
-        var orderLanguageCombinations = await ParseLanguageCombinations(languageCombinations.data);
+        var orderLanguageCombinations = await ParseLanguageCombinations(languageCombinations);
 
-        var itemsResult = await ExecuteWithRetry<ItemListResult>(async () =>
-            await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(request.OrderId), 3));
-        if (itemsResult.statusMessage != ApiResponses.Ok)
-            throw new(itemsResult.statusMessage);
+        var items = await ExecuteWithRetryAcceptNull(() => ItemClient.getAllItemObjectsAsync(Uuid, ParseId(request.OrderId), 3));
 
-        var totalOrderPrice = itemsResult.data?.Sum(x => x.totalPrice) ?? 0;
+        var totalOrderPrice = items?.Sum(x => x.totalPrice) ?? 0;
 
-        var contactResult = await ExecuteWithRetry<IntegerResult>(async () =>
-            await OrderClient.getCustomerContactIDAsync(Uuid, ParseId(request.OrderId)));
+        var contact = await ExecuteWithRetryAcceptNull(() => OrderClient.getCustomerContactIDAsync(Uuid, ParseId(request.OrderId)));
 
-        var statusResult = await ExecuteWithRetry<IntegerResult>(async () =>
-            await OrderClient.getProjectStatusAsync(Uuid, ParseId(request.OrderId)));
-        if (statusResult.statusMessage != ApiResponses.Ok)
-            throw new(statusResult.statusMessage);
+        var status = await ExecuteWithRetry(() => OrderClient.getProjectStatusAsync(Uuid, ParseId(request.OrderId)));
 
-        var categoryResult = await ExecuteWithRetry<StringResult>(async () =>
-            await OrderClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.OrderId)));
-        if (categoryResult.statusMessage != ApiResponses.Ok)
-        {
-            if (categoryResult.statusMessage.Contains(ApiResponses.ProjectCategoryIsNotSet))
-            {
-                categoryResult = new StringResult() { data = string.Empty };
-            }
-            else
-            {
-                throw new(categoryResult.statusMessage);
-            }
-        }
+        var projectCategory = await ExecuteWithRetryAcceptNull(() => OrderClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.OrderId)));
 
-        var projectStatusResult = await ExecuteWithRetry<IntegerResult>(async () =>
-            await OrderClient.getProjectStatusAsync(Uuid, ParseId(request.OrderId)));
-        if (projectStatusResult.statusMessage != ApiResponses.Ok)
-            throw new(projectStatusResult.statusMessage);
+        var projectStatus = await ExecuteWithRetry(() => OrderClient.getProjectStatusAsync(Uuid, ParseId(request.OrderId)));
 
-        return new(orderResult.data, orderLanguageCombinations)
+        return new(order, orderLanguageCombinations)
         {
             TotalPrice = totalOrderPrice,
-            ContactId = contactResult.data == 0 ? null : contactResult.data.ToString(),
-            Status = statusResult.data.ToString(),
-            ProjectCategory = categoryResult.data,
-            ProjectStatus = projectStatusResult.data.ToString()
+            ContactId = contact?.ToString(),
+            Status = status.ToString(),
+            ProjectCategory = projectCategory ?? string.Empty,
+            ProjectStatus = projectStatus.ToString()
         };
     }
 
@@ -124,12 +93,9 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
     public async Task<LanguagesResponse> GetOrderTargetLanguage([ActionParameter] OrderRequest request,
         [ActionParameter] SourceLanguageRequest language)
     {
-        var languageCombinations = await ExecuteWithRetry<StringArrayResult>(async () =>
-            await OrderClient.getLanguageCombinationAsync(Uuid, ParseId(request.OrderId)));
-        if (languageCombinations.statusMessage != ApiResponses.Ok)
-            throw new(languageCombinations.statusMessage);
+        var languageCombinations = await ExecuteWithRetry(() => OrderClient.getLanguageCombinationAsync(Uuid, ParseId(request.OrderId)));
 
-        var orderLanguageCombinations = await ParseLanguageCombinations(languageCombinations.data);
+        var orderLanguageCombinations = await ParseLanguageCombinations(languageCombinations);
         var response = orderLanguageCombinations.Where(x => x.Source == language.SourceLanguageCode)
             .Select(x => x.Target).Distinct();
 
@@ -158,39 +124,27 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             referenceNumber = request.ReferenceNumber,
         };
 
-        var response = templateRequest.TemplateId == null
-            ? await ExecuteWithRetry<IntegerResult>(async () => await OrderClient.insert2Async(Uuid, orderIn))
-            : await ExecuteWithRetry<IntegerResult>(async () =>
-                await OrderClient.insert_byTemplateAsync(Uuid, orderIn, ParseId(templateRequest.TemplateId)));
-
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
+        OrderClient.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
+        OrderClient.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(5);
+        var orderId = templateRequest.TemplateId == null
+            ? await ExecuteWithRetry(() => OrderClient.insert2Async(Uuid, orderIn))
+            : await ExecuteWithRetry(() => OrderClient.insert_byTemplateAsync(Uuid, orderIn, ParseId(templateRequest.TemplateId)));
 
         if (request.Status != null)
         {
-            var statusResponse = await ExecuteWithRetry<Result>(async () =>
-                await OrderClient.setProjectStatusAsync(Uuid, response.data, ParseId(request.Status)));
-            if (statusResponse.statusMessage != ApiResponses.Ok)
-                throw new(statusResponse.statusMessage);
+            await ExecuteWithRetry(() => OrderClient.setProjectStatusAsync(Uuid, orderId, ParseId(request.Status)));
         }
 
         if (request.ProjectCategory != null)
         {
-            var categoryResponse =
-                await ExecuteWithRetry<Result>(async () =>
-                    await OrderClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, response.data));
-
-            if (categoryResponse.statusMessage != ApiResponses.Ok)
-                throw new(categoryResponse.statusMessage);
+            await ExecuteWithRetry(() => OrderClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, orderId));
         }
-
-        string orderId = response.data.ToString();
-        return await GetOrder(new OrderRequest { OrderId = orderId });
+        return await GetOrder(new OrderRequest { OrderId = orderId.ToString() });
     }
 
     [Action("Create order by template", Description = "Create a new order in Plunet by template")]
     public async Task<OrderResponse> CreateOrderByTemplate(
-        [ActionParameter, Display("Template"), DataSource(typeof(TemplateDataHandler))]
+        [ActionParameter, Display("Template ID"), DataSource(typeof(TemplateDataHandler))]
         string templateId,
         [ActionParameter] CreateOrderByTemplateRequest request)
     {
@@ -216,7 +170,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
     [Action("Delete order", Description = "Delete a Plunet order")]
     public async Task DeleteOrder([ActionParameter] OrderRequest request)
     {
-        await ExecuteWithRetry<Result>(async () => await OrderClient.deleteAsync(Uuid, ParseId(request.OrderId)));
+        await ExecuteWithRetry(() => OrderClient.deleteAsync(Uuid, ParseId(request.OrderId)));
     }
 
     [Action("Update order", Description = "Update Plunet order")]
@@ -245,53 +199,21 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             referenceNumber = request.ReferenceNumber
         };
 
-        var response =
-            await ExecuteWithRetry<Result>(async () => await OrderClient.updateAsync(Uuid, orderUpdate, false));
-
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
+        await ExecuteWithRetry(() => OrderClient.updateAsync(Uuid, orderUpdate, false));
 
         if (request.Status != null)
         {
-            var statusResponse =
-                await ExecuteWithRetry<Result>(async () =>
-                    await OrderClient.setProjectStatusAsync(Uuid, ParseId(order.OrderId), ParseId(request.Status)));
-            if (statusResponse.statusMessage != ApiResponses.Ok)
-                throw new(response.statusMessage);
+            await ExecuteWithRetry(() => OrderClient.setProjectStatusAsync(Uuid, ParseId(order.OrderId), ParseId(request.Status)));
         }
 
         if (request.ProjectCategory != null)
         {
-            var categoryResponse =
-                await ExecuteWithRetry<Result>(async () => await OrderClient.setProjectCategoryAsync(Uuid,
-                    request.ProjectCategory, Language,
-                    ParseId(order.OrderId)));
-
-            if (categoryResponse.statusMessage != ApiResponses.Ok)
-                throw new(categoryResponse.statusMessage);
+            await ExecuteWithRetry(() => OrderClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, ParseId(order.OrderId)));
         }
 
         return await GetOrder(order);
     }
 
-    //[Action("Add item to order", Description = "Add a new item to an order")]
-    //public async Task<CreateItemResponse> AddItemToOrder([ActionParameter] CreateItemRequest request)
-    //{
-    //    var itemIdResult = await ItemClient.insert2Async(Uuid, new()
-    //    {
-    //        briefDescription = request.ItemName,
-    //        projectID = ParseId(request.ProjectId),
-    //        totalPrice = request.TotalPrice ?? default,
-    //        projectType = request.ProjectType,
-    //        deliveryDeadline = request.DeadlineDateTime ?? default,
-    //        reference = request.Reference,
-    //        status = request.Status ?? default,
-    //    });
-    //    return new()
-    //    {
-    //        ItemId = itemIdResult.data.ToString()
-    //    };
-    //}   
 
     [Action("Add language combination to order", Description = "Add a new language combination to an existing order")]
     public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder(
@@ -300,154 +222,11 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         var sourceLanguage = await GetLanguageFromIsoOrFolderOrName(request.SourceLanguageCode);
         var targetLanguage = await GetLanguageFromIsoOrFolderOrName(request.TargetLanguageCode);
 
-        var result = await ExecuteWithRetry<IntegerResult>(async () => await OrderClient.addLanguageCombinationAsync(
-            Uuid, sourceLanguage.name, targetLanguage.name,
-            ParseId(order.OrderId)));
+        var result = await ExecuteWithRetry(() => OrderClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, ParseId(order.OrderId)));
 
         return new()
         {
-            LanguageCombinationId = result.data.ToString()
+            LanguageCombinationId = result.ToString()
         };
     }
-
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int initialDelay = 1000)
-        where T : Result
-    {
-        var attempts = 0;
-        var delay = initialDelay;
-
-        while (true)
-        {
-            Result? result;
-            try
-            {
-                result = await func();
-            }
-            catch (Exception ex)
-            {
-                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex.InnerException);
-            }
-
-            if (result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-
-            if (result.statusMessage.Contains("session-UUID used is invalid"))
-            {
-                if (attempts < maxRetries)
-                {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-
-                    delay = Math.Min(delay * 2, 20000);
-                    
-                    var restRequest = new RestRequest(string.Empty, Method.Post)
-                        .AddJsonBody(new
-                        {
-                            AttempNumber = attempts,
-                            Delay = delay,
-                            StatusMessage = result.statusMessage
-                        });
-
-                    continue;
-                }
-
-                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
-            }
-
-            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
-        }
-    }
-
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<T>> func, int maxRetries = 10, int initialDelay = 1000)
-        where T : Blackbird.Plugins.Plunet.DataItem30Service.Result
-    {
-        var attempts = 0;
-        var delay = initialDelay;
-
-        while (true)
-        {
-            T? result;
-            try
-            {
-                result = await func();
-            }
-            catch (Exception ex)
-            {
-                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
-            }
-
-            if (result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-
-            if (result.statusMessage.Contains("session-UUID used is invalid"))
-            {
-                if (attempts < maxRetries)
-                {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-
-                    delay = Math.Min(delay * 2, 20000);
-                    
-                    var restRequest = new RestRequest(string.Empty, Method.Post)
-                        .AddJsonBody(new
-                        {
-                            AttempNumber = attempts,
-                            Delay = delay,
-                            StatusMessage = result.statusMessage
-                        });
-                    
-                    continue;
-                }
-
-                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
-            }
-
-            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
-        }
-    }
-
-    //[Action("Set language combination to item", Description = "Set the language combination to an item")]
-    //public async Task SetLanguageCombinationToItem([ActionParameter] SetLanguageCombinationRequest request)
-    //{
-    //    var intLangCombId = ParseId(request.LanguageCombinationId)
-    //    var intItemId = ParseId(request.ItemId);
-    //    await ItemClient.setLanguageCombinationIDAsync(Uuid, intLangCombId, 3, intItemId);
-    //}
-
-    //[Action("Add priceline to item", Description = "Adds a new priceline")]
-    //public async Task<PriceLineListResponse> AddPriceLinesToItem([ActionParameter] PriceLineRequest request)
-    //{
-    //    var intItemId = ParseId(request.ItemId);
-
-    //    var priceUnitListResult = await ItemClient.getPriceUnit_ListAsync(Uuid, "en", "Translation");
-    //    var priceUnits = priceUnitListResult.data?.Where(x =>
-    //        x.description.Contains("Words Translation", StringComparison.OrdinalIgnoreCase)).ToArray();
-
-    //    if (priceUnits == null || !priceUnits.Any())
-    //        throw new("No price units found");
-
-    //    foreach (var priceUnit in priceUnits)
-    //    {
-    //        var priceLine = new PriceLineIN
-    //        {
-    //            amount = request.Amount,
-    //            priceUnitID = priceUnit.priceUnitID,
-    //            taxType = 0,
-    //            unit_price = request.UnitPrice
-    //        };
-    //        await ItemClient.insertPriceLineAsync(Uuid, intItemId, 3, priceLine,
-    //            priceUnit.description.Contains("New", StringComparison.OrdinalIgnoreCase));
-    //    }
-    //    var priceListResult = await ItemClient.getPriceLine_ListAsync(Uuid, intItemId, 3);
-    //    return new()
-    //    {
-    //        PriceLines = priceListResult.data.Select(x => new PriceLineResponse(x))
-    //    };
-    //}
 }

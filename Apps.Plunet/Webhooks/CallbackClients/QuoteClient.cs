@@ -20,7 +20,7 @@ public class QuoteClient(InvocationContext invocationContext) : PlunetInvocable(
             values[CredsNames.WebhookUrlKey] + "?wsdl",
             (int)eventType));
 
-        await creds.Logout();
+        await Logout();
     }
 
     public async Task DeregisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
@@ -32,7 +32,7 @@ public class QuoteClient(InvocationContext invocationContext) : PlunetInvocable(
         await ExecuteWithRetry<Result>(async () =>
             await quoteClient.deregisterCallback_NotifyAsync(Uuid, (int)eventType));
 
-        await creds.Logout();
+        await Logout();
     }
     
     private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
