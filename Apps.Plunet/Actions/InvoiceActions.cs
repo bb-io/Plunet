@@ -45,14 +45,12 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
             filter.invoiceStatus = int.Parse(request.InvoiceStatus);
         }
 
-        var searchInvoices =
-            await ExecuteWithRetry<IntegerArrayResult>(
-                async () => await OutgoingInvoiceClient.searchAsync(Uuid, filter));
+        var searchInvoices =await ExecuteWithRetry(() => OutgoingInvoiceClient.searchAsync(Uuid, filter));
         var invoices = new List<GetInvoiceResponse>();
-        foreach (var invoiceId in searchInvoices.data.Where(x => x.HasValue).Take(request.Limit ?? SystemConsts.SearchLimit))
+        foreach (var invoiceId in searchInvoices.Where(x => x.HasValue).Take(request.Limit ?? SystemConsts.SearchLimit))
         {
             var invoice = await GetInvoice(new InvoiceRequest
-                { InvoiceId = invoiceId.ToString() ?? throw new InvalidOperationException("Invoice ID is null") });
+                { InvoiceId = invoiceId.ToString() ?? throw new PluginMisconfigurationException("Invoice ID is null") });
             invoices.Add(invoice);
         }
         
@@ -97,15 +95,13 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
     [Action("Get invoice", Description = "Get invoice by ID")]
     public async Task<GetInvoiceResponse> GetInvoice([ActionParameter] InvoiceRequest request)
     {
-        var invoiceObject = await ExecuteWithRetry<InvoiceResult>(async () =>
-            await OutgoingInvoiceClient.getInvoiceObjectAsync(Uuid, int.Parse(request.InvoiceId)));
-        var invoiceItems = await ExecuteWithRetry<InvoiceItemResult>(async () =>
-            await OutgoingInvoiceClient.getInvoiceItemListAsync(Uuid, int.Parse(request.InvoiceId)));
+        var invoiceObject = await ExecuteWithRetry(() => OutgoingInvoiceClient.getInvoiceObjectAsync(Uuid, int.Parse(request.InvoiceId)));
+        var invoiceItems = await ExecuteWithRetryAcceptNull(() => OutgoingInvoiceClient.getInvoiceItemListAsync(Uuid, int.Parse(request.InvoiceId)));
 
         var items = new List<InvoiceItemResponse>();
-        if (invoiceItems.data != null)
+        if (invoiceItems != null)
         {
-            foreach (var item in invoiceItems.data)
+            foreach (var item in invoiceItems)
             {
                 if (item != null)
                 {
@@ -138,7 +134,7 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
             try
             {
                 customer = await customerActions.GetCustomerById(new CustomerRequest
-                    { CustomerId = invoiceObject.data.customerID.ToString() });
+                    { CustomerId = invoiceObject.customerID.ToString() });
             }
             catch (Exception e)
             {
@@ -161,9 +157,8 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
         var lineItems = new List<LineItem>();
         foreach (var item in invoice.InvoiceItems)
         {
-            var priceline = await ExecuteWithRetry<PriceLineListResult>(async () =>
-                await OutgoingInvoiceClient.getPriceLine_ListAsync(Uuid, int.Parse(item.InvoiceItemId)));
-            foreach (var price in priceline.data)
+            var pricelines = await ExecuteWithRetry(() => OutgoingInvoiceClient.getPriceLine_ListAsync(Uuid, int.Parse(item.InvoiceItemId)));
+            foreach (var price in pricelines)
             {
                 lineItems.Add(new LineItem
                 {
@@ -179,7 +174,7 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
         if (request.CustomFieldKeys != null && request.CustomFieldValues != null)
         {
             if (request.CustomFieldKeys.Count() != request.CustomFieldValues.Count())
-                throw new InvalidOperationException("Custom field keys and values count must be equal");
+                throw new PluginMisconfigurationException("Custom field keys and values count must be equal");
 
             for (var i = 0; i < request.CustomFieldKeys.Count(); i++)
             {
@@ -231,99 +226,29 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
     {
         if (!string.IsNullOrEmpty(request.Subject))
         {
-            var result =
-                await ExecuteWithRetry<Result>(async () =>
-                    await OutgoingInvoiceClient.setSubjectAsync(Uuid, request.Subject, int.Parse(request.InvoiceId)));
-
-            if (result.statusMessage != "OK")
-                throw new InvalidOperationException(
-                    $"Error while updating invoice subject, message: {result.statusMessage}");
+            await ExecuteWithRetry(() => OutgoingInvoiceClient.setSubjectAsync(Uuid, request.Subject, int.Parse(request.InvoiceId)));
         }
 
         if (!string.IsNullOrEmpty(request.BriefDescription))
         {
-            var result =
-                await ExecuteWithRetry<Result>(async () => await OutgoingInvoiceClient.setBriefDescriptionAsync(Uuid,
-                    request.BriefDescription,
-                    int.Parse(request.InvoiceId)));
-
-            if (result.statusMessage != "OK")
-                throw new InvalidOperationException(
-                    $"Error while updating invoice brief description, message: {result.statusMessage}");
+            await ExecuteWithRetry(() => OutgoingInvoiceClient.setBriefDescriptionAsync(Uuid, request.BriefDescription, int.Parse(request.InvoiceId)));
         }
 
         if (request.InvoiceDate.HasValue)
         {
-            var result =
-                await ExecuteWithRetry<Result>(async () => await OutgoingInvoiceClient.setInvoiceDateAsync(Uuid,
-                    request.InvoiceDate.Value,
-                    int.Parse(request.InvoiceId)));
-
-            if (result.statusMessage != "OK")
-                throw new InvalidOperationException(
-                    $"Error while updating invoice date, message: {result.statusMessage}");
+            await ExecuteWithRetry(() => OutgoingInvoiceClient.setInvoiceDateAsync(Uuid, request.InvoiceDate.Value, int.Parse(request.InvoiceId)));
         }
 
         if (request.PaidDate.HasValue)
         {
-            var result = await ExecuteWithRetry<Result>(async () =>
-                await OutgoingInvoiceClient.setPaidDateAsync(Uuid, int.Parse(request.InvoiceId),
-                    request.PaidDate.Value));
-
-            if (result.statusMessage != "OK")
-                throw new InvalidOperationException(
-                    $"Error while updating invoice paid date, message: {result.statusMessage}");
+            await ExecuteWithRetry(() => OutgoingInvoiceClient.setPaidDateAsync(Uuid, int.Parse(request.InvoiceId), request.PaidDate.Value));
         }
 
         if (!string.IsNullOrEmpty(request.InvoiceStatus))
         {
-            var result = await ExecuteWithRetry<Result>(async () => await OutgoingInvoiceClient.setStatusAsync(Uuid,
-                int.Parse(request.InvoiceStatus),
-                int.Parse(request.InvoiceId)));
-
-            if (result.statusMessage != "OK")
-                throw new InvalidOperationException(
-                    $"Error while updating invoice status, message: {result.statusMessage}");
+            await ExecuteWithRetry(() => OutgoingInvoiceClient.setStatusAsync(Uuid,int.Parse(request.InvoiceStatus), int.Parse(request.InvoiceId)));
         }
 
         return await GetInvoice(request);
-    }
-
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
-        where T : Result
-    {
-        var attempts = 0;
-        while (true)
-        {
-            Result? result;
-            try
-            {
-                result = await func();
-            }
-            catch (Exception ex)
-            {
-                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
-            }
-
-            if (result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-
-            if(result.statusMessage.Contains("session-UUID used is invalid"))
-            {
-                if (attempts < maxRetries)
-                {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-                    continue;
-                }
-
-                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
-            }
-
-            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
-        }
     }
 }

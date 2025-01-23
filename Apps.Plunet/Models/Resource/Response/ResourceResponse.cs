@@ -22,9 +22,9 @@ public class ResourceResponse
 
     [Display("Mobile phone")] public string MobilePhone { get; set; }
 
-    [Display("Last name")] public string LastName { get; set; }
+    [Display("Last name")] public string Name1 { get; set; }
 
-    [Display("First name")] public string FirstName { get; set; }
+    [Display("First name")] public string Name2 { get; set; }
 
     [Display("Opening")] public string Opening { get; set; }
 
@@ -50,10 +50,16 @@ public class ResourceResponse
 
     [Display("Payment")] public ResourcePaymentResponse Payment { get; set; }
     
-    [Display("Address data")]
-    public AddressResponse AddressData { get; set; }
+    [Display("Delivery address")]
+    public AddressResponse DeliveryAddress { get; set; }
 
-    public ResourceResponse(Blackbird.Plugins.Plunet.DataResource30Service.Resource resource, Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfo paymentInfo)
+    [Display("Invoice address")]
+    public AddressResponse InvoiceAddress { get; set; }
+
+    [Display("Other address")]
+    public AddressResponse OtherAddress { get; set; }
+
+    public ResourceResponse(Blackbird.Plugins.Plunet.DataResource30Service.Resource resource, Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfo paymentInfo, AddressResponse delivery, AddressResponse invoice, AddressResponse other)
     {
         AcademicTitle = resource.academicTitle;
         CostCenter = resource.costCenter;
@@ -64,8 +70,8 @@ public class ResourceResponse
         FormOfAddress = resource.formOfAddress.ToString();
         FullName = resource.fullName;
         MobilePhone = resource.mobilePhone;
-        LastName = resource.name1;
-        FirstName = resource.name2;
+        Name1 = resource.name1;
+        Name2 = resource.name2;
         Opening = resource.opening;
         Phone = resource.phone;
         ResourceID = resource.resourceID.ToString();
@@ -89,31 +95,27 @@ public class ResourceResponse
             PreselectdTaxId = paymentInfo.preselectedTaxID.ToString(),
             SalesTaxId = paymentInfo.salesTaxID,
         };
+        DeliveryAddress = delivery;
+        InvoiceAddress = invoice;
+        OtherAddress = other;
     }
 }
 
 public class AddressResponse
 {
-    [Display("First country")]
-    public string FirstCountry { get; set; } = string.Empty;
-    
-    [Display("Countries")]
-    public List<string> Countries { get; set; } = new();
-    
-    [Display("Cities")]
-    public List<string> Cities { get; set; } = new();
-    
-    public List<string> States { get; set; } = new();
+    [Display("Country")]
+    public string? Country { get; set; }
 
-    [Display("ZIP codes")]
-    public List<string> ZipCodes { get; set; } = new();
-    
-    [Display("ZIP codes of PO box")] 
-    public List<string> ZipCodeOfPoBox { get; set; } = new();
-    
-    [Display("PO boxes")]
-    public List<string> PoBox { get; set; } = new();
-    
-    [Display("Streets")]
-    public List<string> Streets { get; set; } = new();
+    [Display("City")]
+    public string? City { get; set; }
+
+    [Display("State")]
+    public string? State { get; set; }
+
+    [Display("Street")]
+    public string? Street { get; set; }
+
+    [Display("ZIP code")]
+    public string? ZipCode { get; set; }
+
 }

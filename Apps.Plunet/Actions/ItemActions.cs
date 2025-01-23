@@ -8,6 +8,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using System;
 
@@ -22,26 +23,25 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         [ActionParameter] SearchItemsRequest searchParams,
         [ActionParameter] OptionalCurrencyTypeRequest currencyParams)
     {
-        ItemListResult result;
+        Item[]? result;
 
         if (item.ProjectId == null)
         {
             if (searchParams.Status == null)
             {
-                throw new Exception("Please provide either an order or quote ID or an item status.");
+                throw new PluginMisconfigurationException("Please provide either an order or quote ID or an item status.");
             }
 
             if (searchParams.DocumentStatus == null)
             {
-                result = await ExecuteWithRetry<ItemListResult>(async () => await ItemClient.getItemsByStatus1Async(Uuid, ParseId(item.ProjectType),
-                    ParseId(searchParams.Status)));
+                result = await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus1Async(Uuid, ParseId(item.ProjectType), ParseId(searchParams.Status)));
             }
             else
             {
                 result = currencyParams.CurrencyType == null
-                    ? await ExecuteWithRetry<ItemListResult>(async () => await ItemClient.getItemsByStatus3Async(Uuid, ParseId(item.ProjectType),
+                    ? await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus3Async(Uuid, ParseId(item.ProjectType),
                         ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus)))
-                    : await ExecuteWithRetry<ItemListResult>(async () => await ItemClient.getItemsByStatus3ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectType),
+                    : await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus3ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectType),
                         ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus),
                         ParseId(currencyParams.CurrencyType)));
             }
@@ -51,35 +51,32 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             if (searchParams.Status == null)
             {
                 result = currencyParams.CurrencyType == null
-                    ? await ExecuteWithRetry<ItemListResult>(async () => await ItemClient.getAllItemObjectsAsync(Uuid, ParseId(item.ProjectId),
+                    ? await ExecuteWithRetryAcceptNull(() => ItemClient.getAllItemObjectsAsync(Uuid, ParseId(item.ProjectId),
                         ParseId(item.ProjectType)))
-                    : await ExecuteWithRetry<ItemListResult>(async () => await ItemClient.getAllItemObjectsByCurrencyAsync(Uuid, ParseId(item.ProjectId),
+                    : await ExecuteWithRetryAcceptNull(() => ItemClient.getAllItemObjectsByCurrencyAsync(Uuid, ParseId(item.ProjectId),
                         ParseId(item.ProjectType), ParseId(currencyParams.CurrencyType)));
             }
             else if (searchParams.DocumentStatus == null)
             {
-                result = await ExecuteWithRetry<ItemListResult>(async () => await ItemClient.getItemsByStatus2Async(Uuid, ParseId(item.ProjectId),
+                result = await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus2Async(Uuid, ParseId(item.ProjectId),
                     ParseId(item.ProjectType), ParseId(searchParams.Status)));
             }
             else
             {
                 result = currencyParams.CurrencyType == null
-                    ? await ExecuteWithRetry<ItemListResult>(async () => await ItemClient.getItemsByStatus4Async(Uuid, ParseId(item.ProjectId),
+                    ? await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus4Async(Uuid, ParseId(item.ProjectId),
                         ParseId(item.ProjectType), ParseId(searchParams.Status),
                         ParseId(searchParams.DocumentStatus)))
-                    : await ExecuteWithRetry<ItemListResult>(async () => await ItemClient.getItemsByStatus4ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectId),
+                    : await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus4ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectId),
                         ParseId(item.ProjectType), ParseId(searchParams.Status),
                         ParseId(searchParams.DocumentStatus), ParseId(currencyParams.CurrencyType)));
             }
         }
 
-        if (result.statusMessage != ApiResponses.Ok)
-            throw new(result.statusMessage);
-
         var projectType = (ItemProjectType)int.Parse(item.ProjectType);
-        var items = result.data is null
+        var items = result is null
             ? new List<ItemResponse>()
-            : result.data.Take(searchParams.Limit ?? SystemConsts.SearchLimit).Select(x => new ItemResponse(x, projectType)).ToList();
+            : result.Take(searchParams.Limit ?? SystemConsts.SearchLimit).Select(x => new ItemResponse(x, projectType)).ToList();
         return new SearchResponse<ItemResponse>(items);
     }
     
@@ -97,15 +94,11 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         [ActionParameter] GetItemRequest request, [ActionParameter] OptionalCurrencyTypeRequest currency)
     {
         var result = currency.CurrencyType == null
-            ? await ExecuteWithRetry<ItemResult>(async () => await ItemClient.getItemObjectAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)))
-            : await ExecuteWithRetry<ItemResult>(async () => await ItemClient.getItemObjectByCurrencyTypeAsync(Uuid, ParseId(project.ProjectType),
-                ParseId(request.ItemId), ParseId(currency.CurrencyType)));
-
-        if (result.statusMessage != ApiResponses.Ok)
-            throw new(result.statusMessage);
+            ? await ExecuteWithRetry(() => ItemClient.getItemObjectAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)))
+            : await ExecuteWithRetry(() => ItemClient.getItemObjectByCurrencyTypeAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId), ParseId(currency.CurrencyType)));
 
         var projectType = (ItemProjectType)int.Parse(project.ProjectType);
-        return new(result.data, projectType);
+        return new(result, projectType);
     }
 
     [Action("Create item", Description = "Create a new item in Plunet")]
@@ -115,7 +108,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     {
         if ((languages.SourceLanguageCode == null) != (languages.TargetLanguageCode == null))
         {
-            throw new Exception("Either both source and target languages should be defined or neither");
+            throw new PluginMisconfigurationException("Either both source and target languages should be defined or neither");
         }
 
         var itemIn = new ItemIN()
@@ -130,26 +123,19 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         };
 
         var response = languages.SourceLanguageCode == null
-            ? await ExecuteWithRetry<IntegerResult>(async () => await ItemClient.insertLanguageIndependentItemAsync(Uuid, itemIn))
-            : await ExecuteWithRetry<IntegerResult>(async () => await ItemClient.insert2Async(Uuid, itemIn));
+            ? await ExecuteWithRetry(() => ItemClient.insertLanguageIndependentItemAsync(Uuid, itemIn))
+            : await ExecuteWithRetry(() => ItemClient.insert2Async(Uuid, itemIn));
 
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
+        await HandleLanguages(languages, ParseId(project.ProjectType), ParseId(projectId.ProjectId), response);
 
-        await HandleLanguages(languages, ParseId(project.ProjectType), ParseId(projectId.ProjectId), response.data);
-
-        return await GetItem(project, new GetItemRequest { ItemId = response.data.ToString() },
-            new OptionalCurrencyTypeRequest { });
+        return await GetItem(project, new GetItemRequest { ItemId = response.ToString() }, new OptionalCurrencyTypeRequest { });
     }
 
     [Action("Delete item", Description = "Delete a Plunet item")]
     public async Task DeleteItem([ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest request)
     {
-        var response = await ExecuteWithRetry<ItemListResult>(async () => await ItemClient.deleteAsync(Uuid, ParseId(request.ItemId), ParseId(project.ProjectType)));
-
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
+        await ExecuteWithRetry(() => ItemClient.deleteAsync(Uuid, ParseId(request.ItemId), ParseId(project.ProjectType)));
     }
 
     [Action("Update item", Description = "Update an existing item in Plunet")]
@@ -159,7 +145,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     {
         if ((languages.SourceLanguageCode == null) != (languages.TargetLanguageCode == null))
         {
-            throw new Exception("Either both source and target languages should be defined or neither");
+            throw new PluginMisconfigurationException("Either both source and target languages should be defined or neither");
         }
 
         var itemIn = new ItemIN()
@@ -173,13 +159,10 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             projectType = ParseId(project.ProjectType),
         };
 
-        var response = await ExecuteWithRetry<Result>(async () => await ItemClient.updateAsync(Uuid, itemIn, false));
+        await ExecuteWithRetry(() => ItemClient.updateAsync(Uuid, itemIn, false));
 
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
-
-        var itemRes = await ExecuteWithRetry<ItemResult>(async () => await ItemClient.getItemObjectAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId)));
-        await HandleLanguages(languages, ParseId(project.ProjectType), itemRes.data.projectID,
+        var itemRes = await ExecuteWithRetry(() => ItemClient.getItemObjectAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId)));
+        await HandleLanguages(languages, ParseId(project.ProjectType), itemRes.projectID,
             ParseId(item.ItemId));
 
         return await GetItem(project, item, new OptionalCurrencyTypeRequest { });
@@ -189,23 +172,19 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     public async Task<PricelinesResponse> GetItemPricelines([ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest item)
     {
-        var response =
-            await ExecuteWithRetry<PriceLineListResult>(async () => await ItemClient.getPriceLine_ListAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType)));
+        var response = await ExecuteWithRetryAcceptNull(() => ItemClient.getPriceLine_ListAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType)));
 
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
-
-        if (response.data is null)
+        if (response is null)
         {
             return new PricelinesResponse();
         }
 
         var result = new List<PricelineResponse>();
 
-        foreach (var priceLine in response.data) 
+        foreach (var priceLine in response)
         {
-            var priceUnit = await ItemClient.getPriceUnitAsync(Uuid, priceLine.priceUnitID, Language);
-            result.Add(CreatePricelineResponse(priceLine,priceUnit.data));
+            var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, priceLine.priceUnitID, Language));
+            result.Add(CreatePricelineResponse(priceLine,priceUnit));
         }
             
         return new PricelinesResponse
@@ -234,29 +213,18 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (input.TimePerUnit.HasValue)
             pricelineIn.time_perUnit = input.TimePerUnit.Value;
 
-        var response = await ExecuteWithRetry<PriceLineResult>(async () => await ItemClient.insertPriceLineAsync(Uuid, ParseId(item.ItemId),
-            ParseId(project.ProjectType), pricelineIn, false));
+        var response = await ExecuteWithRetryAcceptNull(() => ItemClient.insertPriceLineAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType), pricelineIn, false));
 
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
-
-        var priceUnit = await ItemClient.getPriceUnitAsync(Uuid, int.Parse(unit.PriceUnit) , Language);
-        return CreatePricelineResponse(response.data, priceUnit.data);
+        var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, int.Parse(unit.PriceUnit), Language));
+        return CreatePricelineResponse(response, priceUnit);
     }
 
     [Action("Delete item priceline", Description = "Delete a priceline from an item")]
     public async Task DeletePriceline([ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest item, [ActionParameter] PricelineIdRequest line)
     {
-        var response = await ExecuteWithRetry<Result>(async () => await ItemClient.deletePriceLineAsync(Uuid, ParseId(item.ItemId),
-            ParseId(project.ProjectType), ParseId(line.Id)));
-
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
+        await ExecuteWithRetry(() => ItemClient.deletePriceLineAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType), ParseId(line.Id)));
     }
-
-
-
 
     [Action("Update item priceline", Description = "Update an existing item priceline")]
     public async Task<PricelineResponse> UpdateItemPriceline([ActionParameter] ProjectTypeRequest project,
@@ -278,15 +246,10 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (input.TimePerUnit.HasValue)
             pricelineIn.time_perUnit = input.TimePerUnit.Value;
 
-        var response = await ExecuteWithRetry<PriceLineResult>(async () => await ItemClient.updatePriceLineAsync(Uuid, ParseId(item.ItemId),
-            ParseId(project.ProjectType), pricelineIn));
+        var response = await ExecuteWithRetryAcceptNull(() => ItemClient.updatePriceLineAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType), pricelineIn));
 
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
-       
-
-        var priceUnit = await ItemClient.getPriceUnitAsync(Uuid, int.Parse(unit.PriceUnit), Language);
-        return CreatePricelineResponse(response.data, priceUnit.data);
+        var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, int.Parse(unit.PriceUnit), Language));
+        return CreatePricelineResponse(response, priceUnit);
     }
 
     private PricelineResponse CreatePricelineResponse(PriceLine line, PriceUnit? unit)
@@ -309,66 +272,36 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     }
 
     [Action("Get language CAT code", Description = "Get language CAT code")]
-    public async Task<LanguageCatCodeResponse> GetLanguageCatCodeAsync([ActionParameter]  LanguageCatCodeRequest input)
+    public async Task<string> GetLanguageCatCodeAsync([ActionParameter] LanguageCatCodeRequest input)
     {
-        if (string.IsNullOrWhiteSpace(Uuid))
-            throw new ArgumentException("UUID cannot be null or empty", nameof(Uuid));
-
         if (string.IsNullOrWhiteSpace(input.LanguageName))
-            throw new ArgumentException("Language name cannot be null or empty", nameof(input.LanguageName));
+            throw new PluginMisconfigurationException("Language name cannot be null or empty");
 
         if (string.IsNullOrWhiteSpace(input.CatType))
-            throw new ArgumentException("Category type cannot be null or empty", nameof(input.CatType));
+            throw new PluginMisconfigurationException("Category type cannot be null or empty");
 
-        try 
-        {
-            var response = await AdminClient.getLanguageCatCodeAsync(Uuid, input.LanguageName,input.CatType);
+        var response = await ExecuteWithRetryAcceptNull(() => AdminClient.getLanguageCatCodeAsync(Uuid, input.LanguageName,input.CatType));
 
-            if (response == null || string.IsNullOrEmpty(response.ToString()))
-                throw new Exception("No language CAT code found for the given inputs.");
+        if (response == null)
+            throw new PluginMisconfigurationException("No language CAT code found for the given inputs.");
 
-            return new LanguageCatCodeResponse
-            {
-                Text = response.ToString()
-            };
-        }
-        catch (Exception ex)
-        {
-            throw new (ex.Message);
-        }
+        return response.CatCode;
     }
 
     [Action("Set item pricelist", Description ="Set a new pricelist for an item and update all related pricelines")]
-    public async Task<Result> SetItemPricelist([ActionParameter] ProjectTypeRequest project,
+    public async Task SetItemPricelist([ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest item, [ActionParameter][Display("Price list ID")]string priceListID)
     {
         if (string.IsNullOrEmpty(priceListID))
         {
-            throw new ArgumentNullException("pricelist ID cannot be null or empty",nameof(priceListID));
+            throw new PluginMisconfigurationException("pricelist ID cannot be null or empty");
         }
 
         //Here we change set the pricelist
-        var setPriceListResult = await ExecuteWithRetry<Result>(async() =>
-        await ItemClient.setPricelistAsync(Uuid,ParseId(item.ItemId), ParseId(project.ProjectType), ParseId(priceListID)));
-
-        if (setPriceListResult.statusMessage != ApiResponses.Ok)
-        {
-            throw new(setPriceListResult.statusMessage);
-        }
+        await ExecuteWithRetry(() =>  ItemClient.setPricelistAsync(Uuid,ParseId(item.ItemId), ParseId(project.ProjectType), ParseId(priceListID)));
 
         //Updating all pricelines
-        var updatePriceResult = await ExecuteWithRetry<Result>(async() => 
-        await ItemClient.updatePricesAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId)));
-
-        if (updatePriceResult.statusMessage != ApiResponses.Ok)
-        {
-            throw new(updatePriceResult.statusMessage );
-        }
-
-        return new Result
-        {
-            statusMessage = ApiResponses.Ok
-        };
+        await ExecuteWithRetry(() => ItemClient.updatePricesAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId)));
     }
 
     private async Task HandleLanguages(OptionalLanguageCombinationRequest languages, int projectType, int projectId,
@@ -378,147 +311,25 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         {
             var sourceLanguage = await GetLanguageFromIsoOrFolderOrName(languages.SourceLanguageCode);
             var targetLanguage = await GetLanguageFromIsoOrFolderOrName(languages.TargetLanguageCode);
-            var languageCombination = await ExecuteWithRetry<IntegerResult>(async () => await ItemClient.seekLanguageCombinationAsync(Uuid, sourceLanguage.name,
-                targetLanguage.name, projectType, projectId, itemId));
-            var languageCombinationCode = languageCombination.data;
+            var languageCombinationCode = await ExecuteWithRetry(() => ItemClient.seekLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, projectType, projectId, itemId));
 
             if (languageCombinationCode == 0)
             {
                 if (projectType == 3) // order
                 {
-                    var result = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataOrder30Service.IntegerResult>(async () => await OrderClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name,
-                        targetLanguage.name, itemId));
-                    languageCombinationCode = result.data;
+                    languageCombinationCode = await ExecuteWithRetry(() => OrderClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, itemId));
                 }
                 else
                 {
-                    var result = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>(async () => await QuoteClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name,
-                        targetLanguage.name, itemId));
-                    languageCombinationCode = result.data;
+                    languageCombinationCode = await ExecuteWithRetry(() => QuoteClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, itemId));
                 }
             }
 
-            await ExecuteWithRetry<Result>(async () => await ItemClient.setLanguageCombinationIDAsync(Uuid, languageCombinationCode, projectType, itemId));
+            await ExecuteWithRetry(() => ItemClient.setLanguageCombinationIDAsync(Uuid, languageCombinationCode, projectType, itemId));
         }
     }
 
     // Pricelist
     // Copy jobs from workflow
-    // SetCatReport
-    
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
-        where T : Result
-    {
-        var attempts = 0;
-        while (true)
-        {
-            Result? result;
-            try
-            {
-                result = await func();
-            }
-            catch (Exception ex)
-            {
-                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
-            }
-
-            if (result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-
-            if (result.statusMessage.Contains("session-UUID used is invalid"))
-            {
-                if (attempts < maxRetries)
-                {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-                    continue;
-                }
-
-                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
-            }
-
-            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
-        }
-    }
-
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Blackbird.Plugins.Plunet.DataOrder30Service.Result>> func,
-        int maxRetries = 10, int delay = 1000)
-        where T : Blackbird.Plugins.Plunet.DataOrder30Service.Result
-    {
-        var attempts = 0;
-        while (true)
-        {
-            Blackbird.Plugins.Plunet.DataOrder30Service.Result? result;
-            try
-            {
-                result = await func();
-            }
-            catch (Exception ex)
-            {
-                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
-            }
-
-            if (result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-
-            if (result.statusMessage.Contains("session-UUID used is invalid"))
-            {
-                if (attempts < maxRetries)
-                {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-                    continue;
-                }
-
-                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
-            }
-
-            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
-        }
-    }
-    
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Blackbird.Plugins.Plunet.DataQuote30Service.Result>> func,
-        int maxRetries = 10, int delay = 1000)
-        where T : Blackbird.Plugins.Plunet.DataQuote30Service.Result
-    {
-        var attempts = 0;
-        while (true)
-        {
-            Blackbird.Plugins.Plunet.DataQuote30Service.Result? result;
-            try
-            {
-                result = await func();
-            }
-            catch (Exception ex)
-            {
-                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
-            }
-
-            if (result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-
-            if(result.statusMessage.Contains("session-UUID used is invalid"))
-            {
-                if (attempts < maxRetries)
-                {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-                    continue;
-                }
-
-                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
-            }
-
-            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
-        }
-    }
+    // SetCatReport    
 }

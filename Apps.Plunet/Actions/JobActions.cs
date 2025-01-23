@@ -1,26 +1,14 @@
-﻿using Apps.Plunet.Constants;
-using Apps.Plunet.Invocables;
+﻿using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Job;
-using Apps.Plunet.Models.Resource.Request;
 using Apps.Plunet.Models.Resource.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Plugins.Plunet.DataCustomFields30;
-using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataJob30Service;
-using Blackbird.Plugins.Plunet.DataResource30Service;
-using DataJobRound30Service;
-using DateResult = Blackbird.Plugins.Plunet.DataJob30Service.DateResult;
-using IntegerResult = Blackbird.Plugins.Plunet.DataJob30Service.IntegerResult;
-using PriceLineListResult = Blackbird.Plugins.Plunet.DataJob30Service.PriceLineListResult;
-using PriceLineResult = Blackbird.Plugins.Plunet.DataJob30Service.PriceLineResult;
-using Result = Blackbird.Plugins.Plunet.DataJob30Service.Result;
-using StringResult = Blackbird.Plugins.Plunet.DataJob30Service.StringResult;
 
 namespace Apps.Plunet.Actions;
 
@@ -32,18 +20,12 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         [ActionParameter] GetItemRequest request, [ActionParameter] OptionalJobStatusRequest status)
     {
         var result = status.Status == null
-            ? await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataItem30Service.IntegerArrayResult>(async () =>
-                await ItemClient.getJobsAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)))
-            : await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataItem30Service.IntegerArrayResult>(async () =>
-                await ItemClient.getJobsWithStatusAsync(Uuid, ParseId(status.Status), ParseId(project.ProjectType),
-                    ParseId(request.ItemId)));
-
-        if (result.statusMessage != ApiResponses.Ok)
-            throw new(result.statusMessage);
+            ? await ExecuteWithRetry(() => ItemClient.getJobsAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)))
+            : await ExecuteWithRetry(() => ItemClient.getJobsWithStatusAsync(Uuid, ParseId(status.Status), ParseId(project.ProjectType), ParseId(request.ItemId)));
 
         var jobs = new List<JobResponse>();
 
-        foreach (var id in result.data)
+        foreach (var id in result.Where(x => x.HasValue).Select(x => x.Value))
         {
             var job = await GetJob(new GetJobRequest { JobId = id.ToString(), ProjectType = project.ProjectType });
             jobs.Add(job);
@@ -66,20 +48,18 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         {
             foreach (var job in itemJobsResponse.Jobs)
             {
-                var textModuleValue = await ExecuteWithRetry<Blackbird.Plugins.Plunet.DataCustomFields30.TextmoduleResult>(async () => await CustomFieldsClient.getTextmoduleAsync(Uuid, textModuleRequest.Flag,
-                    ParseId(textModuleRequest.UsageArea), ParseId(job.JobId), Language));
-                if (textModuleValue.statusMessage == ApiResponses.Ok
-                    && textModuleValue.data.stringValue == textModuleRequest.TextModuleValue)
+                var textModule = await ExecuteWithRetryAcceptNull(() => CustomFieldsClient.getTextmoduleAsync(Uuid, textModuleRequest.Flag, ParseId(textModuleRequest.UsageArea), ParseId(job.JobId), Language));
+                if (textModule?.stringValue == textModuleRequest.TextModuleValue)
                 {
                     return job;
                 }
             }
 
-            throw new("Job not found");
+            throw new PluginMisconfigurationException($"Given the flag {textModuleRequest.Flag}, no jobs were found.");
         }
 
-        if (itemJobsResponse.Jobs.Any() == false)
-            throw new("No jobs found");
+        if (!itemJobsResponse.Jobs.Any())
+            throw new PluginMisconfigurationException("No jobs were found.");
 
         return itemJobsResponse.Jobs.First();
     }
@@ -90,57 +70,48 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         var type = ParseId(request.ProjectType);
         var id = ParseId(request.JobId);
 
-        var comment = await GetString(ExecuteWithRetry<StringResult>(async () => await JobClient.getCommentAsync(Uuid, type, id)));
-        var contactPersonId = await GetId(ExecuteWithRetry<IntegerResult>(async () => await JobClient.getContactPersonIDAsync(Uuid, type, id)));
-        var creationDate = await GetDate(ExecuteWithRetry<DateResult>(async () => await JobClient.getCreationDateAsync(Uuid, type, id)));
-        var currency = await GetString(ExecuteWithRetry<StringResult>(async () => await JobClient.getCurrencyAsync(Uuid, id, type)));
-        var deliveryDate = await GetDate(ExecuteWithRetry<DateResult>(async () => await JobClient.getDeliveryDateAsync(Uuid, type, id)));
-        var deliveryNote = await GetString(ExecuteWithRetry<StringResult>(async () => await JobClient.getDeliveryNoteAsync(Uuid, type, id)));
-        var description = await GetString(ExecuteWithRetry<StringResult>(async () => await JobClient.getDescriptionAsync(Uuid, type, id)));
-        var payableId = await GetId(ExecuteWithRetry<IntegerResult>(async () => await JobClient.getPayableIDAsync(Uuid, id, type)), false);
+        var comment = await ExecuteWithRetry(() => JobClient.getCommentAsync(Uuid, type, id));
+        var contactPersonId = await ExecuteWithRetryAcceptNull(() => JobClient.getContactPersonIDAsync(Uuid, type, id));
+        var creationDate = await ExecuteWithRetry(() => JobClient.getCreationDateAsync(Uuid, type, id));
+        var currency = await ExecuteWithRetry(() => JobClient.getCurrencyAsync(Uuid, id, type));
+        var deliveryDate = await ExecuteWithRetry(() => JobClient.getDeliveryDateAsync(Uuid, type, id));
+        var deliveryNote = await ExecuteWithRetry(() => JobClient.getDeliveryNoteAsync(Uuid, type, id));
+        var description = await ExecuteWithRetry(() => JobClient.getDescriptionAsync(Uuid, type, id));
+        var payableId = await ExecuteWithRetryAcceptNull(() => JobClient.getPayableIDAsync(Uuid, id, type));
 
-        var jobViewResponse = await ExecuteWithRetry<JobResult>(async () => await JobClient.getJob_ForViewAsync(Uuid, id, type));
+        var jobViewResponse = await ExecuteWithRetry(() => JobClient.getJob_ForViewAsync(Uuid, id, type));
 
-        if (jobViewResponse.statusMessage != ApiResponses.Ok)
-            throw new(jobViewResponse.statusMessage);
+        var jobMetricsResponse = await ExecuteWithRetry(() => JobClient.getJobMetricsAsync(Uuid, id, type, Language));
 
-        var jobMetricsResponse = await ExecuteWithRetry<JobMetricResult>(async () => await JobClient.getJobMetricsAsync(Uuid, id, type, Language));
-
-        if (jobMetricsResponse.statusMessage != ApiResponses.Ok)
-            throw new(jobMetricsResponse.statusMessage);
-
-        var jobTrackingResponse = await ExecuteWithRetry<JobTrackingTimeResult>(async () => await JobClient.getJobTrackingTimesListAsync(Uuid, id, type));
-
-        if (jobTrackingResponse.statusMessage != ApiResponses.Ok)
-            throw new(jobTrackingResponse.statusMessage);
+        var jobTrackingResponse = await ExecuteWithRetry(() => JobClient.getJobTrackingTimesListAsync(Uuid, id, type));
 
         return new JobResponse
         {
             Comment = comment,
-            ContactPersonId = contactPersonId,
+            ContactPersonId = contactPersonId?.ToString(),
             CreationDate = creationDate,
             Currency = currency,
             DeliveryDate = deliveryDate,
             DeliveryNote = deliveryNote,
             Description = description,
-            PayableId = payableId,
-            NumberOfSourceFiles = jobViewResponse.data.countSourceFiles,
-            DueDate = jobViewResponse.data.dueDateSpecified ? jobViewResponse.data.dueDate : null,
-            ItemId = jobViewResponse.data.itemID.ToString(),
-            JobId = jobViewResponse.data.jobID.ToString(),
-            ResourceId = jobViewResponse.data.resourceID.ToString(),
-            JobType = jobViewResponse.data.jobTypeFull,
-            StartDate = jobViewResponse.data.startDateSpecified ? jobViewResponse.data.startDate : null,
-            Status = jobViewResponse.data.status.ToString(),
-            TotalPrice = jobMetricsResponse.data.totalPrice,
-            PercentageComplated = jobTrackingResponse.data.completed,
+            PayableId = payableId?.ToString(),
+            NumberOfSourceFiles = jobViewResponse.countSourceFiles,
+            DueDate = jobViewResponse.dueDateSpecified ? jobViewResponse.dueDate : null,
+            ItemId = jobViewResponse.itemID.ToString(),
+            JobId = jobViewResponse.jobID.ToString(),
+            ResourceId = jobViewResponse.resourceID.ToString(),
+            JobType = jobViewResponse.jobTypeFull,
+            StartDate = jobViewResponse.startDateSpecified ? jobViewResponse.startDate : null,
+            Status = jobViewResponse.status.ToString(),
+            TotalPrice = jobMetricsResponse.totalPrice,
+            PercentageComplated = jobTrackingResponse.completed,
         };
     }
 
     [Action("Delete job", Description = "Delete a Plunet job")]
     public async Task DeleteJob([ActionParameter] GetJobRequest request)
     {
-        await ExecuteWithRetry<Result>(async () => await JobClient.deleteJobAsync(Uuid, ParseId(request.JobId), ParseId(request.ProjectType)));
+        await ExecuteWithRetry(() => JobClient.deleteJobAsync(Uuid, ParseId(request.JobId), ParseId(request.ProjectType)));
     }
 
     [Action("Create job", Description = "Create a new job in Plunet")]
@@ -164,19 +135,12 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         if (input.StartDate.HasValue)
             jobIn.startDate = input.StartDate.Value;
 
-        var response = await ExecuteWithRetry<IntegerResult>(async () => await JobClient.insert3Async(Uuid, jobIn, type.JobType));
+        var response = await ExecuteWithRetry(() => JobClient.insert3Async(Uuid, jobIn, type.JobType));
 
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
-
-        string jobId = response.data.ToString();
+        string jobId = response.ToString();
         if (contactPerson.ResourceId is not null)
         {
-            var result = await ExecuteWithRetry<Result>(async () => await JobClient.setContactPersonIDAsync(Uuid, ParseId(project.ProjectType), ParseId(jobId),
-                ParseId(contactPerson.ResourceId)));
-
-            if (result.statusMessage != ApiResponses.Ok)
-                throw new PluginApplicationException(result.statusMessage);
+            await ExecuteWithRetry(() => JobClient.setContactPersonIDAsync(Uuid, ParseId(project.ProjectType), ParseId(jobId), ParseId(contactPerson.ResourceId)));
         }
 
         return await GetJob(new GetJobRequest { ProjectType = project.ProjectType, JobId = jobId });
@@ -185,21 +149,11 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
     [Action("Assign resource to job", Description = "Assign a resource to a Plunet job")]
     public async Task<AssignResourceResponse> AssignResourceToJob([ActionParameter] AssignResourceRequest input)
     {
-        var result = await ExecuteWithRetry<DataJobRound30Service.Result>(async () =>
-        await JobRoundClient.assignResourceAsync(Uuid, ParseId(input.ResourceId), ParseId(input.ResourceContactId), ParseId(input.RoundId)));
+        await ExecuteWithRetry(() => JobRoundClient.assignResourceAsync(Uuid, ParseId(input.ResourceId), ParseId(input.ResourceContactId), ParseId(input.RoundId)));
 
-        if (result.statusMessage != ApiResponses.Ok)
-        {
-            throw new PluginApplicationException($"Error while assigning resource: {result.statusMessage}");
-        }
+        var jobResource = await ExecuteWithRetry(() => JobClient.getResourceIDAsync(Uuid, ParseId(input.ProjectType), ParseId(input.JobId)));
 
-        var jobResource =
-           await ExecuteWithRetry<IntegerResult>(async () => await JobClient.getResourceIDAsync(Uuid, ParseId(input.ProjectType), ParseId(input.JobId)));
-
-        if (jobResource.statusMessage != ApiResponses.Ok)
-            throw new(jobResource.statusMessage);
-
-        return new AssignResourceResponse { ResourceId = jobResource.data.ToString() };
+        return new AssignResourceResponse { ResourceId = jobResource.ToString() };
     }
 
 
@@ -224,10 +178,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         if (input.StartDate.HasValue)
             jobIn.startDate = input.StartDate.Value;
 
-        var response = await ExecuteWithRetry<Result>(async () => await JobClient.updateAsync(Uuid, jobIn, false));
-
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
+        await ExecuteWithRetry(() => JobClient.updateAsync(Uuid, jobIn, false));
 
         return await GetJob(request);
     }
@@ -235,22 +186,19 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
     [Action("Get job pricelines", Description = "Get a list of all pricelines attached to a job")]
     public async Task<PricelinesResponse> GetJobPricelines([ActionParameter] GetJobRequest job)
     {
-        var response = await ExecuteWithRetry<PriceLineListResult>(async () => await JobClient.getPriceLine_ListAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType)));
+        var response = await ExecuteWithRetryAcceptNull(() => JobClient.getPriceLine_ListAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType)));
 
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
-
-        if (response.data is null)
+        if (response is null)
         {
             return new PricelinesResponse();
         }
         
         var result = new List<PricelineResponse>();
 
-        foreach (var priceLine in response.data)
+        foreach (var priceLine in response)
         {
-            var priceUnit = await JobClient.getPriceUnitAsync(Uuid, priceLine.priceUnitID, Language);
-            result.Add(CreatePricelineResponse(priceLine, priceUnit.data));
+            var priceUnit = await ExecuteWithRetry(() => JobClient.getPriceUnitAsync(Uuid, priceLine.priceUnitID, Language));
+            result.Add(CreatePricelineResponse(priceLine, priceUnit));
         }
 
         return new PricelinesResponse
@@ -277,30 +225,21 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         if (input.TimePerUnit.HasValue)
             pricelineIn.time_perUnit = input.TimePerUnit.Value;
 
-        var response =
-            await ExecuteWithRetry<PriceLineResult>(async () =>  await JobClient.insertPriceLineAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType), pricelineIn,
-                false));
+        var response = await ExecuteWithRetryAcceptNull(() => JobClient.insertPriceLineAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType), pricelineIn, false));
 
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
-
-        if (response.data is null)
+        if (response is null)
         {
             return new PricelineResponse();
         }
 
-        var priceUnit = await JobClient.getPriceUnitAsync(Uuid, response.data.priceUnitID, Language);
-        return CreatePricelineResponse(response.data, priceUnit.data);
+        var priceUnit = await ExecuteWithRetry(() => JobClient.getPriceUnitAsync(Uuid, response.priceUnitID, Language));
+        return CreatePricelineResponse(response, priceUnit);
     }
 
     [Action("Delete job priceline", Description = "Delete a priceline from a job")]
     public async Task DeletePriceline([ActionParameter] GetJobRequest job, [ActionParameter] PricelineIdRequest line)
     {
-        var response =
-            await ExecuteWithRetry<Result>(async () => await JobClient.deletePriceLineAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType), ParseId(line.Id)));
-
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
+        await ExecuteWithRetry(() => JobClient.deletePriceLineAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType), ParseId(line.Id)));
     }
 
     [Action("Update job priceline", Description = "Update an existing job pricline")]
@@ -323,19 +262,15 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         if (input.TimePerUnit.HasValue)
             pricelineIn.time_perUnit = input.TimePerUnit.Value;
 
-        var response =
-            await ExecuteWithRetry<PriceLineResult>(async () => await JobClient.updatePriceLineAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType), pricelineIn));
+        var response = await ExecuteWithRetryAcceptNull(() => JobClient.updatePriceLineAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType), pricelineIn));
 
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
-
-        if (response.data is null)
+        if (response is null)
         {
             return new PricelineResponse();
         }
 
-        var priceUnit = await JobClient.getPriceUnitAsync(Uuid, response.data.priceUnitID, Language);
-        return CreatePricelineResponse(response.data, priceUnit.data);
+        var priceUnit = await ExecuteWithRetry(() => JobClient.getPriceUnitAsync(Uuid, response.priceUnitID, Language));
+        return CreatePricelineResponse(response, priceUnit);
         
     }
 
@@ -355,179 +290,6 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             PriceUnitDescription = unit?.description ?? "",
             PriceUnitService = unit?.service ?? ""
         };
-    }
-
-    private async Task<string> GetString(Task<StringResult> task)
-    {
-        var response = await task;
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
-        return response.data;
-    }
-
-    private async Task<string?> GetId(Task<IntegerResult> task, bool throwOnError = true)
-    {
-        var response = await task;
-        if (response.data == 0) return null;
-        if (response.statusMessage != ApiResponses.Ok)
-        {
-            if (throwOnError)
-                throw new(response.statusMessage);
-            return null;
-        }
-
-        return response.data.ToString();
-    }
-
-    private async Task<DateTime> GetDate(Task<DateResult> task)
-    {
-        var response = await task;
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
-        return response.data;
-    }
-
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
-        where T : Result
-    {
-        var attempts = 0;
-        while (true)
-        {
-            Result? result;
-            try
-            {
-                result = await func();
-            }
-            catch (Exception ex)
-            {
-                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
-            }
-
-            if (result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-
-            if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
-            {
-                await Task.Delay(delay);
-                await RefreshAuthToken();
-                attempts++;
-                continue;
-            }
-
-            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
-        }
-    }
-
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.Result>> func,
-        int maxRetries = 10, int delay = 1000)
-        where T : Blackbird.Plugins.Plunet.DataItem30Service.Result
-    {
-        var attempts = 0;
-        while (true)
-        {
-            Blackbird.Plugins.Plunet.DataItem30Service.Result? result;
-            try
-            {
-                result = await func();
-            }
-            catch (Exception ex)
-            {
-                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
-            }
-
-            if (result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-
-            if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
-            {
-                await Task.Delay(delay);
-                await RefreshAuthToken();
-                attempts++;
-                continue;
-            }
-
-            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
-        }
-    }
-
-    private async Task<T> ExecuteWithRetry<T>(
-    Func<Task<DataJobRound30Service.Result>> func,
-    int maxRetries = 10,
-    int delay = 1000)
-    where T : DataJobRound30Service.Result
-    {
-        var attempts = 0;
-        while (true)
-        {
-            DataJobRound30Service.Result? result;
-            try
-            {
-                result = await func();
-            }
-            catch (Exception ex)
-            {
-                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
-            }
-
-            if (result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-
-            if (result.statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
-            {
-                await Task.Delay(delay);
-                await RefreshAuthToken();
-                attempts++;
-                continue;
-            }
-
-            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
-        }
-    }
-
-
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Blackbird.Plugins.Plunet.DataCustomFields30.Result>> func,
-        int maxRetries = 10, int delay = 1000)
-        where T : Blackbird.Plugins.Plunet.DataCustomFields30.Result
-    {
-        var attempts = 0;
-        while (true)
-        {
-            Blackbird.Plugins.Plunet.DataCustomFields30.Result? result;
-            try
-            {
-                result = await func();
-            }
-            catch (Exception ex)
-            {
-                throw new PluginApplicationException($"Error while calling Plunet: {ex.Message}", ex);
-            }
-
-            if (result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-
-            if(result.statusMessage.Contains("session-UUID used is invalid"))
-            {
-                if (attempts < maxRetries)
-                {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-                    continue;
-                }
-
-                throw new PluginApplicationException($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
-            }
-
-            throw new PluginApplicationException($"Error while calling Plunet: {result.statusMessage}");
-        }
     }
 
     // Item independent jobs?

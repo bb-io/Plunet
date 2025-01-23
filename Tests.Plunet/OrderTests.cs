@@ -15,11 +15,11 @@ namespace Tests.Plunet;
 public class OrderTests : TestBase
 {
     [TestMethod]
-    public async Task Create_order_by_template_does_not_throw_error()
+    public async Task Create_order_by_template_works()
     {
         var actions = new OrderActions(InvocationContext);
 
-        var result = await actions.CreateOrderByTemplate("1", new CreateOrderByTemplateRequest { CustomerId = "2", ProjectManagerId = "1", ProjectCategory = "Interpreting" });
+        var result = await actions.CreateOrderByTemplate("1", new CreateOrderByTemplateRequest { CustomerId = "1", ProjectManagerId = "1", ProjectName = "Test order" });
         Assert.IsNotNull(result.OrderId);
     }
 }
