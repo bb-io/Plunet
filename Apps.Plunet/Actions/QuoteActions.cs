@@ -90,16 +90,6 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
 
         var orderId = await ExecuteWithRetryAcceptNull(() => QuoteClient.getOrderIDFirstItemAsync(Uuid, ParseId(request.QuoteId)));
 
-        var projectManagerID = string.Empty;
-        if (pmId == null)
-        {
-            projectManagerID = null;
-        }
-        else
-        {
-            projectManagerID = pmId.ToString();
-        }
-
         var category = await ExecuteWithRetryAcceptNull(() => QuoteClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.QuoteId)));
 
         var projectStatus = await ExecuteWithRetry(() => QuoteClient.getProjectStatusAsync(Uuid, ParseId(request.QuoteId)));
@@ -117,7 +107,7 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
             TotalPrice = totalPrice,
             CustomerId = customerId?.ToString(),
             ContactId = contactId?.ToString(),
-            ProjectManagerId = projectManagerID,
+            ProjectManagerId = pmId?.ToString() ?? string.Empty,
             OrderId = orderId?.ToString(),
             ProjectCategory = category ?? string.Empty,
             ProjectStatus = projectStatus.ToString(),

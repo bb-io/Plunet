@@ -16,7 +16,7 @@ public class ItemClient(InvocationContext invocationContext) : PlunetInvocable(i
         Dictionary<string, string> values, EventType eventType, string? uuid = null)
     {
         await using var itemClient = Clients.GetItemClient(creds.GetInstanceUrl());
-        await ExecuteWithRetry<Result>(async () => await itemClient.registerCallback_NotifyAsync(Uuid, "bbTestPlugin",
+        await ExecuteWithRetry(() => itemClient.registerCallback_NotifyAsync(Uuid, "bbTestPlugin",
             values[CredsNames.WebhookUrlKey] + "?wsdl",
             (int)eventType));
     }
@@ -27,37 +27,7 @@ public class ItemClient(InvocationContext invocationContext) : PlunetInvocable(i
         string uuid)
     {
         await using var itemClient = Clients.GetItemClient(creds.GetInstanceUrl());
-        await ExecuteWithRetry<Result>(async () =>
-            await itemClient.deregisterCallback_NotifyAsync(Uuid, (int)eventType));
+        await ExecuteWithRetry(() => itemClient.deregisterCallback_NotifyAsync(Uuid, (int)eventType));
     }
-
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
-        where T : Result
-    {
-        var attempts = 0;
-        while (true)
-        {
-            var result = await func();
-
-            if (result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-
-            if (result.statusMessage.Contains("session-UUID used is invalid"))
-            {
-                if (attempts < maxRetries)
-                {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-                    continue;
-                }
-
-                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
-            }
-
-            return (T)result;
-        }
-    }
+    
 }

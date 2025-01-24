@@ -7,54 +7,22 @@ using Blackbird.Plugins.Plunet.DataPayable30Service;
 namespace Apps.Plunet.DataSourceHandlers;
 
 public class PayableDataSourceHandler(InvocationContext invocationContext)
-    : PlunetInvocable(invocationContext), IAsyncDataSourceHandler
+    : PlunetInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
-    public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
+    public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context,
         CancellationToken cancellationToken)
     {
-        var response = await ExecuteWithRetry<IntegerArrayResult>(async () => await PayableClient.searchAsync(Uuid, new()));
+        var response = await ExecuteWithRetry(async () => await PayableClient.searchAsync(Uuid, new()));
 
-        if (response.statusMessage != ApiResponses.Ok)
-            throw new(response.statusMessage);
-
-        if (response.data is null)
+        if (response is null)
         {
-            return new();
+            return new List<DataSourceItem>();
         }
         
-        return response.data
+        return response!
+            .Where(x => x.HasValue)
             .Where(x => context.SearchString == null ||
-                        x.Value.ToString() == context.SearchString)
-            .ToDictionary(x => x.ToString(), x => x.ToString());
-    }
-    
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
-        where T : Result
-    {
-        var attempts = 0;
-        while (true)
-        {
-            var result = await func();
-
-            if (result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-
-            if (result.statusMessage.Contains("session-UUID used is invalid"))
-            {
-                if (attempts < maxRetries)
-                {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-                    continue;
-                }
-
-                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
-            }
-
-            return (T)result;
-        }
+                        x!.Value.ToString() == context.SearchString)
+            .Select(x => new DataSourceItem(x!.Value.ToString(), x!.Value.ToString()));
     }
 }
