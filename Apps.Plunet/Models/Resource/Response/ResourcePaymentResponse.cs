@@ -22,13 +22,13 @@ namespace Apps.Plunet.Models.Resource.Response
         [Display("IBAN")]
         public string Iban { get; set; }
 
-        [Display("Payment method")]
+        [Display("Payment method ID")]
         public string PaymentMethodId { get; set; }
 
-        [Display("Preselected tax")]
+        [Display("Preselected tax ID")]
         public string PreselectdTaxId { get; set; }
 
-        [Display("Sales tax")]
+        [Display("Sales tax ID")]
         public string SalesTaxId { get; set; }
     }
 }

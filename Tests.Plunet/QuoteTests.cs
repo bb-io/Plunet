@@ -34,7 +34,7 @@ public class QuoteTests : TestBase
     {
         var actions = new QuoteActions(InvocationContext);
 
-        var result = await actions.SearchQuotes(new SearchQuotesInput { DateTo = DateTime.Now.AddDays(-30), QuoteStatus = "1" });
+        var result = await actions.SearchQuotes(new SearchQuotesInput {  });
         Console.WriteLine(result.TotalCount);
         foreach (var item in result.Items)
         {

@@ -48,7 +48,7 @@ public class ResourceResponse
 
     [Display("Working status")] public string WorkingStatus { get; set; }
 
-    [Display("Payment")] public ResourcePaymentResponse Payment { get; set; }
+    [Display("Payment info")] public ResourcePaymentResponse Payment { get; set; }
     
     [Display("Delivery address")]
     public AddressResponse DeliveryAddress { get; set; }
@@ -56,10 +56,7 @@ public class ResourceResponse
     [Display("Invoice address")]
     public AddressResponse InvoiceAddress { get; set; }
 
-    [Display("Other address")]
-    public AddressResponse OtherAddress { get; set; }
-
-    public ResourceResponse(Blackbird.Plugins.Plunet.DataResource30Service.Resource resource, Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfo paymentInfo, AddressResponse delivery, AddressResponse invoice, AddressResponse other)
+    public ResourceResponse(Blackbird.Plugins.Plunet.DataResource30Service.Resource resource, Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfo paymentInfo, AddressResponse delivery, AddressResponse invoice)
     {
         AcademicTitle = resource.academicTitle;
         CostCenter = resource.costCenter;
@@ -97,25 +94,39 @@ public class ResourceResponse
         };
         DeliveryAddress = delivery;
         InvoiceAddress = invoice;
-        OtherAddress = other;
     }
 }
 
 public class AddressResponse
 {
+    [Display("Name 1")]
+    public string? Name1 { get; set; }
+
+    [Display("Name 2")]
+    public string? Name2 { get; set; }
+
+    [Display("Description")]
+    public string? Description { get; set; }
+
     [Display("Country")]
     public string? Country { get; set; }
-
-    [Display("City")]
-    public string? City { get; set; }
 
     [Display("State")]
     public string? State { get; set; }
 
+    [Display("City")]
+    public string? City { get; set; }
+
     [Display("Street")]
     public string? Street { get; set; }
 
+    [Display("Street 2")]
+    public string? Street2 { get; set; }
+
     [Display("ZIP code")]
     public string? ZipCode { get; set; }
+
+    [Display("Office")]
+    public string? Office { get; set; }
 
 }
