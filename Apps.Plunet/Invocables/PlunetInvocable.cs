@@ -88,12 +88,10 @@ public class PlunetInvocable : BaseInvocable
     {
         if (_languages == null)
         {
-            var response = await ExecuteWithRetry<LanguageListResult>(async () => await AdminClient.getAvailableLanguagesAsync(Uuid, Language));
-            _languages = response.data;
+            _languages = await ExecuteWithRetry(() => AdminClient.getAvailableLanguagesAsync(Uuid, Language));
         }
 
         return _languages;
-
     }
 
     protected async Task<IEnumerable<LanguageCombination>> ParseLanguageCombinations(IEnumerable<string> dashSeparatedStrings)
@@ -107,8 +105,8 @@ public class PlunetInvocable : BaseInvocable
             return dashSeparatedStrings
             .Select(combination => new { source = combination.Split(" - ")[0], target = combination.Split(" - ")[1] })
             .Select(combination =>
-                new LanguageCombination(languages.First(l => l.name == combination.source).folderName,
-                    languages.First(l => l.name == combination.target).folderName));
+                new LanguageCombination(languages.FirstOrDefault(l => l.name == combination.source)?.folderName,
+                    languages.FirstOrDefault(l => l.name == combination.target)?.folderName));
         }
         catch
         {
@@ -290,8 +288,6 @@ public class PlunetInvocable : BaseInvocable
 
 
     // Resource address service
-    protected async Task<T?> ExecuteWithRetry<T>(Func<Task<DataResourceAddress30Service.Result>> func, int maxRetries = 10, int delay = 1000) where T : DataResourceAddress30Service.Result
-        => (T?)await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
     protected async Task<int> ExecuteWithRetry(Func<Task<DataResourceAddress30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
     protected async Task<int?[]> ExecuteWithRetry(Func<Task<DataResourceAddress30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
@@ -301,10 +297,12 @@ public class PlunetInvocable : BaseInvocable
 
 
     // Admin service
-    protected async Task<T?> ExecuteWithRetry<T>(Func<Task<Blackbird.Plugins.Plunet.DataAdmin30Service.Result>> func, int maxRetries = 10, int delay = 1000) where T : Blackbird.Plugins.Plunet.DataAdmin30Service.Result
-        => (T?)await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
     protected async Task<LanguageCatCode?> ExecuteWithRetryAcceptNull(Func<Task<LanguageCatCodeResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
+    protected async Task<Callback[]?> ExecuteWithRetryAcceptNull(Func<Task<CallbackListResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
+    protected async Task<Language[]> ExecuteWithRetry(Func<Task<LanguageListResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
 
 
     // Customer service
@@ -323,9 +321,6 @@ public class PlunetInvocable : BaseInvocable
 
 
     // Customer address service
-    protected async Task<T?> ExecuteWithRetry<T>(Func<Task<DataCustomerAddress30Service.Result>> func, int maxRetries = 10, int delay = 1000) where T : DataCustomerAddress30Service.Result
-        => (T?)await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
-
     protected async Task<int> ExecuteWithRetry(Func<Task<DataCustomerAddress30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
 
@@ -451,12 +446,5 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay))!.data;
     protected async Task<bool> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataPayable30Service.BooleanResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay))!.data;
-
-
-    // Plunet API service
-    protected async Task<T?> ExecuteWithRetry<T>(Func<Task<Blackbird.Plugins.Plunet.PlunetAPIService.Result>> func, int maxRetries = 10, int delay = 1000) where T : Blackbird.Plugins.Plunet.PlunetAPIService.Result
-        => (T?)await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
-
-
 
 }

@@ -24,7 +24,7 @@ namespace Apps.Plunet.DataSourceHandlers
             .Where(language => context.SearchString == null ||
                              language.name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
             .GroupBy(x => x.name)
-            .ToDictionary(x => x.Key, x => x.First().name);
+            .ToDictionary(x => x.Key, x => x.FirstOrDefault()?.name ?? "");
         }
     }
 }

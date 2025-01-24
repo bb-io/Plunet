@@ -27,8 +27,9 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
         Dictionary<string, string> values)
     {
         var dataAdminClient = Clients.GetAdminClient(creds.GetInstanceUrl());
-        var callbacks = await ExecuteWithRetry<CallbackListResult>(async () => await dataAdminClient.getListOfRegisteredCallbacksAsync(Uuid));
-        var eventCallbacks = callbacks.data.Where(c => c.eventType == (int)EventType).ToList();
+        var callbacks = await ExecuteWithRetryAcceptNull(() => dataAdminClient.getListOfRegisteredCallbacksAsync(Uuid));
+        if (callbacks is null) return;
+        var eventCallbacks = callbacks.Where(c => c.eventType == (int)EventType).ToList();
         var currentCallback = eventCallbacks.Where(x => x.serverAddress == values[CredsNames.WebhookUrlKey] + "?wsdl").FirstOrDefault();
         var otherCallbacksThatWillBeRemoved = eventCallbacks.Where(x => x.mainID != currentCallback?.mainID && x.dataService == currentCallback?.dataService);
 
@@ -40,35 +41,5 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
         } 
         
         await Logout();
-    }
-    
-    private async Task<T> ExecuteWithRetry<T>(Func<Task<Result>> func, int maxRetries = 10, int delay = 1000)
-        where T : Result
-    {
-        var attempts = 0;
-        while (true)
-        {
-            var result = await func();
-            
-            if(result.statusMessage == ApiResponses.Ok)
-            {
-                return (T)result;
-            }
-            
-            if(result.statusMessage.Contains("session-UUID used is invalid"))
-            {
-                if (attempts < maxRetries)
-                {
-                    await Task.Delay(delay);
-                    await RefreshAuthToken();
-                    attempts++;
-                    continue;
-                }
-
-                throw new($"No more retries left. Last error: {result.statusMessage}, Session UUID used is invalid.");
-            }
-
-            return (T)result;
-        }
-    }
+    }    
 }
