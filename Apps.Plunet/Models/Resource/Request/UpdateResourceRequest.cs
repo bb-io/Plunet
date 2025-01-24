@@ -67,4 +67,93 @@ public class ResourceParameters
     
     [Display("Working status"), StaticDataSource(typeof(WorkingStatusDataHandler))] 
     public string? WorkingStatus { get; set; }
+
+    [Display("Delivery address name 1")]
+    public string? DeliveryName1 { get; set; }
+
+    [Display("Delivery address name 2")]
+    public string? DeliveryName2 { get; set; }
+
+    [Display("Delivery address description")]
+    public string? DeliveryDescription { get; set; }
+
+    [DataSource(typeof(CountryDataSourceHandler))]
+    [Display("Delivery address country")]
+    public string? DeliveryCountry { get; set; }
+
+    [Display("Delivery address state")]
+    public string? DeliveryState { get; set; }
+
+    [Display("Delivery address city")]
+    public string? DeliveryCity { get; set; }
+
+    [Display("Delivery address street")]
+    public string? DeliveryStreet { get; set; }
+
+    [Display("Delivery address street 2")]
+    public string? DeliveryStreet2 { get; set; }
+
+    [Display("Delivery address ZIP code")]
+    public string? DeliveryZipCode { get; set; }
+
+    [Display("Delivery address office")]
+    public string? DeliveryOffice { get; set; }
+
+    [Display("Invoice address name 1")]
+    public string? InvoiceName1 { get; set; }
+
+    [Display("Invoice address name 2")]
+    public string? InvoiceName2 { get; set; }
+
+    [Display("Invoice address description")]
+    public string? InvoiceDescription { get; set; }
+
+    [DataSource(typeof(CountryDataSourceHandler))]
+    [Display("Invoice address country")]
+    public string? InvoiceCountry { get; set; }
+
+    [Display("Invoice address state")]
+    public string? InvoiceState { get; set; }
+
+    [Display("Invoice address city")]
+    public string? InvoiceCity { get; set; }
+
+    [Display("Invoice address street")]
+    public string? InvoiceStreet { get; set; }
+
+    [Display("Invoice address street 2")]
+    public string? InvoiceStreet2 { get; set; }
+
+    [Display("Invoice address ZIP code")]
+    public string? InvoiceZipCode { get; set; }
+
+    [Display("Invoice address office")]
+    public string? InvoiceOffice { get; set; }
+
+    [Display("Account holder")]
+    public string? AccountHolder { get; set; }
+
+    [Display("Account ID")]
+    public string? AccountId { get; set; }
+
+    [Display("SWIFT - BIC")]
+    public string? Bic { get; set; }
+
+    [Display("Contract number")]
+    public string? ContractNumber { get; set; }
+
+    [Display("Debit account")]
+    public string? DebitAccount { get; set; }
+
+    [Display("IBAN")]
+    public string? Iban { get; set; }
+
+    [Display("Payment method ID")]
+    public string? PaymentMethodId { get; set; }
+
+    [Display("Preselected tax ID")]
+    public string? PreselectdTaxId { get; set; }
+
+    [Display("Sales tax ID")]
+    public string? SalesTaxId { get; set; }
 }

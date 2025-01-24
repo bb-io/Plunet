@@ -288,6 +288,8 @@ public class PlunetInvocable : BaseInvocable
 
 
     // Resource address service
+    protected async Task ExecuteWithRetry(Func<Task<DataResourceAddress30Service.Result>> func, int maxRetries = 10, int delay = 1000)
+        => await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
     protected async Task<int> ExecuteWithRetry(Func<Task<DataResourceAddress30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
     protected async Task<int?[]> ExecuteWithRetry(Func<Task<DataResourceAddress30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)

@@ -54,4 +54,17 @@ public class DataSourceTests : TestBase
         }
         Assert.IsTrue(result.Count > 0);
     }
+
+    [TestMethod]
+    public async Task Countries_returns_values()
+    {
+        var handler = new CountryDataSourceHandler(InvocationContext);
+
+        var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
+        foreach (var item in result)
+        {
+            Console.WriteLine($"{item.Key}: {item.Value}");
+        }
+        Assert.IsTrue(result.Count > 0);
+    }
 }
