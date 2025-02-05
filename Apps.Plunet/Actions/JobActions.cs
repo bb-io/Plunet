@@ -9,6 +9,7 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataJob30Service;
+using Blackbird.Plugins.Plunet.DataRequest30Service;
 
 namespace Apps.Plunet.Actions;
 
@@ -149,7 +150,16 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
     [Action("Assign resource to job", Description = "Assign a resource to a Plunet job")]
     public async Task<AssignResourceResponse> AssignResourceToJob([ActionParameter] AssignResourceRequest input)
     {
-        await ExecuteWithRetry(() => JobRoundClient.assignResourceAsync(Uuid, ParseId(input.ResourceId), ParseId(input.ResourceContactId), ParseId(input.RoundId)));
+        var roundId = input.RoundId;
+
+        if (string.IsNullOrEmpty(roundId))
+        {
+            var roundResponse = await ExecuteWithRetry(() => JobRoundClient.getAllRoundIDsAsync(Uuid, ParseId(input.JobId), ParseId(input.ProjectType)));
+            if (roundResponse is null || !roundResponse.LastOrDefault().HasValue) throw new PluginMisconfigurationException("The selected job has no rounds associated");
+            roundId = roundResponse.LastOrDefault().ToString();
+        }
+
+        await ExecuteWithRetry(() => JobRoundClient.assignResourceAsync(Uuid, ParseId(input.ResourceId), ParseId(input.ResourceContactId), ParseId(roundId)));
 
         var jobResource = await ExecuteWithRetry(() => JobClient.getResourceIDAsync(Uuid, ParseId(input.ProjectType), ParseId(input.JobId)));
 
