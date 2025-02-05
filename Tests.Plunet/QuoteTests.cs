@@ -34,7 +34,7 @@ public class QuoteTests : TestBase
     {
         var actions = new QuoteActions(InvocationContext);
 
-        var result = await actions.SearchQuotes(new SearchQuotesInput {  });
+        var result = await actions.SearchQuotes(new SearchQuotesInput { Limit = 100 });
         Console.WriteLine(result.TotalCount);
         foreach (var item in result.Items)
         {
