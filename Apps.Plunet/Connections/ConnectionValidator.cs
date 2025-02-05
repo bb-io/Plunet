@@ -21,7 +21,7 @@ public class ConnectionValidator : IConnectionValidator
                 return new()
                 {
                     IsValid = false,
-                    Message = "Wrong username of password"
+                    Message = "Wrong username or password"
                 };
 
             return new()

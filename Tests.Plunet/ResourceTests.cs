@@ -32,7 +32,7 @@ public class ResourceTests : TestBase
     {
         var actions = new ResourceActions(InvocationContext);
 
-        var result = await actions.GetResource("80");
+        var result = await actions.GetResource("");
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         Assert.AreEqual(resourceName, result.Name2);
     }

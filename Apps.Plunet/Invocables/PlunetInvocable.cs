@@ -81,7 +81,21 @@ public class PlunetInvocable : BaseInvocable
 
     protected int ParseId(string? value, int defaultValue = -1)
     {
-        return IntParser.Parse(value, nameof(value)) ?? defaultValue;
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new PluginMisconfigurationException("The given ID is not correct as it is empty. Please check your input parameters.");
+        }
+
+        try
+        {
+            return IntParser.Parse(value, nameof(value)) ?? defaultValue;
+        } catch(Exception e)
+        {
+            if (e.Message.Contains("should be an integer"))
+                throw new PluginMisconfigurationException($"The given ID is not correct. It should be a number while we received: '{value}'");
+            throw;
+        }
+        
     }
 
     protected async Task<Language[]> GetSystemLanguages()
