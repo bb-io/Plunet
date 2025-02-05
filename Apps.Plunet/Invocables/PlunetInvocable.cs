@@ -83,7 +83,7 @@ public class PlunetInvocable : BaseInvocable
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new PluginMisconfigurationException("The given ID is not correct as it is empty. Please check your input parameters.");
+            return defaultValue;
         }
 
         try

@@ -20,4 +20,14 @@ public class JobTests : TestBase
         var result = await actions.CreateJob(new ProjectTypeRequest { ProjectType = "3" }, new CreateJobRequest { ProjectId = "573", ItemId = "406", DueDate = DateTime.Now.AddDays(7), Status = "0" }, new JobTypeRequest { JobType = "TRA" }, new ContactPersonRequest { });
         Assert.IsNotNull(result.ItemId);
     }
+
+    [TestMethod]
+    public async Task Assign_resource_to_job_works()
+    {
+        var actions = new JobActions(InvocationContext);
+
+        var result = await actions.CreateJob(new ProjectTypeRequest { ProjectType = "3" }, new CreateJobRequest { ProjectId = "573", ItemId = "406", DueDate = DateTime.Now.AddDays(7), Status = "0" }, new JobTypeRequest { JobType = "TRA" }, new ContactPersonRequest { });
+        var assignResult = await actions.AssignResourceToJob(new AssignResourceRequest { ResourceId = "1", JobId = result.JobId, ProjectType = "3" });
+        Assert.IsNotNull(assignResult.ResourceId = "1");
+    }
 }
