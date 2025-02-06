@@ -7,14 +7,11 @@ using Apps.Plunet.Models.Job;
 
 namespace Apps.Plunet.DataSourceHandlers
 {
-    public class JobPriceUnitDataHandler : PlunetInvocable, IAsyncDataSourceHandler
+    public class JobPriceUnitDataHandler(
+        InvocationContext invocationContext,
+        [ActionParameter] JobPriceUnitRequest request)
+        : PlunetInvocable(invocationContext), IAsyncDataSourceHandler
     {
-        private JobPriceUnitRequest request;
-        public JobPriceUnitDataHandler(InvocationContext invocationContext, [ActionParameter] JobPriceUnitRequest context) : base(invocationContext)
-        {
-            request = context;
-        }
-
         public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
             CancellationToken cancellationToken)
         {
@@ -29,7 +26,7 @@ namespace Apps.Plunet.DataSourceHandlers
             return response.data
                 .Where(unit => context.SearchString == null ||
                                    unit.description.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-                .ToDictionary(x => x.priceUnitID.ToString(), x => x.description);
+                .ToDictionary(x => x.priceUnitID.ToString(), x => x.description ?? string.Empty);
         }
     }
 }
