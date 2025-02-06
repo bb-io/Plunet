@@ -24,7 +24,7 @@ namespace Apps.Plunet.DataSourceHandlers
                 throw new(response.statusMessage);
 
             return response.data
-                .Where(unit => context.SearchString == null ||
+                .Where(unit => string.IsNullOrEmpty(context.SearchString) ||
                                    unit.description.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
                 .ToDictionary(x => x.priceUnitID.ToString(), x => x.description ?? string.Empty);
         }
