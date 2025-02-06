@@ -74,14 +74,16 @@ public class DataSourceTests : TestBase
     {
         var handler = new JobPriceUnitDataHandler(InvocationContext, new()
         {
-            Service = "File Preparation"
+            Service = "Proofreading"
         });
         
         var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
-        foreach (var item in result)
+        var dataSourceItems = result as DataSourceItem[] ?? result.ToArray();
+        
+        foreach (var item in dataSourceItems)
         {
-            Console.WriteLine($"{item.Key}: {item.Value}");
+            Console.WriteLine($"{item.Value}: {item.DisplayName}");
         }
-        Assert.IsTrue(result.Count > 0);
+        Assert.IsTrue(dataSourceItems.Any());
     }
 }
