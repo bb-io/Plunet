@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Apps.Plunet.Models.Job;
 using Tests.Plunet.Base;
 
 namespace Tests.Plunet;
@@ -66,5 +67,23 @@ public class DataSourceTests : TestBase
             Console.WriteLine($"{item.Key}: {item.Value}");
         }
         Assert.IsTrue(result.Count > 0);
+    }
+
+    [TestMethod]
+    public async Task JobPriceUnitDataHandler_returns_values()
+    {
+        var handler = new JobPriceUnitDataHandler(InvocationContext, new()
+        {
+            Service = "Proofreading"
+        });
+        
+        var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
+        var dataSourceItems = result as DataSourceItem[] ?? result.ToArray();
+        
+        foreach (var item in dataSourceItems)
+        {
+            Console.WriteLine($"{item.Value}: {item.DisplayName}");
+        }
+        Assert.IsTrue(dataSourceItems.Any());
     }
 }
