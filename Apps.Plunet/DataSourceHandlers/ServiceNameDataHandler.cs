@@ -5,12 +5,9 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Plunet.DataSourceHandlers
 {
-    public class ServiceNameDataHandler : PlunetInvocable, IAsyncDataSourceHandler
+    public class ServiceNameDataHandler(InvocationContext invocationContext)
+        : PlunetInvocable(invocationContext), IAsyncDataSourceHandler
     {
-        public ServiceNameDataHandler(InvocationContext invocationContext) : base(invocationContext)
-        {
-        }
-
         public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
             CancellationToken cancellationToken)
         {

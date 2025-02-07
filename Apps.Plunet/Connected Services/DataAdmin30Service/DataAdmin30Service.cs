@@ -7,27 +7,38 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-using System.ServiceModel;
-
 namespace Blackbird.Plugins.Plunet.DataAdmin30Service
 {
     
     
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ServiceModel.ServiceContractAttribute(Namespace="http://API.Integration/", ConfigurationName="Blackbird.Plugins.Plunet.DataAdmin30Service.DataAdmin30")]
     public interface DataAdmin30
     {
-        [System.ServiceModel.OperationContractAttribute(Action = "http://API.Integration/DataAdmin30/getLanguageCatCode", ReplyAction = "http://API.Integration/DataAdmin30/getLanguageCatCode")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style = System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults = true)]
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getPropertyValueListRequest", ReplyAction="http://API.Integration/DataAdmin30/getPropertyValueListResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
-        [return: System.ServiceModel.MessageParameterAttribute(Name = "LanguageCatCodeResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.LanguageCatCodeResult> getLanguageCatCodeAsync(string UUID, string languageName,string catType);
-
+        [return: System.ServiceModel.MessageParameterAttribute(Name="PropertyValueListResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.PropertyValueListResult> getPropertyValueListAsync(string UUID, string PropertyNameEnglish, string LanguageCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getAvailableWorkflowsRequest", ReplyAction="http://API.Integration/DataAdmin30/getAvailableWorkflowsResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="WorkflowListResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.WorkflowListResult> getAvailableWorkflowsAsync(string UUID);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getAvailableServicesRequest", ReplyAction="http://API.Integration/DataAdmin30/getAvailableServicesResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
         [return: System.ServiceModel.MessageParameterAttribute(Name="ServiceListResult")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.ServiceListResult> getAvailableServicesAsync(string UUID, string languageCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getAvailableDocumentTemplatesRequest", ReplyAction="http://API.Integration/DataAdmin30/getAvailableDocumentTemplatesResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringArrayResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.StringArrayResult> getAvailableDocumentTemplatesAsync(string UUID);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getAvailableCountriesRequest", ReplyAction="http://API.Integration/DataAdmin30/getAvailableCountriesResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
@@ -35,11 +46,17 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
         [return: System.ServiceModel.MessageParameterAttribute(Name="CountryListResult")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CountryListResult> getAvailableCountriesAsync(string UUID, string languageCode);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getAvailableDocumentTemplatesRequest", ReplyAction="http://API.Integration/DataAdmin30/getAvailableDocumentTemplatesResponse")]
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getListOfRegisteredCallbacksRequest", ReplyAction="http://API.Integration/DataAdmin30/getListOfRegisteredCallbacksResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringArrayResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.StringArrayResult> getAvailableDocumentTemplatesAsync(string UUID);
+        [return: System.ServiceModel.MessageParameterAttribute(Name="CallbackListResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CallbackListResult> getListOfRegisteredCallbacksAsync(string UUID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getSystemCurrenciesRequest", ReplyAction="http://API.Integration/DataAdmin30/getSystemCurrenciesResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="CurrencyListResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CurrencyList> getSystemCurrenciesAsync(string UUID);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getAvailableLanguagesRequest", ReplyAction="http://API.Integration/DataAdmin30/getAvailableLanguagesResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
@@ -53,11 +70,29 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
         [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.StringResult> getDomesticCurrencyAsync(string UUID);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getSystemCurrenciesRequest", ReplyAction="http://API.Integration/DataAdmin30/getSystemCurrenciesResponse")]
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getAvailablePriceUnitsRequest", ReplyAction="http://API.Integration/DataAdmin30/getAvailablePriceUnitsResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="CurrencyListResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CurrencyList> getSystemCurrenciesAsync(string UUID);
+        [return: System.ServiceModel.MessageParameterAttribute(Name="PriceUnitListResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.PriceUnitListResult> getAvailablePriceUnitsAsync(string UUID, string languageCode, string service);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/seekLanguageByCatCodeRequest", ReplyAction="http://API.Integration/DataAdmin30/seekLanguageByCatCodeResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="LanguageResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.languageResult> seekLanguageByCatCodeAsync(string UUID, string catCode, int catType);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getAvailablePropertiesRequest", ReplyAction="http://API.Integration/DataAdmin30/getAvailablePropertiesResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="PropertyListResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.PropertyListResult> getAvailablePropertiesAsync(string UUID, int PropertyUsageArea, int MainID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getAvailableTextModulesRequest", ReplyAction="http://API.Integration/DataAdmin30/getAvailableTextModulesResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="TextmoduleListResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.TextmoduleListResult> getAvailableTextModulesAsync(string UUID, string languageCode, int textModuleUsageArea, int MainID);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getCompanyCodeListRequest", ReplyAction="http://API.Integration/DataAdmin30/getCompanyCodeListResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
@@ -65,105 +100,25 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
         [return: System.ServiceModel.MessageParameterAttribute(Name="CompanyCodeListResult")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CompanyCodeListResult> getCompanyCodeListAsync(string UUID);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getListOfRegisteredCallbacksRequest", ReplyAction="http://API.Integration/DataAdmin30/getListOfRegisteredCallbacksResponse")]
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataAdmin30/getLanguageCatCodeRequest", ReplyAction="http://API.Integration/DataAdmin30/getLanguageCatCodeResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [System.ServiceModel.ServiceKnownTypeAttribute(typeof(Result))]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="CallbackListResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CallbackListResult> getListOfRegisteredCallbacksAsync(string UUID);
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.StringResult> getLanguageCatCodeAsync(string UUID, string languageName, int catType);
     }
-
-
+    
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://API.Integration/")]
-    public partial class LanguageCatCodeResult : Result
-    {
-        private LanguageCatCode dataField;
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("data", Form = System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable = true, Order = 0)]
-        public LanguageCatCode data
-        {
-            get
-            {
-                return this.dataField;
-            }
-            set
-            {
-                this.dataField = value;
-            }
-        }
-    }
-
-
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace = "http://API.Integration/")]
-    public partial class LanguageCatCode
-    {
-        private string languageCodeField;
-        private string catCodeField;
-        private string catToolNameField;
-
-        ///<remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("data", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
-        public string LanguageCode
-    {
-            get
-            {
-                return this.languageCodeField;
-            }
-            set
-            {
-                this.languageCodeField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified, Order = 1)]
-        public string CatCode
-        {
-            get
-            {
-                return this.catCodeField;
-            }
-            set
-            {
-                this.catCodeField = value;
-            }
-        }
-
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified, Order = 2)]
-        public string CatToolName
-        {
-            get
-            {
-                return this.catToolNameField;
-            }
-            set
-            {
-                this.catToolNameField = value;
-            }
-        }
-    }
-
-
-
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
-    public partial class ServiceListResult : Result
+    public partial class PropertyValueListResult : Result
     {
         
-        private Service[] dataField;
+        private PropertyValue[] dataField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("data", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
-        public Service[] data
+        public PropertyValue[] data
         {
             get
             {
@@ -177,7 +132,63 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class PropertyValue
+    {
+        
+        private bool activeField;
+        
+        private int idField;
+        
+        private string labelField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
+        public bool active
+        {
+            get
+            {
+                return this.activeField;
+            }
+            set
+            {
+                this.activeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
+        public int id
+        {
+            get
+            {
+                return this.idField;
+            }
+            set
+            {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
+        public string label
+        {
+            get
+            {
+                return this.labelField;
+            }
+            set
+            {
+                this.labelField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class Service
@@ -249,63 +260,7 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
-    public partial class Country
-    {
-        
-        private int idField;
-        
-        private string isoCodeField;
-        
-        private string nameField;
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
-        public int ID
-        {
-            get
-            {
-                return this.idField;
-            }
-            set
-            {
-                this.idField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
-        public string isoCode
-        {
-            get
-            {
-                return this.isoCodeField;
-            }
-            set
-            {
-                this.isoCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
-        public string name
-        {
-            get
-            {
-                return this.nameField;
-            }
-            set
-            {
-                this.nameField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class CompanyCode
@@ -393,7 +348,7 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class Callback
@@ -529,34 +484,206 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
-    public partial class Currency
+    public partial class Textmodule
     {
         
-        private int currencyIDField;
+        private string[] availableValuesField;
         
-        private string descriptionField;
+        private System.DateTime dateValueField;
         
-        private string isoCodeField;
+        private bool dateValueFieldSpecified;
+        
+        private string flagField;
+        
+        private string flag_MainTextModuleField;
+        
+        private string[] selectedValuesField;
+        
+        private string stringValueField;
+        
+        private string textModuleLabelField;
+        
+        private int textModuleTypeField;
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
-        public int currencyID
+        [System.Xml.Serialization.XmlElementAttribute("availableValues", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
+        public string[] availableValues
         {
             get
             {
-                return this.currencyIDField;
+                return this.availableValuesField;
             }
             set
             {
-                this.currencyIDField = value;
+                this.availableValuesField = value;
             }
         }
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
+        public System.DateTime dateValue
+        {
+            get
+            {
+                return this.dateValueField;
+            }
+            set
+            {
+                this.dateValueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool dateValueSpecified
+        {
+            get
+            {
+                return this.dateValueFieldSpecified;
+            }
+            set
+            {
+                this.dateValueFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
+        public string flag
+        {
+            get
+            {
+                return this.flagField;
+            }
+            set
+            {
+                this.flagField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
+        public string flag_MainTextModule
+        {
+            get
+            {
+                return this.flag_MainTextModuleField;
+            }
+            set
+            {
+                this.flag_MainTextModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("selectedValues", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=4)]
+        public string[] selectedValues
+        {
+            get
+            {
+                return this.selectedValuesField;
+            }
+            set
+            {
+                this.selectedValuesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=5)]
+        public string stringValue
+        {
+            get
+            {
+                return this.stringValueField;
+            }
+            set
+            {
+                this.stringValueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=6)]
+        public string textModuleLabel
+        {
+            get
+            {
+                return this.textModuleLabelField;
+            }
+            set
+            {
+                this.textModuleLabelField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=7)]
+        public int textModuleType
+        {
+            get
+            {
+                return this.textModuleTypeField;
+            }
+            set
+            {
+                this.textModuleTypeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class PriceUnit
+    {
+        
+        private bool activeField;
+        
+        private string articleNumberField;
+        
+        private string descriptionField;
+        
+        private string memoField;
+        
+        private int priceUnitIDField;
+        
+        private string serviceField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
+        public bool active
+        {
+            get
+            {
+                return this.activeField;
+            }
+            set
+            {
+                this.activeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
+        public string articleNumber
+        {
+            get
+            {
+                return this.articleNumberField;
+            }
+            set
+            {
+                this.articleNumberField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
         public string description
         {
             get
@@ -570,7 +697,77 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
+        public string memo
+        {
+            get
+            {
+                return this.memoField;
+            }
+            set
+            {
+                this.memoField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=4)]
+        public int priceUnitID
+        {
+            get
+            {
+                return this.priceUnitIDField;
+            }
+            set
+            {
+                this.priceUnitIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=5)]
+        public string service
+        {
+            get
+            {
+                return this.serviceField;
+            }
+            set
+            {
+                this.serviceField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class Country
+    {
+        
+        private int idField;
+        
+        private string isoCodeField;
+        
+        private string nameField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
+        public int ID
+        {
+            get
+            {
+                return this.idField;
+            }
+            set
+            {
+                this.idField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
         public string isoCode
         {
             get
@@ -582,10 +779,112 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
                 this.isoCodeField = value;
             }
         }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
+        public string name
+        {
+            get
+            {
+                return this.nameField;
+            }
+            set
+            {
+                this.nameField = value;
+            }
+        }
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class Workflow
+    {
+        
+        private string descriptionField;
+        
+        private string nameField;
+        
+        private int statusField;
+        
+        private int typeField;
+        
+        private int workflowIdField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
+        public string description
+        {
+            get
+            {
+                return this.descriptionField;
+            }
+            set
+            {
+                this.descriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
+        public string name
+        {
+            get
+            {
+                return this.nameField;
+            }
+            set
+            {
+                this.nameField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
+        public int status
+        {
+            get
+            {
+                return this.statusField;
+            }
+            set
+            {
+                this.statusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
+        public int type
+        {
+            get
+            {
+                return this.typeField;
+            }
+            set
+            {
+                this.typeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=4)]
+        public int workflowId
+        {
+            get
+            {
+                return this.workflowIdField;
+            }
+            set
+            {
+                this.workflowIdField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class Language
@@ -689,15 +988,182 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(StringResult))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class Currency
+    {
+        
+        private int currencyIDField;
+        
+        private string descriptionField;
+        
+        private string isoCodeField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
+        public int currencyID
+        {
+            get
+            {
+                return this.currencyIDField;
+            }
+            set
+            {
+                this.currencyIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
+        public string description
+        {
+            get
+            {
+                return this.descriptionField;
+            }
+            set
+            {
+                this.descriptionField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
+        public string isoCode
+        {
+            get
+            {
+                return this.isoCodeField;
+            }
+            set
+            {
+                this.isoCodeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class Property
+    {
+        
+        private System.Nullable<int>[] avaliablePropertyValueIDListField;
+        
+        private string mainPropertyNameEnglishField;
+        
+        private string propertyNameEnglishField;
+        
+        private int propertyTypeField;
+        
+        private int selectedPropertyValueIDField;
+        
+        private System.Nullable<int>[] selectedPropertyValueListField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("avaliablePropertyValueIDList", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
+        public System.Nullable<int>[] avaliablePropertyValueIDList
+        {
+            get
+            {
+                return this.avaliablePropertyValueIDListField;
+            }
+            set
+            {
+                this.avaliablePropertyValueIDListField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
+        public string mainPropertyNameEnglish
+        {
+            get
+            {
+                return this.mainPropertyNameEnglishField;
+            }
+            set
+            {
+                this.mainPropertyNameEnglishField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
+        public string propertyNameEnglish
+        {
+            get
+            {
+                return this.propertyNameEnglishField;
+            }
+            set
+            {
+                this.propertyNameEnglishField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
+        public int propertyType
+        {
+            get
+            {
+                return this.propertyTypeField;
+            }
+            set
+            {
+                this.propertyTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=4)]
+        public int selectedPropertyValueID
+        {
+            get
+            {
+                return this.selectedPropertyValueIDField;
+            }
+            set
+            {
+                this.selectedPropertyValueIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("selectedPropertyValueList", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=5)]
+        public System.Nullable<int>[] selectedPropertyValueList
+        {
+            get
+            {
+                return this.selectedPropertyValueListField;
+            }
+            set
+            {
+                this.selectedPropertyValueListField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(StringArrayResult))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(ServiceListResult))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CountryListResult))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CompanyCodeListResult))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(CallbackListResult))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CurrencyList))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(TextmoduleListResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(StringResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PriceUnitListResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CountryListResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(WorkflowListResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PropertyValueListResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(languageResult))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(LanguageListResult))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(CurrencyList))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PropertyResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PropertyListResult))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class Result
@@ -769,31 +1235,7 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
-    public partial class StringResult : Result
-    {
-        
-        private string dataField;
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
-        public string data
-        {
-            get
-            {
-                return this.dataField;
-            }
-            set
-            {
-                this.dataField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class StringArrayResult : Result
@@ -817,17 +1259,17 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
-    public partial class CountryListResult : Result
+    public partial class ServiceListResult : Result
     {
         
-        private Country[] dataField;
+        private Service[] dataField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute("data", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
-        public Country[] data
+        public Service[] data
         {
             get
             {
@@ -841,7 +1283,7 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class CompanyCodeListResult : Result
@@ -865,7 +1307,7 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class CallbackListResult : Result
@@ -889,7 +1331,175 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class TextmoduleListResult : Result
+    {
+        
+        private Textmodule[] dataField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("data", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
+        public Textmodule[] data
+        {
+            get
+            {
+                return this.dataField;
+            }
+            set
+            {
+                this.dataField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class StringResult : Result
+    {
+        
+        private string dataField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
+        public string data
+        {
+            get
+            {
+                return this.dataField;
+            }
+            set
+            {
+                this.dataField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class PriceUnitListResult : Result
+    {
+        
+        private PriceUnit[] dataField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("data", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
+        public PriceUnit[] data
+        {
+            get
+            {
+                return this.dataField;
+            }
+            set
+            {
+                this.dataField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class CountryListResult : Result
+    {
+        
+        private Country[] dataField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("data", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
+        public Country[] data
+        {
+            get
+            {
+                return this.dataField;
+            }
+            set
+            {
+                this.dataField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class WorkflowListResult : Result
+    {
+        
+        private Workflow[] dataField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("data", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
+        public Workflow[] data
+        {
+            get
+            {
+                return this.dataField;
+            }
+            set
+            {
+                this.dataField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class languageResult : Result
+    {
+        
+        private Language dataField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
+        public Language data
+        {
+            get
+            {
+                return this.dataField;
+            }
+            set
+            {
+                this.dataField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class LanguageListResult : Result
+    {
+        
+        private Language[] dataField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("data", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
+        public Language[] data
+        {
+            get
+            {
+                return this.dataField;
+            }
+            set
+            {
+                this.dataField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class CurrencyList : Result
@@ -913,17 +1523,17 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
-    public partial class LanguageListResult : Result
+    public partial class PropertyResult : Result
     {
         
-        private Language[] dataField;
+        private Property dataField;
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("data", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
-        public Language[] data
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
+        public Property data
         {
             get
             {
@@ -936,13 +1546,37 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
         }
     }
     
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class PropertyListResult : Result
+    {
+        
+        private PropertyResult[] m_DataField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("m_Data", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
+        public PropertyResult[] m_Data
+        {
+            get
+            {
+                return this.m_DataField;
+            }
+            set
+            {
+                this.m_DataField = value;
+            }
+        }
+    }
+    
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     public interface DataAdmin30Channel : Blackbird.Plugins.Plunet.DataAdmin30Service.DataAdmin30, System.ServiceModel.IClientChannel
     {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.0.3")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     public partial class DataAdmin30Client : System.ServiceModel.ClientBase<Blackbird.Plugins.Plunet.DataAdmin30Service.DataAdmin30>, Blackbird.Plugins.Plunet.DataAdmin30Service.DataAdmin30
     {
         
@@ -953,15 +1587,15 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
         /// <param name="clientCredentials">The client credentials</param>
         static partial void ConfigureEndpoint(System.ServiceModel.Description.ServiceEndpoint serviceEndpoint, System.ServiceModel.Description.ClientCredentials clientCredentials);
         
-        public DataAdmin30Client(Uri url) : 
-                base(DataAdmin30Client.GetDefaultBinding(), DataAdmin30Client.GetDefaultEndpointAddress(url.ToString().TrimEnd('/')))
+        public DataAdmin30Client() : 
+                base(DataAdmin30Client.GetDefaultBinding(), DataAdmin30Client.GetDefaultEndpointAddress())
         {
             this.Endpoint.Name = EndpointConfiguration.DataAdmin30Port.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
         
-        public DataAdmin30Client(EndpointConfiguration endpointConfiguration, Uri url) : 
-                base(DataAdmin30Client.GetBindingForEndpoint(endpointConfiguration), DataAdmin30Client.GetEndpointAddress(endpointConfiguration, url.ToString().TrimEnd('/')))
+        public DataAdmin30Client(EndpointConfiguration endpointConfiguration) : 
+                base(DataAdmin30Client.GetBindingForEndpoint(endpointConfiguration), DataAdmin30Client.GetEndpointAddress(endpointConfiguration))
         {
             this.Endpoint.Name = endpointConfiguration.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
@@ -986,14 +1620,24 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
         {
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.LanguageCatCodeResult> getLanguageCatCodeAsync(string UUID, string languageName, string catType)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.PropertyValueListResult> getPropertyValueListAsync(string UUID, string PropertyNameEnglish, string LanguageCode)
         {
-            return base.Channel.getLanguageCatCodeAsync(UUID, languageName, catType);
+            return base.Channel.getPropertyValueListAsync(UUID, PropertyNameEnglish, LanguageCode);
         }
-
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.WorkflowListResult> getAvailableWorkflowsAsync(string UUID)
+        {
+            return base.Channel.getAvailableWorkflowsAsync(UUID);
+        }
+        
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.ServiceListResult> getAvailableServicesAsync(string UUID, string languageCode)
         {
             return base.Channel.getAvailableServicesAsync(UUID, languageCode);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.StringArrayResult> getAvailableDocumentTemplatesAsync(string UUID)
+        {
+            return base.Channel.getAvailableDocumentTemplatesAsync(UUID);
         }
         
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CountryListResult> getAvailableCountriesAsync(string UUID, string languageCode)
@@ -1001,9 +1645,14 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
             return base.Channel.getAvailableCountriesAsync(UUID, languageCode);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.StringArrayResult> getAvailableDocumentTemplatesAsync(string UUID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CallbackListResult> getListOfRegisteredCallbacksAsync(string UUID)
         {
-            return base.Channel.getAvailableDocumentTemplatesAsync(UUID);
+            return base.Channel.getListOfRegisteredCallbacksAsync(UUID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CurrencyList> getSystemCurrenciesAsync(string UUID)
+        {
+            return base.Channel.getSystemCurrenciesAsync(UUID);
         }
         
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.LanguageListResult> getAvailableLanguagesAsync(string UUID, string languageCode)
@@ -1016,9 +1665,24 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
             return base.Channel.getDomesticCurrencyAsync(UUID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CurrencyList> getSystemCurrenciesAsync(string UUID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.PriceUnitListResult> getAvailablePriceUnitsAsync(string UUID, string languageCode, string service)
         {
-            return base.Channel.getSystemCurrenciesAsync(UUID);
+            return base.Channel.getAvailablePriceUnitsAsync(UUID, languageCode, service);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.languageResult> seekLanguageByCatCodeAsync(string UUID, string catCode, int catType)
+        {
+            return base.Channel.seekLanguageByCatCodeAsync(UUID, catCode, catType);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.PropertyListResult> getAvailablePropertiesAsync(string UUID, int PropertyUsageArea, int MainID)
+        {
+            return base.Channel.getAvailablePropertiesAsync(UUID, PropertyUsageArea, MainID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.TextmoduleListResult> getAvailableTextModulesAsync(string UUID, string languageCode, int textModuleUsageArea, int MainID)
+        {
+            return base.Channel.getAvailableTextModulesAsync(UUID, languageCode, textModuleUsageArea, MainID);
         }
         
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CompanyCodeListResult> getCompanyCodeListAsync(string UUID)
@@ -1026,19 +1690,14 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
             return base.Channel.getCompanyCodeListAsync(UUID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.CallbackListResult> getListOfRegisteredCallbacksAsync(string UUID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataAdmin30Service.StringResult> getLanguageCatCodeAsync(string UUID, string languageName, int catType)
         {
-            return base.Channel.getListOfRegisteredCallbacksAsync(UUID);
+            return base.Channel.getLanguageCatCodeAsync(UUID, languageName, catType);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()
         {
             return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen));
-        }
-        
-        public virtual System.Threading.Tasks.Task CloseAsync()
-        {
-            return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginClose(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndClose));
         }
         
         private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(EndpointConfiguration endpointConfiguration)
@@ -1059,11 +1718,11 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
         
-        private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration, string url)
+        private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration)
         {
             if ((endpointConfiguration == EndpointConfiguration.DataAdmin30Port))
             {
-                return new System.ServiceModel.EndpointAddress($"{url}/DataAdmin30");
+                return new System.ServiceModel.EndpointAddress("https://plunet-friend-blackbird.plunet.com/DataAdmin30");
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
@@ -1073,11 +1732,11 @@ namespace Blackbird.Plugins.Plunet.DataAdmin30Service
             return DataAdmin30Client.GetBindingForEndpoint(EndpointConfiguration.DataAdmin30Port);
         }
         
-        private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress(string url)
+        private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress()
         {
-            return DataAdmin30Client.GetEndpointAddress(EndpointConfiguration.DataAdmin30Port, url);
+            return DataAdmin30Client.GetEndpointAddress(EndpointConfiguration.DataAdmin30Port);
         }
-
+        
         public enum EndpointConfiguration
         {
             

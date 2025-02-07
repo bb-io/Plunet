@@ -24,6 +24,8 @@ using Blackbird.Plugins.Plunet.PlunetAPIService;
 using DataCustomerAddress30Service;
 using DataJobRound30Service;
 using DataResourceAddress30Service;
+using PropertyResult = Blackbird.Plugins.Plunet.DataCustomFields30.PropertyResult;
+using StringResult = Blackbird.Plugins.Plunet.DataAdmin30Service.StringResult;
 using Textmodule = Blackbird.Plugins.Plunet.DataCustomFields30.Textmodule;
 
 namespace Apps.Plunet.Invocables;
@@ -313,8 +315,8 @@ public class PlunetInvocable : BaseInvocable
 
 
     // Admin service
-    protected async Task<LanguageCatCode?> ExecuteWithRetryAcceptNull(Func<Task<LanguageCatCodeResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
+    protected async Task<Blackbird.Plugins.Plunet.DataAdmin30Service.StringResult?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataAdmin30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay));
     protected async Task<Callback[]?> ExecuteWithRetryAcceptNull(Func<Task<CallbackListResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<Language[]> ExecuteWithRetry(Func<Task<LanguageListResult>> func, int maxRetries = 10, int delay = 1000)
