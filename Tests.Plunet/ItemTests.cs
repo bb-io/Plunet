@@ -33,4 +33,19 @@ public class ItemTests : TestBase
         }
         Assert.IsTrue(result.Items.Count() > 0);
     }
+
+    [TestMethod]
+    public async Task GetLanguageCatCodeAsync_WithValidInputs_ShouldNotThrowError()
+    {
+        var actions = new ItemActions(InvocationContext);
+
+        var result = await actions.GetLanguageCatCodeAsync(new()
+        {
+            LanguageName = "English (USA)",
+            CatType = "1"
+        });
+        
+        Console.WriteLine(result);
+        Assert.IsNotNull(result);
+    }
 }

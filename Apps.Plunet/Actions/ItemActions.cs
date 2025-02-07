@@ -11,6 +11,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using System;
+using PriceUnit = Blackbird.Plugins.Plunet.DataItem30Service.PriceUnit;
 
 namespace Apps.Plunet.Actions;
 
@@ -280,12 +281,12 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (string.IsNullOrWhiteSpace(input.CatType))
             throw new PluginMisconfigurationException("Category type cannot be null or empty");
 
-        var response = await ExecuteWithRetryAcceptNull(() => AdminClient.getLanguageCatCodeAsync(Uuid, input.LanguageName,input.CatType));
+        var response = await ExecuteWithRetryAcceptNull(() => AdminClient.getLanguageCatCodeAsync(Uuid, input.LanguageName, int.Parse(input.CatType)));
 
         if (response == null)
             throw new PluginMisconfigurationException("No language CAT code found for the given inputs.");
 
-        return response.CatCode;
+        return response.data;
     }
 
     [Action("Set item pricelist", Description ="Set a new pricelist for an item and update all related pricelines")]
