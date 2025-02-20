@@ -64,7 +64,10 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
             if (request.Filters != null && request.Filters.Any(path.Contains)) continue;
 
             var file = await DownloadFile(new DownloadDocumentRequest { MainId = request.MainId, FolderType = request.FolderType, FilePathName = path });
-            file.File.Name = Path.GetFileName(path);
+            if (file.File.Name.Contains("\\"))
+            {
+                file.File.Name = file.File.Name.Split('\\').Last();
+            }
             files.Add(file.File);
         }
 
