@@ -68,8 +68,21 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
     public async Task<RequestResponse> GetRequest([ActionParameter] [Display("Request ID")] string requestId)
     {
         var request = await ExecuteWithRetry(() => RequestClient.getRequestObjectAsync(Uuid, ParseId(requestId)));
-        return new(request);
+        int customerId = await RetrieveCustomerIdAsync(RequestClient, Uuid, ParseId(requestId));
+        return new(request, customerId);
     }
+
+    public static async Task<int> RetrieveCustomerIdAsync(
+            Blackbird.Plugins.Plunet.DataRequest30Service.DataRequest30Client client,
+            string uuid,
+            int requestId)
+    {
+        var result = await client.getCustomerIDAsync(uuid, requestId);
+        if (result.statusCode != 0)
+            throw new Exception($"Failed to receive customer ID: {result.statusMessage}");
+        return result.data;
+    }
+
 
     [Action("Create request", Description = "Create a new request in Plunet")]
     public async Task<RequestResponse> CreateRequest([ActionParameter] CreatеRequestRequest request)
