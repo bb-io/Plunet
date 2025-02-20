@@ -9,6 +9,7 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Common.Files;
 using Apps.Plunet.Models.Item;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using System.IO;
 
 namespace Apps.Plunet.Actions;
 
@@ -63,6 +64,7 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
             if (request.Filters != null && request.Filters.Any(path.Contains)) continue;
 
             var file = await DownloadFile(new DownloadDocumentRequest { MainId = request.MainId, FolderType = request.FolderType, FilePathName = path });
+            file.File.Name = Path.GetFileName(path);
             files.Add(file.File);
         }
 
