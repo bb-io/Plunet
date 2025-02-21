@@ -15,12 +15,10 @@ public class RequestClient(InvocationContext invocationContext) : PlunetInvocabl
     public async Task RegisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
         Dictionary<string, string> values, EventType eventType, string? uuid = null)
     {
-        await using var requestClient = Clients.GetRequestClient(creds.GetInstanceUrl());
+        var requestClient = Clients.GetRequestClient(creds.GetInstanceUrl());
         await ExecuteWithRetry(() => requestClient.registerCallback_NotifyAsync(Uuid, "bbTestPlugin",
             values[CredsNames.WebhookUrlKey] + "?wsdl",
             (int)eventType));
-
-        await Logout();
     }
 
     public async Task DeregisterCallback(IEnumerable<AuthenticationCredentialsProvider> creds,
@@ -28,8 +26,7 @@ public class RequestClient(InvocationContext invocationContext) : PlunetInvocabl
         EventType eventType,
         string uuid)
     {
-        await using var requestClient = Clients.GetRequestClient(creds.GetInstanceUrl());
+        var requestClient = Clients.GetRequestClient(creds.GetInstanceUrl());
         await ExecuteWithRetry(() => requestClient.deregisterCallback_NotifyAsync(Uuid, (int)eventType));
-        await Logout();
     }    
 }
