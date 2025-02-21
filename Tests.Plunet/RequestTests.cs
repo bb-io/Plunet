@@ -17,7 +17,6 @@ namespace Tests.Plunet
         { 
             var action= new RequestActions(InvocationContext);
             var result = await action.GetRequest("2");
-            Console.WriteLine(result.CustomerId);
             Assert.IsNotNull(result);
         }
 

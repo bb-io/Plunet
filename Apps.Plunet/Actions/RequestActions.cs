@@ -63,26 +63,13 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
         var searchResult = await SearchRequests(input);
         return new(searchResult.Items.FirstOrDefault(), searchResult.TotalCount);
     }
-    
+
     [Action("Get request", Description = "Get details for a Plunet request")]
-    public async Task<RequestResponse> GetRequest([ActionParameter] [Display("Request ID")] string requestId)
+    public async Task<RequestResponse> GetRequest([ActionParameter][Display("Request ID")] string requestId)
     {
         var request = await ExecuteWithRetry(() => RequestClient.getRequestObjectAsync(Uuid, ParseId(requestId)));
-        int customerId = await RetrieveCustomerIdAsync(RequestClient, Uuid, ParseId(requestId));
-        return new(request, customerId);
+        return new(request);
     }
-
-    public static async Task<int> RetrieveCustomerIdAsync(
-            Blackbird.Plugins.Plunet.DataRequest30Service.DataRequest30Client client,
-            string uuid,
-            int requestId)
-    {
-        var result = await client.getCustomerIDAsync(uuid, requestId);
-        if (result.statusCode != 0)
-            throw new Exception($"Failed to receive customer ID: {result.statusMessage}");
-        return result.data;
-    }
-
 
     [Action("Create request", Description = "Create a new request in Plunet")]
     public async Task<RequestResponse> CreateRequest([ActionParameter] CreatеRequestRequest request)
@@ -155,7 +142,7 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
     }
 
     [Action("Delete request", Description = "Delete a Plunet request")]
-    public async Task DeleteRequest([ActionParameter] [Display("Request ID")] string requestId)
+    public async Task DeleteRequest([ActionParameter][Display("Request ID")] string requestId)
     {
         await ExecuteWithRetry(() => RequestClient.deleteAsync(Uuid, ParseId(requestId)));
     }
@@ -176,7 +163,7 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
     {
         var result = await ExecuteWithRetry(() => RequestClient.orderRequest_byTemplateAsync(Uuid, ParseId(requestId), templateId is null ? 0 : ParseId(templateId)));
         var actions = new OrderActions(invocationContext);
-        return await actions.GetOrder(new OrderRequest { OrderId = result.ToString()});
+        return await actions.GetOrder(new OrderRequest { OrderId = result.ToString() });
     }
 
     [Action("Add language combination to request", Description = "Add a language combination to the specific request")]
@@ -188,3 +175,4 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
         await ExecuteWithRetry(() => RequestClient.addLanguageCombinationAsync(Uuid, langs.SourceLanguageCode, langs.TargetLanguageCode, ParseId(requestId)));
     }
 }
+
