@@ -32,8 +32,11 @@ public class GetCustomerResponse
     [Display("Mobile phone")]
     public string MobilePhone { get; set; }
 
-    [Display("Name")]
-    public string Name { get; set; }
+    [Display("Name 1")]
+    public string Name1 { get; set; }
+
+    [Display("Name 2")]
+    public string Name2 { get; set; }
 
     [Display("Phone")]
     public string Phone { get; set; }
@@ -72,7 +75,8 @@ public class GetCustomerResponse
         Fax = customer.fax;
         FullName = customer.fullName;
         MobilePhone = customer.mobilePhone;
-        Name = customer.name1 ?? customer.name2;
+        Name1 = customer.name1 ?? "";
+        Name2 = customer.name2 ?? "";
         Phone = customer.phone;
         SkypeId = customer.skypeID;
         Status = customer.status.ToString();
