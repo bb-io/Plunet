@@ -16,6 +16,8 @@ public class CreateCustomerRequest
 
     [Display("Mobile phone")] public string? MobilePhone { get; set; }
 
+    public string? Phone { get; set; }
+
     [StaticDataSource(typeof(StatusTypeDataHandler))]
     public string? Status { get; set; }
 
