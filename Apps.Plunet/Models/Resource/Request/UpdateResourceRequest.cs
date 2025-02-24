@@ -26,7 +26,8 @@ public class ResourceParameters
     [Display("Fax")] 
     public string? Fax { get; set; }
     
-    [Display("Form of address")] 
+    [Display("Form of address")]
+    [StaticDataSource(typeof(FormOfAddressDataHandler))]
     public string? FormOfAddress { get; set; }
     
     [Display("Full name")] 

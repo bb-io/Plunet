@@ -17,9 +17,10 @@ public class CreateCustomerRequest
     [Display("Mobile phone")] public string? MobilePhone { get; set; }
 
     [StaticDataSource(typeof(StatusTypeDataHandler))]
-    public int? Status { get; set; }
+    public string? Status { get; set; }
 
-    [Display("Form of address")] public int? FormOfAddress { get; set; }
+    [StaticDataSource(typeof(FormOfAddressDataHandler))]
+    [Display("Form of address")] public string? FormOfAddress { get; set; }
 
     [Display("Cost center")] public string? CostCenter { get; set; }
 
