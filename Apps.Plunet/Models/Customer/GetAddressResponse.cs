@@ -6,6 +6,9 @@ namespace Apps.Plunet.Models.Customer;
 
     public class GetAddressResponse
     {
+    [DefinitionIgnore]
+    public string AddressID { get; set; }
+
     [Display("Address type")]
     public string AddressType { get; set; }
 
