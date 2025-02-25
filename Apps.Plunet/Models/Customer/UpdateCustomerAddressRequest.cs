@@ -38,4 +38,18 @@ public class UpdateCustomerAddressRequest
     public string? Country { get; set; }
     
     public string? Description { get; set; }
+
+    public UpdateCustomerAddressRequest(CreateCustomerRequest input, string addressId) 
+    {
+        AddressId = addressId;
+        AddressType = input.AddressType;
+        FirstAddressName = input.FirstAddressName;
+        Street = input.Street;
+        Street2 = input.Street2;
+        ZipCode = input.ZipCode;
+        City = input.City;
+        State = input.State;
+        Description = input.Description;
+        Country = input.Country;
+    }
 }

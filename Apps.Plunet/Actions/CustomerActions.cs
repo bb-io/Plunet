@@ -7,6 +7,7 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
+using Blackbird.Plugins.Plunet.DataRequest30Service;
 
 namespace Apps.Plunet.Actions;
 
@@ -142,13 +143,52 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
             userId = ParseId(request.UserId),
         }, false));
 
-        return await GetCustomerById(customer);
+        var updatedCustomer = await GetCustomerById(customer);
+
+        if (request.AddressType != null)
+        {
+            if (updatedCustomer.Addresses.Any(x => x.AddressType == request.AddressType))
+            {
+                await UpdateCustomerAddress(new UpdateCustomerAddressRequest(request, updatedCustomer.Addresses.First(x => x.AddressType == request.AddressType).AddressID));
+            }
+            else 
+            {
+                await SetCustomerAddress(new()
+                {
+                    CustomerId = customer.CustomerId
+                }, new(request));
+            }   
+            return await GetCustomerById(customer);
+        }
+        else 
+        {
+            return updatedCustomer;
+        }
+    }
+
+    private async Task UpdateCustomerAddress(UpdateCustomerAddressRequest request)
+    {
+         await ExecuteWithRetry(() => CustomerAddressClient.updateAsync(Uuid, new()
+        {
+            name1 = request.FirstAddressName,
+            city = request.City,
+            addressType = ParseId(request.AddressType),
+            street = request.Street,
+            street2 = request.Street2,
+            zip = request.ZipCode,
+            country = request.Country,
+            state = request.State,
+            description = request.Description,
+            addressID = ParseId(request.AddressId)
+        },true));
+
     }
 
     //[Action("Set customer address", Description = "Set Plunet customer address")]
     public async Task<SetCustomerAddressResponse> SetCustomerAddress(
         [ActionParameter] CustomerRequest customer, [ActionParameter] SetCustomerAddressRequest request)
     {
+
         var response = await ExecuteWithRetry(() => CustomerAddressClient.insert2Async(Uuid, ParseId(customer.CustomerId), new()
         {
             name1 = request.FirstAddressName,
@@ -159,7 +199,7 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
             zip = request.ZipCode,
             country = request.Country,
             state = request.State,
-            description = request.Description
+            description = request.Description            
         }));
 
         return new()
@@ -184,6 +224,7 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
 
         return new GetAddressResponse
         {
+            AddressID = addressId.ToString(),
             AddressType = addressType.ToString(),
             City = city,
             CostCenter = costCenter,
