@@ -59,12 +59,14 @@ public class GetCustomerResponse
     [Display("Payment information")]
     public GetPaymentInfoResponse PaymentInformation { get; set; }
 
+    public IEnumerable<GetAddressResponse> Addresses { get; set; }
+
     public GetCustomerResponse()
     {
     }
     
     public GetCustomerResponse(Blackbird.Plugins.Plunet.DataCustomer30Service.Customer customer,
-        PaymentInfo paymentInfo, int? accountManagerId = default)
+        PaymentInfo paymentInfo, List<GetAddressResponse> addresses, int? accountManagerId = default)
     {
         AcademicTitle = customer.academicTitle;
         CostCenter = customer.costCenter;
@@ -84,5 +86,6 @@ public class GetCustomerResponse
         Website = customer.website;
         AccountManagerId = accountManagerId == 0 ? null : accountManagerId?.ToString();
         PaymentInformation = new GetPaymentInfoResponse(paymentInfo);
+        Addresses = addresses;
     }
 }

@@ -53,8 +53,15 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         var paymentInfo = await ExecuteWithRetry(() => CustomerClient.getPaymentInformationAsync(Uuid, ParseId(input.CustomerId)));
 
         var accountManagerResult = await ExecuteWithRetryAcceptNull(() => CustomerClient.getAccountManagerIDAsync(Uuid, ParseId(input.CustomerId)));
-        return new(customer, paymentInfo, accountManagerResult);
+        var addresses = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getAllAddressesAsync(Uuid, ParseId(input.CustomerId)));
+        var addressesInfo = new List<GetAddressResponse>();
+        foreach (var addressId in addresses)
+        {
+            addressesInfo.Add(await GetAddressInfo(addressId));
+        }
+        return new(customer, paymentInfo, addressesInfo, accountManagerResult);
     }
+       
 
     [Action("Delete customer", Description = "Delete a Plunet customer")]
     public async Task DeleteCustomerById([ActionParameter] CustomerRequest input)
@@ -158,6 +165,37 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         return new()
         {
             AddressId = response.ToString()
+        };
+    }
+
+    private async Task<GetAddressResponse> GetAddressInfo(int? addressId)
+    {
+        var city = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getCityAsync(Uuid, (int)addressId));
+        var addressType = await ExecuteWithRetry(() => CustomerAddressClient.getAddressTypeAsync(Uuid, (int)addressId));
+        var costCenter = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getCostCenterAsync(Uuid, (int)addressId));
+        var country = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getCountryAsync(Uuid, (int)addressId));
+        var description = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getDescriptionAsync(Uuid, (int)addressId));
+        var street1 = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getStreetAsync(Uuid, (int)addressId));
+        var street2 = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getStreet2Async(Uuid, (int)addressId));
+        var name = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getName1Async(Uuid, (int)addressId));
+        var salesTaxType = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getSalesTaxationTypeAsync(Uuid, (int)addressId, Language));
+        var zip = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getZipAsync(Uuid, (int)addressId));
+        var state = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getStateAsync(Uuid, (int)addressId));
+
+        return new GetAddressResponse
+        {
+            AddressType = addressType.ToString(),
+            City = city,
+            CostCenter = costCenter,
+            Country = country,
+            Description = description,
+            Street = street1,
+            Street2 = street2,
+            State = state,
+            ZipCode = zip,
+            FirstAddressName = name,
+            SalesTaxType = salesTaxType
+            
         };
     }
 
