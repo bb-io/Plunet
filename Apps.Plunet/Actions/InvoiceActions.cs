@@ -188,7 +188,7 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
             [
                 new()
                 {
-                    CustomerName = invoice.Customer?.Name ?? string.Empty,
+                    CustomerName = invoice.Customer?.Name1 ?? string.Empty,
                     InvoiceNumber = invoice.InvoiceNumber,
                     InvoiceDate = invoice.InvoiceDate,
                     Currency = invoice.CurrencyCode,

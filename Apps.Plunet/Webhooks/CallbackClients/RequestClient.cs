@@ -31,5 +31,5 @@ public class RequestClient(InvocationContext invocationContext) : PlunetInvocabl
         await using var requestClient = Clients.GetRequestClient(creds.GetInstanceUrl());
         await ExecuteWithRetry(() => requestClient.deregisterCallback_NotifyAsync(Uuid, (int)eventType));
         await Logout();
-    }    
+    }
 }

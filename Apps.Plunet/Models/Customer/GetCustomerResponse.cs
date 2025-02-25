@@ -32,8 +32,11 @@ public class GetCustomerResponse
     [Display("Mobile phone")]
     public string MobilePhone { get; set; }
 
-    [Display("Name")]
-    public string Name { get; set; }
+    [Display("Name 1")]
+    public string Name1 { get; set; }
+
+    [Display("Name 2")]
+    public string Name2 { get; set; }
 
     [Display("Phone")]
     public string Phone { get; set; }
@@ -56,12 +59,14 @@ public class GetCustomerResponse
     [Display("Payment information")]
     public GetPaymentInfoResponse PaymentInformation { get; set; }
 
+    public IEnumerable<GetAddressResponse> Addresses { get; set; }
+
     public GetCustomerResponse()
     {
     }
     
     public GetCustomerResponse(Blackbird.Plugins.Plunet.DataCustomer30Service.Customer customer,
-        PaymentInfo paymentInfo, int? accountManagerId = default)
+        PaymentInfo paymentInfo, List<GetAddressResponse> addresses, int? accountManagerId = default)
     {
         AcademicTitle = customer.academicTitle;
         CostCenter = customer.costCenter;
@@ -72,7 +77,8 @@ public class GetCustomerResponse
         Fax = customer.fax;
         FullName = customer.fullName;
         MobilePhone = customer.mobilePhone;
-        Name = customer.name1 ?? customer.name2;
+        Name1 = customer.name1 ?? "";
+        Name2 = customer.name2 ?? "";
         Phone = customer.phone;
         SkypeId = customer.skypeID;
         Status = customer.status.ToString();
@@ -80,5 +86,6 @@ public class GetCustomerResponse
         Website = customer.website;
         AccountManagerId = accountManagerId == 0 ? null : accountManagerId?.ToString();
         PaymentInformation = new GetPaymentInfoResponse(paymentInfo);
+        Addresses = addresses;
     }
 }

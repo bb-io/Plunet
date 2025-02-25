@@ -341,6 +341,10 @@ public class PlunetInvocable : BaseInvocable
     // Customer address service
     protected async Task<int> ExecuteWithRetry(Func<Task<DataCustomerAddress30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
+    protected async Task<int?[]?> ExecuteWithRetryAcceptNull(Func<Task<DataCustomerAddress30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
+    protected async Task<string?> ExecuteWithRetryAcceptNull(Func<Task<DataCustomerAddress30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
 
 
     // Customer contact service
