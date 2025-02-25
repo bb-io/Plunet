@@ -9,7 +9,6 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Common.Files;
 using Apps.Plunet.Models.Item;
 using Blackbird.Applications.Sdk.Common.Exceptions;
-using System.IO;
 
 namespace Apps.Plunet.Actions;
 
