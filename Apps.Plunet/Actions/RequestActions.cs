@@ -68,7 +68,9 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
     public async Task<RequestResponse> GetRequest([ActionParameter][Display("Request ID")] string requestId)
     {
         var request = await ExecuteWithRetry(() => RequestClient.getRequestObjectAsync(Uuid, ParseId(requestId)));
-        return new(request);
+
+        var customer = await ExecuteWithRetry(() => RequestClient.getCustomerIDAsync(Uuid, request.requestID));
+        return new(request, customer.ToString());
     }
 
     [Action("Create request", Description = "Create a new request in Plunet")]

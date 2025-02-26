@@ -22,7 +22,9 @@ public class RequestResponse
 
     [Display("Status")] public string Status { get; set; }
 
-    public RequestResponse(Blackbird.Plugins.Plunet.DataRequest30Service.Request request)
+    [Display("Customer ID")] public string CustomerId { get; set; }
+
+    public RequestResponse(Blackbird.Plugins.Plunet.DataRequest30Service.Request request, string customerId)
     {
         BriefDescription = request.briefDescription;
         CreationDate = request.creationDate;
@@ -33,5 +35,6 @@ public class RequestResponse
         RequestId = request.requestID.ToString();
         Status = request.status.ToString();
         Subject = request.subject;
+        CustomerId = customerId.ToString();
     }
 }

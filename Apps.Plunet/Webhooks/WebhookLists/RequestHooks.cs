@@ -13,6 +13,7 @@ using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
 using Apps.Plunet.Models.Request.Request;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
+using Apps.Plunet.Webhooks.Models.Parameters;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
@@ -41,8 +42,11 @@ public class RequestHooks(InvocationContext invocationContext) : PlunetWebhookLi
 
     [Webhook("On request created", typeof(RequestCreatedEventHandler),
         Description = "Triggered when a request is created")]
-    public Task<WebhookResponse<RequestResponse>> RequestCreated(WebhookRequest webhookRequest)
-        => HandleWebhook(webhookRequest, request => true);
+    public Task<WebhookResponse<RequestResponse>> RequestCreated(WebhookRequest webhookRequest,
+        [WebhookParameter] CustomerIdFilter customerIdFilter)
+        => HandleWebhook(webhookRequest, request =>
+               customerIdFilter == null || customerIdFilter.CustomerId == request.CustomerId);
+
 
     [Webhook("On request status changed", typeof(RequestChangedEventHandler),
         Description = "Triggered when a request status is changed")]

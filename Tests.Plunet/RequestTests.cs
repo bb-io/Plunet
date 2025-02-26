@@ -16,7 +16,8 @@ namespace Tests.Plunet
         public async Task GetRequest_ReturnValue()
         { 
             var action= new RequestActions(InvocationContext);
-            var result = await action.GetRequest("2");
+            var result = await action.GetRequest("8");
+            Console.WriteLine(result.CustomerId);
             Assert.IsNotNull(result);
         }
 
