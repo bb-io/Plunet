@@ -52,7 +52,9 @@ public class RequestHooks(InvocationContext invocationContext) : PlunetWebhookLi
         Description = "Triggered when a request status is changed")]
     public Task<WebhookResponse<RequestResponse>> RequestChanged(WebhookRequest webhookRequest,
         [WebhookParameter][Display("New status")][StaticDataSource(typeof(RequestStatusDataHandler))] string? newStatus,
-        [WebhookParameter] GetRequestOptionalRequest optonalRequest)
+        [WebhookParameter] GetRequestOptionalRequest optonalRequest,
+        [WebhookParameter] CustomerIdFilter customerIdFilter)
         => HandleWebhook(webhookRequest, request => (newStatus == null || newStatus == request.Status) &&
-                                                    (optonalRequest.RequestId == null || optonalRequest.RequestId == request.RequestId));
+                                                    (optonalRequest.RequestId == null || optonalRequest.RequestId == request.RequestId) &&
+                                                    (customerIdFilter == null || customerIdFilter.CustomerId == request.CustomerId));
 }
