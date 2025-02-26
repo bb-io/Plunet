@@ -37,8 +37,10 @@ public class RequestHooks(InvocationContext invocationContext) : PlunetWebhookLi
 
     [Webhook("On request deleted", typeof(RequestDeleteEventHandler),
         Description = "Triggered when a request is deleted")]
-    public Task<WebhookResponse<RequestResponse>> RequestDeleted(WebhookRequest webhookRequest)
-        => HandleWebhook(webhookRequest, request => true);
+    public Task<WebhookResponse<RequestResponse>> RequestDeleted(WebhookRequest webhookRequest,
+        [WebhookParameter] CustomerIdFilter customerIdFilter)
+        => HandleWebhook(webhookRequest, request =>
+               customerIdFilter == null || customerIdFilter.CustomerId == request.CustomerId);
 
     [Webhook("On request created", typeof(RequestCreatedEventHandler),
         Description = "Triggered when a request is created")]
