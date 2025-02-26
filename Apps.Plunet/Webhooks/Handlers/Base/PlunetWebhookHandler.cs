@@ -29,8 +29,7 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
             var callbacksAfter = await dataAdminClient.getListOfRegisteredCallbacksAsync(Uuid);
 
             bool isRegistered = callbacksAfter?.data?.Any(c =>
-                c.eventType == (int)EventType &&
-                c.serverAddress == values[CredsNames.WebhookUrlKey] + "?wsdl") ?? false;
+             c.eventType == (int)EventType) ?? false;
 
 
             await WebhookLogger.LogAsync(new
