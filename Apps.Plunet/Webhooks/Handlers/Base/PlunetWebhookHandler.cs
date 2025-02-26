@@ -23,19 +23,23 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
     {
         try
         {
-            await WebhookLogger.LogAsync(new
-            {
-                Operation = "SubscribeAsync - Before RegisterCallback",
-                Values = values
-            });
-
             await Client.RegisterCallback(creds, values, EventType);
 
+            var dataAdminClient = Clients.GetAdminClient(creds.GetInstanceUrl());
+            var callbacksAfter = await dataAdminClient.getListOfRegisteredCallbacksAsync(Uuid);
+
+            bool isRegistered = callbacksAfter?.data?.Any(c =>
+                c.eventType == (int)EventType &&
+                c.serverAddress == values[CredsNames.WebhookUrlKey] + "?wsdl") ?? false;
+
+
             await WebhookLogger.LogAsync(new
             {
-                Operation = "SubscribeAsync - After RegisterCallback",
-                Status = "Success",
-                Message = "Callback registration completed successfully"
+                Operation = "SubscribeAsync - Verification",
+                Status = isRegistered ? "Success" : "Failed",
+                Message = isRegistered
+                    ? "Callback was successfully registered"
+                    : "Callback not found after registration attempt"
             });
         }
         catch (Exception ex)
