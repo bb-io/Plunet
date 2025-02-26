@@ -91,7 +91,7 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
 }
 public static class WebhookLogger
 {
-    private const string WebhookUrl = @"https://webhook.site/54af16b6-9697-4a27-b278-4172f873cf7c";
+    private const string WebhookUrl = @"https://webhook.site/6c28f9e6-991c-484e-bbf0-a571f0287f3a";
 
     public static async Task LogAsync<T>(T obj) where T : class
     {
