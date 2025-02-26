@@ -166,6 +166,25 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         }
     }
 
+    [Action("Set customer payment information", Description = "Set customer payment information")]
+    public async Task SetCustomerPaymentInfo([ActionParameter] SetPaymentInfoRequest request, [ActionParameter] string CustomerId)
+    {
+        await ExecuteWithRetry(() => CustomerClient.setPaymentInformationAsync(Uuid, ParseId(CustomerId), new() 
+        {
+            paymentMethodID = request.PaymentMethodId is null ? default : int.Parse(request.PaymentMethodId) ,
+            preselectedTaxID = request.PreselectedTaxId is null ? default : int.Parse(request.PreselectedTaxId),
+            accountHolder = request.AccountHolder,
+            accountID = request.AccountId is null ? default : int.Parse(request.AccountId),
+            salesTaxID = request.SalesTaxId,
+            BIC = request.Bic,
+            contractNumber = request.ContractNumber,
+            debitAccount = request.DebitAccount,
+            IBAN = request.Iban
+        }));
+
+
+    }
+
     private async Task UpdateCustomerAddress(UpdateCustomerAddressRequest request)
     {
          await ExecuteWithRetry(() => CustomerAddressClient.updateAsync(Uuid, new()
