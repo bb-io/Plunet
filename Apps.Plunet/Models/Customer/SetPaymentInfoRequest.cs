@@ -1,4 +1,6 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 
 namespace Apps.Plunet.Models.Customer;
@@ -17,8 +19,9 @@ public class SetPaymentInfoRequest
 
     [Display("IBAN")] public string? Iban { get; set; }
 
-    [Display("Payment method ID")] public string? PaymentMethodId { get; set; }
+    [Display("Payment method ID")] public string PaymentMethodId { get; set; }
 
+    [StaticDataSource(typeof(PreselectedTaxDataHandler))]
     [Display("Preselected tax ID")] public string? PreselectedTaxId { get; set; }
 
     [Display("Sales tax ID")] public string? SalesTaxId { get; set; }
