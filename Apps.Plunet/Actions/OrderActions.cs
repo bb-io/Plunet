@@ -130,10 +130,10 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             ? await ExecuteWithRetry(() => OrderClient.insert2Async(Uuid, orderIn))
             : await ExecuteWithRetry(() => OrderClient.insert_byTemplateAsync(Uuid, orderIn, ParseId(templateRequest.TemplateId)));
 
-        if (request.Status != null)
-        {
-            await ExecuteWithRetry(() => OrderClient.setProjectStatusAsync(Uuid, orderId, ParseId(request.Status)));
-        }
+        //if (request.Status != null)
+        //{
+        //    await ExecuteWithRetry(() => OrderClient.setProjectStatusAsync(Uuid, orderId, ParseId(request.Status)));
+        //}
 
         if (request.ProjectCategory != null)
         {
@@ -159,7 +159,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             ProjectName = request.ProjectName,
             Rate = request.Rate,
             ReferenceNumber = request.ReferenceNumber,
-            Status = request.Status,
+         //   Status = request.Status,
             Subject = request.Subject,
             ProjectCategory = request.ProjectCategory
         };
@@ -201,10 +201,10 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
 
         await ExecuteWithRetry(() => OrderClient.updateAsync(Uuid, orderUpdate, false));
 
-        if (request.Status != null)
-        {
-            await ExecuteWithRetry(() => OrderClient.setProjectStatusAsync(Uuid, ParseId(order.OrderId), ParseId(request.Status)));
-        }
+        //if (request.Status != null)
+        //{
+        //    await ExecuteWithRetry(() => OrderClient.setProjectStatusAsync(Uuid, ParseId(order.OrderId), ParseId(request.Status)));
+        //}
 
         if (request.ProjectCategory != null)
         {
