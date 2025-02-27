@@ -17,7 +17,7 @@ public class SetPaymentInfoRequest
 
     [Display("IBAN")] public string? Iban { get; set; }
 
-    [Display("Payment method ID")] public string? PaymentMethodId { get; set; }
+    [Display("Payment method ID")] public string PaymentMethodId { get; set; }
 
     [Display("Preselected tax ID")] public string? PreselectedTaxId { get; set; }
 
