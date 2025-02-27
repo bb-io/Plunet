@@ -38,8 +38,8 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
         foreach (var callback in otherCallbacksThatWillBeRemoved)
         {
             await Client.RegisterCallback(creds, new Dictionary<string, string> { { CredsNames.WebhookUrlKey, callback.serverAddress.Replace("?wsdl", string.Empty) } }, EventType);
-        } 
-        
+        }
+
         await Logout();
-    }    
+    }
 }
