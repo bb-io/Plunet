@@ -38,9 +38,9 @@ public class CreateOrderRequest
     [Display("Reference number")]
     public string? ReferenceNumber { get; set; }
 
-    [Display("Status")]
-    [StaticDataSource(typeof(OrderStatusDataHandler))]
-    public string? Status { get; set; }
+    //[Display("Status")]
+    //[StaticDataSource(typeof(OrderStatusDataHandler))]
+    //public string? Status { get; set; }
 
     [Display("Project category")]
     public string? ProjectCategory { get; set; }
