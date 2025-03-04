@@ -284,6 +284,8 @@ public class PlunetInvocable : BaseInvocable
     => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
     protected async Task<int?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataRequest30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, true, maxRetries, delay))?.data;
+    protected async Task<string> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataRequest30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
+    => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
 
 
     // Resource service
