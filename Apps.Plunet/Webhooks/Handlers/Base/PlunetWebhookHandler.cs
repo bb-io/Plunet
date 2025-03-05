@@ -19,72 +19,40 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
     public async Task SubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds,
         Dictionary<string, string> values)
     {
-        invocationContext.Logger?.LogInformation("[Plunet app] Called SubscribeAsync", ["values"]);
-
         await Client.RegisterCallback(creds, values, EventType);
         await Logout();
-
-        invocationContext.Logger?.LogInformation("[Plunet app] Successfully Subscribed", ["values"]);
     }
 
     public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds,
         Dictionary<string, string> values)
     {
-        try
+        var dataAdminClient = Clients.GetAdminClient(creds.GetInstanceUrl());
+        var callbacks = await ExecuteWithRetryAcceptNull(() => dataAdminClient.getListOfRegisteredCallbacksAsync(Uuid));
+        if (callbacks is null)
         {
-            invocationContext.Logger?.LogInformation("[Plunet app] Called UnsubscribeAsync", ["values"]);
-
-            var dataAdminClient = Clients.GetAdminClient(creds.GetInstanceUrl());
-            var callbacks =
-                await ExecuteWithRetryAcceptNull(() => dataAdminClient.getListOfRegisteredCallbacksAsync(Uuid));
-            if (callbacks is null)
-            {
-                return;
-            }
-
-            var eventCallbacks = callbacks.Where(c => c.eventType == (int)EventType).ToList();
-            var currentCallback = eventCallbacks.FirstOrDefault(x => x.serverAddress == values[CredsNames.WebhookUrlKey] + "?wsdl");
-            
-            if (currentCallback != null)
-            {
-                invocationContext.Logger?.LogInformation(
-                    $"[Plunet app] Determined currentCallback: {currentCallback.serverAddress}",
-                    [currentCallback.serverAddress]);
-
-                var otherCallbacksThatWillBeRemoved = eventCallbacks
-                    .Where(x => x.mainID != currentCallback?.mainID && x.dataService == currentCallback?.dataService)
-                    .ToList();
-
-                var otherCallbacks =
-                    string.Join(", ", otherCallbacksThatWillBeRemoved.Select(x => x.serverAddress).ToList());
-
-                invocationContext.Logger?.LogInformation(
-                    $"[Plunet app] Determined otherCallbacksThatWillBeRemoved: {otherCallbacks}",
-                    [otherCallbacks]);
-            
-                await Client.DeregisterCallback(creds, values, EventType, Uuid);
-
-                foreach (var callback in otherCallbacksThatWillBeRemoved)
-                {
-                    await Client.RegisterCallback(creds, new Dictionary<string, string>
-                    {
-                        { CredsNames.WebhookUrlKey, callback.serverAddress.Replace("?wsdl", string.Empty) }
-                    }, EventType);
-                }
-
-                await Logout();
-            
-                invocationContext.Logger?.LogInformation(
-                    $"[Plunet app] Successfully UnsubscribeAsync",
-                    ["test"]);   
-            }
+            return;
         }
-        catch (Exception e)
+
+        var eventCallbacks = callbacks.Where(c => c.eventType == (int)EventType).ToList();
+        var currentCallback =
+            eventCallbacks.FirstOrDefault(x => x.serverAddress == values[CredsNames.WebhookUrlKey] + "?wsdl");
+        if (currentCallback != null)
         {
-            invocationContext.Logger?.LogError(
-                $"[Plunet app] Received exception in UnsubscribeAsync method {e.Message}",
-                [e.Message]);
-            throw;
+            var otherCallbacksThatWillBeRemoved = eventCallbacks
+                .Where(x => x.mainID != currentCallback?.mainID && x.dataService == currentCallback?.dataService)
+                .ToList();
+
+            await Client.DeregisterCallback(creds, values, EventType, Uuid);
+
+            foreach (var callback in otherCallbacksThatWillBeRemoved)
+            {
+                await Client.RegisterCallback(creds, new Dictionary<string, string>
+                {
+                    { CredsNames.WebhookUrlKey, callback.serverAddress.Replace("?wsdl", string.Empty) }
+                }, EventType);
+            }
+
+            await Logout();
         }
     }
 }
