@@ -43,45 +43,46 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
             }
 
             var eventCallbacks = callbacks.Where(c => c.eventType == (int)EventType).ToList();
-            var currentCallback = eventCallbacks
-                .Where(x => x.serverAddress == values[CredsNames.WebhookUrlKey] + "?wsdl")
-                .FirstOrDefault();
-
-            invocationContext.Logger?.LogInformation(
-                $"[Plunet app] Determined currentCallback: {currentCallback.serverAddress}",
-                [currentCallback.serverAddress]);
-
-            var otherCallbacksThatWillBeRemoved = eventCallbacks
-                .Where(x => x.mainID != currentCallback?.mainID && x.dataService == currentCallback?.dataService)
-                .ToList();
-
-            var otherCallbacks =
-                string.Join(", ", otherCallbacksThatWillBeRemoved.Select(x => x.serverAddress).ToList());
-
-            invocationContext.Logger?.LogInformation(
-                $"[Plunet app] Determined otherCallbacksThatWillBeRemoved: {otherCallbacks}",
-                [otherCallbacks]);
+            var currentCallback = eventCallbacks.FirstOrDefault(x => x.serverAddress == values[CredsNames.WebhookUrlKey] + "?wsdl");
             
-            await Client.DeregisterCallback(creds, values, EventType, Uuid);
-
-            foreach (var callback in otherCallbacksThatWillBeRemoved)
+            if (currentCallback != null)
             {
-                await Client.RegisterCallback(creds, new Dictionary<string, string>
+                invocationContext.Logger?.LogInformation(
+                    $"[Plunet app] Determined currentCallback: {currentCallback.serverAddress}",
+                    [currentCallback.serverAddress]);
+
+                var otherCallbacksThatWillBeRemoved = eventCallbacks
+                    .Where(x => x.mainID != currentCallback?.mainID && x.dataService == currentCallback?.dataService)
+                    .ToList();
+
+                var otherCallbacks =
+                    string.Join(", ", otherCallbacksThatWillBeRemoved.Select(x => x.serverAddress).ToList());
+
+                invocationContext.Logger?.LogInformation(
+                    $"[Plunet app] Determined otherCallbacksThatWillBeRemoved: {otherCallbacks}",
+                    [otherCallbacks]);
+            
+                await Client.DeregisterCallback(creds, values, EventType, Uuid);
+
+                foreach (var callback in otherCallbacksThatWillBeRemoved)
+                {
+                    await Client.RegisterCallback(creds, new Dictionary<string, string>
                     {
                         { CredsNames.WebhookUrlKey, callback.serverAddress.Replace("?wsdl", string.Empty) }
                     }, EventType);
-            }
+                }
 
-            await Logout();
+                await Logout();
             
-            invocationContext.Logger?.LogInformation(
-                $"[Plunet app] Successfully UnsubscribeAsync",
-                ["test"]);
+                invocationContext.Logger?.LogInformation(
+                    $"[Plunet app] Successfully UnsubscribeAsync",
+                    ["test"]);   
+            }
         }
         catch (Exception e)
         {
             invocationContext.Logger?.LogError(
-                $"[Plunet app] Received exception in UnsubscribeAsync method ",
+                $"[Plunet app] Received exception in UnsubscribeAsync method {e.Message}",
                 [e.Message]);
             throw;
         }
