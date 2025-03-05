@@ -69,8 +69,7 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
                 await Client.RegisterCallback(creds, new Dictionary<string, string>
                     {
                         { CredsNames.WebhookUrlKey, callback.serverAddress.Replace("?wsdl", string.Empty) }
-                    },
-                    EventType);
+                    }, EventType);
             }
 
             await Logout();
