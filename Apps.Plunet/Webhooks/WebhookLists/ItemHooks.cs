@@ -52,8 +52,8 @@ public class ItemHooks(InvocationContext invocationContext) : PlunetWebhookList<
         [WebhookParameter] GetItemOptionalRequest itemRequest, 
         [WebhookParameter] AdditionalFiltersRequests additionalFiltersRequests)
         => HandleWebhook(webhookRequest, item => (newStatus == null || newStatus == item.Status) 
-                                                 && (additionalFiltersRequests.DescriptionContains == null || additionalFiltersRequests.DescriptionContains
-                                                     .Contains(item.BriefDescription, StringComparison.OrdinalIgnoreCase))
+                                                 && (additionalFiltersRequests.DescriptionContains == null || item.BriefDescription
+                                                     .Contains(additionalFiltersRequests.DescriptionContains, StringComparison.OrdinalIgnoreCase))
                                                  && (projectRequest.ProjectId == null || projectRequest.ProjectId == item.ProjectId) 
                                                  && (itemRequest.ItemId == null || itemRequest.ItemId == item.ItemId));
 
