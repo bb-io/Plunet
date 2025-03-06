@@ -39,23 +39,68 @@ public class RequestHooks(InvocationContext invocationContext) : PlunetWebhookLi
     public Task<WebhookResponse<RequestResponse>> RequestDeleted(WebhookRequest webhookRequest,
         [WebhookParameter] CustomerIdFilter customerIdFilter)
         => HandleWebhook(webhookRequest, request =>
-               customerIdFilter == null || customerIdFilter.CustomerId == request.CustomerId);
+            customerIdFilter == null || customerIdFilter.CustomerId == request.CustomerId);
 
     [Webhook("On request created", typeof(RequestCreatedEventHandler),
         Description = "Triggered when a request is created")]
     public Task<WebhookResponse<RequestResponse>> RequestCreated(WebhookRequest webhookRequest,
         [WebhookParameter] CustomerIdFilter customerIdFilter)
         => HandleWebhook(webhookRequest, request =>
-               customerIdFilter == null || customerIdFilter.CustomerId == request.CustomerId);
+            customerIdFilter == null || customerIdFilter.CustomerId == request.CustomerId);
 
 
     [Webhook("On request status changed", typeof(RequestChangedEventHandler),
         Description = "Triggered when a request status is changed")]
     public Task<WebhookResponse<RequestResponse>> RequestChanged(WebhookRequest webhookRequest,
-        [WebhookParameter][Display("New status")][StaticDataSource(typeof(RequestStatusDataHandler))] string? newStatus,
+        [WebhookParameter] [Display("New status")] [StaticDataSource(typeof(RequestStatusDataHandler))]
+        string? newStatus,
         [WebhookParameter] GetRequestOptionalRequest optonalRequest,
-        [WebhookParameter] CustomerIdFilter customerIdFilter)
-        => HandleWebhook(webhookRequest, request => (newStatus == null || newStatus == request.Status) &&
-                                                    (optonalRequest.RequestId == null || optonalRequest.RequestId == request.RequestId) &&
-                                                    (customerIdFilter == null || customerIdFilter.CustomerId == request.CustomerId));
+        [WebhookParameter] CustomerIdFilter customerIdFilter,
+        [WebhookParameter] CustomerEntryTypeOptionalRequest customerEntryTypeOptionalRequest)
+        => HandleWebhook(webhookRequest, request =>
+        {
+            if (newStatus != null && newStatus != request.Status)
+            {
+                return false;
+            }
+
+            if (optonalRequest.RequestId != null && optonalRequest.RequestId != request.RequestId)
+            {
+                return false;
+            }
+
+            if (customerIdFilter.CustomerId != null && customerIdFilter.CustomerId != request.CustomerId)
+            {
+                return false;
+            }
+
+            if (customerEntryTypeOptionalRequest.CustomerEntryType != null)
+            {
+                var searchTask = ExecuteWithRetryAcceptNull(() => RequestClient.searchAsync(Uuid, new()
+                {
+                    sourceLanguage = string.Empty,
+                    targetLanguage = string.Empty,
+                    requestStatus = ParseId(request.Status),
+                    timeFrame = default,
+                    SelectionEntry_Customer = new()
+                    {
+                        mainID = ParseId(request.CustomerId),
+                        customerEntryType = ParseId(customerEntryTypeOptionalRequest.CustomerEntryType)
+                    }
+                }));
+
+                var requestIds = searchTask.Result;
+                if (requestIds is null)
+                {
+                    return false;
+                }
+
+                if (requestIds.All(x => x?.ToString() != request.RequestId))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        });
 }
