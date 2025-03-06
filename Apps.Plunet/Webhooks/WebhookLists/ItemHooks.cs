@@ -13,12 +13,13 @@ using Blackbird.Applications.Sdk.Common.Webhooks;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using System.Xml.Linq;
 using Apps.Plunet.Models;
+using Apps.Plunet.Webhooks.Models.Parameters;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
 [WebhookList]
-public class ItemHooks : PlunetWebhookList<ItemResponse>
+public class ItemHooks(InvocationContext invocationContext) : PlunetWebhookList<ItemResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackItem30";
     protected override string TriggerResponse => SoapResponses.OtherOk;
@@ -26,12 +27,7 @@ public class ItemHooks : PlunetWebhookList<ItemResponse>
 
     private const string XmlIdTagName = "ItemID";
 
-    private ItemActions Actions { get; set; }
-
-    public ItemHooks(InvocationContext invocationContext) : base(invocationContext)
-    {
-        Actions = new ItemActions(invocationContext);
-    }
+    private ItemActions Actions { get; set; } = new(invocationContext);
 
     // NOTE: Currently only works for order items.
     protected override async Task<ItemResponse> GetEntity(XDocument doc)
@@ -53,8 +49,11 @@ public class ItemHooks : PlunetWebhookList<ItemResponse>
     public Task<WebhookResponse<ItemResponse>> ItemStatusChanged(WebhookRequest webhookRequest, 
         [WebhookParameter][Display("New status")][StaticDataSource(typeof(ItemStatusDataHandler))] string? newStatus,
         [WebhookParameter] GetProjectOptionalRequest projectRequest,
-        [WebhookParameter] GetItemOptionalRequest itemRequest)
+        [WebhookParameter] GetItemOptionalRequest itemRequest, 
+        [WebhookParameter] AdditionalFiltersRequests additionalFiltersRequests)
         => HandleWebhook(webhookRequest, item => (newStatus == null || newStatus == item.Status) 
+                                                 && (additionalFiltersRequests.DescriptionContains == null || item.BriefDescription
+                                                     .Contains(additionalFiltersRequests.DescriptionContains, StringComparison.OrdinalIgnoreCase))
                                                  && (projectRequest.ProjectId == null || projectRequest.ProjectId == item.ProjectId) 
                                                  && (itemRequest.ItemId == null || itemRequest.ItemId == item.ItemId));
 

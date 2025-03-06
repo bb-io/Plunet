@@ -20,13 +20,15 @@ public class SearchRequestsInput : SearchInputBase
     [StaticDataSource(typeof(RequestStatusDataHandler))]
     public string? RequestStatus { get; set; }
 
-    [Display("Date from")] public DateTime? DateFrom { get; set; }
+    [Display("Date from")] 
+    public DateTime? DateFrom { get; set; }
 
-    [Display("Date to")] public DateTime? DateTo { get; set; }
+    [Display("Date to")] 
+    public DateTime? DateTo { get; set; }
 
-    [Display("Customer entry type")]
-    [StaticDataSource(typeof(CustomerEntryTypeDataHandler))]
+    [Display("Customer entry type"), StaticDataSource(typeof(CustomerEntryTypeDataHandler))]
     public string? CustomerEntryType { get; set; }
 
-    [Display("Customer ID")] public string? MainId { get; set; }
+    [Display("Customer ID")] 
+    public string? MainId { get; set; }
 }

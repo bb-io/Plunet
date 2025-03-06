@@ -43,9 +43,10 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
                 : default
         }));
 
-
         if (result is null)
+        {
             return new();
+        }
 
         var results = new List<RequestResponse>();
         foreach (var id in result.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit).Select(x => x.Value))
@@ -70,10 +71,10 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
         var request = await ExecuteWithRetry(() => RequestClient.getRequestObjectAsync(Uuid, ParseId(requestId)));
         var customerId = await ExecuteWithRetry(() => RequestClient.getCustomerIDAsync(Uuid, request.requestID));
         var requestNumber = await ExecuteWithRetry(() => RequestClient.getRequestNo_for_ViewAsync(Uuid, request.requestID));
-              
+        
         var customerContactId = await ExecuteWithRetry(() => RequestClient.getCustomerContactIDAsync(Uuid, request.requestID));
         var customerRefNo = await ExecuteWithRetry(() => RequestClient.getCustomerRefNoAsync(Uuid, request.requestID));
-
+        
         return new RequestResponse(
         request,
         customerId.ToString(),

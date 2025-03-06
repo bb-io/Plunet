@@ -3,7 +3,6 @@ using System.Net.Mime;
 using System.Xml.Linq;
 using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
-using Apps.Plunet.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
