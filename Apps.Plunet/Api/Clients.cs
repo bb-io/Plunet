@@ -1,6 +1,7 @@
 ﻿using System.ServiceModel;
 using System.ServiceModel.Channels;
 using Apps.Plunet.DataOutgoingInvoice30Service;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
@@ -46,27 +47,38 @@ public static class Clients
     {
         if (url.StartsWith("https://"))
         {
-            var endpointAddress = url.TrimEnd('/') + "/" + endpointSuffix;
-
-            var endpointConfigurationType = typeof(TClient).GetNestedType("EndpointConfiguration");
-
-            if (endpointConfigurationType != null)
+            try
             {
-                string enumName = endpointSuffix + "Port";
+                var endpointAddress = url.TrimEnd('/') + "/" + endpointSuffix;
 
-                var endpointConfigValue = Enum.Parse(endpointConfigurationType, enumName);
-                var constructor = typeof(TClient).GetConstructor(new Type[] { endpointConfigurationType, typeof(string) });
+                var endpointConfigurationType = typeof(TClient).GetNestedType("EndpointConfiguration");
 
-                if (constructor != null)
+                if (endpointConfigurationType != null)
                 {
-                    var client = (TClient)constructor.Invoke(new object[] { endpointConfigValue, endpointAddress });
-                    return client;
+                    string enumName = endpointSuffix + "Port";
+
+                    var endpointConfigValue = Enum.Parse(endpointConfigurationType, enumName);
+                    var constructor = typeof(TClient).GetConstructor(new Type[] { endpointConfigurationType, typeof(string) });
+
+                    if (constructor != null)
+                    {
+                        var client = (TClient)constructor.Invoke(new object[] { endpointConfigValue, endpointAddress });
+                        return client;
+                    }
+
+                    throw new InvalidOperationException($"Cannot find constructor with (EndpointConfiguration, string) in {typeof(TClient).Name}");
                 }
 
-                throw new InvalidOperationException($"Cannot find constructor with (EndpointConfiguration, string) in {typeof(TClient).Name}");
+                throw new InvalidOperationException($"Cannot find EndpointConfiguration enum in {typeof(TClient).Name}");
             }
-
-            throw new InvalidOperationException($"Cannot find EndpointConfiguration enum in {typeof(TClient).Name}");
+            catch (Exception ex)
+            {
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("SSL"))
+                {
+                    throw new PluginApplicationException($"Error establishing SSL connection: {ex.InnerException.Message}. Please try again");
+                }
+                throw;
+            }
         }
         else
         {

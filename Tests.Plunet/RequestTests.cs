@@ -17,7 +17,10 @@ namespace Tests.Plunet
         { 
             var action= new RequestActions(InvocationContext);
             var result = await action.GetRequest("8");
-            Console.WriteLine(result.CustomerId);
+            Console.WriteLine($"Customer Id: " + result.CustomerId);
+            Console.WriteLine($"Request number: " + result.RequestNumber);
+            Console.WriteLine($"Customer contact id: " + result.CustomerContactId);
+            Console.WriteLine($"Customer ref: "+result.CustomerRefNo);
             Assert.IsNotNull(result);
         }
 
@@ -29,6 +32,23 @@ namespace Tests.Plunet
             var result = await action.CreateRequest(input);
             Console.WriteLine(result.RequestId);
             Assert.IsNotNull(result);
+        }
+
+        [TestMethod]
+        public async Task SearchRequest_ReturnValue()
+        {
+            var action = new RequestActions(InvocationContext);
+            var input = new SearchRequestsInput { };
+            var result = await action.SearchRequests(input);
+
+            foreach (var item in result.Items)
+            {
+                Console.WriteLine($"Request Id: " + item.RequestId);
+                Console.WriteLine($"Request number: " + item.RequestNumber);
+                Console.WriteLine($"Customer contact id: " + item.CustomerContactId);
+                Console.WriteLine($"Customer ref: " + item.CustomerRefNo);
+                Assert.IsNotNull(item);
+            }
         }
     }
 }
