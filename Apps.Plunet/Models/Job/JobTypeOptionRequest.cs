@@ -7,7 +7,7 @@ namespace Apps.Plunet.Models.Job
     public class JobTypeOptionRequest
     {
         [Display("Job type")]
-        [DataSource(typeof(JobTypeDataHandler))]
+        [DataSource(typeof(JobTypeOptionDataHandler))]
         public string? JobType { get; set; }
     }
 }
