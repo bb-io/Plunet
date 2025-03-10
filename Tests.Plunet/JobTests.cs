@@ -30,4 +30,23 @@ public class JobTests : TestBase
         var assignResult = await actions.AssignResourceToJob(new AssignResourceRequest { ResourceId = "1", JobId = result.JobId, ProjectType = "3" });
         Assert.IsNotNull(assignResult.ResourceId = "1");
     }
+
+    [TestMethod]
+    public async Task Get_Item_Jobs_IsSuccess()
+    {
+        var actions = new JobActions(InvocationContext);
+
+        var result = await actions.GetItemJobs
+            (new ProjectTypeRequest { ProjectType = "3" }, 
+            new GetItemRequest { ItemId= "230437" },
+            new OptionalJobStatusRequest { }, 
+            new JobTypeOptionRequest { JobType = "BeLazy memoQ Export" });
+
+        foreach (var job in result.Jobs)
+        {
+            Console.WriteLine(job.JobType);
+            Assert.IsNotNull(result);
+        }
+       
+    }
 }

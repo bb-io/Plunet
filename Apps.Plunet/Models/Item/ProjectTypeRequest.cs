@@ -7,7 +7,7 @@ namespace Apps.Plunet.Models.Item
 {
     public class ProjectTypeRequest
     {
-        [Display("Type")]
+        [Display("Project type")]
         [StaticDataSource(typeof(ItemProjectTypeDataHandler))]
         public string ProjectType { get; set; }
     }

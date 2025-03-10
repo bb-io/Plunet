@@ -18,7 +18,8 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
 {
     [Action("Get item jobs", Description = "Get all jobs related to a Plunet item")]
     public async Task<ItemJobsResponse> GetItemJobs([ActionParameter] ProjectTypeRequest project,
-        [ActionParameter] GetItemRequest request, [ActionParameter] OptionalJobStatusRequest status)
+        [ActionParameter] GetItemRequest request, [ActionParameter] OptionalJobStatusRequest status,
+        [ActionParameter] JobTypeOptionRequest? jobType)
     {
         var result = status.Status == null
             ? await ExecuteWithRetry(() => ItemClient.getJobsAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)))
@@ -32,6 +33,11 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             jobs.Add(job);
         }
 
+        if (!string.IsNullOrWhiteSpace(jobType?.JobType))
+        {
+            jobs = jobs.Where(j => j.JobType == jobType.JobType).ToList();
+        }
+
         return new ItemJobsResponse
         {
             Jobs = jobs
@@ -43,7 +49,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         [ActionParameter] GetItemRequest request, [ActionParameter] OptionalJobStatusRequest status,
         [ActionParameter] FindJobByTextModule textModuleRequest)
     {
-        var itemJobsResponse = await GetItemJobs(project, request, status);
+        var itemJobsResponse = await GetItemJobs(project, request, status,null);
 
         if (textModuleRequest.Flag is not null)
         {
