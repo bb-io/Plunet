@@ -27,7 +27,7 @@ namespace Apps.Plunet.DataSourceHandlers
             return response.data
                 .Where(service => context.SearchString == null ||
                                    service.name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-                .ToDictionary(x =>x.name, x => x.abbreviation.ToString());
+                .ToDictionary(x =>x.name, x => x.name);
         }
     }
 }
