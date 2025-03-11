@@ -42,7 +42,7 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
         {
             Content = new StringContent(TriggerResponse)
         };
-        
+
         httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Soap);
 
         var entity = await GetEntity(doc);
@@ -76,7 +76,7 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
             StatusCode = response.StatusCode
         };
         
-        response.Headers?.Where(x => x.Name != null && !x.Name.Contains("Transfer")).ToList().ForEach(headerParameter =>
+        response.Headers?.Where(x => !x.Name.Contains("Transfer")).ToList().ForEach(headerParameter =>
         {
             httpResponseMessage.Headers.Add(headerParameter.Name ?? string.Empty, headerParameter.Value?.ToString());
         });
