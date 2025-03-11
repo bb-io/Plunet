@@ -36,8 +36,6 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
     private async Task<WebhookResponse<T>> GenerateTriggerResponse(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
     {
         var doc = XDocument.Parse(webhookRequest.Body.ToString() ?? string.Empty);
-        InvocationContext.Logger?.LogInformation($"[Plunet] Received webhook request: {TriggerResponse} with body: {webhookRequest.Body}", [""]);
-
         var httpResponseMessage = new HttpResponseMessage()
         {
             Content = new StringContent(TriggerResponse)
@@ -46,8 +44,6 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
         httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Soap);
 
         var entity = await GetEntity(doc);
-        InvocationContext.Logger?.LogInformation($"[Plunet] Entity successfully found", [""]);
-
         return new()
         {
             HttpResponseMessage = httpResponseMessage,
@@ -59,7 +55,6 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
     private async Task<WebhookResponse<T>> GeneratePreflightResponse(WebhookRequest webhookRequest)
     {
         var webhookUrl = webhookRequest.Headers.GetValueOrDefault("webhookUrl");
-        InvocationContext.Logger?.LogInformation($"[Plunet] Received preflight request with webhookUrl: {webhookUrl}", [""]);
 
         using var client = new RestClient();
         var request = new RestRequest($"{WsdlServiceUrl}?wsdl");
@@ -76,14 +71,12 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
             StatusCode = response.StatusCode
         };
         
-        response.Headers?.Where(x => !x.Name.Contains("Transfer")).ToList().ForEach(headerParameter =>
+        response.Headers?.Where(x => x.Name != null && !x.Name.Contains("Transfer")).ToList().ForEach(headerParameter =>
         {
             httpResponseMessage.Headers.Add(headerParameter.Name ?? string.Empty, headerParameter.Value?.ToString());
         });
 
         httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Xml);
-
-        InvocationContext.Logger?.LogInformation($"[Plunet] Preflight response successfully generated with the next body: {content}", [""]);
 
         return new()
         {

@@ -55,8 +55,6 @@ public class RequestHooks(InvocationContext invocationContext) : PlunetWebhookLi
         [WebhookParameter] CustomerEntryTypeOptionalRequest customerEntryTypeOptionalRequest)
         => HandleWebhook(webhookRequest, request =>
         {
-            InvocationContext.Logger?.LogInformation($"[Plunet] Checking request ({request.RequestId}) status change", [""]);
-
             if (newStatus != null && newStatus != request.Status)
             {
                 return false;
@@ -99,7 +97,6 @@ public class RequestHooks(InvocationContext invocationContext) : PlunetWebhookLi
                 }
             }
 
-            InvocationContext.Logger?.LogInformation($"[Plunet] Request ({request.RequestId}) status changed", [""]);
             return true;
         });
 }
