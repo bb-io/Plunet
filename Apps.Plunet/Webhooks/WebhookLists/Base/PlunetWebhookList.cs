@@ -42,6 +42,7 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
         {
             Content = new StringContent(TriggerResponse)
         };
+        
         httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Soap);
 
         var entity = await GetEntity(doc);
