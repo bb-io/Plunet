@@ -31,9 +31,21 @@ public class ItemHooks(InvocationContext invocationContext) : PlunetWebhookList<
 
     protected override async Task<ItemResponse> GetEntity(XDocument doc)
     {
-        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value!;
-        var projectType = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlProjectTypeTagName)?.Value!;
-        return await Actions.GetItem(new ProjectTypeRequest { ProjectType = projectType }, new GetItemRequest { ItemId = id }, new OptionalCurrencyTypeRequest { });
+        try
+        {
+            var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value!;
+            var projectType = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlProjectTypeTagName)?.Value!;
+            return await Actions.GetItem(new ProjectTypeRequest { ProjectType = projectType }, new GetItemRequest { ItemId = id }, new OptionalCurrencyTypeRequest { });
+        }
+        catch (Exception ex)
+        {
+            var errorMessage = "[Plunet webhook] Got an error while getting the item entity. " 
+                + $"Request body: {doc.Document?.ToString(SaveOptions.DisableFormatting)}"
+                + $"Exception message: {ex.Message}";
+
+            InvocationContext.Logger?.LogError(errorMessage, [ex.Message]);
+            throw;
+        }
     }
 
     [Webhook("On item deleted", typeof(ItemDeleteEventHandler), Description = "Triggered when an item is deleted")]

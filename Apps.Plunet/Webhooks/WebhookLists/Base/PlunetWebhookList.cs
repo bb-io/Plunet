@@ -19,10 +19,26 @@ public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) 
 
     private string WsdlServiceUrl => $"{Creds.GetUrl()}/{ServiceName}";
 
-    protected Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
-        => webhookRequest.HttpMethod == HttpMethod.Get
-            ? GeneratePreflightResponse(webhookRequest)
-            : GenerateTriggerResponse(webhookRequest, preflightComparisonCheck);
+    protected async Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
+    {
+        try 
+        {
+            return webhookRequest.HttpMethod == HttpMethod.Get 
+                ? await GeneratePreflightResponse(webhookRequest)
+                : await GenerateTriggerResponse(webhookRequest, preflightComparisonCheck);
+        }
+        catch (Exception ex)
+        {
+            var errorMessage = "[Plunet webhook] Got an error while processing the webhook request. " 
+                + $"Request method: {webhookRequest.HttpMethod?.Method}"
+                + $"Request body: {webhookRequest.Body}"
+                + $"Service: {ServiceName}"
+                + $"Exception message: {ex.Message}";
+
+            InvocationContext.Logger?.LogError(errorMessage, [ex.Message]);
+            throw;
+        }
+    }
 
     private async Task<WebhookResponse<T>> GenerateTriggerResponse(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
     {
@@ -53,6 +69,8 @@ public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) 
         var response = await client.ExecuteAsync(request);
         if (!response.IsSuccessStatusCode)
         {
+            InvocationContext.Logger?.LogError($"[Plunet webhook] Got an error while fetching the WSDL service ({WsdlServiceUrl}). Service: {ServiceName}; Response status code: {response.StatusCode}", [WsdlServiceUrl]);
+
             return new()
             {
                 HttpResponseMessage = new HttpResponseMessage()
