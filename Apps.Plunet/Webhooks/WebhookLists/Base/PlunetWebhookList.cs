@@ -1,17 +1,15 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Xml.Linq;
-using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
-using Blackbird.Applications.Sdk.Common.Authentication;
+using Apps.Plunet.Utils;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
-using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
 using RestSharp;
 
 namespace Apps.Plunet.Webhooks.WebhookLists.Base;
 
-public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
+public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) : PlunetInvocable(invocationContext) where T : class
 {
     protected abstract string ServiceName { get; }
 
@@ -19,14 +17,7 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
 
     protected abstract Task<T> GetEntity(XDocument doc);
 
-    private string WsdlServiceUrl => $"{Creds.Get(CredsNames.UrlNameKey).Value}/{ServiceName}";
-
-    private IEnumerable<AuthenticationCredentialsProvider> Creds =>
-        InvocationContext.AuthenticationCredentialsProviders;
-
-    protected PlunetWebhookList(InvocationContext invocationContext) : base(invocationContext)
-    {
-    }
+    private string WsdlServiceUrl => $"{Creds.GetUrl()}/{ServiceName}";
 
     protected Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
         => webhookRequest.HttpMethod == HttpMethod.Get
@@ -60,9 +51,19 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
         var request = new RestRequest($"{WsdlServiceUrl}?wsdl");
 
         var response = await client.ExecuteAsync(request);
-
         if (!response.IsSuccessStatusCode)
-            return new();
+        {
+            return new()
+            {
+                HttpResponseMessage = new HttpResponseMessage()
+                {
+                    Content = new StringContent(response.Content ?? string.Empty),
+                    StatusCode = System.Net.HttpStatusCode.OK
+                },
+                Result = null,
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
+        }
 
         var content = response.Content?.Replace(WsdlServiceUrl, webhookUrl) ?? string.Empty;
         var httpResponseMessage = new HttpResponseMessage()
@@ -70,7 +71,7 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
             Content = new StringContent(content),
             StatusCode = response.StatusCode
         };
-        
+
         response.Headers?.Where(x => x.Name != null && !x.Name.Contains("Transfer")).ToList().ForEach(headerParameter =>
         {
             httpResponseMessage.Headers.Add(headerParameter.Name ?? string.Empty, headerParameter.Value?.ToString());

@@ -21,19 +21,19 @@ namespace Apps.Plunet.Webhooks.WebhookLists;
 [WebhookList]
 public class ItemHooks(InvocationContext invocationContext) : PlunetWebhookList<ItemResponse>(invocationContext)
 {
+    private const string XmlIdTagName = "ItemID";
+    private const string XmlProjectTypeTagName = "ProjectType";
+    
     protected override string ServiceName => "CallbackItem30";
     protected override string TriggerResponse => SoapResponses.ItemCallbackOk;
 
-
-    private const string XmlIdTagName = "ItemID";
-
     private ItemActions Actions { get; set; } = new(invocationContext);
 
-    // NOTE: Currently only works for order items.
     protected override async Task<ItemResponse> GetEntity(XDocument doc)
     {
-        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value;
-        return await Actions.GetItem(new ProjectTypeRequest { ProjectType = "3" }, new GetItemRequest { ItemId = id }, new OptionalCurrencyTypeRequest { });
+        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value!;
+        var projectType = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlProjectTypeTagName)?.Value!;
+        return await Actions.GetItem(new ProjectTypeRequest { ProjectType = projectType }, new GetItemRequest { ItemId = id }, new OptionalCurrencyTypeRequest { });
     }
 
     [Webhook("On item deleted", typeof(ItemDeleteEventHandler), Description = "Triggered when an item is deleted")]

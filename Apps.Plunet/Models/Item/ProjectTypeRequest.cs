@@ -1,14 +1,11 @@
 ﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
-using Blackbird.Applications.Sdk.Common.Dynamic;
 
-namespace Apps.Plunet.Models.Item
+namespace Apps.Plunet.Models.Item;
+
+public class ProjectTypeRequest
 {
-    public class ProjectTypeRequest
-    {
-        [Display("Project type")]
-        [StaticDataSource(typeof(ItemProjectTypeDataHandler))]
-        public string ProjectType { get; set; }
-    }
+    [Display("Project type"), StaticDataSource(typeof(ItemProjectTypeDataHandler))]
+    public string ProjectType { get; set; } = string.Empty;
 }
