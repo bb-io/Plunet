@@ -22,7 +22,7 @@ namespace Apps.Plunet.Webhooks.WebhookLists;
 public class ItemHooks(InvocationContext invocationContext) : PlunetWebhookList<ItemResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackItem30";
-    protected override string TriggerResponse => SoapResponses.OtherOk;
+    protected override string TriggerResponse => SoapResponses.ItemCallbackOk;
 
 
     private const string XmlIdTagName = "ItemID";
