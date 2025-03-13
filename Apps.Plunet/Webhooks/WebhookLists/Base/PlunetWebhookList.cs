@@ -33,6 +33,7 @@ public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) 
                 + $"Request method: {webhookRequest.HttpMethod?.Method}"
                 + $"Request body: {webhookRequest.Body}"
                 + $"Service: {ServiceName}"
+                + $"Wsdl service url: {WsdlServiceUrl}"
                 + $"Exception message: {ex.Message}";
 
             InvocationContext.Logger?.LogError(errorMessage, [ex.Message]);
