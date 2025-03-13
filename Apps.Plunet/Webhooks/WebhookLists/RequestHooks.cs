@@ -1,13 +1,10 @@
 ﻿using Apps.Plunet.Actions;
 using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
-using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.Request.Response;
 using Apps.Plunet.Webhooks.Handlers.Impl.Requests;
-using Apps.Plunet.Webhooks.Models;
 using Apps.Plunet.Webhooks.WebhookLists.Base;
 using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
@@ -22,7 +19,6 @@ public class RequestHooks(InvocationContext invocationContext) : PlunetWebhookLi
 {
     protected override string ServiceName => "CallbackRequest30";
     protected override string TriggerResponse => SoapResponses.OtherOk;
-
 
     private const string XmlIdTagName = "RequestID";
 

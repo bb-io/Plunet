@@ -26,12 +26,12 @@ public class ApiKeyConnectionDefinition : IConnectionDefinition
     public IEnumerable<AuthenticationCredentialsProvider> CreateAuthorizationCredentialsProviders(
         Dictionary<string, string> values)
     {
-        return new AuthenticationCredentialsProvider[]
-        {
+        return
+        [
             new(CredsNames.UrlNameKey, values[CredsNames.UrlNameKey].TrimEnd('/')),
             new(CredsNames.UserNameKey, values[CredsNames.UserNameKey]),
             new(CredsNames.PasswordKey, values[CredsNames.PasswordKey]),
-        };
+        ];
     }
 
     public IEnumerable<ConnectionPropertyGroup> ConnectionPropertyGroups => new List<ConnectionPropertyGroup>

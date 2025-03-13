@@ -1,17 +1,15 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Xml.Linq;
-using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
-using Blackbird.Applications.Sdk.Common.Authentication;
+using Apps.Plunet.Utils;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
-using Blackbird.Applications.Sdk.Utils.Extensions.Sdk;
 using RestSharp;
 
 namespace Apps.Plunet.Webhooks.WebhookLists.Base;
 
-public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
+public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) : PlunetInvocable(invocationContext) where T : class
 {
     protected abstract string ServiceName { get; }
 
@@ -19,32 +17,41 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
 
     protected abstract Task<T> GetEntity(XDocument doc);
 
-    private string WsdlServiceUrl => $"{Creds.Get(CredsNames.UrlNameKey).Value}/{ServiceName}";
+    private string WsdlServiceUrl => $"{Creds.GetUrl()}/{ServiceName}";
 
-    private IEnumerable<AuthenticationCredentialsProvider> Creds =>
-        InvocationContext.AuthenticationCredentialsProviders;
-
-    protected PlunetWebhookList(InvocationContext invocationContext) : base(invocationContext)
+    protected async Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
     {
-    }
+        try 
+        {
+            return webhookRequest.HttpMethod == HttpMethod.Get 
+                ? await GeneratePreflightResponse(webhookRequest)
+                : await GenerateTriggerResponse(webhookRequest, preflightComparisonCheck);
+        }
+        catch (Exception ex)
+        {
+            var errorMessage = "[Plunet webhook] Got an error while processing the webhook request. " 
+                + $"Request method: {webhookRequest.HttpMethod?.Method}"
+                + $"Request body: {webhookRequest.Body}"
+                + $"Service: {ServiceName}"
+                + $"Wsdl service url: {WsdlServiceUrl}"
+                + $"Exception message: {ex.Message}";
 
-    protected Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
-        => webhookRequest.HttpMethod == HttpMethod.Get
-            ? GeneratePreflightResponse(webhookRequest)
-            : GenerateTriggerResponse(webhookRequest, preflightComparisonCheck);
+            InvocationContext.Logger?.LogError(errorMessage, [ex.Message]);
+            throw;
+        }
+    }
 
     private async Task<WebhookResponse<T>> GenerateTriggerResponse(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
     {
         var doc = XDocument.Parse(webhookRequest.Body.ToString() ?? string.Empty);
-
         var httpResponseMessage = new HttpResponseMessage()
         {
             Content = new StringContent(TriggerResponse)
         };
+
         httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Soap);
 
         var entity = await GetEntity(doc);
-
         return new()
         {
             HttpResponseMessage = httpResponseMessage,
@@ -61,9 +68,21 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
         var request = new RestRequest($"{WsdlServiceUrl}?wsdl");
 
         var response = await client.ExecuteAsync(request);
-
         if (!response.IsSuccessStatusCode)
-            return new();
+        {
+            InvocationContext.Logger?.LogError($"[Plunet webhook] Got an error while fetching the WSDL service ({WsdlServiceUrl}). Service: {ServiceName}; Response status code: {response.StatusCode}", [WsdlServiceUrl]);
+
+            return new()
+            {
+                HttpResponseMessage = new HttpResponseMessage()
+                {
+                    Content = new StringContent(response.Content ?? string.Empty),
+                    StatusCode = System.Net.HttpStatusCode.OK
+                },
+                Result = null,
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
+        }
 
         var content = response.Content?.Replace(WsdlServiceUrl, webhookUrl) ?? string.Empty;
         var httpResponseMessage = new HttpResponseMessage()
@@ -71,7 +90,8 @@ public abstract class PlunetWebhookList<T> : PlunetInvocable where T : class
             Content = new StringContent(content),
             StatusCode = response.StatusCode
         };
-        response.Headers?.Where(x => !x.Name.Contains("Transfer")).ToList().ForEach(headerParameter =>
+
+        response.Headers?.Where(x => x.Name != null && !x.Name.Contains("Transfer")).ToList().ForEach(headerParameter =>
         {
             httpResponseMessage.Headers.Add(headerParameter.Name ?? string.Empty, headerParameter.Value?.ToString());
         });
