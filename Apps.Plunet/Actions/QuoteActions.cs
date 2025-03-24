@@ -248,7 +248,7 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
 
     [Action("Add language combination to quote", Description = "Add a new language combination to an existing quote")]
     public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToQuote(
-        [ActionParameter] GetQuoteRequest quote, LanguageCombinationRequest request)
+        [ActionParameter] GetQuoteRequest quote, [ActionParameter] LanguageCombinationRequest request)
     {
         var sourceLanguage = await GetLanguageFromIsoOrFolderOrName(request.SourceLanguageCode);
         var targetLanguage = await GetLanguageFromIsoOrFolderOrName(request.TargetLanguageCode);
