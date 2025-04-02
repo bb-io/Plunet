@@ -21,7 +21,7 @@ namespace Apps.Plunet.DataSourceHandlers
             if (string.IsNullOrWhiteSpace(request.Service))
                 throw new("Please fill in the service first");
 
-            var response = await ItemClient.getPriceUnit_ListAsync(Uuid, Language, request.Service);
+            var response = await AdminClient.getAvailablePriceUnitsAsync(Uuid, Language, request.Service);
 
             if (response.statusMessage != ApiResponses.Ok)
                 throw new(response.statusMessage);
