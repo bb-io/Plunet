@@ -10,6 +10,7 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using Blackbird.Plugins.Plunet.DataItem30Service;
+using Blackbird.Plugins.Plunet.DataRequest30Service;
 using System;
 using PriceUnit = Blackbird.Plugins.Plunet.DataItem30Service.PriceUnit;
 
@@ -328,6 +329,18 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
             await ExecuteWithRetry(() => ItemClient.setLanguageCombinationIDAsync(Uuid, languageCombinationCode, projectType, itemId));
         }
+    }
+
+    [Action("Find price unit", Description = "Get price unit ID given a Service and rice unit description")]
+    public async Task<ItemPriceUnitResponse> FindPriceUnit([ActionParameter] string Service, [ActionParameter][Display("Price unit description")] string Description)
+    {
+        var response = await AdminClient.getAvailablePriceUnitsAsync(Uuid, Language, Service);
+
+        var priceUnit = response.data.FirstOrDefault(x => x.description == Description);
+
+        return priceUnit == null ? new ItemPriceUnitResponse() : 
+            new ItemPriceUnitResponse {Id = priceUnit.priceUnitID.ToString(), Description = Description};
+
     }
 
     // Pricelist

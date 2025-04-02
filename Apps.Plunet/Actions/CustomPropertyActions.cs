@@ -11,7 +11,7 @@ namespace Apps.Plunet.Actions
     public class CustomPropertyActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
     {
         [Action("Get property", Description = "Get the selected value from any entity")]
-        public async Task<string?> GetProperty([ActionParameter] PropertyRequest input)
+        public async Task<GetPropertyResponse> GetProperty([ActionParameter] PropertyRequest input)
         {
             var response = await ExecuteWithRetryAcceptNull(() => CustomFieldsClient.getPropertyAsync(Uuid, input.Name, ParseId(input.UsageArea), ParseId(input.MainId)));
 
@@ -20,10 +20,10 @@ namespace Apps.Plunet.Actions
             {
                 var result = await ExecuteWithRetryAcceptNull(() => CustomFieldsClient.getPropertyValueTextAsync(Uuid, input.Name, (int)selectedValue, Language));
                 
-                return result;
+                return new GetPropertyResponse { Id = (int)selectedValue, Value = result};
             }
 
-            return string.Empty;
+            return new GetPropertyResponse();
         }
 
         [Action("Set property", Description = "Set the selected proeprty values for any entity")]

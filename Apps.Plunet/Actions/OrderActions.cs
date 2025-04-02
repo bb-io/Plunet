@@ -222,6 +222,11 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         var sourceLanguage = await GetLanguageFromIsoOrFolderOrName(request.SourceLanguageCode);
         var targetLanguage = await GetLanguageFromIsoOrFolderOrName(request.TargetLanguageCode);
 
+        var languageCombinations = await ExecuteWithRetry(() => OrderClient.getLanguageCombinationAsync(Uuid, ParseId(order.OrderId)));
+        var orderLanguageCombinations = await ParseLanguageCombinations(languageCombinations);
+        if (orderLanguageCombinations.Any(x => x.Source == sourceLanguage.folderName && x.Target == targetLanguage.folderName))
+            { return null; }
+
         var result = await ExecuteWithRetry(() => OrderClient.addLanguageCombinationAsync(Uuid, sourceLanguage.name, targetLanguage.name, ParseId(order.OrderId)));
 
         return new()

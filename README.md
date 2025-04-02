@@ -78,6 +78,7 @@ If you are unable to connect, please check the following:
 - **Create item priceline** Creates a new priceline entry for this item
 - **Delete item priceline** Deletes a priceline from an item
 - **Update item priceline** Updates a priceline on an item
+- **Find price unit** Given a service and a price unit description, the first matching price unit item is returned
 
 Note that when creating/updating items, the source and target languages can be set (they must either both be provided or not). Blackbird will assign the correct existing language combination to the item or, if the language combination doesn't exist, the language combination will be created first on the order or quote.
 
