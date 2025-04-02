@@ -339,7 +339,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         var priceUnit = response.data.FirstOrDefault(x => x.description == Description);
 
         return priceUnit == null ? new ItemPriceUnitResponse() : 
-            new ItemPriceUnitResponse {Id = priceUnit.priceUnitID.ToString(), Description = Description  };
+            new ItemPriceUnitResponse {Id = priceUnit.priceUnitID.ToString(), Description = Description};
 
     }
 
