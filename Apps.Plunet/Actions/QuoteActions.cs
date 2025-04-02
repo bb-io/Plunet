@@ -8,13 +8,8 @@ using Apps.Plunet.Models.Quote.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dynamic;
-using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataQuote30Service;
-using IntegerArrayResult = Blackbird.Plugins.Plunet.DataQuote30Service.IntegerArrayResult;
-using IntegerResult = Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult;
-using Result = Blackbird.Plugins.Plunet.DataQuote30Service.Result;
 
 namespace Apps.Plunet.Actions;
 

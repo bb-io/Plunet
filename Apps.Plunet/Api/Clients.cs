@@ -23,6 +23,9 @@ namespace Apps.Plunet.Api;
 
 public static class Clients
 {
+    // 5 minutes timeout in milliseconds
+    private const int ExtendedTimeoutMs = 300000;
+
     public static PlunetAPIClient GetAuthClient(string url) => GetClient<PlunetAPIClient>(url, "PlunetAPI");
 
     public static DataCustomer30Client GetCustomerClient(string url) => GetClient<DataCustomer30Client>(url, "DataCustomer30");
@@ -41,7 +44,6 @@ public static class Clients
     public static DataResourceAddress30Client GetResourceAddressClient(string url) => GetClient<DataResourceAddress30Client>(url, "DataResourceAddress30");
     public static DataCustomerAddress30Client GetCustomerAddressClient(string url) => GetClient<DataCustomerAddress30Client>(url, "DataCustomerAddress30");
     public static DataCustomFields30Client GetCustomFieldsClient(string url) => GetClient<DataCustomFields30Client>(url, "DataCustomFields30");
-
 
     public static TClient GetClient<TClient>(string url, string endpointSuffix) where TClient : class
     {
@@ -63,6 +65,16 @@ public static class Clients
                     if (constructor != null)
                     {
                         var client = (TClient)constructor.Invoke(new object[] { endpointConfigValue, endpointAddress });
+
+                        // Set timeouts on the client
+                        if (client is ClientBase<object> clientBase)
+                        {
+                            clientBase.Endpoint.Binding.SendTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
+                            clientBase.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
+                            clientBase.Endpoint.Binding.OpenTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
+                            clientBase.Endpoint.Binding.CloseTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
+                        }
+
                         return client;
                     }
 
@@ -95,9 +107,20 @@ public static class Clients
                 WriteEncoding = System.Text.Encoding.UTF8
             };
 
-            var httpBindingElement = new HttpTransportBindingElement();
+            var httpBindingElement = new HttpTransportBindingElement
+            {
+                // Common HTTP transport settings
+                AllowCookies = true,
+                MaxBufferSize = int.MaxValue,
+                MaxReceivedMessageSize = int.MaxValue
+            };
 
             var binding = new CustomBinding(textBindingElement, httpBindingElement);
+            // Set timeouts on the main binding as well
+            binding.SendTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
+            binding.ReceiveTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
+            binding.OpenTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
+            binding.CloseTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
 
             var constructor = typeof(TClient).GetConstructor(new Type[] { typeof(Binding), typeof(EndpointAddress) });
             if (constructor != null)
