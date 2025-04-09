@@ -38,14 +38,16 @@ namespace Apps.Plunet.Actions
             var response = await ExecuteWithRetryAcceptNull(() => CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag, ParseId(input.UsageArea), ParseId(input.MainId), Language));
 
             string value = string.Empty;
-            if (string.IsNullOrEmpty(response?.stringValue) && response?.selectedValues is null)
-            {
-            }
-            else if (string.IsNullOrEmpty(response?.stringValue) && response.selectedValues.Any())
+            //if (string.IsNullOrEmpty(response?.stringValue) && response?.selectedValues is null)
+            //{
+
+            //}
+            //else
+            if (string.IsNullOrEmpty(response?.stringValue) && response!.selectedValues!.Any())
             {
                 value = response.selectedValues.First();
             }
-            else
+            else if (!string.IsNullOrEmpty(response?.stringValue))
             {
                 value = response.stringValue;
             }
