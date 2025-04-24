@@ -23,8 +23,8 @@ namespace Apps.Plunet.Api;
 
 public static class Clients
 {
-    // 5 minutes timeout in milliseconds
-    private const int ExtendedTimeoutMs = 300000;
+    // 30 minutes timeout in milliseconds
+    private const int ExtendedTimeoutMs = 1800000;
 
     public static PlunetAPIClient GetAuthClient(string url) => GetClient<PlunetAPIClient>(url, "PlunetAPI");
 
