@@ -51,6 +51,11 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
     public async Task<GetCustomerResponse> GetCustomerById([ActionParameter] CustomerRequest input)
     {
         var customer = await ExecuteWithRetry(() => CustomerClient.getCustomerObjectAsync(Uuid, ParseId(input.CustomerId)));
+        if (customer == null)
+        {
+            throw new PluginApplicationException($"Customer with ID {input.CustomerId} not found. Please check the input and try again");
+        }
+
         var paymentInfo = await ExecuteWithRetry(() => CustomerClient.getPaymentInformationAsync(Uuid, ParseId(input.CustomerId)));
 
         var accountManagerResult = await ExecuteWithRetryAcceptNull(() => CustomerClient.getAccountManagerIDAsync(Uuid, ParseId(input.CustomerId)));

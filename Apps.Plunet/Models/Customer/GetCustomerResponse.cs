@@ -68,24 +68,24 @@ public class GetCustomerResponse
     public GetCustomerResponse(Blackbird.Plugins.Plunet.DataCustomer30Service.Customer customer,
         PaymentInfo paymentInfo, List<GetAddressResponse> addresses, int? accountManagerId = default)
     {
-        AcademicTitle = customer.academicTitle;
-        CostCenter = customer.costCenter;
-        Currency = customer.currency;
+        AcademicTitle = customer.academicTitle ?? "";
+        CostCenter = customer.costCenter ?? "";
+        Currency = customer.currency ?? "";
         CustomerId = customer.customerID.ToString();
-        Email = customer.email;
-        ExternalId = customer.externalID;
-        Fax = customer.fax;
-        FullName = customer.fullName;
-        MobilePhone = customer.mobilePhone;
+        Email = customer.email ?? "";
+        ExternalId = customer.externalID ?? "";
+        Fax = customer.fax ?? "";
+        FullName = customer.fullName ?? "";
+        MobilePhone = customer.mobilePhone ?? "";
         Name1 = customer.name1 ?? "";
         Name2 = customer.name2 ?? "";
-        Phone = customer.phone;
-        SkypeId = customer.skypeID;
+        Phone = customer.phone ?? "";
+        SkypeId = customer.skypeID ?? "";
         Status = customer.status.ToString();
         UserId = customer.userId.ToString();
-        Website = customer.website;
+        Website = customer.website ?? "";
         AccountManagerId = accountManagerId == 0 ? null : accountManagerId?.ToString();
         PaymentInformation = new GetPaymentInfoResponse(paymentInfo);
-        Addresses = addresses;
+        Addresses = addresses ?? new List<GetAddressResponse>();
     }
 }
