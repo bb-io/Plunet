@@ -24,6 +24,7 @@ using Blackbird.Plugins.Plunet.PlunetAPIService;
 using DataCustomerAddress30Service;
 using DataJobRound30Service;
 using DataResourceAddress30Service;
+using System.ServiceModel;
 using PropertyResult = Blackbird.Plugins.Plunet.DataCustomFields30.PropertyResult;
 using StringResult = Blackbird.Plugins.Plunet.DataAdmin30Service.StringResult;
 using Textmodule = Blackbird.Plugins.Plunet.DataCustomFields30.Textmodule;
@@ -57,7 +58,7 @@ public class PlunetInvocable : BaseInvocable
     protected DataPayable30Client PayableClient => Clients.GetPayableClient(Creds.GetInstanceUrl());
     protected DataResource30Client ResourceClient => Clients.GetResourceClient(Creds.GetInstanceUrl());
     protected DataRequest30Client RequestClient => Clients.GetRequestClient(Creds.GetInstanceUrl());
-    protected DataQuote30Client QuoteClient => Clients.GetQuoteClient(Creds.GetInstanceUrl());
+    protected DataQuote30Client QuoteClient =>ConfigureTimeout(Clients.GetQuoteClient(Creds.GetInstanceUrl()));
     protected DataJob30Client JobClient => Clients.GetJobClient(Creds.GetInstanceUrl());
     protected DataOutgoingInvoice30Client OutgoingInvoiceClient => Clients.GetOutgoingInvoiceClient(Creds.GetInstanceUrl());
     protected DataResourceAddress30Client ResourceAddressClient => Clients.GetResourceAddressClient(Creds.GetInstanceUrl());
@@ -67,6 +68,15 @@ public class PlunetInvocable : BaseInvocable
     public PlunetInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
         Uuid = Creds.GetAuthToken();
+    }
+
+    private static DataQuote30Client ConfigureTimeout(DataQuote30Client client)
+    {
+        if (client.Endpoint.Binding is BasicHttpBinding binding)
+        {
+            binding.SendTimeout = binding.ReceiveTimeout = TimeSpan.FromMinutes(5);
+        }
+        return client;
     }
 
     public async Task Logout()
