@@ -216,8 +216,12 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             pricelineIn.time_perUnit = input.TimePerUnit.Value;
 
         var response = await ExecuteWithRetryAcceptNull(() => ItemClient.insertPriceLineAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType), pricelineIn, false));
-
+        if (response == null)
+        {
+            throw new PluginApplicationException("Failed to insert priceline: API returned null. Please check your input and try again");
+        }
         var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, int.Parse(unit.PriceUnit), Language));
+        
         return CreatePricelineResponse(response, priceUnit);
     }
 

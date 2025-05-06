@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Actions;
+using Apps.Plunet.Models;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Order;
 using System;
@@ -47,5 +48,19 @@ public class ItemTests : TestBase
         
         Console.WriteLine(result);
         Assert.IsNotNull(result);
+    }
+
+
+
+    [TestMethod]
+    public async Task Create_item_priceline_works()
+    {
+        var actions = new ItemActions(InvocationContext);
+
+        var result = await actions.CreateItemPriceline(new ProjectTypeRequest { ProjectType = "3" }, new GetItemRequest {ItemId= "43" }, new ItemPriceUnitRequest { Service= "Translation" ,PriceUnit="62"  },
+            new PricelineRequest { Amount=155, UnitPrice=155 });
+
+
+        Assert.IsTrue(true);
     }
 }
