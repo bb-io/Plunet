@@ -57,7 +57,7 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         }
 
         var paymentInfo = await ExecuteWithRetry(() => CustomerClient.getPaymentInformationAsync(Uuid, ParseId(input.CustomerId)));
-
+        var createdby = await ExecuteWithRetryAcceptNull(() => CustomerClient.getCreatedByResourceIDAsync(Uuid, ParseId(input.CustomerId)));
         var accountManagerResult = await ExecuteWithRetryAcceptNull(() => CustomerClient.getAccountManagerIDAsync(Uuid, ParseId(input.CustomerId)));
         var addresses = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getAllAddressesAsync(Uuid, ParseId(input.CustomerId)));
         var addressesInfo = new List<GetAddressResponse>();
@@ -65,7 +65,7 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         {
             addressesInfo.Add(await GetAddressInfo(addressId));
         }
-        return new(customer, paymentInfo, addressesInfo, accountManagerResult);
+        return new(customer, paymentInfo, addressesInfo, accountManagerResult, createdby);
     }
        
 
