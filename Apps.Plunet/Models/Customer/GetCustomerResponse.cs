@@ -53,6 +53,9 @@ public class GetCustomerResponse
     [Display("Website")]
     public string Website { get; set; }
 
+    [Display("Created by (resource ID)")]
+    public string? CreatedBy { get; set; }
+
     [Display("Account manager ID")]
     public string? AccountManagerId { get; set; }
 
@@ -66,7 +69,7 @@ public class GetCustomerResponse
     }
     
     public GetCustomerResponse(Blackbird.Plugins.Plunet.DataCustomer30Service.Customer customer,
-        PaymentInfo paymentInfo, List<GetAddressResponse> addresses, int? accountManagerId = default)
+        PaymentInfo paymentInfo, List<GetAddressResponse> addresses, int? accountManagerId = default, int? createdBy = 0)
     {
         AcademicTitle = customer.academicTitle ?? "";
         CostCenter = customer.costCenter ?? "";
@@ -85,6 +88,7 @@ public class GetCustomerResponse
         UserId = customer.userId.ToString();
         Website = customer.website ?? "";
         AccountManagerId = accountManagerId == 0 ? null : accountManagerId?.ToString();
+        CreatedBy = createdBy == 0? null : createdBy.ToString();
         PaymentInformation = new GetPaymentInfoResponse(paymentInfo);
         Addresses = addresses ?? new List<GetAddressResponse>();
     }
