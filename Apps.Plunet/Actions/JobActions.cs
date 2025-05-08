@@ -27,10 +27,13 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
 
         var jobs = new List<JobResponse>();
 
-        foreach (var id in result.Where(x => x.HasValue).Select(x => x.Value))
+        if (result != null)
         {
-            var job = await GetJob(new GetJobRequest { JobId = id.ToString(), ProjectType = project.ProjectType });
-            jobs.Add(job);
+            foreach (var id in result.Where(x => x.HasValue).Select(x => x.Value))
+            {
+                var job = await GetJob(new GetJobRequest { JobId = id.ToString(), ProjectType = project.ProjectType });
+                jobs.Add(job);
+            }
         }
 
         if (!string.IsNullOrWhiteSpace(jobType?.JobType))

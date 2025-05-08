@@ -38,9 +38,9 @@ public class JobTests : TestBase
 
         var result = await actions.GetItemJobs
             (new ProjectTypeRequest { ProjectType = "3" }, 
-            new GetItemRequest { ItemId= "230437" },
+            new GetItemRequest { ItemId= "566548" },
             new OptionalJobStatusRequest { }, 
-            new JobTypeOptionRequest { JobType = "BeLazy memoQ Export" });
+            new JobTypeOptionRequest { });
 
         foreach (var job in result.Jobs)
         {
