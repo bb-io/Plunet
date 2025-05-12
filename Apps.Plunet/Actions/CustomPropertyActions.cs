@@ -38,7 +38,7 @@ namespace Apps.Plunet.Actions
         {
             if (input == null || input.Flag == null || string.IsNullOrEmpty(input.UsageArea) || string.IsNullOrEmpty(input.MainId) || string.IsNullOrEmpty(Language))
             {
-                throw new PluginMisconfigurationException("The inputs can not be null. Please checl your input and try again");
+                throw new PluginMisconfigurationException("The inputs can not be null. Please check your input and try again");
             }
 
             var response = await ExecuteWithRetryAcceptNull(() => CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag, ParseId(input.UsageArea), ParseId(input.MainId), Language));
