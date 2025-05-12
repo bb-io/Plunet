@@ -4,6 +4,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Apps.Plunet.Models.CustomProperties;
 using Blackbird.Plugins.Plunet.DataCustomFields30;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Plunet.Actions
 {
@@ -35,6 +36,11 @@ namespace Apps.Plunet.Actions
         [Action("Get text module value", Description = "Get a text module value from any entity")]
         public async Task<TextModuleResponse> GetTextmodule([ActionParameter] TextModuleRequest input)
         {
+            if (input == null || input.Flag == null || string.IsNullOrEmpty(input.UsageArea) || string.IsNullOrEmpty(input.MainId) || string.IsNullOrEmpty(Language))
+            {
+                throw new PluginMisconfigurationException("The inputs can not be null. Please check your input and try again");
+            }
+
             var response = await ExecuteWithRetryAcceptNull(() => CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag, ParseId(input.UsageArea), ParseId(input.MainId), Language));
 
             string value = string.Empty;
@@ -43,16 +49,21 @@ namespace Apps.Plunet.Actions
 
             //}
             //else
-            if (string.IsNullOrEmpty(response?.stringValue) && response!.selectedValues!.Any())
+            if (response == null)
             {
-                value = response.selectedValues.First();
+                return new TextModuleResponse { Value = value };
             }
-            else if (!string.IsNullOrEmpty(response?.stringValue))
+
+            if (!string.IsNullOrEmpty(response.stringValue))
             {
                 value = response.stringValue;
             }
+            else if (response.selectedValues != null && response.selectedValues.Any())
+            {
+                value = response.selectedValues.First();
+            }
 
-            return new()
+            return new TextModuleResponse
             {
                 Value = value
             };
