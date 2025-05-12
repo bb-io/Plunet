@@ -43,16 +43,21 @@ namespace Apps.Plunet.Actions
 
             //}
             //else
-            if (string.IsNullOrEmpty(response?.stringValue) && response!.selectedValues!.Any())
+            if (response == null)
             {
-                value = response.selectedValues.First();
+                return new TextModuleResponse { Value = value };
             }
-            else if (!string.IsNullOrEmpty(response?.stringValue))
+
+            if (!string.IsNullOrEmpty(response.stringValue))
             {
                 value = response.stringValue;
             }
+            else if (response.selectedValues != null && response.selectedValues.Any())
+            {
+                value = response.selectedValues.First();
+            }
 
-            return new()
+            return new TextModuleResponse
             {
                 Value = value
             };
