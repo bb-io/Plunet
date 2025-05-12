@@ -69,7 +69,7 @@ public class GetCustomerResponse
     }
     
     public GetCustomerResponse(Blackbird.Plugins.Plunet.DataCustomer30Service.Customer customer,
-        PaymentInfo paymentInfo, List<GetAddressResponse> addresses, int? accountManagerId = default, int? createdBy = 0)
+        PaymentInfo paymentInfo, List<GetAddressResponse>? addresses, int? accountManagerId = default, int? createdBy = 0)
     {
         AcademicTitle = customer.academicTitle ?? "";
         CostCenter = customer.costCenter ?? "";
