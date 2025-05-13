@@ -1,5 +1,6 @@
 ﻿using System.ServiceModel;
 using System.ServiceModel.Channels;
+using System.Threading;
 using Apps.Plunet.DataOutgoingInvoice30Service;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Plugins.Plunet.DataAdmin30Service;
@@ -73,6 +74,11 @@ public static class Clients
                             clientBase.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
                             clientBase.Endpoint.Binding.OpenTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
                             clientBase.Endpoint.Binding.CloseTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
+
+                            if (clientBase.InnerChannel is IClientChannel channel)
+                            {
+                                channel.OperationTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
+                            }
                         }
 
                         return client;
@@ -122,10 +128,18 @@ public static class Clients
             binding.OpenTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
             binding.CloseTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
 
+
+
             var constructor = typeof(TClient).GetConstructor(new Type[] { typeof(Binding), typeof(EndpointAddress) });
             if (constructor != null)
             {
                 var client = (TClient)constructor.Invoke(new object[] { binding, endpointAddress });
+
+                if (client is ClientBase<object> clientBase && clientBase.InnerChannel is IClientChannel channel)
+                {
+                    channel.OperationTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
+                }
+
                 return client;
             }
 
