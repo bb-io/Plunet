@@ -66,19 +66,17 @@ public static class Clients
                     if (constructor != null)
                     {
                         var client = (TClient)constructor.Invoke(new object[] { endpointConfigValue, endpointAddress });
-
                         // Set timeouts on the client
-                        if (client is ClientBase<object> clientBase)
+
+                        var clientType = client.GetType();
+                        bool isClientBase = clientType.BaseType != null && clientType.BaseType.IsGenericType && clientType.BaseType.GetGenericTypeDefinition() == typeof(ClientBase<>);
+                        if (isClientBase)
                         {
+                            dynamic clientBase = client;
                             clientBase.Endpoint.Binding.SendTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
                             clientBase.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
                             clientBase.Endpoint.Binding.OpenTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
                             clientBase.Endpoint.Binding.CloseTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
-
-                            if (clientBase.InnerChannel is IClientChannel channel)
-                            {
-                                channel.OperationTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
-                            }
                         }
 
                         return client;
@@ -138,6 +136,10 @@ public static class Clients
                 if (client is ClientBase<object> clientBase && clientBase.InnerChannel is IClientChannel channel)
                 {
                     channel.OperationTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
+
+                    Console.WriteLine($"SendTimeout: {clientBase.Endpoint.Binding.SendTimeout}");
+                    Console.WriteLine($"ReceiveTimeout: {clientBase.Endpoint.Binding.ReceiveTimeout}");
+                    Console.WriteLine($"OperationTimeout: {clientBase.InnerChannel?.OperationTimeout}");
                 }
 
                 return client;
