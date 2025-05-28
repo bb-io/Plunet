@@ -61,11 +61,12 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         var accountManagerResult = await ExecuteWithRetryAcceptNull(() => CustomerClient.getAccountManagerIDAsync(Uuid, ParseId(input.CustomerId)));
         var addresses = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getAllAddressesAsync(Uuid, ParseId(input.CustomerId)))?? Array.Empty<int?>();
         var addressesInfo = new List<GetAddressResponse>();
+        var dossier = await ExecuteWithRetryAcceptNull(() => CustomerClient.getDossierAsync(Uuid, ParseId(input.CustomerId)));
         foreach (var addressId in addresses)
         {
             addressesInfo.Add(await GetAddressInfo(addressId));
         }
-        return new(customer, paymentInfo, addressesInfo, accountManagerResult, createdby);
+        return new(customer, paymentInfo, addressesInfo, dossier, accountManagerResult, createdby);
     }
        
 
@@ -104,6 +105,11 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         }));
 
         var customerId = customerIdResult.ToString();
+
+        if (request.Dossier != null)
+        {
+            await ExecuteWithRetry(() => CustomerClient.setDossierAsync(Uuid, customerIdResult, request.Dossier));
+        }
 
         if (request.AddressType != null)
         {
@@ -149,6 +155,11 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         }, false));
 
         var updatedCustomer = await GetCustomerById(customer);
+
+        if (request.Dossier != null)
+        {
+            await ExecuteWithRetry(() => CustomerClient.setDossierAsync(Uuid, ParseId(customer.CustomerId), request.Dossier));
+        }
 
         if (request.AddressType != null)
         {

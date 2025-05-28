@@ -62,6 +62,8 @@ public class GetCustomerResponse
     [Display("Payment information")]
     public GetPaymentInfoResponse PaymentInformation { get; set; }
 
+    public string? Dossier { get; set; }
+
     public IEnumerable<GetAddressResponse> Addresses { get; set; }
 
     public GetCustomerResponse()
@@ -69,7 +71,7 @@ public class GetCustomerResponse
     }
     
     public GetCustomerResponse(Blackbird.Plugins.Plunet.DataCustomer30Service.Customer customer,
-        PaymentInfo paymentInfo, List<GetAddressResponse>? addresses, int? accountManagerId = default, int? createdBy = 0)
+        PaymentInfo paymentInfo, List<GetAddressResponse>? addresses, string? dossier, int? accountManagerId = default, int? createdBy = 0)
     {
         AcademicTitle = customer.academicTitle ?? "";
         CostCenter = customer.costCenter ?? "";
@@ -91,5 +93,6 @@ public class GetCustomerResponse
         CreatedBy = createdBy == 0? null : createdBy.ToString();
         PaymentInformation = new GetPaymentInfoResponse(paymentInfo);
         Addresses = addresses ?? new List<GetAddressResponse>();
+        Dossier = dossier ?? "";
     }
 }
