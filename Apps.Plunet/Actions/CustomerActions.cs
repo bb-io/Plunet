@@ -154,12 +154,12 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
             userId = ParseId(request.UserId),
         }, false));
 
-        var updatedCustomer = await GetCustomerById(customer);
-
         if (request.Dossier != null)
         {
             await ExecuteWithRetry(() => CustomerClient.setDossierAsync(Uuid, ParseId(customer.CustomerId), request.Dossier));
         }
+
+        var updatedCustomer = await GetCustomerById(customer);
 
         if (request.AddressType != null)
         {
