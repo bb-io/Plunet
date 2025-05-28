@@ -64,4 +64,6 @@ public class CreateCustomerRequest
     [Display("State")] public string? State { get; set; }
 
     public string? Description { get; set; }
+
+    public string? Dossier { get; set; }
 }
