@@ -7,5 +7,5 @@ namespace Apps.Plunet.Models.Item;
 public class CurrencyTypeRequest
 {
     [Display("Currency type"), StaticDataSource(typeof(CurrencyTypeDataHandler))]
-    public string? CurrencyType { get; set; }
+    public string CurrencyType { get; set; }
 }
