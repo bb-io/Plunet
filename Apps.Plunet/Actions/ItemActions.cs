@@ -96,8 +96,8 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         [ActionParameter] ProjectIdRequest projectId,
         [ActionParameter] CurrencyTypeRequest currencyParams)
     {
-        var result = await ExecuteWithRetry(() => ItemClient.getLanguageIndependentItemObjectAsync(Uuid, ParseId(projectId.ProjectId),
-                        ParseId(projectType.ProjectType), ParseId(currencyParams.CurrencyType)));
+        var result = await ExecuteWithRetry(() => ItemClient.getLanguageIndependentItemObjectAsync(Uuid,
+                        ParseId(projectType.ProjectType), ParseId(projectId.ProjectId), ParseId(currencyParams.CurrencyType)));
         var Type = (ItemProjectType)int.Parse(projectType.ProjectType);
         return new(result, Type);
     }
