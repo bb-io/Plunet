@@ -91,6 +91,17 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         return new(result.Items.FirstOrDefault(), result.TotalCount);
     }
 
+    [Action("Get language independent item", Description = "Get details for a language independent item in a project")]
+    public async Task<ItemResponse> GetLanguageIndependentItem([ActionParameter] ProjectTypeRequest projectType,
+        [ActionParameter] ProjectIdRequest projectId,
+        [ActionParameter] CurrencyTypeRequest currencyParams)
+    {
+        var result = await ExecuteWithRetry(() => ItemClient.getLanguageIndependentItemObjectAsync(Uuid, ParseId(projectId.ProjectId),
+                        ParseId(projectType.ProjectType), ParseId(currencyParams.CurrencyType)));
+        var Type = (ItemProjectType)int.Parse(projectType.ProjectType);
+        return new(result, Type);
+    }
+
     [Action("Get item", Description = "Get details for a Plunet item")]
     public async Task<ItemResponse> GetItem([ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest request, [ActionParameter] OptionalCurrencyTypeRequest currency)

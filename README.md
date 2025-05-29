@@ -70,6 +70,8 @@ If you are unable to connect, please check the following:
   - Order or quote iD
   - Item status
   - Document status
+- **Find item**
+- **Get language independet item**
 - **Get item**
 - **Create item**
 - **Delete item**
