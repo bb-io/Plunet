@@ -52,7 +52,9 @@ public class JobHooks : PlunetWebhookList<JobResponse>
     public Task<WebhookResponse<JobResponse>> JobStatusChanged(WebhookRequest webhookRequest, 
         [WebhookParameter][Display("New status")][StaticDataSource(typeof(JobStatusDataHandler))] IEnumerable<string>? newStatuses,
         [WebhookParameter] GetJobOptionalRequest request)
-       => HandleWebhook(webhookRequest, job =>(newStatuses != null && newStatuses.Any() && newStatuses.Contains(job.Status)) && (request.JobId == null || request.JobId == job.JobId));
+       => HandleWebhook(webhookRequest, job => (newStatuses == null
+         || !newStatuses.Any()|| newStatuses.Contains(job.Status))&& (request.JobId == null || request.JobId == job.JobId));
+
 
     [Webhook("On job delivery date changed", typeof(JobDeliveryDateChangedEventHandler),
         Description = "Triggered when a job delivery date is changed")]
