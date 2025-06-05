@@ -195,7 +195,7 @@ public class PlunetInvocable : BaseInvocable
                 return result;
             }
 
-            if (statusMessage.Contains("session-UUID used is invalid") && attempts < maxRetries)
+            if ((statusMessage.Contains("session-UUID used is invalid") || statusMessage.Contains("Connection timed out")) && attempts < maxRetries)
             {
                 await Task.Delay(delay);
                 await RefreshAuthToken();
