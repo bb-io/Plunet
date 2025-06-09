@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
+using Apps.Plunet.Models.Job;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Request.Request;
 using Apps.Plunet.Models.Request.Response;
@@ -112,6 +113,37 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
         var projectType = (ItemProjectType)int.Parse(project.ProjectType);
         return new(result, projectType);
+    }
+
+    [Action("Copy jobs from the workflow", Description = "Copy jobs from the workflow into the specified item")]
+    public async Task<ItemJobsResponse> CopyJobsFromWorkflow([ActionParameter] WorkflowIdRequest workflow,
+        [ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request)
+    {
+        var workflowId = ParseId(workflow.WorkflowId);
+        var projectType = ParseId(project.ProjectType);
+        var itemId = ParseId(request.ItemId);
+
+        // main action
+        await ExecuteWithRetry(() => ItemClient.copyJobsFromWorkflowAsync(Uuid, workflowId, projectType, itemId));
+
+        // prepare a useful respose
+        var jobsAfterCopyResult = await ExecuteWithRetry(() => ItemClient.getJobsAsync(Uuid, projectType, itemId));
+        var jobs = new List<JobResponse>();
+
+        if (jobsAfterCopyResult != null)
+        {
+            JobActions jobActions = new JobActions(InvocationContext);
+            foreach (var jobId in jobsAfterCopyResult.Where(x => x.HasValue).Select(x => x.Value))
+            {
+                var job = await jobActions.GetJob(new GetJobRequest { JobId = jobId.ToString(), ProjectType = project.ProjectType });
+                jobs.Add(job);
+            }
+        }
+
+        return new ItemJobsResponse
+        {
+            Jobs = jobs
+        };
     }
 
     [Action("Create item", Description = "Create a new item in Plunet")]
