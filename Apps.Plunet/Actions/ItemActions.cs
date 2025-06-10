@@ -123,27 +123,10 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         var projectType = ParseId(project.ProjectType);
         var itemId = ParseId(request.ItemId);
 
-        // main action
         await ExecuteWithRetry(() => ItemClient.copyJobsFromWorkflowAsync(Uuid, workflowId, projectType, itemId));
 
-        // prepare a useful respose
-        var jobsAfterCopyResult = await ExecuteWithRetry(() => ItemClient.getJobsAsync(Uuid, projectType, itemId));
-        var jobs = new List<JobResponse>();
-
-        if (jobsAfterCopyResult != null)
-        {
-            JobActions jobActions = new JobActions(InvocationContext);
-            foreach (var jobId in jobsAfterCopyResult.Where(x => x.HasValue).Select(x => x.Value))
-            {
-                var job = await jobActions.GetJob(new GetJobRequest { JobId = jobId.ToString(), ProjectType = project.ProjectType });
-                jobs.Add(job);
-            }
-        }
-
-        return new ItemJobsResponse
-        {
-            Jobs = jobs
-        };
+        var jobActions = new JobActions(InvocationContext);
+        return await jobActions.GetItemJobs(project, request, new OptionalJobStatusRequest { }, new JobTypeOptionRequest { });
     }
 
     [Action("Create item", Description = "Create a new item in Plunet")]
