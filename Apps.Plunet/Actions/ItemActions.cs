@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
+using Apps.Plunet.Models.Job;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Request.Request;
 using Apps.Plunet.Models.Request.Response;
@@ -112,6 +113,20 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
         var projectType = (ItemProjectType)int.Parse(project.ProjectType);
         return new(result, projectType);
+    }
+
+    [Action("Copy jobs from workflow", Description = "Copy jobs from the workflow into the specified item")]
+    public async Task<ItemJobsResponse> CopyJobsFromWorkflow([ActionParameter] WorkflowIdRequest workflow,
+        [ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request)
+    {
+        var workflowId = ParseId(workflow.WorkflowId);
+        var projectType = ParseId(project.ProjectType);
+        var itemId = ParseId(request.ItemId);
+
+        await ExecuteWithRetry(() => ItemClient.copyJobsFromWorkflowAsync(Uuid, workflowId, projectType, itemId));
+
+        var jobActions = new JobActions(InvocationContext);
+        return await jobActions.GetItemJobs(project, request, new OptionalJobStatusRequest { }, new JobTypeOptionRequest { });
     }
 
     [Action("Create item", Description = "Create a new item in Plunet")]

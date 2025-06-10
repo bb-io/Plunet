@@ -62,5 +62,6 @@ public class CreatеRequestRequest
     public int? WordCount { get; set; }
 
     [Display("Workflow ID")]
+    [DataSource(typeof(WorkflowIdDataHandler))]
     public string? WorkflowId { get; set; }
 }
