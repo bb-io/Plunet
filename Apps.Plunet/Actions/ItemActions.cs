@@ -115,7 +115,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         return new(result, projectType);
     }
 
-    [Action("Copy jobs from workflow", Description = "Copy jobs from the workflow into the specified item")]
+    [Action("Copy jobs from workflow", Description = "Copy jobs from the selected workflow into the specified item")]
     public async Task<ItemJobsResponse> CopyJobsFromWorkflow([ActionParameter] WorkflowIdRequest workflow,
         [ActionParameter] ProjectTypeRequest project, [ActionParameter] GetItemRequest request)
     {
@@ -374,6 +374,5 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     }
 
     // Pricelist
-    // Copy jobs from workflow
     // SetCatReport    
 }
