@@ -85,7 +85,7 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
         var method = await ExecuteWithRetry(() => PayableClient.getPaymentMethodAsync(Uuid, id));
         var resource = await ExecuteWithRetry(() => PayableClient.getResourceIDAsync(Uuid, id));
         var status = await ExecuteWithRetry(() => PayableClient.getStatusAsync(Uuid, id));
-        var total = await ExecuteWithRetry(() => PayableClient.getTotalNetAmountAsync(Uuid, id, 2)); // PROJECT CURRENCY
+        var total = await ExecuteWithRetry(() => PayableClient.getTotalNetAmountAsync(Uuid, id, 1)); // PROJECT CURRENCY
         var valueDate = await ExecuteWithRetry(() => PayableClient.getValueDateAsync(Uuid, id));
 
         var itemResult = await ExecuteWithRetry(() => PayableClient.getPaymentItemListAsync(Uuid, id));
