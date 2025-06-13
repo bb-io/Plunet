@@ -8,6 +8,6 @@ namespace Apps.Plunet.Models.ProjectCategory.Request;
 public class SetProjectCategoryRequest
 {
     [Display("Project category")]
-    [StaticDataSource(typeof(ProjectCategoryDataHandler))]
+    //[StaticDataSource(typeof(ProjectCategoryDataHandler))]
     public string ProjectCategory { get; set; }
 }
