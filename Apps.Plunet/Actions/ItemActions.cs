@@ -362,14 +362,18 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     }
 
     [Action("Find price unit", Description = "Get price unit ID given a Service and rice unit description")]
-    public async Task<ItemPriceUnitResponse> FindPriceUnit([ActionParameter] string Service, [ActionParameter][Display("Price unit description")] string Description)
+    public async Task<ItemPriceUnitResponse> FindPriceUnit([ActionParameter] ItemPriceUnitDescriptionRequest input)
     {
-        var response = await AdminClient.getAvailablePriceUnitsAsync(Uuid, Language, Service);
+        var response = await AdminClient.getAvailablePriceUnitsAsync(Uuid, Language, input.Service);
 
-        var priceUnit = response.data.FirstOrDefault(x => x.description == Description);
+        if (response != null && response.data != null && response.data.Any())
+        {
+            var priceUnit = response.data.FirstOrDefault(x => x.description == input.PriceUnitDescription);
 
-        return priceUnit == null ? new ItemPriceUnitResponse() : 
-            new ItemPriceUnitResponse {Id = priceUnit.priceUnitID.ToString(), Description = Description};
+            return priceUnit == null ? new ItemPriceUnitResponse() :
+                new ItemPriceUnitResponse { Id = priceUnit.priceUnitID.ToString(), Description = input.PriceUnitDescription };
+        }
+        return new ItemPriceUnitResponse();
 
     }
 
