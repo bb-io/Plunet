@@ -366,10 +366,14 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     {
         var response = await AdminClient.getAvailablePriceUnitsAsync(Uuid, Language, input.Service);
 
-        var priceUnit = response.data.FirstOrDefault(x => x.description == input.PriceUnitDescription);
+        if (response != null && response.data != null && response.data.Any())
+        {
+            var priceUnit = response.data.FirstOrDefault(x => x.description == input.PriceUnitDescription);
 
-        return priceUnit == null ? new ItemPriceUnitResponse() : 
-            new ItemPriceUnitResponse {Id = priceUnit.priceUnitID.ToString(), Description = input.PriceUnitDescription };
+            return priceUnit == null ? new ItemPriceUnitResponse() :
+                new ItemPriceUnitResponse { Id = priceUnit.priceUnitID.ToString(), Description = input.PriceUnitDescription };
+        }
+        return new ItemPriceUnitResponse();
 
     }
 
