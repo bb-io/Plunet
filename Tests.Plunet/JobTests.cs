@@ -1,4 +1,5 @@
 ﻿using Apps.Plunet.Actions;
+using Apps.Plunet.Models;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Job;
 using Apps.Plunet.Webhooks.WebhookLists;
@@ -21,6 +22,8 @@ public class JobTests : TestBase
         var actions = new JobActions(InvocationContext);
 
         var result = await actions.CreateJob(new ProjectTypeRequest { ProjectType = "3" }, new CreateJobRequest { ProjectId = "573", ItemId = "406", DueDate = DateTime.Now.AddDays(7), Status = "0" }, new JobTypeRequest { JobType = "TRA" }, new ContactPersonRequest { });
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
+        Console.WriteLine(json);
         Assert.IsNotNull(result.ItemId);
     }
 
@@ -51,5 +54,20 @@ public class JobTests : TestBase
             Assert.IsNotNull(result);
         }
        
+    }
+
+    [TestMethod]
+    public async Task Create_job_priceline_works()
+    {
+        var actions = new JobActions(InvocationContext);
+
+        var result = await actions.CreateJobPriceline(new GetJobRequest {ProjectType= "3", JobId= "189" }, new JobPriceUnitRequest {
+            PriceUnit = null, Service = "Translation"
+        },
+            new PricelineRequest { Amount = 155, UnitPrice = 155, TaxType = "8" });
+
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
+        Console.WriteLine(json);
+        Assert.IsNotNull(result);
     }
 }

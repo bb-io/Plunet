@@ -1,4 +1,6 @@
-﻿using Blackbird.Applications.Sdk.Common;
+﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
+using Blackbird.Applications.Sdk.Common;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models
 {
@@ -19,6 +21,8 @@ namespace Apps.Plunet.Models
         [Display("Unit price")]
         public double UnitPrice { get; set; }
 
-        // TODO: Tax type
+        [Display("Tax type")]
+        [DataSource(typeof(TaxTypeDataHandler))]
+        public string? TaxType { get; set; }
     }
 }

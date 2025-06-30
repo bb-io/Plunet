@@ -58,13 +58,25 @@ public class ItemTests : TestBase
         var actions = new ItemActions(InvocationContext);
 
         var result = await actions.CreateItemPriceline(new ProjectTypeRequest { ProjectType = "3" }, new GetItemRequest {ItemId= "43" }, new ItemPriceUnitRequest { Service= "Translation" ,PriceUnit="62"  },
-            new PricelineRequest { Amount=155, UnitPrice=155 });
+            new PricelineRequest { Amount=155, UnitPrice=155, TaxType="3" });
 
-
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
+        Console.WriteLine(json);
         Assert.IsTrue(true);
     }
 
-    //GetItemJobs
+    [TestMethod]
+    public async Task Update_item_priceline_works()
+    {
+        var actions = new ItemActions(InvocationContext);
 
-    
+        var result = await actions.UpdateItemPriceline(new ProjectTypeRequest { ProjectType = "3" }, new GetItemRequest { ItemId = "43" }, new ItemPriceUnitRequest { Service = "Translation", PriceUnit = "62" },
+            new PricelineIdRequest { Id= "1234" },new PricelineRequest { Amount = 155, UnitPrice = 155, TaxType = "8" });
+
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
+        Console.WriteLine(json);
+        Assert.IsTrue(true);
+    }
+
+
 }
