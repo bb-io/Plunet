@@ -99,4 +99,17 @@ public class DataSourceTests : TestBase
         }
         Assert.IsTrue(dataSourceItems.Any());
     }
+
+    [TestMethod]
+    public async Task ServiceNameDataHandler_returns_values()
+    {
+        var handler = new ServiceNameDataHandler(InvocationContext);
+
+        var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
+      
+        var json = System.Text.Json.JsonSerializer.Serialize(result);
+        Console.WriteLine(json);
+
+        Assert.IsNotNull(result);
+    }
 }

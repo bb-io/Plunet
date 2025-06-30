@@ -241,6 +241,9 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (input.TimePerUnit.HasValue)
             pricelineIn.time_perUnit = input.TimePerUnit.Value;
 
+        if (!string.IsNullOrEmpty(input.TaxType))
+            pricelineIn.taxType = int.Parse(input.TaxType);
+
         var response = await ExecuteWithRetryAcceptNull(() => ItemClient.insertPriceLineAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType), pricelineIn, false));
         if (response == null)
         {
@@ -277,6 +280,9 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
         if (input.TimePerUnit.HasValue)
             pricelineIn.time_perUnit = input.TimePerUnit.Value;
+
+        if (!string.IsNullOrEmpty(input.TaxType))
+            pricelineIn.taxType = int.Parse(input.TaxType);
 
         var response = await ExecuteWithRetryAcceptNull(() => ItemClient.updatePriceLineAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType), pricelineIn));
 

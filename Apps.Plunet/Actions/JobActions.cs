@@ -244,6 +244,9 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         if (input.TimePerUnit.HasValue)
             pricelineIn.time_perUnit = input.TimePerUnit.Value;
 
+        if (!string.IsNullOrEmpty(input.TaxType))
+            pricelineIn.taxType = int.Parse(input.TaxType);
+
         var response = await ExecuteWithRetryAcceptNull(() => JobClient.insertPriceLineAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType), pricelineIn, false));
 
         if (response is null)
@@ -280,6 +283,9 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
 
         if (input.TimePerUnit.HasValue)
             pricelineIn.time_perUnit = input.TimePerUnit.Value;
+
+        if (!string.IsNullOrEmpty(input.TaxType))
+            pricelineIn.taxType = int.Parse(input.TaxType);
 
         var response = await ExecuteWithRetryAcceptNull(() => JobClient.updatePriceLineAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType), pricelineIn));
 
