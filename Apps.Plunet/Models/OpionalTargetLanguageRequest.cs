@@ -13,6 +13,6 @@ namespace Apps.Plunet.Models
     {
         [Display("Target language")]
         [DataSource(typeof(LanguageNameDataHandler))]
-        public string TargetLanguageName { get; set; }
+        public string? TargetLanguageName { get; set; }
     }
 }
