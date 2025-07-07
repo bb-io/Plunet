@@ -27,7 +27,7 @@ public class ItemTests : TestBase
     {
         var actions = new ItemActions(InvocationContext);
 
-        var result = await actions.SearchItems(new OptionalItemProjectRequest { ProjectId = "573", ProjectType = "3" }, new SearchItemsRequest { }, new OptionalCurrencyTypeRequest { });
+        var result = await actions.SearchItems(new OptionalItemProjectRequest { ProjectId = "573", ProjectType = "3" }, new SearchItemsRequest { }, new OptionalCurrencyTypeRequest { }, null);
         foreach(var item in result.Items)
         {
             Console.WriteLine($"{item.ItemId}: {item.BriefDescription}");
