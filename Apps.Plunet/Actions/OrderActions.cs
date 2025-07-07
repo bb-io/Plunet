@@ -42,6 +42,9 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                 projectName = input.ProjectName ?? string.Empty,
                 projectType = ParseId(input.ProjectType),
                 projectDescription = input.ProjectDescription ?? string.Empty,
+                itemStatus = input.ItemStatus is not null
+                ? input.ItemStatus.Select(id => ParseId(id)).ToArray()
+                : null
             }));
         
         var results = new List<OrderResponse>();
