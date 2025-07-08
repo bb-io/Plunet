@@ -24,7 +24,8 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         Description = "Search for items either under a specific order/quote or with a certain status")]
     public async Task<SearchResponse<ItemResponse>> SearchItems([ActionParameter] OptionalItemProjectRequest item,
         [ActionParameter] SearchItemsRequest searchParams,
-        [ActionParameter] OptionalCurrencyTypeRequest currencyParams)
+        [ActionParameter] OptionalCurrencyTypeRequest currencyParams,
+        [ActionParameter] OptionalTargetLanguageRequest targetLanguage)
     {
         Item[]? result;
 
@@ -77,7 +78,11 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         }
 
         var projectType = (ItemProjectType)int.Parse(item.ProjectType);
-        var items = result is null
+        if (targetLanguage != null && !String.IsNullOrEmpty(targetLanguage.TargetLanguageName))
+        {
+            result = result?.Where(x => x.targetLanguage == targetLanguage.TargetLanguageName).ToArray();
+        }
+        var items = result is null || result.Length == 0
             ? new List<ItemResponse>()
             : result.Take(searchParams.Limit ?? SystemConsts.SearchLimit).Select(x => new ItemResponse(x, projectType)).ToList();
         return new SearchResponse<ItemResponse>(items);
@@ -86,9 +91,10 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     [Action("Find item", Description = "Find a specific item based on specific criteria")]
     public async Task<FindResponse<ItemResponse>> FindItem([ActionParameter] OptionalItemProjectRequest item,
         [ActionParameter] SearchItemsRequest searchParams,
-        [ActionParameter] OptionalCurrencyTypeRequest currencyParams)
+        [ActionParameter] OptionalCurrencyTypeRequest currencyParams,
+        [ActionParameter] OptionalTargetLanguageRequest targetLanguage)
     {
-        var result = await SearchItems(item, searchParams, currencyParams);
+        var result = await SearchItems(item, searchParams, currencyParams, targetLanguage);
         return new(result.Items.FirstOrDefault(), result.TotalCount);
     }
 

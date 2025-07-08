@@ -111,6 +111,7 @@ Note that when creating/updating items, the source and target languages can be s
   - Description
   - Type
 - **Get order**
+- **Find order from order number**
 - **Create order**
 - **Delete order**
 - **Update order**

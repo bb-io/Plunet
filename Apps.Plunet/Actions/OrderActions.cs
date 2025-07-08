@@ -10,6 +10,7 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
+using Blackbird.Plugins.Plunet.DataRequest30Service;
 using RestSharp;
 using IntegerArrayResult = Blackbird.Plugins.Plunet.DataOrder30Service.IntegerArrayResult;
 using IntegerResult = Blackbird.Plugins.Plunet.DataOrder30Service.IntegerResult;
@@ -42,6 +43,9 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                 projectName = input.ProjectName ?? string.Empty,
                 projectType = ParseId(input.ProjectType),
                 projectDescription = input.ProjectDescription ?? string.Empty,
+                //itemStatus = input.ItemStatus is not null
+                //? input.ItemStatus.Select(id => ParseId(id)).ToArray()
+                //: null
             }));
         
         var results = new List<OrderResponse>();
@@ -87,6 +91,40 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             ProjectStatus = projectStatus.ToString()
         };
     }
+
+    [Action("Find order from order number (not ID)",
+        Description = "Get order details given an order number")]
+    public async Task<OrderResponse> GetOrderFromOrderNumber([ActionParameter] OrderNumberRequest input) 
+    {
+        var order = await ExecuteWithRetry(() => OrderClient.getOrderObject2Async(Uuid, input.OrderNumber));
+
+        var languageCombinations = await ExecuteWithRetry(() => OrderClient.getLanguageCombinationAsync(Uuid, order.orderID));
+
+        var orderLanguageCombinations = await ParseLanguageCombinations(languageCombinations);
+
+        var items = await ExecuteWithRetryAcceptNull(() => ItemClient.getAllItemObjectsAsync(Uuid, order.orderID, 3));
+
+        var totalOrderPrice = items?.Sum(x => x.totalPrice) ?? 0;
+
+        var contact = await ExecuteWithRetryAcceptNull(() => OrderClient.getCustomerContactIDAsync(Uuid, order.orderID));
+
+        var status = await ExecuteWithRetry(() => OrderClient.getProjectStatusAsync(Uuid, order.orderID));
+
+        var projectCategory = await ExecuteWithRetryAcceptNull(() => OrderClient.getProjectCategoryAsync(Uuid, Language, order.orderID));
+
+        var projectStatus = await ExecuteWithRetry(() => OrderClient.getProjectStatusAsync(Uuid, order.orderID));
+
+        return new(order, orderLanguageCombinations)
+        {
+            TotalPrice = totalOrderPrice,
+            ContactId = contact?.ToString(),
+            Status = status.ToString(),
+            ProjectCategory = projectCategory ?? string.Empty,
+            ProjectStatus = projectStatus.ToString()
+        };
+
+    }
+
 
     [Action("Get order target languages for source",
         Description = "Given a source language and an order, get all the target languages that this order represents")]
