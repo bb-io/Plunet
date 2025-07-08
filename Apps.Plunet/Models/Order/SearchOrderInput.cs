@@ -38,7 +38,7 @@ public class SearchOrderInput : SearchInputBase
     [StaticDataSource(typeof(ProjectTypeDataHandler))]
     public string? ProjectType { get; set; }
 
-    [Display("Item status")]
-    [StaticDataSource(typeof(ItemStatusDataHandler))]
-    public IEnumerable<string>? ItemStatus { get; set; }
+    //[Display("Item status")]
+    //[StaticDataSource(typeof(ItemStatusDataHandler))]
+    //public IEnumerable<string>? ItemStatus { get; set; }
 }
