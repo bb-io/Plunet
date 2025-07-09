@@ -129,10 +129,22 @@ public class PlunetInvocable : BaseInvocable
         {
             var languages = await GetSystemLanguages();
             return dashSeparatedStrings
-            .Select(combination => new { source = combination.Split(" - ")[0], target = combination.Split(" - ")[1] })
             .Select(combination =>
-                new LanguageCombination(languages.FirstOrDefault(l => l.name == combination.source)?.folderName,
-                    languages.FirstOrDefault(l => l.name == combination.target)?.folderName));
+            {
+                int separatorIndex = combination.IndexOf(" - ");
+                if (separatorIndex == -1) return null;
+
+                var source = combination.Substring(0, separatorIndex);
+                var target = combination.Substring(separatorIndex + 3);
+
+                return new { source, target };
+            })
+            .Where(x => x != null)
+            .Select(combination =>
+                new LanguageCombination(
+                    languages.FirstOrDefault(l => l.name == combination.source)?.folderName,
+                    languages.FirstOrDefault(l => l.name == combination.target)?.folderName
+                ));
         }
         catch
         {
