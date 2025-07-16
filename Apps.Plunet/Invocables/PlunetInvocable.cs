@@ -23,6 +23,7 @@ using Blackbird.Plugins.Plunet.DataResource30Service;
 using Blackbird.Plugins.Plunet.PlunetAPIService;
 using DataCustomerAddress30Service;
 using DataJobRound30Service;
+using Blackbird.Plugins.Plunet.DataQualityManager30;
 using DataResourceAddress30Service;
 using System.ServiceModel;
 using PropertyResult = Blackbird.Plugins.Plunet.DataCustomFields30.PropertyResult;
@@ -64,8 +65,7 @@ public class PlunetInvocable : BaseInvocable
     protected DataResourceAddress30Client ResourceAddressClient => Clients.GetResourceAddressClient(Creds.GetInstanceUrl());
     protected DataCustomerAddress30Client CustomerAddressClient => Clients.GetCustomerAddressClient(Creds.GetInstanceUrl());
     protected DataCustomFields30Client CustomFieldsClient => Clients.GetCustomFieldsClient(Creds.GetInstanceUrl());
-
-   // protected DataQualityManager30Client QualityManagerClient => Clients.GetQualityManagerClient(Creds.GetInstanceUrl());
+    protected DataQualityManager30Client QualityManagerClient => Clients.GetQualityManagerClient(Creds.GetInstanceUrl());
 
     public PlunetInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
@@ -497,5 +497,11 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay))!.data;
     protected async Task<bool> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataPayable30Service.BooleanResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay))!.data;
+
+    // Quality Manager service
+    protected async Task<JobQuality> ExecuteWithRetry(Func<Task<JobQualityResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
+    protected async Task<JobQuality?> ExecuteWithRetryAcceptNull(Func<Task<JobQualityResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
 
 }

@@ -333,23 +333,23 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         return result;
     }
 
-    //[Action("Get job feedback", Description = "Get the feedback for a specific job")]
-    //public async Task<JobFeedbackResponse> GetJobFeedback([ActionParameter] GetJobRequest job)
-    //{
-    //    var feedback = await ExecuteWithRetry(() => QualityManagerClient.getJobFeedbackAsync(Uuid, ParseId(job.JobId)));
+    [Action("Get job feedback", Description = "Get the feedback for a specific job")]
+    public async Task<JobFeedbackResponse> GetJobFeedback([ActionParameter] GetJobRequest job)
+    {
+        var feedback = await ExecuteWithRetry(() => QualityManagerClient.getJobFeedbackAsync(Uuid, ParseId(job.JobId)));
 
-    //    var result = new JobFeedbackResponse
-    //    {
-    //        EditorUserID = feedback.editorUserID,
-    //        ModifiedAt = feedback.modifiedAt,
-    //        Rating = feedback.rating,
-    //        IsJobQualityRatingClosed = feedback.isJobQualityRatingClosed,
-    //        Commentary = feedback.commentary,
-    //        JobID = feedback.jobID
-    //    };
+        var result = new JobFeedbackResponse
+        {
+            EditorUserID = feedback.editorUserID,
+            ModifiedAt = feedback.modifiedAt,
+            Rating = feedback.rating,
+            IsJobQualityRatingClosed = feedback.jobQualityRatingClosed,
+            Commentary = feedback.commentary,
+            JobID = feedback.jobID.ToString()
+        };
 
-    //    return result;
-    //}
+        return result;
+    }
 
     private PricelineResponse CreatePricelineResponse(Blackbird.Plugins.Plunet.DataJob30Service.PriceLine line, Blackbird.Plugins.Plunet.DataJob30Service.PriceUnit? unit)
     {
