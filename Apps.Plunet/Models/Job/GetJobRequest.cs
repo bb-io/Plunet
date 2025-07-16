@@ -6,7 +6,7 @@ namespace Apps.Plunet.Models.Job
 {
     public class GetJobRequest
     {
-        [Display("Type")]
+        [Display("Project type")]
         [StaticDataSource(typeof(ItemProjectTypeDataHandler))]
         public string ProjectType { get; set; }
 

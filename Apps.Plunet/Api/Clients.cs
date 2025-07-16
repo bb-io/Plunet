@@ -18,6 +18,7 @@ using Blackbird.Plugins.Plunet.DataResource30Service;
 using Blackbird.Plugins.Plunet.PlunetAPIService;
 using DataCustomerAddress30Service;
 using DataJobRound30Service;
+using Blackbird.Plugins.Plunet.DataQualityManager30;
 using DataResourceAddress30Service;
 
 namespace Apps.Plunet.Api;
@@ -45,6 +46,7 @@ public static class Clients
     public static DataResourceAddress30Client GetResourceAddressClient(string url) => GetClient<DataResourceAddress30Client>(url, "DataResourceAddress30");
     public static DataCustomerAddress30Client GetCustomerAddressClient(string url) => GetClient<DataCustomerAddress30Client>(url, "DataCustomerAddress30");
     public static DataCustomFields30Client GetCustomFieldsClient(string url) => GetClient<DataCustomFields30Client>(url, "DataCustomFields30");
+    public static DataQualityManager30Client GetQualityManagerClient(string url) => GetClient<DataQualityManager30Client>(url, "DataQualityManager30");
 
     public static TClient GetClient<TClient>(string url, string endpointSuffix) where TClient : class
     {

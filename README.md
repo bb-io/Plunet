@@ -98,6 +98,7 @@ Note that when creating/updating items, the source and target languages can be s
 - **Delete job priceline**
 - **Update job priceline**
 - **Get job rounds**
+- **Get job feedback**
 
 ### Orders
 
