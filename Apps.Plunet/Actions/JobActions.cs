@@ -299,6 +299,58 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         
     }
 
+    [Action("Get job rounds for a job", Description = "Get all rounds for a specific job")]
+    public async Task<JobRoundsResponse> GetJobRounds([ActionParameter] GetJobRequest job)
+    {
+        var roundResponse = await ExecuteWithRetry(() => JobRoundClient.getAllRoundIDsAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType)));
+        var result = new JobRoundsResponse
+        {
+            JobRounds = new List<JobRoundDto>()
+        };
+
+        if (roundResponse.Length > 0)
+        {
+            var assignedRoundId = await ExecuteWithRetry(() => JobRoundClient.getAssignedRoundIDAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType)));
+
+            foreach (var round in roundResponse)
+            {
+                var response = await ExecuteWithRetry(() => JobRoundClient.getRoundObjectAsync(Uuid, round.Value));
+
+                var roundDto = new JobRoundDto
+                {
+                    Id = response.jobRoundID.ToString(),
+                    Number = response.jobRoundNumber,
+                    assignmentLimitToFirstX = response.assignmentLimitToFirstX.ToString(),
+                    assignmentLimitType = MapLimitType(response.assignmentLimitType),
+                    assignmentMethod = MapAssignmentMethod(response.assignmentMethod),
+                    Assigned = response.jobRoundID == assignedRoundId
+                };
+
+                result.JobRounds.Add(roundDto);
+            }
+        }
+
+        return result;
+    }
+
+    //[Action("Get job feedback", Description = "Get the feedback for a specific job")]
+    //public async Task<JobFeedbackResponse> GetJobFeedback([ActionParameter] GetJobRequest job)
+    //{
+    //    var feedback = await ExecuteWithRetry(() => QualityManagerClient.getJobFeedbackAsync(Uuid, ParseId(job.JobId)));
+
+    //    var result = new JobFeedbackResponse
+    //    {
+    //        EditorUserID = feedback.editorUserID,
+    //        ModifiedAt = feedback.modifiedAt,
+    //        Rating = feedback.rating,
+    //        IsJobQualityRatingClosed = feedback.isJobQualityRatingClosed,
+    //        Commentary = feedback.commentary,
+    //        JobID = feedback.jobID
+    //    };
+
+    //    return result;
+    //}
+
     private PricelineResponse CreatePricelineResponse(Blackbird.Plugins.Plunet.DataJob30Service.PriceLine line, Blackbird.Plugins.Plunet.DataJob30Service.PriceUnit? unit)
     {
         return new PricelineResponse
@@ -317,6 +369,28 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         };
     }
 
-    // Item independent jobs?
+    private string MapAssignmentMethod(int method)
+    {
+        return method switch
+        {
+            1 => "Manual",
+            2 => "First come first serve",
+            4 => "Top ranked",
+            5 => "Manual direct assignment",
+            _ => method.ToString() 
+        };
+    }
+
+    private string MapLimitType(int type)
+    {
+        return type switch
+        {
+            0 => "All",
+            1 => "Limit X",
+            2 => "Manual selected",
+            _ => type.ToString()
+        };
+    }
+
     // Start automatic job?
 }

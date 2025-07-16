@@ -65,6 +65,8 @@ public class PlunetInvocable : BaseInvocable
     protected DataCustomerAddress30Client CustomerAddressClient => Clients.GetCustomerAddressClient(Creds.GetInstanceUrl());
     protected DataCustomFields30Client CustomFieldsClient => Clients.GetCustomFieldsClient(Creds.GetInstanceUrl());
 
+   // protected DataQualityManager30Client QualityManagerClient => Clients.GetQualityManagerClient(Creds.GetInstanceUrl());
+
     public PlunetInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
         Uuid = Creds.GetAuthToken();
@@ -427,7 +429,7 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<string[]?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.StringArrayResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
-    protected async Task ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.setCatReport2Response>> func, int maxRetries = 10, int delay = 1000)
+    protected async Task<Blackbird.Plugins.Plunet.DataItem30Service.setCatReport2Response> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.setCatReport2Response>> func, int maxRetries = 10, int delay = 1000)
         => await ThrowOrHandleRetries(func, (x) => x.Result.statusMessage, (x) => false, false, maxRetries, delay);
 
 
