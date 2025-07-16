@@ -16,7 +16,7 @@ namespace Apps.Plunet.Models.Job
         [Display("Assignment limit type")]
         public string assignmentLimitType { get; set; }
 
-        [Display("Assignment mehod")]
+        [Display("Assignment method")]
         public string assignmentMethod { get; set; }
 
         public bool Assigned { get; set; }

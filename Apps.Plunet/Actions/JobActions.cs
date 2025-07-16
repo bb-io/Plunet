@@ -299,7 +299,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         
     }
 
-    [Action("Get job rounds for a job", Description = "Get all rounds for a specific job")]
+    [Action("Get job rounds", Description = "Get all rounds for a specific job")]
     public async Task<JobRoundsResponse> GetJobRounds([ActionParameter] GetJobRequest job)
     {
         var roundResponse = await ExecuteWithRetry(() => JobRoundClient.getAllRoundIDsAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType)));
