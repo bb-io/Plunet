@@ -22,7 +22,7 @@ public class CatTypeDataHandler : IStaticDataSourceHandler
             { "13", "Wordfast" },
             { "14", "Catalyst" },
             { "15", "Helium" },
-            { "16", "Memsource" },
+            { "16", "Phrase" },
             { "17", "Falcon" }
         };
     }

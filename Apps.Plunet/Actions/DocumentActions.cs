@@ -79,10 +79,13 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         [ActionParameter] UploadCatReportRequest input)
     {
         var fileBytes = fileManagementClient.DownloadAsync(input.File).Result.GetByteData().Result;
-        await ExecuteWithRetry(() => ItemClient.setCatReport2Async(Uuid, fileBytes,
+        var response = await ExecuteWithRetry(() => ItemClient.setCatReport2Async(Uuid, fileBytes,
             input.File.Name, fileBytes.Length,
             input.OverwriteExistingPricelines, ParseId(input.CatType), ParseId(input.ProjectType),
             input.CopyResultsToItem, ParseId(item.ItemId)));
-    }   
-   
+        InvocationContext.Logger?.LogError(
+                    $"[PlunetSetCATReport] StatusCode {response.Result.statusCode}, warning code {response.Result.warning_StatusCodeList}," +
+                    $"status message {response.Result.statusMessage} ",
+                    []);
+    }      
 }
