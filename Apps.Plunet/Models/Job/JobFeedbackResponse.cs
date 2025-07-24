@@ -21,5 +21,26 @@ namespace Apps.Plunet.Models.Job
 
         public string? Commentary { get; set; }
 
+        [Display("Sub scores")]
+        public IEnumerable<qualityScore>? SubScores { get; set; }
+
+    }
+
+    public class qualityScore
+    {
+        [Display("Criterion name")]
+        public string Name { get; set; }
+
+        [Display("Critical amount")]
+        public double Critical { get; set; }
+
+        [Display("Hard amount")]
+        public double Hard { get; set; }
+
+        [Display("Minor amount")]
+        public double Minor { get; set; }
+
+        [Display("Criterion rating")]
+        public double Rating { get; set; }
     }
 }
