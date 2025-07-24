@@ -8,6 +8,8 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.Sdk.Utils.Extensions.System;
+using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using Blackbird.Plugins.Plunet.DataJob30Service;
 using Blackbird.Plugins.Plunet.DataRequest30Service;
 
@@ -338,6 +340,26 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
     {
         var feedback = await ExecuteWithRetry(() => QualityManagerClient.getJobFeedbackAsync(Uuid, ParseId(job.JobId)));
 
+        var ScoreList = new List<qualityScore>();
+        if (feedback.ratingList.Count() > 0)
+        {
+            var criteria = await AdminClient.getJobFeedbackCriteriaAsync(Uuid);
+
+            foreach (var item in feedback.ratingList)
+            {
+                var subRating = new qualityScore
+                {
+                    Name = criteria.data.FirstOrDefault(x => x.id == item.criterionID) is null ? "" :
+                    criteria.data.FirstOrDefault(x => x.id == item.criterionID)!.label,
+                    Critical = item.lisaRating.amount_critical,
+                    Hard = item.lisaRating.amount_hard,
+                    Minor = item.lisaRating.amount_minor,
+                    Rating = item.rating                
+                };
+                ScoreList.Add(subRating);
+            }
+        }        
+
         var result = new JobFeedbackResponse
         {
             EditorUserID = feedback.editorUserID,
@@ -345,9 +367,11 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             Rating = feedback.rating,
             IsJobQualityRatingClosed = feedback.jobQualityRatingClosed,
             Commentary = feedback.commentary,
-            JobID = feedback.jobID.ToString()
+            JobID = feedback.jobID.ToString(),
+            SubScores = ScoreList
+            
         };
-
+                
         return result;
     }
 
