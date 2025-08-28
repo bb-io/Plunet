@@ -32,7 +32,7 @@ public class CustomerHooks : PlunetWebhookList<GetCustomerResponse>
 
     protected override async Task<GetCustomerResponse> GetEntity(XDocument doc)
     {
-        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value;
+        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlIdTagName, StringComparison.OrdinalIgnoreCase))?.Value;
         return await Actions.GetCustomerById(new CustomerRequest { CustomerId = id });
     }
 

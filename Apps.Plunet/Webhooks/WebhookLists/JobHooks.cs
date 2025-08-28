@@ -35,7 +35,7 @@ public class JobHooks : PlunetWebhookList<JobResponse>
     protected override async Task<JobResponse> GetEntity(XDocument doc)
     {
         var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value;
-        var projectType = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlProjectTagName)?.Value;
+        var projectType = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlProjectTagName, StringComparison.OrdinalIgnoreCase))?.Value;
         return await Actions.GetJob(new GetJobRequest { JobId = id, ProjectType = projectType });
     }
 

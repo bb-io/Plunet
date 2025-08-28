@@ -29,7 +29,7 @@ public class ResourceHooks(InvocationContext invocationContext) : PlunetWebhookL
 
     protected override async Task<ResourceResponse> GetEntity(XDocument doc)
     {
-        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value;
+        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlIdTagName, StringComparison.OrdinalIgnoreCase))?.Value;
         return await Actions.GetResource(id);
     }
 

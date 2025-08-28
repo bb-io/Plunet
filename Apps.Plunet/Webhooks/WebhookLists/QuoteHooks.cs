@@ -27,7 +27,7 @@ public class QuoteHooks(InvocationContext invocationContext) : PlunetWebhookList
 
     protected override async Task<QuoteResponse> GetEntity(XDocument doc)
     {
-        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value;
+        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlIdTagName, StringComparison.OrdinalIgnoreCase))?.Value;
         return await Actions.GetQuote(new GetQuoteRequest { QuoteId = id });
     }
 
