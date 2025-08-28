@@ -34,7 +34,7 @@ public class ItemHooks(InvocationContext invocationContext) : PlunetWebhookList<
         try
         {
             var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value!;
-            var projectType = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlProjectTypeTagName)?.Value!;
+            var projectType = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlProjectTypeTagName, StringComparison.OrdinalIgnoreCase))?.Value!;
             return await Actions.GetItem(new ProjectTypeRequest { ProjectType = projectType }, new GetItemRequest { ItemId = id }, new OptionalCurrencyTypeRequest { });
         }
         catch (Exception ex)

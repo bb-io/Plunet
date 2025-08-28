@@ -26,7 +26,7 @@ public class RequestHooks(InvocationContext invocationContext) : PlunetWebhookLi
 
     protected override async Task<RequestResponse> GetEntity(XDocument doc)
     {
-        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value;
+        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlIdTagName, StringComparison.OrdinalIgnoreCase))?.Value;
         return await Actions.GetRequest(id);
     }
 
