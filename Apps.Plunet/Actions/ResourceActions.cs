@@ -14,7 +14,7 @@ using Blackbird.Plugins.Plunet.DataResource30Service;
 
 namespace Apps.Plunet.Actions;
 
-[ActionList]
+[ActionList("Resources")]
 public class ResourceActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
 

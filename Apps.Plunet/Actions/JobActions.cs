@@ -15,7 +15,7 @@ using Blackbird.Plugins.Plunet.DataRequest30Service;
 
 namespace Apps.Plunet.Actions;
 
-[ActionList]
+[ActionList("Jobs")]
 public class JobActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Get item jobs", Description = "Get all jobs related to a Plunet item")]

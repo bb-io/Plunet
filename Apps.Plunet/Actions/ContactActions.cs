@@ -8,7 +8,7 @@ using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
 
 namespace Apps.Plunet.Actions;
 
-[ActionList]
+[ActionList("Contacts")]
 public class ContactActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Get customer contacts", Description = "Get all the contacts of the customer")]

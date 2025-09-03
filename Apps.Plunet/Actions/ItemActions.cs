@@ -17,7 +17,7 @@ using PriceUnit = Blackbird.Plugins.Plunet.DataItem30Service.PriceUnit;
 
 namespace Apps.Plunet.Actions;
 
-[ActionList]
+[ActionList("Items")]
 public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Search items",

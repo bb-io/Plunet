@@ -16,7 +16,7 @@ using Newtonsoft.Json;
 
 namespace Apps.Plunet.Actions;
 
-[ActionList]
+[ActionList("Payables")]
 public class PayableActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient) : PlunetInvocable(invocationContext)
 {
     [Action("Search payables", Description = "Get a list of payables based on custom criteria")]
