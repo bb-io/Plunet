@@ -103,6 +103,7 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
             userId = ParseId(request.UserId),
             supervisor1 = request.Supervisor1,
             supervisor2 = request.Supervisor2,
+            status = ParseId(request.Status)
         }, false));
 
         return await GetContactById(contact);
