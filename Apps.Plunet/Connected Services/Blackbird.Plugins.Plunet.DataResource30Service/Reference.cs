@@ -16,20 +16,264 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
     public interface DataResource30
     {
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getStatusRequest", ReplyAction="http://API.Integration/DataResource30/getStatusResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getStatusAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setStatusRequest", ReplyAction="http://API.Integration/DataResource30/setStatusResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setStatusAsync(string UUID, int Status, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getPhoneRequest", ReplyAction="http://API.Integration/DataResource30/getPhoneResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getPhoneAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getWebsiteRequest", ReplyAction="http://API.Integration/DataResource30/getWebsiteResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getWebsiteAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setFaxRequest", ReplyAction="http://API.Integration/DataResource30/setFaxResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setFaxAsync(string UUID, string Fax, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setName1Request", ReplyAction="http://API.Integration/DataResource30/setName1Response")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setName1Async(string UUID, string Name, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getFormOfAddressRequest", ReplyAction="http://API.Integration/DataResource30/getFormOfAddressResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getFormOfAddressAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setFormOfAddressRequest", ReplyAction="http://API.Integration/DataResource30/setFormOfAddressResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setFormOfAddressAsync(string UUID, int FormOfAddress, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setName2Request", ReplyAction="http://API.Integration/DataResource30/setName2Response")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setName2Async(string UUID, string Name, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getAccountRequest", ReplyAction="http://API.Integration/DataResource30/getAccountResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="AccountInfoResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.AccountResult> getAccountAsync(string UUID, int AccountID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getUserIdRequest", ReplyAction="http://API.Integration/DataResource30/getUserIdResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getUserIdAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getAllResourceObjects2Request", ReplyAction="http://API.Integration/DataResource30/getAllResourceObjects2Response")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.getAllResourceObjects2Response> getAllResourceObjects2Async(Blackbird.Plugins.Plunet.DataResource30Service.getAllResourceObjects2Request request);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getAllResourceObjectsRequest", ReplyAction="http://API.Integration/DataResource30/getAllResourceObjectsResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="ResourceListResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.ResourceListResult> getAllResourceObjectsAsync(string UUID, int WorkingStatus, int Status);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getAvailableAccountIDListRequest", ReplyAction="http://API.Integration/DataResource30/getAvailableAccountIDListResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerArrayResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerArrayResult> getAvailableAccountIDListAsync(string UUID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getPaymentMethodDescriptionRequest", ReplyAction="http://API.Integration/DataResource30/getPaymentMethodDescriptionResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getPaymentMethodDescriptionAsync(string UUID, int paymentMethodID, string systemLanguageCode);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/deregisterCallback_NotifyRequest", ReplyAction="http://API.Integration/DataResource30/deregisterCallback_NotifyResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> deregisterCallback_NotifyAsync(string UUID, int EventType);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/registerCallback_ObserverRequest", ReplyAction="http://API.Integration/DataResource30/registerCallback_ObserverResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> registerCallback_ObserverAsync(string UUID, string ServerAuthenticationString, string ServerAddress, int ResourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/registerCallback_NotifyRequest", ReplyAction="http://API.Integration/DataResource30/registerCallback_NotifyResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> registerCallback_NotifyAsync(string UUID, string ServerAuthenticationString, string ServerAddress, int EventType);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getPaymentInformationRequest", ReplyAction="http://API.Integration/DataResource30/getPaymentInformationResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="PaymentInfoResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfoResult> getPaymentInformationAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getAvailablePaymentMethodListRequest", ReplyAction="http://API.Integration/DataResource30/getAvailablePaymentMethodListResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerArrayResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerArrayResult> getAvailablePaymentMethodListAsync(string UUID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setPaymentInformationRequest", ReplyAction="http://API.Integration/DataResource30/setPaymentInformationResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setPaymentInformationAsync(string UUID, int resourceID, Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfo paymentInfo);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/deregisterCallback_ObserverRequest", ReplyAction="http://API.Integration/DataResource30/deregisterCallback_ObserverResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> deregisterCallback_ObserverAsync(string UUID, int ResourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setPhoneRequest", ReplyAction="http://API.Integration/DataResource30/setPhoneResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setPhoneAsync(string UUID, string PhoneNumber, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setEmailRequest", ReplyAction="http://API.Integration/DataResource30/setEmailResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setEmailAsync(string UUID, string EMail, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getEmailRequest", ReplyAction="http://API.Integration/DataResource30/getEmailResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getEmailAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getName2Request", ReplyAction="http://API.Integration/DataResource30/getName2Response")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getName2Async(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getName1Request", ReplyAction="http://API.Integration/DataResource30/getName1Response")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getName1Async(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setWebsiteRequest", ReplyAction="http://API.Integration/DataResource30/setWebsiteResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setWebsiteAsync(string UUID, string Website, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getFaxRequest", ReplyAction="http://API.Integration/DataResource30/getFaxResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getFaxAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/insertObjectRequest", ReplyAction="http://API.Integration/DataResource30/insertObjectResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> insertObjectAsync(string UUID, Blackbird.Plugins.Plunet.DataResource30Service.ResourceIN ResourceIN);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getMobilePhoneRequest", ReplyAction="http://API.Integration/DataResource30/getMobilePhoneResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getMobilePhoneAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getExternalIDRequest", ReplyAction="http://API.Integration/DataResource30/getExternalIDResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getExternalIDAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setSkypeIDRequest", ReplyAction="http://API.Integration/DataResource30/setSkypeIDResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSkypeIDAsync(string UUID, string SkypeID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setExternalIDRequest", ReplyAction="http://API.Integration/DataResource30/setExternalIDResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setExternalIDAsync(string UUID, string ExternalID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getSkypeIDRequest", ReplyAction="http://API.Integration/DataResource30/getSkypeIDResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSkypeIDAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setMobilePhoneRequest", ReplyAction="http://API.Integration/DataResource30/setMobilePhoneResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setMobilePhoneAsync(string UUID, string PhoneNumber, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getAcademicTitleRequest", ReplyAction="http://API.Integration/DataResource30/getAcademicTitleResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getAcademicTitleAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setOpeningRequest", ReplyAction="http://API.Integration/DataResource30/setOpeningResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setOpeningAsync(string UUID, string Opening, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/seekByExternalIDRequest", ReplyAction="http://API.Integration/DataResource30/seekByExternalIDResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> seekByExternalIDAsync(string UUID, string ExternalID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setAcademicTitleRequest", ReplyAction="http://API.Integration/DataResource30/setAcademicTitleResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setAcademicTitleAsync(string UUID, string AcademicTitle, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getOpeningRequest", ReplyAction="http://API.Integration/DataResource30/getOpeningResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getOpeningAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getSamlExternalIdRequest", ReplyAction="http://API.Integration/DataResource30/getSamlExternalIdResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSamlExternalIdAsync(string UUID, int resourceId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setSamlExternalIdRequest", ReplyAction="http://API.Integration/DataResource30/setSamlExternalIdResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSamlExternalIdAsync(string UUID, int resourceId, string samlExternalId);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getSupervisor2Request", ReplyAction="http://API.Integration/DataResource30/getSupervisor2Response")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSupervisor2Async(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setSupervisor1Request", ReplyAction="http://API.Integration/DataResource30/setSupervisor1Response")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSupervisor1Async(string UUID, string LoginName, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getSupervisor1Request", ReplyAction="http://API.Integration/DataResource30/getSupervisor1Response")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSupervisor1Async(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setSupervisor2Request", ReplyAction="http://API.Integration/DataResource30/setSupervisor2Response")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSupervisor2Async(string UUID, string LoginName, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setCostCenterRequest", ReplyAction="http://API.Integration/DataResource30/setCostCenterResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setCostCenterAsync(string UUID, string CostCenter, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getCostCenterRequest", ReplyAction="http://API.Integration/DataResource30/getCostCenterResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getCostCenterAsync(string UUID, int resourceID);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/updateRequest", ReplyAction="http://API.Integration/DataResource30/updateResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> updateAsync(string UUID, Blackbird.Plugins.Plunet.DataResource30Service.ResourceIN ResourceIN, bool enableNullOrEmptyValues);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/deleteRequest", ReplyAction="http://API.Integration/DataResource30/deleteResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> deleteAsync(string UUID, int resourceID);
-        
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/insertRequest", ReplyAction="http://API.Integration/DataResource30/insertResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> insertAsync(string UUID, int WorkingStatus);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/deleteRequest", ReplyAction="http://API.Integration/DataResource30/deleteResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> deleteAsync(string UUID, int resourceID);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/searchRequest", ReplyAction="http://API.Integration/DataResource30/searchResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
@@ -46,289 +290,624 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
         [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setCurrencyAsync(string UUID, int resourceID, string currencyIsoCode);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setSamlExternalIdRequest", ReplyAction="http://API.Integration/DataResource30/setSamlExternalIdResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSamlExternalIdAsync(string UUID, int resourceId, string samlExternalId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getSamlExternalIdRequest", ReplyAction="http://API.Integration/DataResource30/getSamlExternalIdResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSamlExternalIdAsync(string UUID, int resourceId);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getAllResourceObjectsRequest", ReplyAction="http://API.Integration/DataResource30/getAllResourceObjectsResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="ResourceListResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.ResourceListResult> getAllResourceObjectsAsync(string UUID, int WorkingStatus, int Status);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getResourceObjectRequest", ReplyAction="http://API.Integration/DataResource30/getResourceObjectResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="ResourceResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.ResourceResult> getResourceObjectAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getAllResourceObjects2Request", ReplyAction="http://API.Integration/DataResource30/getAllResourceObjects2Response")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.getAllResourceObjects2Response> getAllResourceObjects2Async(Blackbird.Plugins.Plunet.DataResource30Service.getAllResourceObjects2Request request);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getPaymentInformationRequest", ReplyAction="http://API.Integration/DataResource30/getPaymentInformationResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="PaymentInfoResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfoResult> getPaymentInformationAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setPaymentInformationRequest", ReplyAction="http://API.Integration/DataResource30/setPaymentInformationResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setPaymentInformationAsync(string UUID, int resourceID, Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfo paymentInfo);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getAvailablePaymentMethodListRequest", ReplyAction="http://API.Integration/DataResource30/getAvailablePaymentMethodListResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerArrayResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerArrayResult> getAvailablePaymentMethodListAsync(string UUID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/deregisterCallback_NotifyRequest", ReplyAction="http://API.Integration/DataResource30/deregisterCallback_NotifyResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> deregisterCallback_NotifyAsync(string UUID, int EventType);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/deregisterCallback_ObserverRequest", ReplyAction="http://API.Integration/DataResource30/deregisterCallback_ObserverResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> deregisterCallback_ObserverAsync(string UUID, int ResourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/registerCallback_NotifyRequest", ReplyAction="http://API.Integration/DataResource30/registerCallback_NotifyResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> registerCallback_NotifyAsync(string UUID, string ServerAuthenticationString, string ServerAddress, int EventType);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getPaymentMethodDescriptionRequest", ReplyAction="http://API.Integration/DataResource30/getPaymentMethodDescriptionResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getPaymentMethodDescriptionAsync(string UUID, int paymentMethodID, string systemLanguageCode);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/registerCallback_ObserverRequest", ReplyAction="http://API.Integration/DataResource30/registerCallback_ObserverResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> registerCallback_ObserverAsync(string UUID, string ServerAuthenticationString, string ServerAddress, int ResourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getAvailableAccountIDListRequest", ReplyAction="http://API.Integration/DataResource30/getAvailableAccountIDListResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerArrayResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerArrayResult> getAvailableAccountIDListAsync(string UUID);
-        
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getFullNameRequest", ReplyAction="http://API.Integration/DataResource30/getFullNameResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getFullNameAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getStatusRequest", ReplyAction="http://API.Integration/DataResource30/getStatusResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getStatusAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setStatusRequest", ReplyAction="http://API.Integration/DataResource30/setStatusResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setStatusAsync(string UUID, int Status, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setName2Request", ReplyAction="http://API.Integration/DataResource30/setName2Response")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setName2Async(string UUID, string Name, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setWebsiteRequest", ReplyAction="http://API.Integration/DataResource30/setWebsiteResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setWebsiteAsync(string UUID, string Website, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setName1Request", ReplyAction="http://API.Integration/DataResource30/setName1Response")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setName1Async(string UUID, string Name, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getWebsiteRequest", ReplyAction="http://API.Integration/DataResource30/getWebsiteResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getWebsiteAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getOpeningRequest", ReplyAction="http://API.Integration/DataResource30/getOpeningResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getOpeningAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getMobilePhoneRequest", ReplyAction="http://API.Integration/DataResource30/getMobilePhoneResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getMobilePhoneAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getFaxRequest", ReplyAction="http://API.Integration/DataResource30/getFaxResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getFaxAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getCostCenterRequest", ReplyAction="http://API.Integration/DataResource30/getCostCenterResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getCostCenterAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setMobilePhoneRequest", ReplyAction="http://API.Integration/DataResource30/setMobilePhoneResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setMobilePhoneAsync(string UUID, string PhoneNumber, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setOpeningRequest", ReplyAction="http://API.Integration/DataResource30/setOpeningResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setOpeningAsync(string UUID, string Opening, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setCostCenterRequest", ReplyAction="http://API.Integration/DataResource30/setCostCenterResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setCostCenterAsync(string UUID, string CostCenter, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setFaxRequest", ReplyAction="http://API.Integration/DataResource30/setFaxResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setFaxAsync(string UUID, string Fax, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setAcademicTitleRequest", ReplyAction="http://API.Integration/DataResource30/setAcademicTitleResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setAcademicTitleAsync(string UUID, string AcademicTitle, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/seekByExternalIDRequest", ReplyAction="http://API.Integration/DataResource30/seekByExternalIDResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> seekByExternalIDAsync(string UUID, string ExternalID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getEmailRequest", ReplyAction="http://API.Integration/DataResource30/getEmailResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getEmailAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getSkypeIDRequest", ReplyAction="http://API.Integration/DataResource30/getSkypeIDResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSkypeIDAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setFormOfAddressRequest", ReplyAction="http://API.Integration/DataResource30/setFormOfAddressResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setFormOfAddressAsync(string UUID, int FormOfAddress, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getFormOfAddressRequest", ReplyAction="http://API.Integration/DataResource30/getFormOfAddressResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getFormOfAddressAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getPhoneRequest", ReplyAction="http://API.Integration/DataResource30/getPhoneResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getPhoneAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getAcademicTitleRequest", ReplyAction="http://API.Integration/DataResource30/getAcademicTitleResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getAcademicTitleAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getExternalIDRequest", ReplyAction="http://API.Integration/DataResource30/getExternalIDResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getExternalIDAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setPhoneRequest", ReplyAction="http://API.Integration/DataResource30/setPhoneResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setPhoneAsync(string UUID, string PhoneNumber, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setEmailRequest", ReplyAction="http://API.Integration/DataResource30/setEmailResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setEmailAsync(string UUID, string EMail, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getName2Request", ReplyAction="http://API.Integration/DataResource30/getName2Response")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getName2Async(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setExternalIDRequest", ReplyAction="http://API.Integration/DataResource30/setExternalIDResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setExternalIDAsync(string UUID, string ExternalID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setSkypeIDRequest", ReplyAction="http://API.Integration/DataResource30/setSkypeIDResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSkypeIDAsync(string UUID, string SkypeID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getName1Request", ReplyAction="http://API.Integration/DataResource30/getName1Response")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getName1Async(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getUserIdRequest", ReplyAction="http://API.Integration/DataResource30/getUserIdResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getUserIdAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getSupervisor2Request", ReplyAction="http://API.Integration/DataResource30/getSupervisor2Response")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSupervisor2Async(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setSupervisor1Request", ReplyAction="http://API.Integration/DataResource30/setSupervisor1Response")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSupervisor1Async(string UUID, string LoginName, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setSupervisor2Request", ReplyAction="http://API.Integration/DataResource30/setSupervisor2Response")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSupervisor2Async(string UUID, string LoginName, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getSupervisor1Request", ReplyAction="http://API.Integration/DataResource30/getSupervisor1Response")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSupervisor1Async(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getPricelistsRequest", ReplyAction="http://API.Integration/DataResource30/getPricelistsResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="PricelistListResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.PricelistListResult> getPricelistsAsync(string UUID, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setWorkingStatusRequest", ReplyAction="http://API.Integration/DataResource30/setWorkingStatusResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setWorkingStatusAsync(string UUID, int WorkingStatus, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setResourceTypeRequest", ReplyAction="http://API.Integration/DataResource30/setResourceTypeResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setResourceTypeAsync(string UUID, int ResourceType, int resourceID);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getResourceTypeRequest", ReplyAction="http://API.Integration/DataResource30/getResourceTypeResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getResourceTypeAsync(string UUID, int resourceID);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getWorkingStatusRequest", ReplyAction="http://API.Integration/DataResource30/getWorkingStatusResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getWorkingStatusAsync(string UUID, int resourceID);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setResourceTypeRequest", ReplyAction="http://API.Integration/DataResource30/setResourceTypeResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setResourceTypeAsync(string UUID, int ResourceType, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getResourceObjectRequest", ReplyAction="http://API.Integration/DataResource30/getResourceObjectResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="ResourceResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.ResourceResult> getResourceObjectAsync(string UUID, int resourceID);
+        
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/setWorkingStatusRequest", ReplyAction="http://API.Integration/DataResource30/setWorkingStatusResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setWorkingStatusAsync(string UUID, int WorkingStatus, int resourceID);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getPricelists2Request", ReplyAction="http://API.Integration/DataResource30/getPricelists2Response")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [return: System.ServiceModel.MessageParameterAttribute(Name="PricelistListResult")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.PricelistListResult> getPricelists2Async(string UUID, string sourcelanguage, string targetlanguage, int resourceID);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getAccountRequest", ReplyAction="http://API.Integration/DataResource30/getAccountResponse")]
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getPricelistsRequest", ReplyAction="http://API.Integration/DataResource30/getPricelistsResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="AccountInfoResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.AccountResult> getAccountAsync(string UUID, int AccountID);
+        [return: System.ServiceModel.MessageParameterAttribute(Name="PricelistListResult")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.PricelistListResult> getPricelistsAsync(string UUID, int resourceID);
         
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/insertObjectRequest", ReplyAction="http://API.Integration/DataResource30/insertObjectResponse")]
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataResource30/getResourceTypeRequest", ReplyAction="http://API.Integration/DataResource30/getResourceTypeResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [return: System.ServiceModel.MessageParameterAttribute(Name="IntegerResult")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> insertObjectAsync(string UUID, Blackbird.Plugins.Plunet.DataResource30Service.ResourceIN ResourceIN);
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getResourceTypeAsync(string UUID, int resourceID);
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class IntegerResult : Result
+    {
+        
+        private int dataField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
+        public int data
+        {
+            get
+            {
+                return this.dataField;
+            }
+            set
+            {
+                this.dataField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PaymentInfoResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PricelistListResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AccountResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(IntegerArrayResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ResourceResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(IntegerResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ResourceListResult))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(StringResult))]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class Result
+    {
+        
+        private int statusCodeField;
+        
+        private string statusCodeAlphanumericField;
+        
+        private string statusMessageField;
+        
+        private System.Nullable<int>[] warning_StatusCodeListField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
+        public int statusCode
+        {
+            get
+            {
+                return this.statusCodeField;
+            }
+            set
+            {
+                this.statusCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
+        public string statusCodeAlphanumeric
+        {
+            get
+            {
+                return this.statusCodeAlphanumericField;
+            }
+            set
+            {
+                this.statusCodeAlphanumericField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
+        public string statusMessage
+        {
+            get
+            {
+                return this.statusMessageField;
+            }
+            set
+            {
+                this.statusMessageField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("warning_StatusCodeList", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=3)]
+        public System.Nullable<int>[] warning_StatusCodeList
+        {
+            get
+            {
+                return this.warning_StatusCodeListField;
+            }
+            set
+            {
+                this.warning_StatusCodeListField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class Textmodule
+    {
+        
+        private string[] availableValuesField;
+        
+        private System.DateTime dateValueField;
+        
+        private bool dateValueFieldSpecified;
+        
+        private string flagField;
+        
+        private string flag_MainTextModuleField;
+        
+        private string[] selectedValuesField;
+        
+        private string stringValueField;
+        
+        private string textModuleLabelField;
+        
+        private int textModuleTypeField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("availableValues", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
+        public string[] availableValues
+        {
+            get
+            {
+                return this.availableValuesField;
+            }
+            set
+            {
+                this.availableValuesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
+        public System.DateTime dateValue
+        {
+            get
+            {
+                return this.dateValueField;
+            }
+            set
+            {
+                this.dateValueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool dateValueSpecified
+        {
+            get
+            {
+                return this.dateValueFieldSpecified;
+            }
+            set
+            {
+                this.dateValueFieldSpecified = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
+        public string flag
+        {
+            get
+            {
+                return this.flagField;
+            }
+            set
+            {
+                this.flagField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
+        public string flag_MainTextModule
+        {
+            get
+            {
+                return this.flag_MainTextModuleField;
+            }
+            set
+            {
+                this.flag_MainTextModuleField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("selectedValues", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=4)]
+        public string[] selectedValues
+        {
+            get
+            {
+                return this.selectedValuesField;
+            }
+            set
+            {
+                this.selectedValuesField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=5)]
+        public string stringValue
+        {
+            get
+            {
+                return this.stringValueField;
+            }
+            set
+            {
+                this.stringValueField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=6)]
+        public string textModuleLabel
+        {
+            get
+            {
+                return this.textModuleLabelField;
+            }
+            set
+            {
+                this.textModuleLabelField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=7)]
+        public int textModuleType
+        {
+            get
+            {
+                return this.textModuleTypeField;
+            }
+            set
+            {
+                this.textModuleTypeField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class Property
+    {
+        
+        private System.Nullable<int>[] avaliablePropertyValueIDListField;
+        
+        private string mainPropertyNameEnglishField;
+        
+        private string propertyNameEnglishField;
+        
+        private int propertyTypeField;
+        
+        private int selectedPropertyValueIDField;
+        
+        private System.Nullable<int>[] selectedPropertyValueListField;
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("avaliablePropertyValueIDList", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
+        public System.Nullable<int>[] avaliablePropertyValueIDList
+        {
+            get
+            {
+                return this.avaliablePropertyValueIDListField;
+            }
+            set
+            {
+                this.avaliablePropertyValueIDListField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
+        public string mainPropertyNameEnglish
+        {
+            get
+            {
+                return this.mainPropertyNameEnglishField;
+            }
+            set
+            {
+                this.mainPropertyNameEnglishField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
+        public string propertyNameEnglish
+        {
+            get
+            {
+                return this.propertyNameEnglishField;
+            }
+            set
+            {
+                this.propertyNameEnglishField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
+        public int propertyType
+        {
+            get
+            {
+                return this.propertyTypeField;
+            }
+            set
+            {
+                this.propertyTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=4)]
+        public int selectedPropertyValueID
+        {
+            get
+            {
+                return this.selectedPropertyValueIDField;
+            }
+            set
+            {
+                this.selectedPropertyValueIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("selectedPropertyValueList", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=5)]
+        public System.Nullable<int>[] selectedPropertyValueList
+        {
+            get
+            {
+                return this.selectedPropertyValueListField;
+            }
+            set
+            {
+                this.selectedPropertyValueListField = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Diagnostics.DebuggerStepThroughAttribute()]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public partial class SearchFilter_Resource
+    {
+        
+        private int contact_resourceIDField;
+        
+        private string emailField;
+        
+        private string languageCodeField;
+        
+        private string name1Field;
+        
+        private string name2Field;
+        
+        private Property[] propertiesListField;
+        
+        private int resourceTypeField;
+        
+        private int resourceStatusField;
+        
+        private string sourceLanguageCodeField;
+        
+        private string targetLanguageCodeField;
+        
+        private Textmodule[] textmodulesListField;
+        
+        private int workingStatusField;
+        
+        public SearchFilter_Resource()
+        {
+            this.contact_resourceIDField = -1;
+            this.emailField = "";
+            this.languageCodeField = "EN";
+            this.name1Field = "";
+            this.name2Field = "";
+            this.resourceTypeField = -1;
+            this.resourceStatusField = -1;
+            this.sourceLanguageCodeField = "";
+            this.targetLanguageCodeField = "";
+            this.workingStatusField = -1;
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
+        public int contact_resourceID
+        {
+            get
+            {
+                return this.contact_resourceIDField;
+            }
+            set
+            {
+                this.contact_resourceIDField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
+        [System.ComponentModel.DefaultValueAttribute("")]
+        public string email
+        {
+            get
+            {
+                return this.emailField;
+            }
+            set
+            {
+                this.emailField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
+        public string languageCode
+        {
+            get
+            {
+                return this.languageCodeField;
+            }
+            set
+            {
+                this.languageCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
+        [System.ComponentModel.DefaultValueAttribute("")]
+        public string name1
+        {
+            get
+            {
+                return this.name1Field;
+            }
+            set
+            {
+                this.name1Field = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=4)]
+        [System.ComponentModel.DefaultValueAttribute("")]
+        public string name2
+        {
+            get
+            {
+                return this.name2Field;
+            }
+            set
+            {
+                this.name2Field = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("propertiesList", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=5)]
+        public Property[] propertiesList
+        {
+            get
+            {
+                return this.propertiesListField;
+            }
+            set
+            {
+                this.propertiesListField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=6)]
+        public int resourceType
+        {
+            get
+            {
+                return this.resourceTypeField;
+            }
+            set
+            {
+                this.resourceTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=7)]
+        public int resourceStatus
+        {
+            get
+            {
+                return this.resourceStatusField;
+            }
+            set
+            {
+                this.resourceStatusField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=8)]
+        [System.ComponentModel.DefaultValueAttribute("")]
+        public string sourceLanguageCode
+        {
+            get
+            {
+                return this.sourceLanguageCodeField;
+            }
+            set
+            {
+                this.sourceLanguageCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=9)]
+        [System.ComponentModel.DefaultValueAttribute("")]
+        public string targetLanguageCode
+        {
+            get
+            {
+                return this.targetLanguageCodeField;
+            }
+            set
+            {
+                this.targetLanguageCodeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("textmodulesList", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=10)]
+        public Textmodule[] textmodulesList
+        {
+            get
+            {
+                return this.textmodulesListField;
+            }
+            set
+            {
+                this.textmodulesListField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=11)]
+        public int workingStatus
+        {
+            get
+            {
+                return this.workingStatusField;
+            }
+            set
+            {
+                this.workingStatusField = value;
+            }
+        }
     }
     
     /// <remarks/>
@@ -695,465 +1274,6 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
-    public partial class Textmodule
-    {
-        
-        private string[] availableValuesField;
-        
-        private System.DateTime dateValueField;
-        
-        private bool dateValueFieldSpecified;
-        
-        private string flagField;
-        
-        private string flag_MainTextModuleField;
-        
-        private string[] selectedValuesField;
-        
-        private string stringValueField;
-        
-        private int textModuleTypeField;
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("availableValues", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
-        public string[] availableValues
-        {
-            get
-            {
-                return this.availableValuesField;
-            }
-            set
-            {
-                this.availableValuesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
-        public System.DateTime dateValue
-        {
-            get
-            {
-                return this.dateValueField;
-            }
-            set
-            {
-                this.dateValueField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlIgnoreAttribute()]
-        public bool dateValueSpecified
-        {
-            get
-            {
-                return this.dateValueFieldSpecified;
-            }
-            set
-            {
-                this.dateValueFieldSpecified = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
-        public string flag
-        {
-            get
-            {
-                return this.flagField;
-            }
-            set
-            {
-                this.flagField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
-        public string flag_MainTextModule
-        {
-            get
-            {
-                return this.flag_MainTextModuleField;
-            }
-            set
-            {
-                this.flag_MainTextModuleField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("selectedValues", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=4)]
-        public string[] selectedValues
-        {
-            get
-            {
-                return this.selectedValuesField;
-            }
-            set
-            {
-                this.selectedValuesField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=5)]
-        public string stringValue
-        {
-            get
-            {
-                return this.stringValueField;
-            }
-            set
-            {
-                this.stringValueField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=6)]
-        public int textModuleType
-        {
-            get
-            {
-                return this.textModuleTypeField;
-            }
-            set
-            {
-                this.textModuleTypeField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
-    public partial class Property
-    {
-        
-        private System.Nullable<int>[] avaliablePropertyValueIDListField;
-        
-        private string mainPropertyNameEnglishField;
-        
-        private string propertyNameEnglishField;
-        
-        private int propertyTypeField;
-        
-        private int selectedPropertyValueIDField;
-        
-        private System.Nullable<int>[] selectedPropertyValueListField;
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("avaliablePropertyValueIDList", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=0)]
-        public System.Nullable<int>[] avaliablePropertyValueIDList
-        {
-            get
-            {
-                return this.avaliablePropertyValueIDListField;
-            }
-            set
-            {
-                this.avaliablePropertyValueIDListField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
-        public string mainPropertyNameEnglish
-        {
-            get
-            {
-                return this.mainPropertyNameEnglishField;
-            }
-            set
-            {
-                this.mainPropertyNameEnglishField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
-        public string propertyNameEnglish
-        {
-            get
-            {
-                return this.propertyNameEnglishField;
-            }
-            set
-            {
-                this.propertyNameEnglishField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
-        public int propertyType
-        {
-            get
-            {
-                return this.propertyTypeField;
-            }
-            set
-            {
-                this.propertyTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=4)]
-        public int selectedPropertyValueID
-        {
-            get
-            {
-                return this.selectedPropertyValueIDField;
-            }
-            set
-            {
-                this.selectedPropertyValueIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("selectedPropertyValueList", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=5)]
-        public System.Nullable<int>[] selectedPropertyValueList
-        {
-            get
-            {
-                return this.selectedPropertyValueListField;
-            }
-            set
-            {
-                this.selectedPropertyValueListField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
-    public partial class SearchFilter_Resource
-    {
-        
-        private int contact_resourceIDField;
-        
-        private string emailField;
-        
-        private string languageCodeField;
-        
-        private string name1Field;
-        
-        private string name2Field;
-        
-        private Property[] propertiesListField;
-        
-        private int resourceTypeField;
-        
-        private int resourceStatusField;
-        
-        private string sourceLanguageCodeField;
-        
-        private string targetLanguageCodeField;
-        
-        private Textmodule[] textmodulesListField;
-        
-        private int workingStatusField;
-        
-        public SearchFilter_Resource()
-        {
-            this.contact_resourceIDField = -1;
-            this.emailField = "";
-            this.languageCodeField = "EN";
-            this.name1Field = "";
-            this.name2Field = "";
-            this.resourceTypeField = -1;
-            this.resourceStatusField = -1;
-            this.sourceLanguageCodeField = "";
-            this.targetLanguageCodeField = "";
-            this.workingStatusField = -1;
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
-        public int contact_resourceID
-        {
-            get
-            {
-                return this.contact_resourceIDField;
-            }
-            set
-            {
-                this.contact_resourceIDField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
-        [System.ComponentModel.DefaultValueAttribute("")]
-        public string email
-        {
-            get
-            {
-                return this.emailField;
-            }
-            set
-            {
-                this.emailField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
-        public string languageCode
-        {
-            get
-            {
-                return this.languageCodeField;
-            }
-            set
-            {
-                this.languageCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
-        [System.ComponentModel.DefaultValueAttribute("")]
-        public string name1
-        {
-            get
-            {
-                return this.name1Field;
-            }
-            set
-            {
-                this.name1Field = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=4)]
-        [System.ComponentModel.DefaultValueAttribute("")]
-        public string name2
-        {
-            get
-            {
-                return this.name2Field;
-            }
-            set
-            {
-                this.name2Field = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("propertiesList", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=5)]
-        public Property[] propertiesList
-        {
-            get
-            {
-                return this.propertiesListField;
-            }
-            set
-            {
-                this.propertiesListField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=6)]
-        public int resourceType
-        {
-            get
-            {
-                return this.resourceTypeField;
-            }
-            set
-            {
-                this.resourceTypeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=7)]
-        public int resourceStatus
-        {
-            get
-            {
-                return this.resourceStatusField;
-            }
-            set
-            {
-                this.resourceStatusField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=8)]
-        [System.ComponentModel.DefaultValueAttribute("")]
-        public string sourceLanguageCode
-        {
-            get
-            {
-                return this.sourceLanguageCodeField;
-            }
-            set
-            {
-                this.sourceLanguageCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=9)]
-        [System.ComponentModel.DefaultValueAttribute("")]
-        public string targetLanguageCode
-        {
-            get
-            {
-                return this.targetLanguageCodeField;
-            }
-            set
-            {
-                this.targetLanguageCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("textmodulesList", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=10)]
-        public Textmodule[] textmodulesList
-        {
-            get
-            {
-                return this.textmodulesListField;
-            }
-            set
-            {
-                this.textmodulesListField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=11)]
-        public int workingStatus
-        {
-            get
-            {
-                return this.workingStatusField;
-            }
-            set
-            {
-                this.workingStatusField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class PaymentInfo
     {
         
@@ -1321,6 +1441,12 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
         
         private bool withWhiteSpaceField;
         
+        private int adminPriceListIdField;
+        
+        private contactType adminPriceListPartnerTypeField;
+        
+        private bool adminPriceListPartnerTypeFieldSpecified;
+        
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
         public int ResourcePricelistID
@@ -1404,6 +1530,64 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
                 this.withWhiteSpaceField = value;
             }
         }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=6)]
+        public int adminPriceListId
+        {
+            get
+            {
+                return this.adminPriceListIdField;
+            }
+            set
+            {
+                this.adminPriceListIdField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=7)]
+        public contactType adminPriceListPartnerType
+        {
+            get
+            {
+                return this.adminPriceListPartnerTypeField;
+            }
+            set
+            {
+                this.adminPriceListPartnerTypeField = value;
+            }
+        }
+        
+        /// <remarks/>
+        [System.Xml.Serialization.XmlIgnoreAttribute()]
+        public bool adminPriceListPartnerTypeSpecified
+        {
+            get
+            {
+                return this.adminPriceListPartnerTypeFieldSpecified;
+            }
+            set
+            {
+                this.adminPriceListPartnerTypeFieldSpecified = value;
+            }
+        }
+    }
+    
+    /// <remarks/>
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
+    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
+    public enum contactType
+    {
+        
+        /// <remarks/>
+        CUSTOMER,
+        
+        /// <remarks/>
+        RESOURCE,
+        
+        /// <remarks/>
+        MISCELLANEOUS,
     }
     
     /// <remarks/>
@@ -1855,86 +2039,6 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
     }
     
     /// <remarks/>
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PaymentInfoResult))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(PricelistListResult))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(AccountResult))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(IntegerArrayResult))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ResourceResult))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(IntegerResult))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(ResourceListResult))]
-    [System.Xml.Serialization.XmlIncludeAttribute(typeof(StringResult))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
-    public partial class Result
-    {
-        
-        private int statusCodeField;
-        
-        private string statusCodeAlphanumericField;
-        
-        private string statusMessageField;
-        
-        private System.Nullable<int>[] warning_StatusCodeListField;
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
-        public int statusCode
-        {
-            get
-            {
-                return this.statusCodeField;
-            }
-            set
-            {
-                this.statusCodeField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
-        public string statusCodeAlphanumeric
-        {
-            get
-            {
-                return this.statusCodeAlphanumericField;
-            }
-            set
-            {
-                this.statusCodeAlphanumericField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
-        public string statusMessage
-        {
-            get
-            {
-                return this.statusMessageField;
-            }
-            set
-            {
-                this.statusMessageField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("warning_StatusCodeList", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=3)]
-        public System.Nullable<int>[] warning_StatusCodeList
-        {
-            get
-            {
-                return this.warning_StatusCodeListField;
-            }
-            set
-            {
-                this.warning_StatusCodeListField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
     [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
@@ -2042,30 +2146,6 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
         public Resource data
-        {
-            get
-            {
-                return this.dataField;
-            }
-            set
-            {
-                this.dataField = value;
-            }
-        }
-    }
-    
-    /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
-    [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
-    public partial class IntegerResult : Result
-    {
-        
-        private int dataField;
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
-        public int data
         {
             get
             {
@@ -2195,15 +2275,15 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
         /// <param name="clientCredentials">The client credentials</param>
         static partial void ConfigureEndpoint(System.ServiceModel.Description.ServiceEndpoint serviceEndpoint, System.ServiceModel.Description.ClientCredentials clientCredentials);
         
-        public DataResource30Client(Uri url) : 
-                base(DataResource30Client.GetDefaultBinding(), DataResource30Client.GetDefaultEndpointAddress(url.ToString().TrimEnd('/')))
+        public DataResource30Client() : 
+                base(DataResource30Client.GetDefaultBinding(), DataResource30Client.GetDefaultEndpointAddress())
         {
             this.Endpoint.Name = EndpointConfiguration.DataResource30Port.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
         }
         
-        public DataResource30Client(EndpointConfiguration endpointConfiguration, Uri url) : 
-                base(DataResource30Client.GetBindingForEndpoint(endpointConfiguration), DataResource30Client.GetEndpointAddress(endpointConfiguration, url.ToString().TrimEnd('/')))
+        public DataResource30Client(EndpointConfiguration endpointConfiguration) : 
+                base(DataResource30Client.GetBindingForEndpoint(endpointConfiguration), DataResource30Client.GetEndpointAddress(endpointConfiguration))
         {
             this.Endpoint.Name = endpointConfiguration.ToString();
             ConfigureEndpoint(this.Endpoint, this.ClientCredentials);
@@ -2228,54 +2308,59 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
         {
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> updateAsync(string UUID, Blackbird.Plugins.Plunet.DataResource30Service.ResourceIN ResourceIN, bool enableNullOrEmptyValues)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getStatusAsync(string UUID, int resourceID)
         {
-            return base.Channel.updateAsync(UUID, ResourceIN, enableNullOrEmptyValues);
+            return base.Channel.getStatusAsync(UUID, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> deleteAsync(string UUID, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setStatusAsync(string UUID, int Status, int resourceID)
         {
-            return base.Channel.deleteAsync(UUID, resourceID);
+            return base.Channel.setStatusAsync(UUID, Status, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> insertAsync(string UUID, int WorkingStatus)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getPhoneAsync(string UUID, int resourceID)
         {
-            return base.Channel.insertAsync(UUID, WorkingStatus);
+            return base.Channel.getPhoneAsync(UUID, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerArrayResult> searchAsync(string UUID, Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource SearchFilterResource)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getWebsiteAsync(string UUID, int resourceID)
         {
-            return base.Channel.searchAsync(UUID, SearchFilterResource);
+            return base.Channel.getWebsiteAsync(UUID, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getCurrencyAsync(string UUID, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setFaxAsync(string UUID, string Fax, int resourceID)
         {
-            return base.Channel.getCurrencyAsync(UUID, resourceID);
+            return base.Channel.setFaxAsync(UUID, Fax, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setCurrencyAsync(string UUID, int resourceID, string currencyIsoCode)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setName1Async(string UUID, string Name, int resourceID)
         {
-            return base.Channel.setCurrencyAsync(UUID, resourceID, currencyIsoCode);
+            return base.Channel.setName1Async(UUID, Name, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSamlExternalIdAsync(string UUID, int resourceId, string samlExternalId)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getFormOfAddressAsync(string UUID, int resourceID)
         {
-            return base.Channel.setSamlExternalIdAsync(UUID, resourceId, samlExternalId);
+            return base.Channel.getFormOfAddressAsync(UUID, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSamlExternalIdAsync(string UUID, int resourceId)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setFormOfAddressAsync(string UUID, int FormOfAddress, int resourceID)
         {
-            return base.Channel.getSamlExternalIdAsync(UUID, resourceId);
+            return base.Channel.setFormOfAddressAsync(UUID, FormOfAddress, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.ResourceListResult> getAllResourceObjectsAsync(string UUID, int WorkingStatus, int Status)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setName2Async(string UUID, string Name, int resourceID)
         {
-            return base.Channel.getAllResourceObjectsAsync(UUID, WorkingStatus, Status);
+            return base.Channel.setName2Async(UUID, Name, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.ResourceResult> getResourceObjectAsync(string UUID, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.AccountResult> getAccountAsync(string UUID, int AccountID)
         {
-            return base.Channel.getResourceObjectAsync(UUID, resourceID);
+            return base.Channel.getAccountAsync(UUID, AccountID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getUserIdAsync(string UUID, int resourceID)
+        {
+            return base.Channel.getUserIdAsync(UUID, resourceID);
         }
         
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
@@ -2293,44 +2378,9 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
             return ((Blackbird.Plugins.Plunet.DataResource30Service.DataResource30)(this)).getAllResourceObjects2Async(inValue);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfoResult> getPaymentInformationAsync(string UUID, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.ResourceListResult> getAllResourceObjectsAsync(string UUID, int WorkingStatus, int Status)
         {
-            return base.Channel.getPaymentInformationAsync(UUID, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setPaymentInformationAsync(string UUID, int resourceID, Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfo paymentInfo)
-        {
-            return base.Channel.setPaymentInformationAsync(UUID, resourceID, paymentInfo);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerArrayResult> getAvailablePaymentMethodListAsync(string UUID)
-        {
-            return base.Channel.getAvailablePaymentMethodListAsync(UUID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> deregisterCallback_NotifyAsync(string UUID, int EventType)
-        {
-            return base.Channel.deregisterCallback_NotifyAsync(UUID, EventType);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> deregisterCallback_ObserverAsync(string UUID, int ResourceID)
-        {
-            return base.Channel.deregisterCallback_ObserverAsync(UUID, ResourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> registerCallback_NotifyAsync(string UUID, string ServerAuthenticationString, string ServerAddress, int EventType)
-        {
-            return base.Channel.registerCallback_NotifyAsync(UUID, ServerAuthenticationString, ServerAddress, EventType);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getPaymentMethodDescriptionAsync(string UUID, int paymentMethodID, string systemLanguageCode)
-        {
-            return base.Channel.getPaymentMethodDescriptionAsync(UUID, paymentMethodID, systemLanguageCode);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> registerCallback_ObserverAsync(string UUID, string ServerAuthenticationString, string ServerAddress, int ResourceID)
-        {
-            return base.Channel.registerCallback_ObserverAsync(UUID, ServerAuthenticationString, ServerAddress, ResourceID);
+            return base.Channel.getAllResourceObjectsAsync(UUID, WorkingStatus, Status);
         }
         
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerArrayResult> getAvailableAccountIDListAsync(string UUID)
@@ -2338,124 +2388,44 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
             return base.Channel.getAvailableAccountIDListAsync(UUID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getFullNameAsync(string UUID, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getPaymentMethodDescriptionAsync(string UUID, int paymentMethodID, string systemLanguageCode)
         {
-            return base.Channel.getFullNameAsync(UUID, resourceID);
+            return base.Channel.getPaymentMethodDescriptionAsync(UUID, paymentMethodID, systemLanguageCode);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getStatusAsync(string UUID, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> deregisterCallback_NotifyAsync(string UUID, int EventType)
         {
-            return base.Channel.getStatusAsync(UUID, resourceID);
+            return base.Channel.deregisterCallback_NotifyAsync(UUID, EventType);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setStatusAsync(string UUID, int Status, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> registerCallback_ObserverAsync(string UUID, string ServerAuthenticationString, string ServerAddress, int ResourceID)
         {
-            return base.Channel.setStatusAsync(UUID, Status, resourceID);
+            return base.Channel.registerCallback_ObserverAsync(UUID, ServerAuthenticationString, ServerAddress, ResourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setName2Async(string UUID, string Name, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> registerCallback_NotifyAsync(string UUID, string ServerAuthenticationString, string ServerAddress, int EventType)
         {
-            return base.Channel.setName2Async(UUID, Name, resourceID);
+            return base.Channel.registerCallback_NotifyAsync(UUID, ServerAuthenticationString, ServerAddress, EventType);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setWebsiteAsync(string UUID, string Website, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfoResult> getPaymentInformationAsync(string UUID, int resourceID)
         {
-            return base.Channel.setWebsiteAsync(UUID, Website, resourceID);
+            return base.Channel.getPaymentInformationAsync(UUID, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setName1Async(string UUID, string Name, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerArrayResult> getAvailablePaymentMethodListAsync(string UUID)
         {
-            return base.Channel.setName1Async(UUID, Name, resourceID);
+            return base.Channel.getAvailablePaymentMethodListAsync(UUID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getWebsiteAsync(string UUID, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setPaymentInformationAsync(string UUID, int resourceID, Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfo paymentInfo)
         {
-            return base.Channel.getWebsiteAsync(UUID, resourceID);
+            return base.Channel.setPaymentInformationAsync(UUID, resourceID, paymentInfo);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getOpeningAsync(string UUID, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> deregisterCallback_ObserverAsync(string UUID, int ResourceID)
         {
-            return base.Channel.getOpeningAsync(UUID, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getMobilePhoneAsync(string UUID, int resourceID)
-        {
-            return base.Channel.getMobilePhoneAsync(UUID, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getFaxAsync(string UUID, int resourceID)
-        {
-            return base.Channel.getFaxAsync(UUID, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getCostCenterAsync(string UUID, int resourceID)
-        {
-            return base.Channel.getCostCenterAsync(UUID, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setMobilePhoneAsync(string UUID, string PhoneNumber, int resourceID)
-        {
-            return base.Channel.setMobilePhoneAsync(UUID, PhoneNumber, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setOpeningAsync(string UUID, string Opening, int resourceID)
-        {
-            return base.Channel.setOpeningAsync(UUID, Opening, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setCostCenterAsync(string UUID, string CostCenter, int resourceID)
-        {
-            return base.Channel.setCostCenterAsync(UUID, CostCenter, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setFaxAsync(string UUID, string Fax, int resourceID)
-        {
-            return base.Channel.setFaxAsync(UUID, Fax, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setAcademicTitleAsync(string UUID, string AcademicTitle, int resourceID)
-        {
-            return base.Channel.setAcademicTitleAsync(UUID, AcademicTitle, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> seekByExternalIDAsync(string UUID, string ExternalID)
-        {
-            return base.Channel.seekByExternalIDAsync(UUID, ExternalID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getEmailAsync(string UUID, int resourceID)
-        {
-            return base.Channel.getEmailAsync(UUID, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSkypeIDAsync(string UUID, int resourceID)
-        {
-            return base.Channel.getSkypeIDAsync(UUID, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setFormOfAddressAsync(string UUID, int FormOfAddress, int resourceID)
-        {
-            return base.Channel.setFormOfAddressAsync(UUID, FormOfAddress, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getFormOfAddressAsync(string UUID, int resourceID)
-        {
-            return base.Channel.getFormOfAddressAsync(UUID, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getPhoneAsync(string UUID, int resourceID)
-        {
-            return base.Channel.getPhoneAsync(UUID, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getAcademicTitleAsync(string UUID, int resourceID)
-        {
-            return base.Channel.getAcademicTitleAsync(UUID, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getExternalIDAsync(string UUID, int resourceID)
-        {
-            return base.Channel.getExternalIDAsync(UUID, resourceID);
+            return base.Channel.deregisterCallback_ObserverAsync(UUID, ResourceID);
         }
         
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setPhoneAsync(string UUID, string PhoneNumber, int resourceID)
@@ -2468,19 +2438,14 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
             return base.Channel.setEmailAsync(UUID, EMail, resourceID);
         }
         
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getEmailAsync(string UUID, int resourceID)
+        {
+            return base.Channel.getEmailAsync(UUID, resourceID);
+        }
+        
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getName2Async(string UUID, int resourceID)
         {
             return base.Channel.getName2Async(UUID, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setExternalIDAsync(string UUID, string ExternalID, int resourceID)
-        {
-            return base.Channel.setExternalIDAsync(UUID, ExternalID, resourceID);
-        }
-        
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSkypeIDAsync(string UUID, string SkypeID, int resourceID)
-        {
-            return base.Channel.setSkypeIDAsync(UUID, SkypeID, resourceID);
         }
         
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getName1Async(string UUID, int resourceID)
@@ -2488,9 +2453,84 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
             return base.Channel.getName1Async(UUID, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getUserIdAsync(string UUID, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setWebsiteAsync(string UUID, string Website, int resourceID)
         {
-            return base.Channel.getUserIdAsync(UUID, resourceID);
+            return base.Channel.setWebsiteAsync(UUID, Website, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getFaxAsync(string UUID, int resourceID)
+        {
+            return base.Channel.getFaxAsync(UUID, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> insertObjectAsync(string UUID, Blackbird.Plugins.Plunet.DataResource30Service.ResourceIN ResourceIN)
+        {
+            return base.Channel.insertObjectAsync(UUID, ResourceIN);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getMobilePhoneAsync(string UUID, int resourceID)
+        {
+            return base.Channel.getMobilePhoneAsync(UUID, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getExternalIDAsync(string UUID, int resourceID)
+        {
+            return base.Channel.getExternalIDAsync(UUID, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSkypeIDAsync(string UUID, string SkypeID, int resourceID)
+        {
+            return base.Channel.setSkypeIDAsync(UUID, SkypeID, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setExternalIDAsync(string UUID, string ExternalID, int resourceID)
+        {
+            return base.Channel.setExternalIDAsync(UUID, ExternalID, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSkypeIDAsync(string UUID, int resourceID)
+        {
+            return base.Channel.getSkypeIDAsync(UUID, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setMobilePhoneAsync(string UUID, string PhoneNumber, int resourceID)
+        {
+            return base.Channel.setMobilePhoneAsync(UUID, PhoneNumber, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getAcademicTitleAsync(string UUID, int resourceID)
+        {
+            return base.Channel.getAcademicTitleAsync(UUID, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setOpeningAsync(string UUID, string Opening, int resourceID)
+        {
+            return base.Channel.setOpeningAsync(UUID, Opening, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> seekByExternalIDAsync(string UUID, string ExternalID)
+        {
+            return base.Channel.seekByExternalIDAsync(UUID, ExternalID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setAcademicTitleAsync(string UUID, string AcademicTitle, int resourceID)
+        {
+            return base.Channel.setAcademicTitleAsync(UUID, AcademicTitle, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getOpeningAsync(string UUID, int resourceID)
+        {
+            return base.Channel.getOpeningAsync(UUID, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSamlExternalIdAsync(string UUID, int resourceId)
+        {
+            return base.Channel.getSamlExternalIdAsync(UUID, resourceId);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSamlExternalIdAsync(string UUID, int resourceId, string samlExternalId)
+        {
+            return base.Channel.setSamlExternalIdAsync(UUID, resourceId, samlExternalId);
         }
         
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSupervisor2Async(string UUID, int resourceID)
@@ -2503,34 +2543,59 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
             return base.Channel.setSupervisor1Async(UUID, LoginName, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSupervisor2Async(string UUID, string LoginName, int resourceID)
-        {
-            return base.Channel.setSupervisor2Async(UUID, LoginName, resourceID);
-        }
-        
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getSupervisor1Async(string UUID, int resourceID)
         {
             return base.Channel.getSupervisor1Async(UUID, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.PricelistListResult> getPricelistsAsync(string UUID, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setSupervisor2Async(string UUID, string LoginName, int resourceID)
         {
-            return base.Channel.getPricelistsAsync(UUID, resourceID);
+            return base.Channel.setSupervisor2Async(UUID, LoginName, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setWorkingStatusAsync(string UUID, int WorkingStatus, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setCostCenterAsync(string UUID, string CostCenter, int resourceID)
         {
-            return base.Channel.setWorkingStatusAsync(UUID, WorkingStatus, resourceID);
+            return base.Channel.setCostCenterAsync(UUID, CostCenter, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setResourceTypeAsync(string UUID, int ResourceType, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getCostCenterAsync(string UUID, int resourceID)
         {
-            return base.Channel.setResourceTypeAsync(UUID, ResourceType, resourceID);
+            return base.Channel.getCostCenterAsync(UUID, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getResourceTypeAsync(string UUID, int resourceID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> updateAsync(string UUID, Blackbird.Plugins.Plunet.DataResource30Service.ResourceIN ResourceIN, bool enableNullOrEmptyValues)
         {
-            return base.Channel.getResourceTypeAsync(UUID, resourceID);
+            return base.Channel.updateAsync(UUID, ResourceIN, enableNullOrEmptyValues);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> insertAsync(string UUID, int WorkingStatus)
+        {
+            return base.Channel.insertAsync(UUID, WorkingStatus);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> deleteAsync(string UUID, int resourceID)
+        {
+            return base.Channel.deleteAsync(UUID, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerArrayResult> searchAsync(string UUID, Blackbird.Plugins.Plunet.DataResource30Service.SearchFilter_Resource SearchFilterResource)
+        {
+            return base.Channel.searchAsync(UUID, SearchFilterResource);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getCurrencyAsync(string UUID, int resourceID)
+        {
+            return base.Channel.getCurrencyAsync(UUID, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setCurrencyAsync(string UUID, int resourceID, string currencyIsoCode)
+        {
+            return base.Channel.setCurrencyAsync(UUID, resourceID, currencyIsoCode);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.StringResult> getFullNameAsync(string UUID, int resourceID)
+        {
+            return base.Channel.getFullNameAsync(UUID, resourceID);
         }
         
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getWorkingStatusAsync(string UUID, int resourceID)
@@ -2538,19 +2603,34 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
             return base.Channel.getWorkingStatusAsync(UUID, resourceID);
         }
         
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setResourceTypeAsync(string UUID, int ResourceType, int resourceID)
+        {
+            return base.Channel.setResourceTypeAsync(UUID, ResourceType, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.ResourceResult> getResourceObjectAsync(string UUID, int resourceID)
+        {
+            return base.Channel.getResourceObjectAsync(UUID, resourceID);
+        }
+        
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.Result> setWorkingStatusAsync(string UUID, int WorkingStatus, int resourceID)
+        {
+            return base.Channel.setWorkingStatusAsync(UUID, WorkingStatus, resourceID);
+        }
+        
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.PricelistListResult> getPricelists2Async(string UUID, string sourcelanguage, string targetlanguage, int resourceID)
         {
             return base.Channel.getPricelists2Async(UUID, sourcelanguage, targetlanguage, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.AccountResult> getAccountAsync(string UUID, int AccountID)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.PricelistListResult> getPricelistsAsync(string UUID, int resourceID)
         {
-            return base.Channel.getAccountAsync(UUID, AccountID);
+            return base.Channel.getPricelistsAsync(UUID, resourceID);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> insertObjectAsync(string UUID, Blackbird.Plugins.Plunet.DataResource30Service.ResourceIN ResourceIN)
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult> getResourceTypeAsync(string UUID, int resourceID)
         {
-            return base.Channel.insertObjectAsync(UUID, ResourceIN);
+            return base.Channel.getResourceTypeAsync(UUID, resourceID);
         }
         
         public virtual System.Threading.Tasks.Task OpenAsync()
@@ -2576,11 +2656,11 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
         
-        private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration, string url)
+        private static System.ServiceModel.EndpointAddress GetEndpointAddress(EndpointConfiguration endpointConfiguration)
         {
             if ((endpointConfiguration == EndpointConfiguration.DataResource30Port))
             {
-                return new System.ServiceModel.EndpointAddress($"{url}/DataResource30");
+                return new System.ServiceModel.EndpointAddress("https://plunet-friend-blackbird.plunet.com/DataResource30");
             }
             throw new System.InvalidOperationException(string.Format("Could not find endpoint with name \'{0}\'.", endpointConfiguration));
         }
@@ -2590,9 +2670,9 @@ namespace Blackbird.Plugins.Plunet.DataResource30Service
             return DataResource30Client.GetBindingForEndpoint(EndpointConfiguration.DataResource30Port);
         }
         
-        private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress(string url)
+        private static System.ServiceModel.EndpointAddress GetDefaultEndpointAddress()
         {
-            return DataResource30Client.GetEndpointAddress(EndpointConfiguration.DataResource30Port, url);
+            return DataResource30Client.GetEndpointAddress(EndpointConfiguration.DataResource30Port);
         }
         
         public enum EndpointConfiguration
