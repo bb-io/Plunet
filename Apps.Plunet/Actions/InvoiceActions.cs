@@ -18,7 +18,7 @@ using Tax = Apps.Plunet.Models.Invoices.Common.Tax;
 
 namespace Apps.Plunet.Actions;
 
-[ActionList]
+[ActionList("Invoices")]
 public class InvoiceActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : PlunetInvocable(invocationContext)
 {

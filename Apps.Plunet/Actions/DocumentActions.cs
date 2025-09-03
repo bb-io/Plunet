@@ -12,7 +12,7 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Plunet.Actions;
 
-[ActionList]
+[ActionList("Documenst")]
 public class DocumentActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : PlunetInvocable(invocationContext)
 {

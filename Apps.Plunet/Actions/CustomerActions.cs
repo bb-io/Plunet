@@ -11,7 +11,7 @@ using Blackbird.Plugins.Plunet.DataRequest30Service;
 
 namespace Apps.Plunet.Actions;
 
-[ActionList]
+[ActionList("Customers")]
 public class CustomerActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Search customers", Description = "Search for specific customers based on specific criteria")]

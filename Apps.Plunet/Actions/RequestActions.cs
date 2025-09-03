@@ -16,7 +16,7 @@ using Blackbird.Plugins.Plunet.DataRequest30Service;
 
 namespace Apps.Plunet.Actions;
 
-[ActionList]
+[ActionList("Requests")]
 public class RequestActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Search requests", Description = "Search for specific requests based on specific criteria")]

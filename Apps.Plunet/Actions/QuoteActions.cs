@@ -13,7 +13,7 @@ using Blackbird.Plugins.Plunet.DataQuote30Service;
 
 namespace Apps.Plunet.Actions;
 
-[ActionList]
+[ActionList("Quotes")]
 public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Search quotes", Description = "Search for specific quotes based on specific criteria")]

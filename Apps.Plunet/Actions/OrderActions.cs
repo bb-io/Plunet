@@ -20,7 +20,7 @@ using StringResult = Blackbird.Plugins.Plunet.DataOrder30Service.StringResult;
 
 namespace Apps.Plunet.Actions;
 
-[ActionList]
+[ActionList("Orders")]
 public class OrderActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
     [Action("Search orders", Description = "Search for specific orders based on specific criteria")]

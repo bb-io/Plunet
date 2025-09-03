@@ -8,7 +8,7 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Plunet.Actions
 {
-    [ActionList]
+    [ActionList("Custom properties")]
     public class CustomPropertyActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
     {
         [Action("Get property", Description = "Get the selected value from any entity")]
