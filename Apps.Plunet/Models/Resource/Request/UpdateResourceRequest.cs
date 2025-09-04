@@ -137,7 +137,7 @@ public class ResourceParameters
     [Display("Account ID")]
     public string? AccountId { get; set; }
 
-    [Display("SWIFT - BIC")]
+    [Display("Bank code")]
     public string? Bic { get; set; }
 
     [Display("Contract number")]
