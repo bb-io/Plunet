@@ -112,4 +112,20 @@ public class DataSourceTests : TestBase
 
         Assert.IsNotNull(result);
     }
+
+
+    [TestMethod]
+    public async Task PayableDataSourceHandler_returns_values()
+    {
+        var handler = new PayableDataSourceHandler(InvocationContext);
+
+        var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
+
+        foreach (var item in result)
+        {
+            Console.WriteLine($"{item.Value}: {item.DisplayName}");
+        }
+
+        Assert.IsNotNull(result);
+    }
 }
