@@ -191,6 +191,7 @@ An example of the granularity at which orders (and other entities) can be select
 - **Get text module value** gets the value of a text module, if the text module represents multiple values it will return the first one. 
 - **Get multiple text module values** returns a list of values. Works if the text module represents multiple values.
 - **Set multiple text module values** sets the list of values of the text module if it represents multiple values.
+- **Get multiselect property** returns a list of values for a multiselect custom property
 
 Note that with text modules you need to specify the Plunet _Flag_ which can be found by going to Admin > Document templates > Text modules. Flags typically are created between [square brackets]
 

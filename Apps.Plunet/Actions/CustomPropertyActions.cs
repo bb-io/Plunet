@@ -121,5 +121,29 @@ namespace Apps.Plunet.Actions
                 },
                 ParseId(input.MainId), Language));
         }
+
+
+        [Action("Get multiselect property", Description = "Get selected values from a multiselect custom property")]
+        public async Task<GetPropertyValuesResponse> GetMultiselectProperty([ActionParameter] PropertyRequest input)
+        {
+            var property = await ExecuteWithRetryAcceptNull(() =>
+                CustomFieldsClient.getPropertyAsync(Uuid, input.Name, ParseId(input.UsageArea), ParseId(input.MainId)));
+
+            var ids = property?.selectedPropertyValueList?
+                .Where(v => v.HasValue)
+                .Select(v => v!.Value)
+                .ToArray();
+
+            if (ids == null || ids.Length == 0)
+                return new GetPropertyValuesResponse();
+
+            var texts = await Task.WhenAll(ids.Select(id =>
+                ExecuteWithRetryAcceptNull(() =>
+                    CustomFieldsClient.getPropertyValueTextAsync(Uuid, input.Name, id, Language))));
+
+            var values = texts.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct().ToArray();
+
+            return new GetPropertyValuesResponse { Values = values };
+        }
     }
 }
