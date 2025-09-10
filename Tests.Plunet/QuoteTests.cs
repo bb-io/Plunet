@@ -34,12 +34,10 @@ public class QuoteTests : TestBase
     {
         var actions = new QuoteActions(InvocationContext);
 
-        var result = await actions.SearchQuotes(new SearchQuotesInput { Limit = 100 });
-        Console.WriteLine(result.TotalCount);
-        foreach (var item in result.Items)
-        {
-            Console.WriteLine(item.ProjectName);
-        }
+        var result = await actions.SearchQuotes(new SearchQuotesInput { Limit = 10,/* OnlyReturnIds=true*/ });
+
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
+        Console.WriteLine(json);
         Assert.IsTrue(result.TotalCount > 0);
     }
 }

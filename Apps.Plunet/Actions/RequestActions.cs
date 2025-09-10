@@ -48,14 +48,43 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
             return new();
         }
 
-        var results = new List<RequestResponse>();
-        foreach (var id in result.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit).Select(x => x.Value))
+        var ids = result
+       .Where(x => x.HasValue)
+       .Select(x => x!.Value)
+       .ToArray();
+
+        if (ids.Length == 0) return new();
+
+        var limitedIds = ids.Take(input.Limit ?? SystemConsts.SearchLimit).ToArray();
+
+        if (input.OnlyReturnIds == true)
         {
-            var requestResponse = await GetRequest(id.ToString());
-            results.Add(requestResponse);
+            var idOnly = limitedIds
+                .Select(id => new RequestResponse(
+                    new Request
+                    {
+                        requestID = id,
+                        briefDescription = string.Empty,
+                        subject = string.Empty
+                    },
+                    customerId: string.Empty,
+                    requestNumber: string.Empty,
+                    customerRefNo: string.Empty,
+                    customerContactId: string.Empty
+                ))
+                .ToList();
+
+            return new SearchResponse<RequestResponse>(idOnly);
         }
 
-        return new(results);
+        var responses = new List<RequestResponse>(limitedIds.Length);
+        foreach (var id in limitedIds)
+        {
+            var r = await GetRequest(id.ToString());
+            responses.Add(r);
+        }
+
+        return new SearchResponse<RequestResponse>(responses);
     }
 
     [Action("Find request", Description = "Find a specific request based on specific criteria")]

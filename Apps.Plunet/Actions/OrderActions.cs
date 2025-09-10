@@ -47,15 +47,40 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                 //? input.ItemStatus.Select(id => ParseId(id)).ToArray()
                 //: null
             }));
-        
-        var results = new List<OrderResponse>();
-        if (searchResult != null)
+
+        var ids = searchResult?
+           .Where(x => x.HasValue)
+           .Select(x => x!.Value)
+           .ToArray() ?? Array.Empty<int>();
+
+        if (ids.Length == 0)
+            return new SearchResponse<OrderResponse>();
+
+        var limitedIds = ids.Take(input.Limit ?? SystemConsts.SearchLimit).ToArray();
+
+        if (input.OnlyReturnIds == true)
         {
-            foreach (var id in searchResult.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
-            {
-                var orderResponse = await GetOrder(new OrderRequest { OrderId = id!.Value.ToString() });
-                results.Add(orderResponse);
-            }
+            var idOnly = limitedIds
+                .Select(id => new OrderResponse(
+                    new Order
+                    {
+                        orderID = id,
+                        projectName = string.Empty,
+                        orderDisplayName = string.Empty,
+                        currency = string.Empty,
+                        subject = string.Empty
+                    },
+                    Array.Empty<LanguageCombination>()
+                ))
+                .ToList();
+
+            return new SearchResponse<OrderResponse>(idOnly);
+        }
+        var results = new List<OrderResponse>(limitedIds.Length);
+        foreach (var id in limitedIds)
+        {
+            var orderResponse = await GetOrder(new OrderRequest { OrderId = id.ToString() });
+            results.Add(orderResponse);
         }
 
         return new SearchResponse<OrderResponse>(results);

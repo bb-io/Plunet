@@ -51,14 +51,40 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
         if (searchResult is null)
             return new();
 
-        var results = new List<QuoteResponse>();
-        foreach (var id in searchResult.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
+        var ids = searchResult
+       .Where(x => x.HasValue)
+       .Select(x => x!.Value)
+       .ToArray();
+
+        if (ids.Length == 0) return new();
+
+        var limitedIds = ids.Take(input.Limit ?? SystemConsts.SearchLimit).ToArray();
+
+        if (input.OnlyReturnIds == true)
         {
-            var quoteResponse = await GetQuote(new GetQuoteRequest { QuoteId = id.Value.ToString() });
-            results.Add(quoteResponse);
+            var idOnly = limitedIds
+                .Select(id => new QuoteResponse(
+                    new Quote
+                    {
+                        quoteID = id,
+                        currency = string.Empty,
+                        projectName = string.Empty,
+                        subject = string.Empty,
+                        quoteNumber = string.Empty
+                    }))
+                .ToList();
+
+            return new SearchResponse<QuoteResponse>(idOnly);
         }
 
-        return new(results);
+        var results = new List<QuoteResponse>(limitedIds.Length);
+        foreach (var id in limitedIds)
+        {
+            var quote = await GetQuote(new GetQuoteRequest { QuoteId = id.ToString() });
+            results.Add(quote);
+        }
+
+        return new SearchResponse<QuoteResponse>(results);
     }
 
     [Action("Find quote", Description = "Find a quote based on specific criteria")]

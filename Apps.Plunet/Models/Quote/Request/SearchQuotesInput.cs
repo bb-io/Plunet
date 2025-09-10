@@ -34,4 +34,7 @@ public class SearchQuotesInput : SearchInputBase
     public string? ResourceEntryType { get; set; }
 
     [Display("Resource ID")] public string? ResourceMainId { get; set; }
+
+    [Display("Only return IDs", Description = "If enabled, returns only IDs without fetching details for each item.")]
+    public bool? OnlyReturnIds { get; set; }
 }

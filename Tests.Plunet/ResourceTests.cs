@@ -1,5 +1,6 @@
 ﻿using Apps.Plunet.Actions;
 using Apps.Plunet.Models.Order;
+using Apps.Plunet.Models.Request.Request;
 using Apps.Plunet.Models.Resource.Request;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Newtonsoft.Json;
@@ -80,5 +81,19 @@ public class ResourceTests : TestBase
         Assert.AreEqual(updatedDeliveryCountry, updated.DeliveryAddress.Country);
         Assert.AreEqual(updatedInvoiceStreet1, updated.InvoiceAddress.Street);
         Assert.AreEqual(updatedContractNumber, updated.Payment.ContractNumber);
+    }
+
+
+    [TestMethod]
+    public async Task SearchResources_ReturnValue()
+    {
+        var action = new ResourceActions(InvocationContext);
+        var input = new SearchResourcesRequest { Limit = 10, OnlyReturnIds = true };
+        var result = await action.SearchResources(input);
+
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
+        Console.WriteLine(json);
+
+        Assert.IsNotNull(result);
     }
 }

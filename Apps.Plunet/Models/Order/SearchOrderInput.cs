@@ -38,6 +38,9 @@ public class SearchOrderInput : SearchInputBase
     [StaticDataSource(typeof(ProjectTypeDataHandler))]
     public string? ProjectType { get; set; }
 
+    [Display("Only return IDs", Description = "If enabled, returns only IDs without fetching details for each item.")]
+    public bool? OnlyReturnIds { get; set; }
+
     //[Display("Item status")]
     //[StaticDataSource(typeof(ItemStatusDataHandler))]
     //public IEnumerable<string>? ItemStatus { get; set; }
