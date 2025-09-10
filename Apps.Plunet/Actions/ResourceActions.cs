@@ -29,7 +29,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
             email = request.Email ?? string.Empty,
             externalID = request.ExternalId ?? string.Empty,
             fax = request.Fax ?? string.Empty,
-            formOfAddress = ParseId(request.FormOfAddress, 1),
+            formOfAddress = ParseId(ValidateFormOfAddress(request.FormOfAddress), 1),
             fullName = request.FullName ?? string.Empty,
             mobilePhone = request.MobilePhone ?? string.Empty,
             name1 = request.Name1 ?? string.Empty,
@@ -274,5 +274,16 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
         if (request.InvoiceStreet2 is not null) await ExecuteWithRetry(() => ResourceAddressClient.setStreet2Async(Uuid, request.InvoiceStreet2, invoiceId));
         if (request.InvoiceZipCode is not null) await ExecuteWithRetry(() => ResourceAddressClient.setZipAsync(Uuid, request.InvoiceZipCode, invoiceId));
         if (request.InvoiceOffice is not null) await ExecuteWithRetry(() => ResourceAddressClient.setOfficeAsync(Uuid, request.InvoiceOffice, invoiceId));
+    }
+
+    private  string? ValidateFormOfAddress(string? input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return "1";
+
+        var v = input.Trim();
+        if (v == "1" || v == "2" || v == "3")
+            return v;
+
+        throw new PluginMisconfigurationException("Form of address must be '1' (Sir), '2' (Madam), or '3' (Company).");
     }
 }

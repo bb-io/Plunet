@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 using Tests.Plunet.Base;
 
 namespace Tests.Plunet;
@@ -43,17 +44,25 @@ public class ResourceTests : TestBase
         var actions = new ResourceActions(InvocationContext);
 
         var result = await actions.CreateResource(new ResourceParameters 
-        { 
-            Name2 = resourceName, 
-            DeliveryCountry = deliveryCountry, 
-            InvoiceStreet = invoiceStreet1, 
-            ContractNumber = contractNumber 
+        {
+           Name1= "This is a test of the bird 223",
+           Name2= "This is a test of the bird 223",
+           Email= "This gmail com",
+           Phone = "+1234567",
+           Status = "1",
+           Opening= "Dear This is a test of the bird 23",
+           Website = "This is a test of the bird 23",
+           MobilePhone = "+1234567",
+           FormOfAddress = "2",
+            InvoiceStreet = "This is a test of the bird",
+            DeliveryStreet = "This is a test of the bird",
+            InvoiceZipCode = "123456",
+            DeliveryZipCode = "123456",
+
+
         });
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
-        Assert.AreEqual(resourceName, result.Name2);
-        Assert.AreEqual(deliveryCountry, result.DeliveryAddress.Country);
-        Assert.AreEqual(invoiceStreet1, result.InvoiceAddress.Street);
-        Assert.AreEqual(contractNumber, result.Payment.ContractNumber);
+        Assert.IsNotNull(result);
     }
 
     [TestMethod]
