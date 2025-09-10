@@ -21,5 +21,22 @@ namespace Tests.Plunet
             Console.WriteLine(json);
             Assert.IsNotNull(result);
         }
+
+
+        [TestMethod]
+        public async Task SearchPayables_IsSuccess()
+        {
+            var action = new PayableActions(InvocationContext, FileManager);
+            var result = await action.SearchPayables(new Apps.Plunet.Models.Payable.Request.SearchPayablesRequest
+            {
+                TimeFrameRelation="2",
+                DateFrom = DateTime.Now.AddMonths(-1),
+                DateTo = DateTime.Now,
+            });
+
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
+            Console.WriteLine(json);
+            Assert.IsNotNull(result);
+        }
     }
 }

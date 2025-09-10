@@ -74,31 +74,62 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
             return new();
         }
 
-        var results = new List<ResourceResponse>();
-        foreach (var id in response.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
+        var ids = response
+       .Where(x => x.HasValue)
+       .Select(x => x!.Value)
+       .ToArray();
+
+        if (ids.Length == 0) return new();
+
+        var limitedIds = ids.Take(input.Limit ?? SystemConsts.SearchLimit).ToArray();
+
+        if (input.OnlyReturnIds == true)
         {
-            var resourceResponse = await GetResource(id!.Value.ToString());
+            var idOnly = limitedIds
+                .Select(id => new ResourceResponse(
+                    new Resource
+                    {
+                        resourceID = id,
+                    },
+                    new PaymentInfo(),
+                    new AddressResponse(),
+                    new AddressResponse()
+                ))
+                .ToList();
+
+            return new SearchResponse<ResourceResponse>(idOnly);
+        }
+
+        var results = new List<ResourceResponse>(limitedIds.Length);
+        foreach (var id in limitedIds)
+        {
+            var resourceResponse = await GetResource(id.ToString());
             results.Add(resourceResponse);
         }
 
-        if (input.Flag is not null)
+        if (!string.IsNullOrWhiteSpace(input.Flag))
         {
             var textModuleResources = new List<ResourceResponse>();
-            int resourceUsageArea = 2;
+            const int resourceUsageArea = 2;
 
             foreach (var resource in results)
             {
-                var textmodule = await ExecuteWithRetryAcceptNull(() => CustomFieldsClient.getTextmoduleAsync(Uuid, input.Flag, resourceUsageArea, ParseId(resource.ResourceID), Language));
-                if (textmodule is not null && textmodule.stringValue.Equals(input.TextModuleValue))
-                {
+                var textmodule = await ExecuteWithRetryAcceptNull(() =>
+                    CustomFieldsClient.getTextmoduleAsync(
+                        Uuid,
+                        input.Flag,
+                        resourceUsageArea,
+                        ParseId(resource.ResourceID),
+                        Language));
+
+                if (textmodule is not null && textmodule.stringValue == input.TextModuleValue)
                     textModuleResources.Add(resource);
-                }
             }
 
-            return new(textModuleResources);
+            return new SearchResponse<ResourceResponse>(textModuleResources);
         }
 
-        return new(results);
+        return new SearchResponse<ResourceResponse>(results);
     }
 
     [Action("Find resource", Description = "Find a specific resource based on specific criteria")]

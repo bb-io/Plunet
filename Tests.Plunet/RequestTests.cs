@@ -38,17 +38,13 @@ namespace Tests.Plunet
         public async Task SearchRequest_ReturnValue()
         {
             var action = new RequestActions(InvocationContext);
-            var input = new SearchRequestsInput { };
+            var input = new SearchRequestsInput { Limit=10, OnlyReturnIds=true };
             var result = await action.SearchRequests(input);
 
-            foreach (var item in result.Items)
-            {
-                Console.WriteLine($"Request Id: " + item.RequestId);
-                Console.WriteLine($"Request number: " + item.RequestNumber);
-                Console.WriteLine($"Customer contact id: " + item.CustomerContactId);
-                Console.WriteLine($"Customer ref: " + item.CustomerRefNo);
-                Assert.IsNotNull(item);
-            }
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
+            Console.WriteLine(json);
+
+            Assert.IsNotNull(result);
         }
     }
 }

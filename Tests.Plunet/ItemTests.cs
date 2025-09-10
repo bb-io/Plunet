@@ -27,11 +27,11 @@ public class ItemTests : TestBase
     {
         var actions = new ItemActions(InvocationContext);
 
-        var result = await actions.SearchItems(new OptionalItemProjectRequest { ProjectId = "573", ProjectType = "3" }, new SearchItemsRequest { }, new OptionalCurrencyTypeRequest { }, null);
-        foreach(var item in result.Items)
-        {
-            Console.WriteLine($"{item.ItemId}: {item.BriefDescription}");
-        }
+        var result = await actions.SearchItems(new OptionalItemProjectRequest { ProjectId = "573", ProjectType = "3" }, 
+            new SearchItemsRequest {}, new OptionalCurrencyTypeRequest { }, null);
+       
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
+        Console.WriteLine(json);
         Assert.IsTrue(result.Items.Count() > 0);
     }
 

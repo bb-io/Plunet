@@ -1,5 +1,6 @@
 ﻿using Apps.Plunet.Actions;
 using Apps.Plunet.Models.Order;
+using Apps.Plunet.Models.Request.Request;
 using Apps.Plunet.Models.Resource.Request;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Newtonsoft.Json;
@@ -8,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Tests.Plunet.Base;
 
 namespace Tests.Plunet;
@@ -44,25 +44,17 @@ public class ResourceTests : TestBase
         var actions = new ResourceActions(InvocationContext);
 
         var result = await actions.CreateResource(new ResourceParameters 
-        {
-           Name1= "This is a test of the bird 223",
-           Name2= "This is a test of the bird 223",
-           Email= "This gmail com",
-           Phone = "+1234567",
-           Status = "1",
-           Opening= "Dear This is a test of the bird 23",
-           Website = "This is a test of the bird 23",
-           MobilePhone = "+1234567",
-           FormOfAddress = "2",
-            InvoiceStreet = "This is a test of the bird",
-            DeliveryStreet = "This is a test of the bird",
-            InvoiceZipCode = "123456",
-            DeliveryZipCode = "123456",
-
-
+        { 
+            Name2 = resourceName, 
+            DeliveryCountry = deliveryCountry, 
+            InvoiceStreet = invoiceStreet1, 
+            ContractNumber = contractNumber 
         });
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
-        Assert.IsNotNull(result);
+        Assert.AreEqual(resourceName, result.Name2);
+        Assert.AreEqual(deliveryCountry, result.DeliveryAddress.Country);
+        Assert.AreEqual(invoiceStreet1, result.InvoiceAddress.Street);
+        Assert.AreEqual(contractNumber, result.Payment.ContractNumber);
     }
 
     [TestMethod]
@@ -89,5 +81,19 @@ public class ResourceTests : TestBase
         Assert.AreEqual(updatedDeliveryCountry, updated.DeliveryAddress.Country);
         Assert.AreEqual(updatedInvoiceStreet1, updated.InvoiceAddress.Street);
         Assert.AreEqual(updatedContractNumber, updated.Payment.ContractNumber);
+    }
+
+
+    [TestMethod]
+    public async Task SearchResources_ReturnValue()
+    {
+        var action = new ResourceActions(InvocationContext);
+        var input = new SearchResourcesRequest { Limit = 10, OnlyReturnIds = true };
+        var result = await action.SearchResources(input);
+
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
+        Console.WriteLine(json);
+
+        Assert.IsNotNull(result);
     }
 }

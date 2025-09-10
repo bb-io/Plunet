@@ -45,16 +45,44 @@ public class InvoiceActions(InvocationContext invocationContext, IFileManagement
             filter.invoiceStatus = int.Parse(request.InvoiceStatus);
         }
 
-        var searchInvoices =await ExecuteWithRetry(() => OutgoingInvoiceClient.searchAsync(Uuid, filter));
-        var invoices = new List<GetInvoiceResponse>();
-        foreach (var invoiceId in searchInvoices.Where(x => x.HasValue).Take(request.Limit ?? SystemConsts.SearchLimit))
+        var idsNullable = await ExecuteWithRetry(() => OutgoingInvoiceClient.searchAsync(Uuid, filter));
+        var ids = idsNullable?
+            .Where(x => x.HasValue)
+            .Select(x => x!.Value)
+            .ToArray() ?? Array.Empty<int>();
+
+        if (ids.Length == 0)
+            return new();
+
+        var limitedIds = ids.Take(request.Limit ?? SystemConsts.SearchLimit).ToArray();
+
+        if (request.OnlyReturnIds == true)
         {
-            var invoice = await GetInvoice(new InvoiceRequest
-                { InvoiceId = invoiceId.ToString() ?? throw new PluginMisconfigurationException("Invoice ID is null") });
+            var idOnly = limitedIds
+                .Select(id => new GetInvoiceResponse(
+                    new DataOutgoingInvoice30Service.Invoice
+                    {
+                        invoiceID = id,
+                        briefDescription = string.Empty,
+                        subject = string.Empty,
+                        currencyCode = string.Empty,
+                        invoiceNr = string.Empty,
+                    },
+                    customer: null
+                ))
+                .ToList();
+
+            return new SearchResponse<GetInvoiceResponse>(idOnly);
+        }
+
+        var invoices = new List<GetInvoiceResponse>(limitedIds.Length);
+        foreach (var id in limitedIds)
+        {
+            var invoice = await GetInvoice(new InvoiceRequest { InvoiceId = id.ToString() });
             invoices.Add(invoice);
         }
-        
-        return new(invoices);
+
+        return new SearchResponse<GetInvoiceResponse>(invoices);
     }
 
     [Action("Find invoice", Description = "Find invoice based on specific parameters")]

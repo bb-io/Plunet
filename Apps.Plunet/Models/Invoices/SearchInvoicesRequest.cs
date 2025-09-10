@@ -22,4 +22,7 @@ public class SearchInvoicesRequest : SearchInputBase
 
     [Display("Invoice status"), StaticDataSource(typeof(InvoiceStatusDataHandler))]
     public string? InvoiceStatus { get; set; }
+
+    [Display("Only return IDs", Description = "If enabled, returns only IDs without fetching details for each item.")]
+    public bool? OnlyReturnIds { get; set; }
 }

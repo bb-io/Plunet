@@ -30,10 +30,27 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         if (response is null)
             return new();
 
-        var results = new List<GetCustomerResponse>();
-        foreach (var id in response.Where(x => x.HasValue).Take(input.Limit ?? SystemConsts.SearchLimit))
+        var limitedIds = response
+        .Where(x => x.HasValue)
+        .Select(x => x!.Value)
+        .Take(input.Limit ?? SystemConsts.SearchLimit)
+        .ToArray();
+
+        if (input.OnlyReturnIds == true)
         {
-            var customerResponse = await GetCustomerById(new CustomerRequest { CustomerId = id!.Value.ToString() });
+            var idOnly = limitedIds.Select(id => new GetCustomerResponse
+            {
+
+                CustomerId = id.ToString()
+            }).ToList();
+
+            return new(idOnly);
+        }
+
+        var results = new List<GetCustomerResponse>(limitedIds.Length);
+        foreach (var id in limitedIds)
+        {
+            var customerResponse = await GetCustomerById(new CustomerRequest { CustomerId = id.ToString() });
             results.Add(customerResponse);
         }
 

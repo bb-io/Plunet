@@ -27,6 +27,25 @@ namespace Tests.Plunet
         }
 
         [TestMethod]
+        public async Task SearchCustomers_IsSuccess()
+        {
+            var action = new CustomerActions(InvocationContext);
+            var response = await action.SearchCustomers(new SearchCustomerRequest
+            {
+                //OnlyReturnIds = true,
+                Limit = 10
+            });
+            Assert.IsNotNull(response);
+            var options = new JsonSerializerOptions
+            {
+                WriteIndented = true
+            };
+            string json = JsonSerializer.Serialize(response, options);
+            Console.WriteLine(json);
+        }
+
+
+        [TestMethod]
         public async Task GetTextModule_IsSuccess()
         {
             var action = new CustomPropertyActions(InvocationContext);
