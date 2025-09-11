@@ -88,7 +88,11 @@ public class ResourceTests : TestBase
     public async Task SearchResources_ReturnValue()
     {
         var action = new ResourceActions(InvocationContext);
-        var input = new SearchResourcesRequest { Limit = 10, OnlyReturnIds = true };
+        var input = new SearchResourcesRequest { Limit = 1000, OnlyReturnIds = true,
+        //SelectedPropertyValueIds= ["2","74","108"],
+            //PropertyType = "3",
+            PropertyNameEnglish = "Test",
+        };
         var result = await action.SearchResources(input);
 
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);

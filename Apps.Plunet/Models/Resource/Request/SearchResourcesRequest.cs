@@ -50,5 +50,19 @@ namespace Apps.Plunet.Models.Resource.Request
 
         [Display("Only return IDs", Description = "If enabled, returns only IDs without fetching details for each item.")]
         public bool? OnlyReturnIds { get; set; }
+
+
+        [Display("Main property name", Description = " The main/group property name")]
+        public string? MainPropertyNameEnglish { get; set; }
+
+        [Display("Property name", Description = "The property name to filter by.")]
+        public string? PropertyNameEnglish { get; set; }
+
+        [Display("Property type")]
+        [StaticDataSource(typeof(PropertyTypeDataHandler))]
+        public string? PropertyType { get; set; }
+
+        [Display("Selected property value IDs", Description = "Array of integer value IDs to filter by (e.g., ['123', '456']).")]
+        public IEnumerable<string>? SelectedPropertyValueIds { get; set; }
     }
 }

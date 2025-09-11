@@ -55,19 +55,38 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
     [Action("Search resources", Description = "Search for specific resources based on specific criteria")]
     public async Task<SearchResponse<ResourceResponse>> SearchResources([ActionParameter] SearchResourcesRequest input)
     {
-        var response = await ExecuteWithRetryAcceptNull(() => ResourceClient.searchAsync(Uuid,
-            new SearchFilter_Resource()
+        var filter = new SearchFilter_Resource()
+        {
+            contact_resourceID = ParseId(input.ContactId),
+            email = input.Email ?? string.Empty,
+            name1 = input.Name1 ?? string.Empty,
+            name2 = input.Name2 ?? string.Empty,
+            resourceType = ParseId(input.ResourceType),
+            resourceStatus = ParseId(input.Status),
+            sourceLanguageCode = input.SourceLanguageCode ?? string.Empty,
+            targetLanguageCode = input.TargetLanguageCode ?? string.Empty,
+            workingStatus = ParseId(input.WorkingStatus),
+        };
+
+        if (!string.IsNullOrWhiteSpace(input.PropertyNameEnglish) && input.SelectedPropertyValueIds?.Any() == true)
+        {
+            var selectedIds = input.SelectedPropertyValueIds
+                .Select(s => int.Parse(s.Trim()))
+                .ToArray();
+
+            var property = new Property
             {
-                contact_resourceID = ParseId(input.ContactId),
-                email = input.Email ?? string.Empty,
-                name1 = input.Name1 ?? string.Empty,
-                name2 = input.Name2 ?? string.Empty,
-                resourceType = ParseId(input.ResourceType),
-                resourceStatus = ParseId(input.Status),
-                sourceLanguageCode = input.SourceLanguageCode ?? string.Empty,
-                targetLanguageCode = input.TargetLanguageCode ?? string.Empty,
-                workingStatus = ParseId(input.WorkingStatus),
-            }));
+                mainPropertyNameEnglish = input.MainPropertyNameEnglish ?? string.Empty,
+                propertyNameEnglish = input.PropertyNameEnglish,
+                propertyType = input.PropertyType != null ? ParseId(input.PropertyType) : 0,
+                selectedPropertyValueList = selectedIds.Select(id => (int?)id).ToArray(),
+                avaliablePropertyValueIDList = null,
+            };
+
+            filter.propertiesList = new Property[] { property };
+        }
+
+        var response = await ExecuteWithRetryAcceptNull(() => ResourceClient.searchAsync(Uuid, filter));
 
         if (response is null)
         {
@@ -75,9 +94,9 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
         }
 
         var ids = response
-       .Where(x => x.HasValue)
-       .Select(x => x!.Value)
-       .ToArray();
+            .Where(x => x.HasValue)
+            .Select(x => x!.Value)
+            .ToArray();
 
         if (ids.Length == 0) return new();
 
@@ -87,10 +106,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
         {
             var idOnly = limitedIds
                 .Select(id => new ResourceResponse(
-                    new Resource
-                    {
-                        resourceID = id,
-                    },
+                    new Resource { resourceID = id, },
                     new PaymentInfo(),
                     new AddressResponse(),
                     new AddressResponse()
@@ -101,6 +117,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
         }
 
         var results = new List<ResourceResponse>(limitedIds.Length);
+
         foreach (var id in limitedIds)
         {
             var resourceResponse = await GetResource(id.ToString());
@@ -114,13 +131,12 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
 
             foreach (var resource in results)
             {
-                var textmodule = await ExecuteWithRetryAcceptNull(() =>
-                    CustomFieldsClient.getTextmoduleAsync(
-                        Uuid,
-                        input.Flag,
-                        resourceUsageArea,
-                        ParseId(resource.ResourceID),
-                        Language));
+                var textmodule = await ExecuteWithRetryAcceptNull(() => CustomFieldsClient.getTextmoduleAsync(
+                    Uuid,
+                    input.Flag,
+                    resourceUsageArea,
+                    ParseId(resource.ResourceID),
+                    Language));
 
                 if (textmodule is not null && textmodule.stringValue == input.TextModuleValue)
                     textModuleResources.Add(resource);
