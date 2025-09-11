@@ -89,9 +89,9 @@ public class ResourceTests : TestBase
     {
         var action = new ResourceActions(InvocationContext);
         var input = new SearchResourcesRequest { Limit = 1000, OnlyReturnIds = true,
-        SelectedPropertyValueIds= ["2","74","108"],
-            PropertyType = "3",
-            PropertyNameEnglish = "CAT-tools",
+        //SelectedPropertyValueIds= ["2","74","108"],
+            //PropertyType = "3",
+            PropertyNameEnglish = "Test",
         };
         var result = await action.SearchResources(input);
 
