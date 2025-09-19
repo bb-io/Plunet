@@ -198,28 +198,46 @@ public class PlunetInvocable : BaseInvocable
         var attempts = 0;
         while (true)
         {
-            var result = await func();
-            if (!hasDataFunc(result) && acceptNull)
+            try
             {
-                return default;
-            }
-            var statusMessage = getStatusMessageFunc(result);
-            if (statusMessage == ApiResponses.Ok)
-            {
-                return result;
-            }
+                var result = await func();
+                if (!hasDataFunc(result) && acceptNull)
+                {
+                    return default;
+                }
+                var statusMessage = getStatusMessageFunc(result);
+                if (statusMessage == ApiResponses.Ok)
+                {
+                    return result;
+                }
 
-            if ((statusMessage.Contains("session-UUID used is invalid") || statusMessage.Contains("Connection timed out")) && attempts < maxRetries)
-            {
-                await Task.Delay(delay);
-                await RefreshAuthToken();
-                attempts++;
-                continue;
-            }
+                if ((statusMessage.Contains("session-UUID used is invalid") || statusMessage.Contains("Connection timed out")) && attempts < maxRetries)
+                {
+                    await Task.Delay(delay);
+                    await RefreshAuthToken();
+                    attempts++;
+                    continue;
+                }
 
-            throw new PluginApplicationException(statusMessage);
+                throw new PluginApplicationException(statusMessage);
+            }
+            catch (Exception ex) when (IsTimeout(ex))
+            {
+                throw new PluginApplicationException(
+                    $"Connection to Plunet timed out. Error: {ex.Message}");
+            }
+            catch (Exception ex)
+            {
+                throw new PluginApplicationException(ex.Message);
+            }
         }
     }
+
+    private static bool IsTimeout(Exception ex) =>
+    ex is TimeoutException ||
+    ex is TaskCanceledException ||
+    ex.Message.Contains("timed out", StringComparison.OrdinalIgnoreCase) ||
+    ex.Message.Contains("Connection timed out", StringComparison.OrdinalIgnoreCase);
 
     // Custom fields service
     protected async Task ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataCustomFields30.Result>> func, int maxRetries = 10, int delay = 1000)
