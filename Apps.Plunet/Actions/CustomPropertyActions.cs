@@ -124,7 +124,7 @@ namespace Apps.Plunet.Actions
 
 
         [Action("Get multiselect property", Description = "Get selected values from a multiselect custom property")]
-        public async Task<GetPropertyValuesResponse> GetMultiselectProperty([ActionParameter] PropertyRequest input)
+        public async Task<GetMultiplePropertyValuesResponse> GetMultiselectProperty([ActionParameter] PropertyRequest input)
         {
             var property = await ExecuteWithRetryAcceptNull(() =>
                 CustomFieldsClient.getPropertyAsync(Uuid, input.Name, ParseId(input.UsageArea), ParseId(input.MainId)));
@@ -132,18 +132,31 @@ namespace Apps.Plunet.Actions
             var ids = property?.selectedPropertyValueList?
                 .Where(v => v.HasValue)
                 .Select(v => v!.Value)
+                .Distinct()
                 .ToArray();
 
             if (ids == null || ids.Length == 0)
-                return new GetPropertyValuesResponse();
+                return new GetMultiplePropertyValuesResponse();
 
             var texts = await Task.WhenAll(ids.Select(id =>
                 ExecuteWithRetryAcceptNull(() =>
                     CustomFieldsClient.getPropertyValueTextAsync(Uuid, input.Name, id, Language))));
 
-            var values = texts.Where(t => !string.IsNullOrWhiteSpace(t)).Distinct().ToArray();
+            var pairs = ids
+               .Select((id, idx) => new PropertyIdName
+               {
+                   Id = id,
+                   Name = texts.ElementAtOrDefault(idx) ?? string.Empty
+               }).ToArray();
 
-            return new GetPropertyValuesResponse { Values = values };
+            var values = pairs.Select(p => p.Name).Where(n => !string.IsNullOrWhiteSpace(n)).Distinct().ToArray();
+
+            return new GetMultiplePropertyValuesResponse
+            {
+                Values = values,
+                Ids = pairs.Select(p => p.Id),
+                Pairs = pairs
+            };
         }
     }
 }
