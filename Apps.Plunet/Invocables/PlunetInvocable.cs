@@ -201,10 +201,6 @@ public class PlunetInvocable : BaseInvocable
             try
             {
                 var result = await func();
-                if (!hasDataFunc(result) && acceptNull)
-                {
-                    return default;
-                }
                 var statusMessage = getStatusMessageFunc(result);
                 if (statusMessage == ApiResponses.Ok)
                 {
@@ -217,6 +213,11 @@ public class PlunetInvocable : BaseInvocable
                     await RefreshAuthToken();
                     attempts++;
                     continue;
+                }
+
+                if (!hasDataFunc(result) && acceptNull)
+                {
+                    return default;
                 }
 
                 throw new PluginApplicationException(statusMessage);
