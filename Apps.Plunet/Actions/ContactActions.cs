@@ -85,28 +85,31 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
     }
 
     [Action("Update contact", Description = "Update Plunet contact")]
-    public async Task<ContactObjectResponse> UpdateContact([ActionParameter] ContactRequest contact, [ActionParameter] CreateContactRequest request)
-    {        
+    public async Task<ContactObjectResponse> UpdateContact(
+        [ActionParameter] ContactRequest contact, 
+        [ActionParameter] CreateContactRequest request)
+    {
+        var contactToUpdate = await GetContactById(contact);
+        
         await ExecuteWithRetry(() => ContactClient.updateAsync(Uuid, new()
         {
             customerContactID = ParseId(contact.ContactId),
-            name1 = request.FirstName,
-            name2 = request.LastName,
-            email = request.Email,
-            phone = request.Phone,
-            mobilePhone = request.MobilePhone,
-            costCenter = request.CostCenter,
-            externalID = request.ExternalId,
-            fax = request.Fax,
+            name1 = request.FirstName ?? contactToUpdate.FirstName,
+            name2 = request.LastName ?? contactToUpdate.LastName,
+            email = request.Email ?? contactToUpdate.Email,
+            phone = request.Phone ?? contactToUpdate.Phone,
+            mobilePhone = request.MobilePhone ?? contactToUpdate.MobilePhone,
+            costCenter = request.CostCenter ?? contactToUpdate.CostCenter,
+            externalID = request.ExternalId ?? contactToUpdate.ExternalId,
+            fax = request.Fax ?? contactToUpdate.Fax,
             addressID = ParseId(request.AddressId),
             customerID = ParseId(request.CustomerId),
-            userId = ParseId(request.UserId),
+            userId = !string.IsNullOrEmpty(request.UserId) ? ParseId(request.UserId) : ParseId(contactToUpdate.UserId),
             supervisor1 = request.Supervisor1,
             supervisor2 = request.Supervisor2,
-            status = ParseId(request.Status)
+            status = !string.IsNullOrEmpty(request.Status) ? ParseId(request.Status) : contactToUpdate.Status
         }, false));
 
         return await GetContactById(contact);
-    }   
-    
+    }
 }

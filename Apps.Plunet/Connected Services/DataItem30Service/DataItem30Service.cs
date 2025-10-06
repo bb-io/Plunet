@@ -383,6 +383,8 @@ namespace Blackbird.Plugins.Plunet.DataItem30Service
         private int statusField;
         
         private double totalPriceField;
+
+        private int taxTypeField;
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=0)]
@@ -509,9 +511,23 @@ namespace Blackbird.Plugins.Plunet.DataItem30Service
                 this.statusField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=8)]
+        [System.Xml.Serialization.XmlElementAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified, Order = 8)]
+        public int taxType
+        {
+            get
+            {
+                return this.taxTypeField;
+            }
+            set
+            {
+                this.taxTypeField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order = 9)]
         public double totalPrice
         {
             get
@@ -1095,7 +1111,8 @@ namespace Blackbird.Plugins.Plunet.DataItem30Service
         private int statusField;
         
         private string targetLanguageField;
-        
+        private int taxTypeField { get; set; }
+
         private double totalPriceField;
         
         /// <remarks/>
@@ -1293,9 +1310,23 @@ namespace Blackbird.Plugins.Plunet.DataItem30Service
                 this.targetLanguageField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=13)]
+        [System.Xml.Serialization.XmlElementAttribute(Form = System.Xml.Schema.XmlSchemaForm.Unqualified, Order = 13)]
+        public int taxType
+        {
+            get
+            {
+                return this.taxTypeField;
+            }
+            set
+            {
+                this.taxTypeField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order = 14)]
         public double totalPrice
         {
             get
