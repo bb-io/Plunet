@@ -1,7 +1,7 @@
 ﻿using Apps.Plunet.Actions;
 using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.CustomProperties;
-using System.Text.Json;
+using Newtonsoft.Json;
 using Tests.Plunet.Base;
 
 namespace Tests.Plunet
@@ -17,13 +17,9 @@ namespace Tests.Plunet
             {
                 CustomerId = "1"
             });
+
             Assert.IsNotNull(response);
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-            string json = JsonSerializer.Serialize(response, options);
-            Console.WriteLine(json);
+            Console.WriteLine(JsonConvert.SerializeObject(response, Formatting.Indented));
         }
 
         [TestMethod]
@@ -35,33 +31,29 @@ namespace Tests.Plunet
                 //OnlyReturnIds = true,
                 Limit = 10
             });
-            Assert.IsNotNull(response);
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true
-            };
-            string json = JsonSerializer.Serialize(response, options);
-            Console.WriteLine(json);
-        }
 
+            Assert.IsNotNull(response);
+            Console.WriteLine(JsonConvert.SerializeObject(response, Formatting.Indented));
+        }
 
         [TestMethod]
         public async Task GetTextModule_IsSuccess()
         {
+            // Arrange
             var action = new CustomPropertyActions(InvocationContext);
-            var response = await action.GetTextmodule(new TextModuleRequest 
+            var request = new TextModuleRequest
             {
-                Flag = "[ETW]",
-                UsageArea = "11",
-                MainId = "74"
-            });
-            Assert.IsNotNull(response);
-            var options = new JsonSerializerOptions
-            {
-                WriteIndented = true
+                Flag = "[XTM-User-ID]",
+                UsageArea = "2",
+                MainId = "67"
             };
-            string json = JsonSerializer.Serialize(response, options);
-            Console.WriteLine(json);
+
+            // Act
+            var response = await action.GetTextmodule(request);
+
+            // Assert
+            Assert.IsNotNull(response);
+            Console.WriteLine(JsonConvert.SerializeObject(response, Formatting.Indented));
         }
     }
 }

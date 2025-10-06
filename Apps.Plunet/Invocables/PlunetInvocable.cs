@@ -234,11 +234,20 @@ public class PlunetInvocable : BaseInvocable
         }
     }
 
-    private static bool IsTimeout(Exception ex) =>
-    ex is TimeoutException ||
-    ex is TaskCanceledException ||
-    ex.Message.Contains("timed out", StringComparison.OrdinalIgnoreCase) ||
-    ex.Message.Contains("Connection timed out", StringComparison.OrdinalIgnoreCase);
+    private static bool IsTimeout(Exception ex)
+    {
+        for (var e = ex; e != null; e = e.InnerException)
+        {
+            if (e is TimeoutException ||
+                e is TaskCanceledException ||
+                e.Message.Contains("timed out", StringComparison.OrdinalIgnoreCase) ||
+                e.Message.Contains("Connection timed out", StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 
     // Custom fields service
     protected async Task ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataCustomFields30.Result>> func, int maxRetries = 10, int delay = 1000)
