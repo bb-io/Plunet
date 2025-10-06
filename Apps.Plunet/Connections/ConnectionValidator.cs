@@ -2,7 +2,6 @@
 using Apps.Plunet.Extensions;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Connections;
-using Blackbird.Plugins.Plunet.DataResource30Service;
 
 namespace Apps.Plunet.Connections;
 
