@@ -1,15 +1,11 @@
-﻿using Apps.Plunet.Actions;
+﻿using Tests.Plunet.Base;
+using Apps.Plunet.Actions;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Item;
-using Apps.Plunet.Models.Order;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Tests.Plunet.Base;
+using Newtonsoft.Json;
 
 namespace Tests.Plunet;
+
 [TestClass]
 public class ItemTests : TestBase
 {
@@ -50,7 +46,30 @@ public class ItemTests : TestBase
         Assert.IsNotNull(result);
     }
 
+    [TestMethod]
+    public async Task CreateItem_WithValidInputs_ShouldNotThrowError()
+    {
+        // Arrange
+        var actions = new ItemActions(InvocationContext);
 
+        var project = new ProjectTypeRequest { ProjectType = "3" };
+        var projectId = new ProjectIdRequest { ProjectId = "567" };
+        var languages = new OptionalLanguageCombinationRequest { };
+        var request = new CreateItemRequest
+        {
+            BriefDescription = "test brief desc",
+            Status = "8",
+            TotalPrice = 15.62,
+            TaxType = "2"
+        };
+
+        // Act
+        var result = await actions.CreateItem(project, projectId, request, languages);
+
+        // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        Assert.IsNotNull(result);
+    }
 
     [TestMethod]
     public async Task Create_item_priceline_works()
@@ -77,6 +96,4 @@ public class ItemTests : TestBase
         Console.WriteLine(json);
         Assert.IsTrue(true);
     }
-
-
 }

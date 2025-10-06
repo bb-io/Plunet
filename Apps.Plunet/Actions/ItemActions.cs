@@ -4,15 +4,11 @@ using Apps.Plunet.Models;
 using Apps.Plunet.Models.Job;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Request.Request;
-using Apps.Plunet.Models.Request.Response;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using Blackbird.Plugins.Plunet.DataItem30Service;
-using Blackbird.Plugins.Plunet.DataRequest30Service;
-using System;
 using PriceUnit = Blackbird.Plugins.Plunet.DataItem30Service.PriceUnit;
 
 namespace Apps.Plunet.Actions;
@@ -136,8 +132,10 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     }
 
     [Action("Create item", Description = "Create a new item in Plunet")]
-    public async Task<ItemResponse> CreateItem([ActionParameter] ProjectTypeRequest project,
-        [ActionParameter] ProjectIdRequest projectId, [ActionParameter] CreateItemRequest request,
+    public async Task<ItemResponse> CreateItem(
+        [ActionParameter] ProjectTypeRequest project,
+        [ActionParameter] ProjectIdRequest projectId, 
+        [ActionParameter] CreateItemRequest request,
         [ActionParameter] OptionalLanguageCombinationRequest languages)
     {
         if ((languages.SourceLanguageCode == null) != (languages.TargetLanguageCode == null))
@@ -154,6 +152,8 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             projectType = ParseId(project.ProjectType),
             reference = request.Reference ?? string.Empty,
             status = ParseId(request.Status),
+            taxType = ParseId(request.TaxType),
+            totalPrice = request.TotalPrice ?? default,
         };
 
         var response = languages.SourceLanguageCode == null

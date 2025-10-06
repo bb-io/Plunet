@@ -46,6 +46,9 @@ public class ItemResponse
     [Display("Total price")]
     public double TotalPrice { get; set; }
 
+    [Display("Tax type")]
+    public string TaxType { get; set; }
+
     public ItemResponse(Blackbird.Plugins.Plunet.DataItem30Service.Item item, ItemProjectType projectType) 
     {
         BriefDescription = item.briefDescription;
@@ -65,5 +68,6 @@ public class ItemResponse
         TargetLanguage = item.targetLanguage;
         Status = item.status.ToString();
         TotalPrice = item.totalPrice;
+        TaxType = item.taxType.ToString();
     }
 }
