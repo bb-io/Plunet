@@ -1,8 +1,8 @@
-﻿using Tests.Plunet.Base;
-using Apps.Plunet.Actions;
+﻿using Apps.Plunet.Actions;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Item;
 using Newtonsoft.Json;
+using Tests.Plunet.Base;
 
 namespace Tests.Plunet;
 
@@ -32,7 +32,43 @@ public class ItemTests : TestBase
     }
 
     [TestMethod]
-    public async Task GetLanguageCatCodeAsync_WithValidInputs_ShouldNotThrowError()
+    public async Task SearchItems_OneItemStatus_IsSuccess()
+    {
+        // Arrange
+        var actions = new ItemActions(InvocationContext);
+        var item = new OptionalItemProjectRequest { ProjectType = "3" };
+        var searchParams = new SearchItemsRequest { Status = ["2"] };
+        var currencyParams = new OptionalCurrencyTypeRequest { };
+        var targetLanguage = new OptionalTargetLanguageRequest { };
+
+        // Act
+        var result = await actions.SearchItems(item, searchParams, currencyParams, targetLanguage);
+
+        // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        Assert.IsTrue(result.Items.Count > 0);
+    }
+
+    [TestMethod]
+    public async Task SearchItems_MultipleItemStatuses_IsSuccess()
+    {
+        // Arrange
+        var actions = new ItemActions(InvocationContext);
+        var item = new OptionalItemProjectRequest { ProjectType = "3" };
+        var searchParams = new SearchItemsRequest { Status = ["2", "3"] };
+        var currencyParams = new OptionalCurrencyTypeRequest { };
+        var targetLanguage = new OptionalTargetLanguageRequest { };
+
+        // Act
+        var result = await actions.SearchItems(item, searchParams, currencyParams, targetLanguage);
+
+        // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        Assert.IsTrue(result.Items.Count > 0);
+    }
+
+    [TestMethod]
+    public async Task GetLanguageCatCodeAsync_WithValidInputs_IsSuccess()
     {
         var actions = new ItemActions(InvocationContext);
 
@@ -47,7 +83,7 @@ public class ItemTests : TestBase
     }
 
     [TestMethod]
-    public async Task CreateItem_WithValidInputs_ShouldNotThrowError()
+    public async Task CreateItem_WithValidInputs_IsSuccess()
     {
         // Arrange
         var actions = new ItemActions(InvocationContext);
