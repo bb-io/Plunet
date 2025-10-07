@@ -18,32 +18,42 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 {
     [Action("Search items",
         Description = "Search for items either under a specific order/quote or with a certain status")]
-    public async Task<SearchResponse<ItemResponse>> SearchItems([ActionParameter] OptionalItemProjectRequest item,
+    public async Task<SearchResponse<ItemResponse>> SearchItems(
+        [ActionParameter] OptionalItemProjectRequest item,
         [ActionParameter] SearchItemsRequest searchParams,
         [ActionParameter] OptionalCurrencyTypeRequest currencyParams,
         [ActionParameter] OptionalTargetLanguageRequest targetLanguage)
     {
-        Item[]? result;
+        IEnumerable<Item>? result;
 
         if (item.ProjectId == null)
         {
-            if (searchParams.Status == null)
-            {
-                throw new PluginMisconfigurationException("Please provide either an order or quote ID or an item status.");
-            }
+            if (searchParams.Status == null || !searchParams.Status.Any())
+                throw new PluginMisconfigurationException("Please provide either an order or quote ID or at least one item status.");
 
             if (searchParams.DocumentStatus == null)
             {
-                result = await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus1Async(Uuid, ParseId(item.ProjectType), ParseId(searchParams.Status)));
+                result = await FetchItemsByStatusesAsync(searchParams.Status, async status => 
+                    await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus1Async(Uuid, ParseId(item.ProjectType), ParseId(status))
+                ));
             }
             else
             {
-                result = currencyParams.CurrencyType == null
-                    ? await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus3Async(Uuid, ParseId(item.ProjectType),
-                        ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus)))
-                    : await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus3ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectType),
-                        ParseId(searchParams.Status), ParseId(searchParams.DocumentStatus),
-                        ParseId(currencyParams.CurrencyType)));
+                result = await FetchItemsByStatusesAsync(searchParams.Status, async status => currencyParams.CurrencyType == null
+                    ? await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus3Async(
+                        Uuid, 
+                        ParseId(item.ProjectType),
+                        ParseId(status), 
+                        ParseId(searchParams.DocumentStatus))
+                    )
+                    : await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus3ByCurrencyTypeAsync(
+                        Uuid, 
+                        ParseId(item.ProjectType),
+                        ParseId(status), 
+                        ParseId(searchParams.DocumentStatus),
+                        ParseId(currencyParams.CurrencyType))
+                    )
+                );
             }
         }
         else
@@ -51,39 +61,76 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             if (searchParams.Status == null)
             {
                 result = currencyParams.CurrencyType == null
-                    ? await ExecuteWithRetryAcceptNull(() => ItemClient.getAllItemObjectsAsync(Uuid, ParseId(item.ProjectId),
-                        ParseId(item.ProjectType)))
-                    : await ExecuteWithRetryAcceptNull(() => ItemClient.getAllItemObjectsByCurrencyAsync(Uuid, ParseId(item.ProjectId),
-                        ParseId(item.ProjectType), ParseId(currencyParams.CurrencyType)));
+                    ? await ExecuteWithRetryAcceptNull(() => ItemClient.getAllItemObjectsAsync(
+                        Uuid, 
+                        ParseId(item.ProjectId),
+                        ParseId(item.ProjectType))
+                    )
+                    : await ExecuteWithRetryAcceptNull(() => ItemClient.getAllItemObjectsByCurrencyAsync(
+                        Uuid, 
+                        ParseId(item.ProjectId),
+                        ParseId(item.ProjectType), 
+                        ParseId(currencyParams.CurrencyType))
+                    );
             }
             else if (searchParams.DocumentStatus == null)
             {
-                result = await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus2Async(Uuid, ParseId(item.ProjectId),
-                    ParseId(item.ProjectType), ParseId(searchParams.Status)));
+                result = await FetchItemsByStatusesAsync(searchParams.Status, async status => 
+                    await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus2Async(
+                        Uuid, 
+                        ParseId(item.ProjectId),
+                        ParseId(item.ProjectType), 
+                        ParseId(status))
+                    )
+                );
             }
             else
             {
-                result = currencyParams.CurrencyType == null
-                    ? await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus4Async(Uuid, ParseId(item.ProjectId),
-                        ParseId(item.ProjectType), ParseId(searchParams.Status),
-                        ParseId(searchParams.DocumentStatus)))
-                    : await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus4ByCurrencyTypeAsync(Uuid, ParseId(item.ProjectId),
-                        ParseId(item.ProjectType), ParseId(searchParams.Status),
-                        ParseId(searchParams.DocumentStatus), ParseId(currencyParams.CurrencyType)));
+                result = await FetchItemsByStatusesAsync(searchParams.Status, async status => currencyParams.CurrencyType == null
+                    ? await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus4Async(
+                        Uuid, 
+                        ParseId(item.ProjectId),
+                        ParseId(item.ProjectType), 
+                        ParseId(status),
+                        ParseId(searchParams.DocumentStatus))
+                    )
+                    : await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus4ByCurrencyTypeAsync(
+                        Uuid, 
+                        ParseId(item.ProjectId),
+                        ParseId(item.ProjectType),
+                        ParseId(status),
+                        ParseId(searchParams.DocumentStatus), 
+                        ParseId(currencyParams.CurrencyType))
+                    )
+                );            
             }
         }
 
         var projectType = (ItemProjectType)int.Parse(item.ProjectType);
-        if (targetLanguage != null && !String.IsNullOrEmpty(targetLanguage.TargetLanguageName))
+        if (targetLanguage != null && !string.IsNullOrEmpty(targetLanguage.TargetLanguageName))
         {
             result = result?.Where(x => x.targetLanguage == targetLanguage.TargetLanguageName).ToArray();
         }
-        var items = result is null || result.Length == 0
+        var items = result is null || !result.Any()
             ? new List<ItemResponse>()
             : result.Take(searchParams.Limit ?? SystemConsts.SearchLimit).Select(x => new ItemResponse(x, projectType)).ToList();
         return new SearchResponse<ItemResponse>(items);
     }
-    
+
+    private async Task<IEnumerable<Item>> FetchItemsByStatusesAsync(
+        IEnumerable<string> statuses,
+        Func<string, Task<Item[]?>> fetchFunc)
+    {
+        var aggregated = new List<Item>();
+        foreach (var status in statuses)
+        {
+            var items = await fetchFunc(status);
+            if (items != null)
+                aggregated.AddRange(items);
+        }
+        return aggregated;
+    }
+
     [Action("Find item", Description = "Find a specific item based on specific criteria")]
     public async Task<FindResponse<ItemResponse>> FindItem([ActionParameter] OptionalItemProjectRequest item,
         [ActionParameter] SearchItemsRequest searchParams,
