@@ -13,6 +13,7 @@ using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
@@ -36,7 +37,27 @@ public class JobHooks : PlunetWebhookList<JobResponse>
     {
         var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value;
         var projectType = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlProjectTagName, StringComparison.OrdinalIgnoreCase))?.Value;
-        return await Actions.GetJob(new GetJobRequest { JobId = id, ProjectType = projectType });
+        if(string.IsNullOrEmpty(id))
+        {
+            InvocationContext.Logger?.LogError($"[JobHooks] Could not find {XmlIdTagName} in the webhook request. Request: {doc}", []);
+            throw new PluginApplicationException($"Could not find {XmlIdTagName} in the webhook request.");
+        }
+        
+        if(string.IsNullOrEmpty(projectType))
+        {
+            InvocationContext.Logger?.LogError($"[JobHooks] Could not find {XmlProjectTagName} in the webhook request. Request: {doc}", []);
+            throw new PluginApplicationException($"Could not find {XmlProjectTagName} in the webhook request.");
+        }
+        
+        try
+        {
+            return await Actions.GetJob(new GetJobRequest { JobId = id, ProjectType = projectType });
+        }
+        catch (Exception e)
+        {
+            InvocationContext.Logger?.LogError($"[JobHooks] Error getting job with ID {id} and ProjectType {projectType}. Request: {doc}", []);
+            throw;
+        }
     }
 
     [Webhook("On job deleted", typeof(JobDeleteEventHandler), Description = "Triggered when a job is deleted")]
