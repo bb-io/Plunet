@@ -1,6 +1,5 @@
 ﻿using System.ServiceModel;
 using System.ServiceModel.Channels;
-using System.Threading;
 using Apps.Plunet.DataOutgoingInvoice30Service;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Plugins.Plunet.DataAdmin30Service;

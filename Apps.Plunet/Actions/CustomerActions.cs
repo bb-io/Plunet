@@ -7,7 +7,6 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataCustomer30Service;
-using Blackbird.Plugins.Plunet.DataRequest30Service;
 
 namespace Apps.Plunet.Actions;
 
@@ -85,7 +84,6 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         }
         return new(customer, paymentInfo, addressesInfo, dossier, accountManagerResult, createdby);
     }
-       
 
     [Action("Delete customer", Description = "Delete a Plunet customer")]
     public async Task DeleteCustomerById([ActionParameter] CustomerRequest input)

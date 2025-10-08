@@ -6,7 +6,6 @@ using Apps.Plunet.Webhooks.CallbackClients.Base;
 using Apps.Plunet.Webhooks.Models;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Plugins.Plunet.DataCustomer30Service;
 
 namespace Apps.Plunet.Webhooks.CallbackClients;
 
