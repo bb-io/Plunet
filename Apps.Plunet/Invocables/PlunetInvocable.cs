@@ -27,7 +27,6 @@ using Blackbird.Plugins.Plunet.DataQualityManager30;
 using DataResourceAddress30Service;
 using System.ServiceModel;
 using PropertyResult = Blackbird.Plugins.Plunet.DataCustomFields30.PropertyResult;
-using StringResult = Blackbird.Plugins.Plunet.DataAdmin30Service.StringResult;
 using Textmodule = Blackbird.Plugins.Plunet.DataCustomFields30.Textmodule;
 
 namespace Apps.Plunet.Invocables;
@@ -69,7 +68,14 @@ public class PlunetInvocable : BaseInvocable
 
     public PlunetInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
-        Uuid = Creds.GetAuthToken();
+        try
+        {
+            Uuid = Creds.GetAuthToken();
+        }
+        catch (Exception ex)
+        {
+            throw new PluginApplicationException(ex.Message);
+        }
     }
 
     private static DataQuote30Client ConfigureTimeout(DataQuote30Client client)
