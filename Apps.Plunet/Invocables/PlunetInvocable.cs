@@ -68,13 +68,28 @@ public class PlunetInvocable : BaseInvocable
 
     public PlunetInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
-        try
+        Uuid = GetAuthTokenWithRetry();
+    }
+
+    private string GetAuthTokenWithRetry(int maxRetries = 2)
+    {
+        int attempts = 0;
+
+        while (true)
         {
-            Uuid = Creds.GetAuthToken();
-        }
-        catch (Exception ex)
-        {
-            throw new PluginApplicationException(ex.Message);
+            try
+            {
+                return Creds.GetAuthToken();
+            }
+            catch (Exception ex)
+            {
+                attempts++;
+
+                if (attempts > maxRetries)
+                    throw new PluginApplicationException(ex.Message);
+
+                Task.Delay(500).GetAwaiter().GetResult();
+            }
         }
     }
 
