@@ -17,7 +17,6 @@ namespace Apps.Plunet.Actions;
 [ActionList("Resources")]
 public class ResourceActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
-
     [Action("Create resource", Description = "Create a new resource")]
     public async Task<ResourceResponse> CreateResource([ActionParameter] ResourceParameters request)
     {
@@ -36,7 +35,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
             name2 = request.Name2 ?? string.Empty,
             opening = request.Opening ?? string.Empty,
             phone = request.Phone ?? string.Empty,
-            resourceType = 0,
+            resourceType = ParseId(request.ResourceType, 0),
             skypeID = request.SkypeId ?? string.Empty,
             status = ParseId(request.Status, 4),
             supervisor1 = request.Supervisor1 ?? string.Empty,
@@ -224,6 +223,10 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
             ? (await ExecuteWithRetryAcceptNull(() => ResourceClient.getWorkingStatusAsync(Uuid, ParseId(resource.ResourceId))))
             : ParseId(request.WorkingStatus);
 
+        var resourceType = string.IsNullOrEmpty(request.ResourceType)
+            ? (await ExecuteWithRetryAcceptNull(() => ResourceClient.getResourceTypeAsync(Uuid, ParseId(resource.ResourceId))))
+            : ParseId(request.ResourceType);
+
         await ExecuteWithRetry(() =>
             ResourceClient.updateAsync(Uuid, new ResourceIN
             {
@@ -241,7 +244,7 @@ public class ResourceActions(InvocationContext invocationContext) : PlunetInvoca
                 name2 = request.Name2 ?? string.Empty,
                 opening = request.Opening ?? string.Empty,
                 phone = request.Phone ?? string.Empty,
-                resourceType = 0,
+                resourceType = resourceType ?? 0,
                 skypeID = request.SkypeId ?? string.Empty,
                 status = status ?? 4,
                 supervisor1 = request.Supervisor1 ?? string.Empty,
