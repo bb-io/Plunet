@@ -157,4 +157,7 @@ public class ResourceParameters
 
     [Display("Sales tax ID")]
     public string? SalesTaxId { get; set; }
+
+    [Display("Resource type"), StaticDataSource(typeof(ResourceTypeDataHandler))]
+    public string? ResourceType { get; set; }
 }

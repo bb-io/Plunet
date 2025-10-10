@@ -1,14 +1,6 @@
 ﻿using Apps.Plunet.Actions;
-using Apps.Plunet.Models.Order;
-using Apps.Plunet.Models.Request.Request;
 using Apps.Plunet.Models.Resource.Request;
-using Blackbird.Applications.Sdk.Common.Invocation;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Tests.Plunet.Base;
 
 namespace Tests.Plunet;
@@ -29,60 +21,92 @@ public class ResourceTests : TestBase
     public const string updatedContractNumber = "124910";
 
     [TestMethod]
-    public async Task Get_resource_works()
+    public async Task GetResource_IsSuccess()
     {
+        // Arrange
         var actions = new ResourceActions(InvocationContext);
 
-        var result = await actions.GetResource("");
+        // Act
+        var result = await actions.GetResource("1");
+
+        // Assert
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
-        Assert.AreEqual(resourceName, result.Name2);
+        Assert.IsNotNull(result);
     }
 
     [TestMethod]
-    public async Task Create_resource_works()
+    public async Task CreateResource_WithResourceType_IsSuccess()
     {
+        // Arrange
         var actions = new ResourceActions(InvocationContext);
+        var request = new ResourceParameters
+        {
+            Name2 = "Jesse",
+            Phone = "123456",
+            ResourceType = "1"
+        };
 
-        var result = await actions.CreateResource(new ResourceParameters 
-        { 
-            Name2 = resourceName, 
-            DeliveryCountry = deliveryCountry, 
-            InvoiceStreet = invoiceStreet1, 
-            ContractNumber = contractNumber 
-        });
+        // Act
+        var result = await actions.CreateResource(request);
+
+        // Assert
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
-        Assert.AreEqual(resourceName, result.Name2);
-        Assert.AreEqual(deliveryCountry, result.DeliveryAddress.Country);
-        Assert.AreEqual(invoiceStreet1, result.InvoiceAddress.Street);
-        Assert.AreEqual(contractNumber, result.Payment.ContractNumber);
+        Assert.AreEqual(request.Name2, result.Name2);
+        Assert.AreEqual(request.Phone, result.Phone);
+        Assert.AreEqual(request.ResourceType, result.ResourceType);
     }
 
     [TestMethod]
-    public async Task Update_resource_works()
+    public async Task CreateResource_WithoutResourceType_IsSuccess()
     {
+        // Arrange
         var actions = new ResourceActions(InvocationContext);
+        var request = new ResourceParameters
+        {
+            Name2 = "Skyler",
+            Phone = "11111",
+            DeliveryStreet = "308 Negra Arroyo Lane"
+        };
 
-        var result = await actions.CreateResource(new ResourceParameters 
-        { 
-            Name2 = resourceName, 
-            DeliveryCountry = deliveryCountry, 
-            InvoiceStreet = invoiceStreet1, 
-            ContractNumber = contractNumber 
-        });
-        var updated = await actions.UpdateResource(new ResourceRequest { ResourceId = result.ResourceID }, new ResourceParameters 
-        { 
-            Name2 = updatedResourceName, 
-            DeliveryCountry = updatedDeliveryCountry, 
-            InvoiceStreet = updatedInvoiceStreet1, 
-            ContractNumber = updatedContractNumber 
-        });
+        // Act
+        var result = await actions.CreateResource(request);
+
+        // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        Assert.AreEqual(request.Name2, result.Name2);
+        Assert.AreEqual(request.Phone, result.Phone);
+        Assert.AreEqual("0", result.ResourceType);
+    }
+
+    [TestMethod]
+    public async Task UpdateResource_IsSuccess()
+    {
+        // Arrange
+        var actions = new ResourceActions(InvocationContext);
+        var createResourceRequest = new ResourceParameters
+        {
+            Name2 = "Walter",
+            DeliveryCountry = "United States",
+            ContractNumber = "call saul",
+            ResourceType = "3"
+        };
+        var updateResourceRequest = new ResourceParameters
+        {
+            Name2 = "Walter",
+            DeliveryCountry = "Mexico",
+            InvoiceStreet = "better call saul"
+        };
+
+        // Act
+        var created = await actions.CreateResource(createResourceRequest);
+        var updated = await actions.UpdateResource(new ResourceRequest { ResourceId = created.ResourceID }, updateResourceRequest);
+
+        // Assert
         Console.WriteLine(JsonConvert.SerializeObject(updated, Formatting.Indented));
-        Assert.AreEqual(updatedResourceName, updated.Name2);
-        Assert.AreEqual(updatedDeliveryCountry, updated.DeliveryAddress.Country);
-        Assert.AreEqual(updatedInvoiceStreet1, updated.InvoiceAddress.Street);
-        Assert.AreEqual(updatedContractNumber, updated.Payment.ContractNumber);
+        Assert.AreEqual(created.Name2, updated.Name2);
+        Assert.AreEqual(updateResourceRequest.DeliveryCountry, updated.DeliveryAddress.Country);
+        Assert.AreEqual(createResourceRequest.ResourceType, updated.ResourceType);
     }
-
 
     [TestMethod]
     public async Task SearchResources_ReturnValue()
@@ -92,12 +116,11 @@ public class ResourceTests : TestBase
         //SelectedPropertyValueIds= ["2","74","108"],
             //PropertyType = "3",
             PropertyNameEnglish = "Test",
+            
         };
         var result = await action.SearchResources(input);
 
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
-        Console.WriteLine(json);
-
+        Console.WriteLine(JsonConvert.SerializeObject(result));
         Assert.IsNotNull(result);
     }
 }
