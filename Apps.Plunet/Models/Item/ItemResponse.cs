@@ -13,6 +13,9 @@ public class ItemResponse
     [Display("Delivery deadline")]
     public DateTime? DeliveryDeadline { get; set; }
 
+    [Display("Delivery date")]
+    public DateTime? DeliveryDate { get; set; }
+
     [Display("Invoice ID")]
     public string InvoiceId { get; set; }
 

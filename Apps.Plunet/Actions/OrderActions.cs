@@ -6,17 +6,8 @@ using Apps.Plunet.Models.Order;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dynamic;
-using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Plugins.Plunet.DataItem30Service;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
-using Blackbird.Plugins.Plunet.DataRequest30Service;
-using RestSharp;
-using IntegerArrayResult = Blackbird.Plugins.Plunet.DataOrder30Service.IntegerArrayResult;
-using IntegerResult = Blackbird.Plugins.Plunet.DataOrder30Service.IntegerResult;
-using Result = Blackbird.Plugins.Plunet.DataOrder30Service.Result;
-using StringArrayResult = Blackbird.Plugins.Plunet.DataOrder30Service.StringArrayResult;
-using StringResult = Blackbird.Plugins.Plunet.DataOrder30Service.StringResult;
 
 namespace Apps.Plunet.Actions;
 
@@ -36,16 +27,15 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
                     ? new()
                     {
                         dateFrom = input.DateFrom ?? default,
-                        dateTo = input.DateTo ?? default
+                        dateTo = input.DateTo ?? default,
+                        dateRelation = ParseId(input.DateRelation, 1)
                     }
                     : default,
                 customerID = ParseId(input.CustomerId),
                 projectName = input.ProjectName ?? string.Empty,
                 projectType = ParseId(input.ProjectType),
                 projectDescription = input.ProjectDescription ?? string.Empty,
-                //itemStatus = input.ItemStatus is not null
-                //? input.ItemStatus.Select(id => ParseId(id)).ToArray()
-                //: null
+                itemStatus = input.ItemStatus?.Select(ParseId).ToArray(),
             }));
 
         var ids = searchResult?
@@ -149,7 +139,6 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         };
 
     }
-
 
     [Action("Get order target languages for source",
         Description = "Given a source language and an order, get all the target languages that this order represents")]
@@ -276,7 +265,6 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
 
         return await GetOrder(order);
     }
-
 
     [Action("Add language combination to order", Description = "Add a new language combination to an existing order")]
     public async Task<AddLanguageCombinationResponse> AddLanguageCombinationToOrder(

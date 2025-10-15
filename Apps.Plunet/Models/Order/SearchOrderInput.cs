@@ -8,9 +8,15 @@ namespace Apps.Plunet.Models.Order;
 
 public class SearchOrderInput : SearchInputBase
 {
-    [Display("Date from")] public DateTime? DateFrom { get; set; }
+    [Display("Date from")] 
+    public DateTime? DateFrom { get; set; }
 
-    [Display("Date to")] public DateTime? DateTo { get; set; }
+    [Display("Date to")]
+    public DateTime? DateTo { get; set; }
+
+    [Display("Date relation")]
+    [StaticDataSource(typeof(DateRelationDataHandler))]
+    public string? DateRelation { get; set; }
 
     [Display("Customer")]
     [DataSource(typeof(CustomerIdDataHandler))]
@@ -41,7 +47,7 @@ public class SearchOrderInput : SearchInputBase
     [Display("Only return IDs", Description = "If enabled, returns only IDs without fetching details for each item.")]
     public bool? OnlyReturnIds { get; set; }
 
-    //[Display("Item status")]
-    //[StaticDataSource(typeof(ItemStatusDataHandler))]
-    //public IEnumerable<string>? ItemStatus { get; set; }
+    [Display("Item status")]
+    [StaticDataSource(typeof(ItemStatusDataHandler))]
+    public IEnumerable<string>? ItemStatus { get; set; }
 }

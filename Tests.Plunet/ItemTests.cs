@@ -10,11 +10,19 @@ namespace Tests.Plunet;
 public class ItemTests : TestBase
 {
     [TestMethod]
-    public async Task Get_item_works()
+    public async Task GetItem_IsSuccess()
     {
+        // Arrange
         var actions = new ItemActions(InvocationContext);
+        var project = new ProjectTypeRequest { ProjectType = "3" };
+        var request = new GetItemRequest { ItemId = "463" };
+        var currency = new OptionalCurrencyTypeRequest { };
 
-        var result = await actions.GetItem(new ProjectTypeRequest { ProjectType = "3" }, new GetItemRequest { ItemId = "406" }, new OptionalCurrencyTypeRequest { });
+        // Act
+        var result = await actions.GetItem(project, request, currency);
+
+        // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         Assert.IsNotNull(result.OrderId);
     }
 

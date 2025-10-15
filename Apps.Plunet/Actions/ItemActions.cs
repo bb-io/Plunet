@@ -114,6 +114,12 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         var items = result is null || !result.Any()
             ? new List<ItemResponse>()
             : result.Take(searchParams.Limit ?? SystemConsts.SearchLimit).Select(x => new ItemResponse(x, projectType)).ToList();
+
+        foreach (var fetchedItem in items)
+        {
+            await GetDeliveryDate(fetchedItem);
+        }
+
         return new SearchResponse<ItemResponse>(items);
     }
 
@@ -149,7 +155,10 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         var result = await ExecuteWithRetry(() => ItemClient.getLanguageIndependentItemObjectAsync(Uuid,
                         ParseId(projectType.ProjectType), ParseId(projectId.ProjectId), ParseId(currencyParams.CurrencyType)));
         var Type = (ItemProjectType)int.Parse(projectType.ProjectType);
-        return new(result, Type);
+
+        var item = new ItemResponse(result, Type);
+        await GetDeliveryDate(item);
+        return item;
     }
 
     [Action("Get item", Description = "Get details for a Plunet item")]
@@ -161,7 +170,15 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             : await ExecuteWithRetry(() => ItemClient.getItemObjectByCurrencyTypeAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId), ParseId(currency.CurrencyType)));
 
         var projectType = (ItemProjectType)int.Parse(project.ProjectType);
-        return new(result, projectType);
+        var item = new ItemResponse(result, projectType);
+        await GetDeliveryDate(item);
+        return item;
+    }
+
+    private async Task GetDeliveryDate(ItemResponse item)
+    {
+        var date = await ExecuteWithRetry(() => ItemClient.getDeliveryDateAsync(Uuid, ParseId(item.ItemId)));
+        item.DeliveryDate = date.data == DateTime.MinValue ? null : date.data;
     }
 
     [Action("Copy jobs from workflow", Description = "Copy jobs from the selected workflow into the specified item")]
@@ -243,9 +260,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         await ExecuteWithRetry(() => ItemClient.updateAsync(Uuid, itemIn, false));
 
         var itemRes = await ExecuteWithRetry(() => ItemClient.getItemObjectAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId)));
-        await HandleLanguages(languages, ParseId(project.ProjectType), itemRes.projectID,
-            ParseId(item.ItemId));
-
+        await HandleLanguages(languages, ParseId(project.ProjectType), itemRes.projectID, ParseId(item.ItemId));
         return await GetItem(project, item, new OptionalCurrencyTypeRequest { });
     }
 
@@ -433,9 +448,5 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
                 new ItemPriceUnitResponse { Id = priceUnit.priceUnitID.ToString(), Description = input.PriceUnitDescription };
         }
         return new ItemPriceUnitResponse();
-
-    }
-
-    // Pricelist
-    // SetCatReport    
+    } 
 }

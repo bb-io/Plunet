@@ -1,5 +1,6 @@
 ﻿using Apps.Plunet.Actions;
 using Apps.Plunet.Models.Order;
+using Newtonsoft.Json;
 using Tests.Plunet.Base;
 
 namespace Tests.Plunet;
@@ -19,13 +20,35 @@ public class OrderTests : TestBase
     [TestMethod]
     public async Task SearchOrders_IsSuccess()
     {
+        // Arrange
         var actions = new OrderActions(InvocationContext);
 
-        var result = await actions.SearchOrders(new SearchOrderInput { OnlyReturnIds=true, Limit=10 });
+        // Act
+        var result = await actions.SearchOrders(new SearchOrderInput 
+        { 
+            DateRelation = "5",
+            DateFrom = new DateTime(2024, 06, 19),
+            DateTo = new DateTime(2025, 06, 21),
+            ItemStatus = ["8", "2"]
+        });
 
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
-        Console.WriteLine(json);
+        // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        Assert.IsNotNull(result);
+    }
 
+    [TestMethod]
+    public async Task GetOrder_IsSuccess()
+    {
+        // Arrange
+        var actions = new OrderActions(InvocationContext);
+        var request = new OrderRequest { OrderId = "623" };
+
+        // Act
+        var result = await actions.GetOrder(request);
+
+        // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         Assert.IsNotNull(result);
     }
 }
