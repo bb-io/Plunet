@@ -72,11 +72,12 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
         var id = ParseId(request.PayableId);
         var accountStatement = await ExecuteWithRetryAcceptNull(() => PayableClient.getAccountStatementAsync(Uuid, id));
         var companyCode = await ExecuteWithRetry(() => PayableClient.getCompanyCodeAsync(Uuid, id));
-        var creditorAccount = ExecuteWithRetryAcceptNull(() => PayableClient.getCreditorAccountAsync(Uuid, id));
+        var creditorAccount = await ExecuteWithRetryAcceptNull(() => PayableClient.getCreditorAccountAsync(Uuid, id));
         var currency = await ExecuteWithRetryAcceptNull(() => PayableClient.getCurrencyAsync(Uuid, id));
         var expenseAccount = await ExecuteWithRetryAcceptNull(() => PayableClient.getExpenseAccountAsync(Uuid, id));
         var externalInvoice = await ExecuteWithRetryAcceptNull(() => PayableClient.getExternalInvoiceNumberAsync(Uuid, id));
         var invoiceDate = await ExecuteWithRetry(() => PayableClient.getInvoiceDateAsync(Uuid, id));
+        var taxTypes = await ExecuteWithRetryAcceptNull(() => PayableClient.getInvoiceTaxTypesAsync(Uuid, id));
         var isExported = await ExecuteWithRetry(() => PayableClient.getIsExportedAsync(Uuid, id));
         var memo = await ExecuteWithRetryAcceptNull(() => PayableClient.getMemoAsync(Uuid, id));
         var paidDate = await ExecuteWithRetry(() => PayableClient.getPaidDateAsync(Uuid, id));
@@ -86,6 +87,14 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
         var resource = await ExecuteWithRetry(() => PayableClient.getResourceIDAsync(Uuid, id));
         var status = await ExecuteWithRetry(() => PayableClient.getStatusAsync(Uuid, id));
         var total = await ExecuteWithRetry(() => PayableClient.getTotalNetAmountAsync(Uuid, id, 1)); // PROJECT CURRENCY
+        double taxes = 0;
+        if (taxTypes != null)
+        {
+            foreach (var tax in taxTypes.data)
+            {
+                taxes = taxes + await ExecuteWithRetry(() => PayableClient.getTotalTaxAmountAsync(Uuid, id, 1, taxTypes.data.First().taxType));
+            }
+        }
         var valueDate = await ExecuteWithRetry(() => PayableClient.getValueDateAsync(Uuid, id));
 
         var itemResult = await ExecuteWithRetry(() => PayableClient.getPaymentItemListAsync(Uuid, id));
@@ -120,6 +129,7 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
             ResourceId = resource.ToString(),
             Status = status.ToString(),
             TotalNetAmount = total,
+            TotalTaxAmount = taxes,
             ValueDate = valueDate,
             Items = items,
         };
