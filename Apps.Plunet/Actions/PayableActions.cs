@@ -87,7 +87,14 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
         var resource = await ExecuteWithRetry(() => PayableClient.getResourceIDAsync(Uuid, id));
         var status = await ExecuteWithRetry(() => PayableClient.getStatusAsync(Uuid, id));
         var total = await ExecuteWithRetry(() => PayableClient.getTotalNetAmountAsync(Uuid, id, 1)); // PROJECT CURRENCY
-        var taxes = taxTypes is null ? 0 :await ExecuteWithRetry(() => PayableClient.getTotalTaxAmountAsync(Uuid, id, 1, taxTypes.data.First().taxType));
+        double taxes = 0;
+        if (taxTypes != null)
+        {
+            foreach (var tax in taxTypes.data)
+            {
+                taxes = taxes + await ExecuteWithRetry(() => PayableClient.getTotalTaxAmountAsync(Uuid, id, 1, taxTypes.data.First().taxType));
+            }
+        }
         var valueDate = await ExecuteWithRetry(() => PayableClient.getValueDateAsync(Uuid, id));
 
         var itemResult = await ExecuteWithRetry(() => PayableClient.getPaymentItemListAsync(Uuid, id));
