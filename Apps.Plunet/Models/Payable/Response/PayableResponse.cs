@@ -46,8 +46,8 @@ public class PayableResponse
     [Display("Total net amount")]
     public double TotalNetAmount { get; set; }
 
-    //[Display("Total tax amount")]
-    //public double TotalTaxAmount { get; set; }
+    [Display("Total tax amount")]
+    public double TotalTaxAmount { get; set; }
 
     [Display("Invoice date")]
     public DateTime InvoiceDate { get; set; }
