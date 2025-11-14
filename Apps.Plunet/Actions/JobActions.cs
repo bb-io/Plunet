@@ -204,7 +204,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
 
         await ExecuteWithRetry(() => JobClient.updateAsync(Uuid, jobIn, false));
 
-        if (String.IsNullOrEmpty(pricelist))
+        if (!String.IsNullOrEmpty(pricelist))
         {
             await ExecuteWithRetry(() => JobClient.setPricelistAsync(Uuid, jobId, projectType, ParseId(pricelist)));
         }
