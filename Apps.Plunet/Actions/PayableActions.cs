@@ -88,11 +88,13 @@ public class PayableActions(InvocationContext invocationContext, IFileManagement
         var status = await ExecuteWithRetry(() => PayableClient.getStatusAsync(Uuid, id));
         var total = await ExecuteWithRetry(() => PayableClient.getTotalNetAmountAsync(Uuid, id, 1)); // PROJECT CURRENCY
         double taxes = 0;
-        if (taxTypes != null)
+        if (taxTypes != null && taxTypes.data != null)
         {
             foreach (var tax in taxTypes.data)
             {
-                taxes = taxes + await ExecuteWithRetry(() => PayableClient.getTotalTaxAmountAsync(Uuid, id, 1, taxTypes.data.First().taxType));
+                if (tax?.taxType is null)
+                    continue;
+                taxes = taxes + await ExecuteWithRetry(() => PayableClient.getTotalTaxAmountAsync(Uuid, id, 1, tax.taxType));
             }
         }
         var valueDate = await ExecuteWithRetry(() => PayableClient.getValueDateAsync(Uuid, id));
