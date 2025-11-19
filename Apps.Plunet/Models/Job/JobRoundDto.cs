@@ -1,24 +1,26 @@
 ﻿using Blackbird.Applications.Sdk.Common;
 
-namespace Apps.Plunet.Models.Job
+namespace Apps.Plunet.Models.Job;
+
+public class JobRoundDto
 {
-    public class JobRoundDto
-    {
-        [Display("Job round ID")]
-        public string Id { get; set; }
+    [Display("Job round ID")]
+    public string Id { get; set; }
 
-        [Display("Job round number")]
-        public int Number { get; set; }
+    [Display("Job round number")]
+    public int Number { get; set; }
 
-        [Display("Assignment limit to first X")]
-        public string assignmentLimitToFirstX { get; set; }
+    [Display("Assignment limit to first X")]
+    public string assignmentLimitToFirstX { get; set; }
 
-        [Display("Assignment limit type")]
-        public string assignmentLimitType { get; set; }
+    [Display("Assignment limit type")]
+    public string assignmentLimitType { get; set; }
 
-        [Display("Assignment method")]
-        public string assignmentMethod { get; set; }
+    [Display("Assignment method")]
+    public string assignmentMethod { get; set; }
 
-        public bool Assigned { get; set; }
-    }
+    [Display("Status")]
+    public int Status { get; set; }
+
+    public bool Assigned { get; set; }
 }
