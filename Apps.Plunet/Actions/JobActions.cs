@@ -180,7 +180,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
     [Action("Change job round status (experimental)", Description = "Updates status of the first job round.")]
     public async Task<JobRoundDto> UpdateJobRoundStatus(
         [ActionParameter] GetJobRequest job,
-        [ActionParameter, StaticDataSource(typeof(JobRoundStatusDataHandler))] string newStatus)
+        [ActionParameter, StaticDataSource(typeof(JobRoundStatusDataHandler)), Display("New status")] string newStatus)
     {
         var roundIn = new JobRoundIN
         {
