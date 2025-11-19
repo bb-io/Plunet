@@ -2,17 +2,12 @@
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Job;
-using Apps.Plunet.Webhooks.WebhookLists;
-using Blackbird.Applications.Sdk.Common.Webhooks;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml.Linq;
+using Apps.Plunet.Models.Request.Request;
+using Newtonsoft.Json;
 using Tests.Plunet.Base;
 
 namespace Tests.Plunet;
+
 [TestClass]
 public class JobTests : TestBase
 {
@@ -68,6 +63,37 @@ public class JobTests : TestBase
 
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
         Console.WriteLine(json);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task StartJobAssigmentRound_ReturnsJobRoundDto()
+    {
+        // Arrange
+        var action = new JobActions(InvocationContext);
+        var job = new GetJobRequest { ProjectType = "3", JobId = "213" };
+        string status = "8";
+
+        // Act 
+        var result = await action.UpdateJobRoundStatus(job, status);
+
+        // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetJobRounds_ReturnsJobRounds()
+    {
+        // Arrange
+        var action = new JobActions(InvocationContext);
+        var job = new GetJobRequest { ProjectType = "3", JobId = "214" };
+
+        // Act
+        var result = await action.GetJobRounds(job);
+
+        // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         Assert.IsNotNull(result);
     }
 }

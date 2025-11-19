@@ -4,14 +4,14 @@ using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Job;
 using Apps.Plunet.Models.Resource.Response;
+using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
+using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.Sdk.Utils.Extensions.System;
-using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using Blackbird.Plugins.Plunet.DataJob30Service;
-using Blackbird.Plugins.Plunet.DataRequest30Service;
+using DataJobRound30Service;
 
 namespace Apps.Plunet.Actions;
 
@@ -177,6 +177,53 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         return new AssignResourceResponse { ResourceId = jobResource.ToString() };
     }
 
+    [Action("Change job round status (experimental)", Description = "Updates status of the first job round.")]
+    public async Task<JobRoundDto> UpdateJobRoundStatus(
+        [ActionParameter] GetJobRequest job,
+        [ActionParameter, StaticDataSource(typeof(JobRoundStatusDataHandler)), Display("New status")] string newStatus)
+    {
+        var roundIn = new JobRoundIN
+        {
+            jobRoundNumber = 0,
+            startNextRoundAutomatically = true,
+            jobID = ParseId(job.JobId),
+            projectType = ParseId(job.ProjectType)
+        };
+
+        var rounds = await ExecuteWithRetry(() => JobRoundClient.getAllRoundIDsAsync(
+            Uuid, 
+            ParseId(job.JobId),
+            ParseId(job.ProjectType)
+        ));
+        var round = await ExecuteWithRetry(() => JobRoundClient.getRoundObjectAsync(Uuid, (int)rounds.First()!));
+
+        // Copy everything from a fetched round except for status
+        var updatedRoundIn = new JobRoundIN
+        {
+            jobRoundID = round.jobRoundID,
+            jobRoundNumber = round.jobRoundNumber,
+            assignmentMethod = round.assignmentMethod,
+            assignmentLimitType = round.assignmentLimitType,
+            assignmentLimitToFirstX = round.assignmentLimitToFirstX,
+            startNextRoundAutomatically = round.startNextRoundAutomatically,
+            jobID = round.jobID,
+            projectType = round.projectType,
+            status = ParseId(newStatus, 0)
+        };
+
+        await ExecuteWithRetry(() => JobRoundClient.updateRoundAsync(Uuid, updatedRoundIn));
+
+        var roundAfterUpdate = await ExecuteWithRetry(() => JobRoundClient.getRoundObjectAsync(Uuid, (int)rounds.First()!));
+        return new JobRoundDto
+        {
+            Id = roundAfterUpdate.jobRoundID.ToString(),
+            Number = roundAfterUpdate.jobRoundNumber,
+            assignmentLimitToFirstX = roundAfterUpdate.assignmentLimitToFirstX.ToString(),
+            assignmentLimitType = MapLimitType(roundAfterUpdate.assignmentLimitType),
+            assignmentMethod = MapAssignmentMethod(roundAfterUpdate.assignmentMethod),
+            Status = roundAfterUpdate.status
+        };
+    }
 
     [Action("Update job", Description = "Update an existing job in Plunet")]
     public async Task<JobResponse> UpdateJob([ActionParameter] GetJobRequest request,
