@@ -96,4 +96,15 @@ public class JobTests : TestBase
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         Assert.IsNotNull(result);
     }
+
+    [TestMethod]
+    public async Task StartAutomaticJob()
+    {
+        // Arrange
+        var actions = new JobActions(InvocationContext);
+        var job = new GetJobRequest { ProjectType = "3", JobId = "262" };
+
+        // Act
+        await actions.StartAutomaticJob(job);
+    }
 }

@@ -225,6 +225,14 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         };
     }
 
+    [Action("Start automatic job", Description = "Starts an automatic job")]
+    public async Task StartAutomaticJob([ActionParameter] GetJobRequest job)
+    {
+        await ExecuteWithRetry(async () => 
+            await JobClient.runAutomaticJobAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType))
+        );
+    }
+
     [Action("Update job", Description = "Update an existing job in Plunet")]
     public async Task<JobResponse> UpdateJob([ActionParameter] GetJobRequest request,
         [ActionParameter] CreateJobRequest input, [ActionParameter] [Display("Pricelist ID")]string? pricelist)
