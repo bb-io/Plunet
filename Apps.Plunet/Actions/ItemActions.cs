@@ -1,8 +1,8 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
-using Apps.Plunet.Models.Job;
 using Apps.Plunet.Models.Item;
+using Apps.Plunet.Models.Job;
 using Apps.Plunet.Models.Request.Request;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
@@ -33,7 +33,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
             if (searchParams.DocumentStatus == null)
             {
-                result = await FetchItemsByStatusesAsync(searchParams.Status, async status => 
+                result = await FetchItemsByStatusesAsync(searchParams.Status, async status =>
                     await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus1Async(Uuid, ParseId(item.ProjectType), ParseId(status))
                 ));
             }
@@ -41,15 +41,15 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             {
                 result = await FetchItemsByStatusesAsync(searchParams.Status, async status => currencyParams.CurrencyType == null
                     ? await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus3Async(
-                        Uuid, 
+                        Uuid,
                         ParseId(item.ProjectType),
-                        ParseId(status), 
+                        ParseId(status),
                         ParseId(searchParams.DocumentStatus))
                     )
                     : await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus3ByCurrencyTypeAsync(
-                        Uuid, 
+                        Uuid,
                         ParseId(item.ProjectType),
-                        ParseId(status), 
+                        ParseId(status),
                         ParseId(searchParams.DocumentStatus),
                         ParseId(currencyParams.CurrencyType))
                     )
@@ -62,24 +62,24 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             {
                 result = currencyParams.CurrencyType == null
                     ? await ExecuteWithRetryAcceptNull(() => ItemClient.getAllItemObjectsAsync(
-                        Uuid, 
+                        Uuid,
                         ParseId(item.ProjectId),
                         ParseId(item.ProjectType))
                     )
                     : await ExecuteWithRetryAcceptNull(() => ItemClient.getAllItemObjectsByCurrencyAsync(
-                        Uuid, 
+                        Uuid,
                         ParseId(item.ProjectId),
-                        ParseId(item.ProjectType), 
+                        ParseId(item.ProjectType),
                         ParseId(currencyParams.CurrencyType))
                     );
             }
             else if (searchParams.DocumentStatus == null)
             {
-                result = await FetchItemsByStatusesAsync(searchParams.Status, async status => 
+                result = await FetchItemsByStatusesAsync(searchParams.Status, async status =>
                     await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus2Async(
-                        Uuid, 
+                        Uuid,
                         ParseId(item.ProjectId),
-                        ParseId(item.ProjectType), 
+                        ParseId(item.ProjectType),
                         ParseId(status))
                     )
                 );
@@ -88,21 +88,21 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             {
                 result = await FetchItemsByStatusesAsync(searchParams.Status, async status => currencyParams.CurrencyType == null
                     ? await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus4Async(
-                        Uuid, 
+                        Uuid,
                         ParseId(item.ProjectId),
-                        ParseId(item.ProjectType), 
+                        ParseId(item.ProjectType),
                         ParseId(status),
                         ParseId(searchParams.DocumentStatus))
                     )
                     : await ExecuteWithRetryAcceptNull(() => ItemClient.getItemsByStatus4ByCurrencyTypeAsync(
-                        Uuid, 
+                        Uuid,
                         ParseId(item.ProjectId),
                         ParseId(item.ProjectType),
                         ParseId(status),
-                        ParseId(searchParams.DocumentStatus), 
+                        ParseId(searchParams.DocumentStatus),
                         ParseId(currencyParams.CurrencyType))
                     )
-                );            
+                );
             }
         }
 
@@ -177,8 +177,15 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
     private async Task GetDeliveryDate(ItemResponse item)
     {
-        var date = await ExecuteWithRetry(() => ItemClient.getDeliveryDateAsync(Uuid, ParseId(item.ItemId)));
-        item.DeliveryDate = date.data == DateTime.MinValue ? null : date.data;
+        try
+        {
+            var date = await ExecuteWithRetry(() => ItemClient.getDeliveryDateAsync(Uuid, ParseId(item.ItemId)));
+            item.DeliveryDate = date.data == DateTime.MinValue ? null : date.data;
+        }
+        catch (PluginApplicationException ex) when (ex.Message.Contains("System can't find the requested item", StringComparison.OrdinalIgnoreCase))
+        {
+            item.DeliveryDate = null;
+        }
     }
 
     [Action("Copy jobs from workflow", Description = "Copy jobs from the selected workflow into the specified item")]
@@ -198,7 +205,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     [Action("Create item", Description = "Create a new item in Plunet")]
     public async Task<ItemResponse> CreateItem(
         [ActionParameter] ProjectTypeRequest project,
-        [ActionParameter] ProjectIdRequest projectId, 
+        [ActionParameter] ProjectIdRequest projectId,
         [ActionParameter] CreateItemRequest request,
         [ActionParameter] OptionalLanguageCombinationRequest languages)
     {
@@ -280,14 +287,14 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         foreach (var priceLine in response)
         {
             var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, priceLine.priceUnitID, Language));
-            result.Add(CreatePricelineResponse(priceLine,priceUnit));
+            result.Add(CreatePricelineResponse(priceLine, priceUnit));
         }
-            
+
         return new PricelinesResponse
         {
             Pricelines = result,
         };
-        
+
     }
 
     [Action("Create item priceline", Description = "Add a new priceline to an item")]
@@ -318,7 +325,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             throw new PluginApplicationException("Failed to insert priceline: API returned null. Please check your input and try again");
         }
         var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, int.Parse(unit.PriceUnit), Language));
-        
+
         return CreatePricelineResponse(response, priceUnit);
     }
 
@@ -360,7 +367,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
     private PricelineResponse CreatePricelineResponse(PriceLine line, PriceUnit? unit)
     {
-                           
+
         return new PricelineResponse
         {
             Amount = line.amount,
@@ -394,9 +401,9 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         return response.data;
     }
 
-    [Action("Set item pricelist", Description ="Set a new pricelist for an item and update all related pricelines")]
+    [Action("Set item pricelist", Description = "Set a new pricelist for an item and update all related pricelines")]
     public async Task SetItemPricelist([ActionParameter] ProjectTypeRequest project,
-        [ActionParameter] GetItemRequest item, [ActionParameter][Display("Price list ID")]string priceListID)
+        [ActionParameter] GetItemRequest item, [ActionParameter][Display("Price list ID")] string priceListID)
     {
         if (string.IsNullOrEmpty(priceListID))
         {
@@ -404,7 +411,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         }
 
         //Here we change set the pricelist
-        await ExecuteWithRetry(() =>  ItemClient.setPricelistAsync(Uuid,ParseId(item.ItemId), ParseId(project.ProjectType), ParseId(priceListID)));
+        await ExecuteWithRetry(() => ItemClient.setPricelistAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType), ParseId(priceListID)));
 
         //Updating all pricelines
         await ExecuteWithRetry(() => ItemClient.updatePricesAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId)));
@@ -448,5 +455,5 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
                 new ItemPriceUnitResponse { Id = priceUnit.priceUnitID.ToString(), Description = input.PriceUnitDescription };
         }
         return new ItemPriceUnitResponse();
-    } 
+    }
 }
