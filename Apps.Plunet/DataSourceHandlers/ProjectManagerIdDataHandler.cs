@@ -18,7 +18,7 @@ public class ProjectManagerIdDataHandler : PlunetInvocable, IAsyncDataSourceHand
 
         return resources.ResourceListResult.data
             .Where(x => (context.SearchString == null ||
-                         x.name1.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase)) && x.resourceType > 1 ) //2 - project manager, 3 - supervisor
+                         x.name1.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase)) && x.resourceType > 1) //2 - project manager, 3 - supervisor
             .Take(20)
             .ToDictionary(x => x.resourceID.ToString(), x => x.fullName);
     }
