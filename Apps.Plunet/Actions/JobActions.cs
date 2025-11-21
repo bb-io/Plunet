@@ -1,10 +1,11 @@
-﻿using Apps.Plunet.Invocables;
+﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
+using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Job;
+using Apps.Plunet.Models.Request.Request;
 using Apps.Plunet.Models.Resource.Response;
-using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
@@ -233,6 +234,44 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         );
     }
 
+    [Action("Select resources for a job round", Description = "Selects resources for a job round")]
+    public async Task SelectJobRoundResources(
+        [ActionParameter] GetJobRequest jobRequest,
+        [ActionParameter] JobRoundRequest round,
+        [ActionParameter] SelectJobRoundResourceRequest input)
+    {
+        var jobRoundResources = await ExecuteWithRetry(async () =>
+            await JobRoundClient.getResourcesForRoundAsync(Uuid, ParseId(round.JobRoundId))
+        );
+
+        var resourcesToInclude = jobRoundResources.ToList();
+        if (input.ResourceIdsToExclude is not null && input.ResourceIdsToExclude.Count > 0)
+        {
+            var resourcesToExclude = input.ResourceIdsToExclude
+                .Select(ParseId)
+                .ToHashSet();
+
+            resourcesToInclude = resourcesToInclude
+                .Where(r => !resourcesToExclude.Contains((int)r!))
+                .ToList();
+        }
+        resourcesToInclude = resourcesToInclude.Take(input.NumberOfResources).ToList();
+
+        var assignRequest = new AssignResourceRequest
+        {
+            JobId = jobRequest.JobId,
+            ProjectType = jobRequest.ProjectType,
+            RoundId = round.JobRoundId,
+        };
+
+        foreach (var resource in resourcesToInclude)
+        {
+            assignRequest.ResourceId = resource.ToString()!;
+            // select resources in a job round instead of job
+            //await AssignResourceToJob(assignRequest);
+        }
+    }
+
     [Action("Update job", Description = "Update an existing job in Plunet")]
     public async Task<JobResponse> UpdateJob([ActionParameter] GetJobRequest request,
         [ActionParameter] CreateJobRequest input, [ActionParameter] [Display("Pricelist ID")]string? pricelist)
@@ -438,7 +477,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         return result;
     }
 
-    private PricelineResponse CreatePricelineResponse(Blackbird.Plugins.Plunet.DataJob30Service.PriceLine line, Blackbird.Plugins.Plunet.DataJob30Service.PriceUnit? unit)
+    private PricelineResponse CreatePricelineResponse(PriceLine line, PriceUnit? unit)
     {
         return new PricelineResponse
         {
