@@ -12,6 +12,7 @@ using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataJob30Service;
+using Blackbird.Plugins.Plunet.DataResource30Service;
 using DataJobRound30Service;
 
 namespace Apps.Plunet.Actions;
@@ -234,14 +235,14 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         );
     }
 
-    [Action("Select resources for a job round", Description = "Selects resources for a job round")]
+    //[Action("Select resources for a job round", Description = "Selects resources for a job round")]
     public async Task SelectJobRoundResources(
         [ActionParameter] GetJobRequest jobRequest,
-        [ActionParameter] JobRoundRequest round,
+        [ActionParameter] JobRoundRequest roundRequest,
         [ActionParameter] SelectJobRoundResourceRequest input)
     {
         var jobRoundResources = await ExecuteWithRetry(async () =>
-            await JobRoundClient.getResourcesForRoundAsync(Uuid, ParseId(round.JobRoundId))
+            await JobRoundClient.getResourcesForRoundAsync(Uuid, ParseId(roundRequest.JobRoundId))
         );
 
         var resourcesToInclude = jobRoundResources.ToList();
@@ -257,18 +258,36 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         }
         resourcesToInclude = resourcesToInclude.Take(input.NumberOfResources).ToList();
 
-        var assignRequest = new AssignResourceRequest
+        var round = await ExecuteWithRetry(async () => await JobRoundClient.getRoundObjectAsync(
+            Uuid, 
+            ParseId(roundRequest.JobRoundId))
+        );
+
+        var roundIn = new JobRoundIN
         {
-            JobId = jobRequest.JobId,
-            ProjectType = jobRequest.ProjectType,
-            RoundId = round.JobRoundId,
+            jobRoundID = round.jobRoundID,
+            jobID = round.jobID,
+            assignmentMethod = 5,
+            assignmentLimitType = 2,
+            projectType = ParseId(jobRequest.ProjectType)
         };
+
+        await ExecuteWithRetry(async () => await JobRoundClient.updateRoundAsync(Uuid, roundIn));
 
         foreach (var resource in resourcesToInclude)
         {
-            assignRequest.ResourceId = resource.ToString()!;
-            // select resources in a job round instead of job
-            //await AssignResourceToJob(assignRequest);
+            int resourceContactId = await ExecuteWithRetry(async () => await JobClient.getContactPersonIDAsync(
+                Uuid,
+                ParseId(jobRequest.ProjectType),
+                ParseId(jobRequest.JobId))
+            );
+
+            await ExecuteWithRetry(async () => await JobRoundClient.assignResourceAsync(
+                Uuid,
+                (int)resource!,
+                resourceContactId,
+                ParseId(roundRequest.JobRoundId))
+            );
         }
     }
 
