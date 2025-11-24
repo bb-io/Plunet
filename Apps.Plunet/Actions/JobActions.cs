@@ -1,16 +1,18 @@
-﻿using Apps.Plunet.Invocables;
+﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
+using Apps.Plunet.Invocables;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.CustomProperties;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Job;
+using Apps.Plunet.Models.Request.Request;
 using Apps.Plunet.Models.Resource.Response;
-using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataJob30Service;
+using Blackbird.Plugins.Plunet.DataResource30Service;
 using DataJobRound30Service;
 
 namespace Apps.Plunet.Actions;
@@ -225,6 +227,70 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         };
     }
 
+    [Action("Start automatic job", Description = "Starts an automatic job")]
+    public async Task StartAutomaticJob([ActionParameter] GetJobRequest job)
+    {
+        await ExecuteWithRetry(async () => 
+            await JobClient.runAutomaticJobAsync(Uuid, ParseId(job.JobId), ParseId(job.ProjectType))
+        );
+    }
+
+    //[Action("Select resources for a job round", Description = "Selects resources for a job round")]
+    public async Task SelectJobRoundResources(
+        [ActionParameter] GetJobRequest jobRequest,
+        [ActionParameter] JobRoundRequest roundRequest,
+        [ActionParameter] SelectJobRoundResourceRequest input)
+    {
+        var jobRoundResources = await ExecuteWithRetry(async () =>
+            await JobRoundClient.getResourcesForRoundAsync(Uuid, ParseId(roundRequest.JobRoundId))
+        );
+
+        var resourcesToInclude = jobRoundResources.ToList();
+        if (input.ResourceIdsToExclude is not null && input.ResourceIdsToExclude.Count > 0)
+        {
+            var resourcesToExclude = input.ResourceIdsToExclude
+                .Select(ParseId)
+                .ToHashSet();
+
+            resourcesToInclude = resourcesToInclude
+                .Where(r => !resourcesToExclude.Contains((int)r!))
+                .ToList();
+        }
+        resourcesToInclude = resourcesToInclude.Take(input.NumberOfResources).ToList();
+
+        var round = await ExecuteWithRetry(async () => await JobRoundClient.getRoundObjectAsync(
+            Uuid, 
+            ParseId(roundRequest.JobRoundId))
+        );
+
+        var roundIn = new JobRoundIN
+        {
+            jobRoundID = round.jobRoundID,
+            jobID = round.jobID,
+            assignmentMethod = 5,
+            assignmentLimitType = 2,
+            projectType = ParseId(jobRequest.ProjectType)
+        };
+
+        await ExecuteWithRetry(async () => await JobRoundClient.updateRoundAsync(Uuid, roundIn));
+
+        foreach (var resource in resourcesToInclude)
+        {
+            int resourceContactId = await ExecuteWithRetry(async () => await JobClient.getContactPersonIDAsync(
+                Uuid,
+                ParseId(jobRequest.ProjectType),
+                ParseId(jobRequest.JobId))
+            );
+
+            await ExecuteWithRetry(async () => await JobRoundClient.assignResourceAsync(
+                Uuid,
+                (int)resource!,
+                resourceContactId,
+                ParseId(roundRequest.JobRoundId))
+            );
+        }
+    }
+
     [Action("Update job", Description = "Update an existing job in Plunet")]
     public async Task<JobResponse> UpdateJob([ActionParameter] GetJobRequest request,
         [ActionParameter] CreateJobRequest input, [ActionParameter] [Display("Pricelist ID")]string? pricelist)
@@ -430,7 +496,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         return result;
     }
 
-    private PricelineResponse CreatePricelineResponse(Blackbird.Plugins.Plunet.DataJob30Service.PriceLine line, Blackbird.Plugins.Plunet.DataJob30Service.PriceUnit? unit)
+    private PricelineResponse CreatePricelineResponse(PriceLine line, PriceUnit? unit)
     {
         return new PricelineResponse
         {

@@ -1,16 +1,7 @@
-﻿using Apps.Plunet.Actions;
+﻿using Tests.Plunet.Base;
 using Apps.Plunet.DataSourceHandlers;
-using Apps.Plunet.DataSourceHandlers.EnumHandlers;
-using Apps.Plunet.Models.Order;
 using Blackbird.Applications.Sdk.Common.Dynamic;
-using Blackbird.Applications.Sdk.Common.Invocation;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Apps.Plunet.Models.Job;
-using Tests.Plunet.Base;
 
 namespace Tests.Plunet;
 
@@ -113,7 +104,6 @@ public class DataSourceTests : TestBase
         Assert.IsNotNull(result);
     }
 
-
     [TestMethod]
     public async Task PayableDataSourceHandler_returns_values()
     {
@@ -125,6 +115,40 @@ public class DataSourceTests : TestBase
         {
             Console.WriteLine($"{item.Value}: {item.DisplayName}");
         }
+
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task JobRoundDataHandler_ReturnsJobRoundIds()
+    {
+        // Arrange
+        var job = new GetJobRequest { JobId = "268", ProjectType = "3" };
+        var handler = new JobRoundDataHandler(InvocationContext, job);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
+
+        // Assert
+        foreach (var item in result)
+            Console.WriteLine($"{item.Value}: {item.DisplayName}");
+
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task RoundResourceDataHandler_ReturnsJobRoundResourceIds()
+    {
+        // Arrange
+        var round = new JobRoundRequest { JobRoundId = "404" };
+        var handler = new RoundResourceDataHandler(InvocationContext, round);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
+
+        // Assert
+        foreach (var item in result)
+            Console.WriteLine($"{item.Value}: {item.DisplayName}");
 
         Assert.IsNotNull(result);
     }

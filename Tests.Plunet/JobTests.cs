@@ -96,4 +96,32 @@ public class JobTests : TestBase
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         Assert.IsNotNull(result);
     }
+
+    [TestMethod]
+    public async Task StartAutomaticJob()
+    {
+        // Arrange
+        var actions = new JobActions(InvocationContext);
+        var job = new GetJobRequest { ProjectType = "3", JobId = "262" };
+
+        // Act
+        await actions.StartAutomaticJob(job);
+    }
+
+    [TestMethod]
+    public async Task SelectJobRoundResources()
+    {
+        // Arrange
+        var actions = new JobActions(InvocationContext);
+        var job = new GetJobRequest { ProjectType = "3", JobId = "268" };
+        var round = new JobRoundRequest { JobRoundId = "404" };
+        var request = new SelectJobRoundResourceRequest 
+        { 
+            NumberOfResources = 4, 
+            ResourceIdsToExclude = ["2", "3"] 
+        };
+
+        // Act
+        await actions.SelectJobRoundResources(job, round, request);
+    }
 }
