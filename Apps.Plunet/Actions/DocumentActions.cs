@@ -73,6 +73,39 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         return new ListFilesResponse { Files = files };
     }
 
+    [Action("Search files", Description = "Search for files in a folder and return file paths without downloading them")]
+    public async Task<SearchFilesResponse> SearchFiles([ActionParameter] ListFilesRequest request)
+    {
+        var response = await ExecuteWithRetryAcceptNull(() =>
+            DocumentClient.getFileListAsync(
+                Uuid,
+                ParseId(request.MainId),
+                ParseId(request.FolderType))
+        );
+
+        if (response == null)
+            return new SearchFilesResponse { FilePaths = new List<string>() };
+
+        if (!string.IsNullOrWhiteSpace(request.Subfolder))
+        {
+            var normalized = request.Subfolder.Replace("/", "\\").ToLower();
+            response = response
+                .Where(path => path.ToLower().Contains(normalized))
+                .ToArray();
+        }
+
+        var filePaths = new List<string>();
+        foreach (var path in response)
+        {
+            if (request.Filters != null && request.Filters.Any(path.Contains))
+                continue;
+
+            filePaths.Add(path);
+        }
+
+        return new SearchFilesResponse { FilePaths = filePaths };
+    }
+
     [Action("Upload CAT report",
         Description = "Upload a report file into the report folder of the specified item.")]
     public async Task UploadCatReport([ActionParameter] GetItemRequest item,
