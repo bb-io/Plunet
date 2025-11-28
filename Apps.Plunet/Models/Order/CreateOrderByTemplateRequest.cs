@@ -45,4 +45,8 @@ public class CreateOrderByTemplateRequest
     [Display("Project category")]
     //[DataSource(typeof(ProjectCategoryDataHandler))]
     public string? ProjectCategory { get; set; }
+
+    [Display("Master project ID")]
+    //[DataSource(typeof(ProjectCategoryDataHandler))]
+    public string? MasterProjectID { get; set; }
 }
