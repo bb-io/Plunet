@@ -296,4 +296,23 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             LanguageCombinationId = result.ToString()
         };
     }
+
+    [Action("Link orders", Description = "Create a link between two orders")]
+    public async Task LinkOrders(
+    [ActionParameter] LinkOrdersRequest request)
+    {
+        var sourceId = ParseId(request.SourceOrderId);
+        var targetId = ParseId(request.TargetId);
+
+        await ExecuteWithRetry(() =>
+            OrderClient.createLinkAsync(
+                Uuid,
+                sourceId,
+                targetId,
+                request.ProjectType,
+                request.IsBidirectional,
+                request.Memo
+            )
+        );
+    }
 }
