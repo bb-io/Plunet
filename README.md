@@ -119,6 +119,7 @@ Note that when creating/updating items, the source and target languages can be s
 - **Delete order**
 - **Update order**
 - **Add language combination to order**
+- **Link orders**
 
 ![1701867033221](image/README/1701867033221.png)
 
