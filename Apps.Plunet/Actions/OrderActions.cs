@@ -301,15 +301,12 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
     public async Task LinkOrders(
     [ActionParameter] LinkOrdersRequest request)
     {
-        var sourceId = ParseId(request.SourceOrderId);
-        var targetId = ParseId(request.TargetId);
-
         await ExecuteWithRetry(() =>
             OrderClient.createLinkAsync(
                 Uuid,
-                sourceId,
-                targetId,
-                request.ProjectType,
+                ParseId(request.SourceOrderId),
+                ParseId(request.TargetId),
+                ParseId(request.ProjectType),
                 request.IsBidirectional,
                 request.Memo
             )
