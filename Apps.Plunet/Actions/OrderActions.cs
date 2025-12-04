@@ -304,11 +304,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         await ExecuteWithRetry(() =>
             OrderClient.createLinkAsync(
                 Uuid,
-                ParseId(request.SourceOrderId),
-                ParseId(request.TargetId),
-                ParseId(request.ProjectType),
-                request.IsBidirectional,
-                request.Memo
+                ParseId(request.SourceOrderId),ParseId(request.TargetId),3, request.IsBidirectional, request.Memo
             )
         );
     }

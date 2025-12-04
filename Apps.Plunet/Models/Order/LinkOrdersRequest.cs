@@ -5,12 +5,13 @@ using Blackbird.Applications.Sdk.Common.Dynamic;
 
 namespace Apps.Plunet.Models.Order;
 
-public class LinkOrdersRequest : ProjectTypeRequest
+public class LinkOrdersRequest
 {
     [DataSource(typeof(OrderIdDataHandler))]
     [Display("Source order ID")]
     public string SourceOrderId { get; set; }
 
+    [DataSource(typeof(OrderIdDataHandler))]
     [Display("Target ID")]
     public string TargetId { get; set; }
 
