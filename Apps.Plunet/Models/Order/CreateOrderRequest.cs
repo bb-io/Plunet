@@ -44,4 +44,7 @@ public class CreateOrderRequest
 
     [Display("Project category")]
     public string? ProjectCategory { get; set; }
+
+    [Display("Master project ID")]
+    public string? MasterProjectID { get; set; }
 }

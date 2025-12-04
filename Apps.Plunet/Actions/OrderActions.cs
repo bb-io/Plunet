@@ -7,6 +7,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Models.FileDataSourceItems;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
 
 namespace Apps.Plunet.Actions;
@@ -173,7 +174,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             currency = request.Currency,
             projectManagerMemo = request.ProjectManagerMemo,
             rate = request.Rate ?? default,
-            referenceNumber = request.ReferenceNumber,
+            referenceNumber = request.ReferenceNumber           
         };
 
         OrderClient.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
@@ -190,6 +191,10 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         if (request.ProjectCategory != null)
         {
             await ExecuteWithRetry(() => OrderClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, orderId));
+        }
+        if (request.MasterProjectID != null)
+        {
+            await ExecuteWithRetry(() => OrderClient.setMasterProjectIDAsync(Uuid, orderId, ParseId(request.MasterProjectID)));
         }
         return await GetOrder(new OrderRequest { OrderId = orderId.ToString() });
     }
@@ -213,7 +218,8 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             ReferenceNumber = request.ReferenceNumber,
          //   Status = request.Status,
             Subject = request.Subject,
-            ProjectCategory = request.ProjectCategory
+            ProjectCategory = request.ProjectCategory,
+            MasterProjectID = request.MasterProjectID
         };
 
         return await CreateOrder(createOrderRequest, new OrderTemplateRequest { TemplateId = templateId });
@@ -263,6 +269,11 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             await ExecuteWithRetry(() => OrderClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, ParseId(order.OrderId)));
         }
 
+        if (request.MasterProjectID != null)
+        {
+            await ExecuteWithRetry(() => OrderClient.setMasterProjectIDAsync(Uuid, ParseId(order.OrderId), ParseId(request.MasterProjectID)));
+        }
+
         return await GetOrder(order);
     }
 
@@ -284,5 +295,17 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         {
             LanguageCombinationId = result.ToString()
         };
+    }
+
+    [Action("Link orders", Description = "Create a link between two orders")]
+    public async Task LinkOrders(
+    [ActionParameter] LinkOrdersRequest request)
+    {
+        await ExecuteWithRetry(() =>
+            OrderClient.createLinkAsync(
+                Uuid,
+                ParseId(request.SourceOrderId),ParseId(request.TargetId),3, request.IsBidirectional, request.Memo
+            )
+        );
     }
 }
