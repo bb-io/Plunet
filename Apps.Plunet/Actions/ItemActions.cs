@@ -417,6 +417,14 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         await ExecuteWithRetry(() => ItemClient.updatePricesAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId)));
     }
 
+    [Action("Update all item prices", Description = "Updates all pricelines of an item.")]
+    public async Task SetItemPricelist(
+        [ActionParameter] ProjectTypeRequest project,
+        [ActionParameter] GetItemRequest item)
+    {
+        await ExecuteWithRetry(() => ItemClient.updatePricesAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId)));
+    }
+
     private async Task HandleLanguages(OptionalLanguageCombinationRequest languages, int projectType, int projectId,
         int itemId)
     {
