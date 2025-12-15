@@ -418,7 +418,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     }
 
     [Action("Update all item prices", Description = "Updates all pricelines of an item.")]
-    public async Task SetItemPricelist(
+    public async Task UpdateAllItemPrices(
         [ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest item)
     {
