@@ -101,6 +101,7 @@ Note that when creating/updating items, the source and target languages can be s
 - **Update job priceline**
 - **Get job rounds**
 - **Get job feedback**
+- **Get item independent jobs**
 
 ### Orders
 
@@ -167,6 +168,7 @@ An example of the granularity at which orders (and other entities) can be select
 - **Add language combination to request**
 - **Create quote from request**
 - **Create order from request**
+- **Find request from request number**
 
 ### Resources
 
