@@ -94,6 +94,24 @@ public class RequestActions(InvocationContext invocationContext) : PlunetInvocab
         return new(searchResult.Items.FirstOrDefault(), searchResult.TotalCount);
     }
 
+    [Action("Find request from request number", Description = "Find a specific request from the request number")]
+    public async Task<RequestResponse> FindRequestFromNumber([ActionParameter][Display("Request number")] string input)
+    {
+        var request = await ExecuteWithRetry (() => RequestClient.getRequestObject2Async(Uuid, input));
+        var customerId = await ExecuteWithRetry(() => RequestClient.getCustomerIDAsync(Uuid, request.requestID));
+        var requestNumber = await ExecuteWithRetry(() => RequestClient.getRequestNo_for_ViewAsync(Uuid, request.requestID));
+
+        var customerContactId = await ExecuteWithRetry(() => RequestClient.getCustomerContactIDAsync(Uuid, request.requestID));
+        var customerRefNo = await ExecuteWithRetry(() => RequestClient.getCustomerRefNoAsync(Uuid, request.requestID));
+
+        return new RequestResponse(
+        request,
+        customerId.ToString(),
+        requestNumber,
+        customerRefNo,
+        customerContactId.ToString());
+    }
+
     [Action("Get request", Description = "Get details for a Plunet request")]
     public async Task<RequestResponse> GetRequest([ActionParameter][Display("Request ID")] string requestId)
     {
