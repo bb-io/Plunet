@@ -51,6 +51,46 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         };
     }
 
+    [Action("Get item independent jobs", Description = "Get all item-independent jobs of a project")]
+    public async Task<ItemJobsResponse> GetItemIndependentJobs(
+    [ActionParameter] ProjectTypeRequest project,
+    [ActionParameter][Display("Project ID")] string ProjectId,
+    [ActionParameter] JobTypeOptionRequest? jobType)
+    {
+        var result = await ExecuteWithRetry(() =>
+            JobClient.getItemIndependentJobsAsync(
+                Uuid,
+                ParseId(project.ProjectType),
+                ParseId(ProjectId)));
+
+        var jobs = new List<JobResponse>();
+
+        if (result != null)
+        {
+            foreach (var id in result.Select(x => x.jobID))
+            {
+                var job = await GetJob(new GetJobRequest
+                {
+                    JobId = id.ToString(),
+                    ProjectType = project.ProjectType
+                });
+
+                jobs.Add(job);
+            }
+        }
+
+        if (!string.IsNullOrWhiteSpace(jobType?.JobType))
+        {
+            jobs = jobs.Where(j => j.JobType == jobType.JobType).ToList();
+        }
+
+        return new ItemJobsResponse
+        {
+            Jobs = jobs
+        };
+    }
+
+
     [Action("Get item job by text module", Description = "Get all jobs related to a Plunet item")]
     public async Task<JobResponse> GetItemJobByTextModule([ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest request, [ActionParameter] OptionalJobStatusRequest status,

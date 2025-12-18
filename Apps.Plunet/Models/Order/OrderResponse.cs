@@ -22,7 +22,7 @@ public class OrderResponse
     [Display("Order date")]
     public DateTime OrderDate { get; set; }
 
-    [Display("Order name")]
+    [Display("Order number")]
     public string OrderName { get; set; }
 
     [Display("Order ID")]
