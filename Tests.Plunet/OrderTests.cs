@@ -11,9 +11,18 @@ public class OrderTests : TestBase
     [TestMethod]
     public async Task Create_order_by_template_works()
     {
+        // Arrange
         var actions = new OrderActions(InvocationContext);
 
-        var result = await actions.CreateOrderByTemplate("1", new CreateOrderByTemplateRequest { CustomerId = "1", ProjectManagerId = "1", ProjectName = "Test order" });
+        // Act
+        var result = await actions.CreateOrderByTemplate("5", new CreateOrderByTemplateRequest
+        {
+            CustomerId = "2",
+            ProjectManagerId = "1",
+            Deadline = DateTime.Now.AddDays(7),
+        });
+
+        // Assert
         Assert.IsNotNull(result.OrderId);
     }
 

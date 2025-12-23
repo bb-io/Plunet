@@ -189,13 +189,14 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         //}
 
         if (request.ProjectCategory != null)
-        {
             await ExecuteWithRetry(() => OrderClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, orderId));
-        }
+
         if (request.MasterProjectID != null)
-        {
             await ExecuteWithRetry(() => OrderClient.setMasterProjectIDAsync(Uuid, orderId, ParseId(request.MasterProjectID)));
-        }
+
+        if (request.Deadline is not null)
+            await ExecuteWithRetry(() => OrderClient.setDeliveryDeadlineAsync(Uuid, request.Deadline.Value, orderId ));
+
         return await GetOrder(new OrderRequest { OrderId = orderId.ToString() });
     }
 
