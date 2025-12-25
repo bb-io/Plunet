@@ -34,6 +34,12 @@ namespace Apps.Plunet.Models.Job
         [Display("Due date")]
         public DateTime? DueDate { get; set; }
 
+        [Display("Project ID")]
+        public string ProjectId { get; set; }
+
+        [Display("Project type")]
+        public string ProjectType { get; set; }
+        
         [Display("Item ID")]
         public string ItemId { get; set; }
 
