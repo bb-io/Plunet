@@ -17,10 +17,10 @@ namespace Blackbird.Plugins.Plunet.DataItem30Service
     [System.ServiceModel.ServiceContractAttribute(Namespace="http://API.Integration/", ConfigurationName="Blackbird.Plugins.Plunet.DataItem30Service.DataItem30")]
     public interface DataItem30
     {
-        [System.ServiceModel.OperationContractAttribute(Action = "http://API.Integration/DataItem30/updatePrices", ReplyAction = "http://API.Integration/DataItem30/updatePrices")]
+        [System.ServiceModel.OperationContractAttribute(Action = "http://API.Integration/DataItem30/updatePricesRequest", ReplyAction = "http://API.Integration/DataItem30/updatePricesResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style = System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults = true)]
         [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataItem30Service.Result> updatePricesAsync(string UUID, int projectType, int itemID);
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataItem30Service.Result> updatePricesAsync(string UUID, int projectType, int itemId);
 
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataItem30/updateRequest", ReplyAction="http://API.Integration/DataItem30/updateResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
