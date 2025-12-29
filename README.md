@@ -186,6 +186,7 @@ An example of the granularity at which orders (and other entities) can be select
 - **Find resource by text module** Find resources by text module
 - **Update resource** Update a specific resource with new details
 - **Assign resource to job** assigns a resource to a job
+- **Assign resource to job for review** assigns a resource to a job but keeps it pending confirmation
 - **Create resource** create a new empty resource dataset
 
 ### Custom properties

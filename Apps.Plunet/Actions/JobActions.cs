@@ -219,6 +219,35 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         return new AssignResourceResponse { ResourceId = jobResource.ToString() };
     }
 
+    [Action("Assign resource to job for review", Description = "Assigns a resource to a job but keeps it pending confirmation")]
+    public async Task<AssignResourceResponse> SetResourceForReviewAsync([ActionParameter] AssignResourceRequest input)
+    {
+        var roundId = input.RoundId;
+
+        if (string.IsNullOrEmpty(roundId))
+        {
+            var roundResponse = await ExecuteWithRetry(() =>
+                    JobRoundClient.getAllRoundIDsAsync(Uuid,ParseId(input.JobId),ParseId(input.ProjectType)));
+
+            if (roundResponse is null || !roundResponse.LastOrDefault().HasValue)
+                throw new PluginMisconfigurationException("The selected job has no rounds associated");
+
+            roundId = roundResponse.LastOrDefault().ToString();
+        }
+
+        await ExecuteWithRetry(() =>
+            JobRoundClient.setResourceForReviewAsync(Uuid,ParseId(input.ResourceId),ParseId(input.ResourceContactId),ParseId(roundId)));
+
+        var jobResource = await ExecuteWithRetry(() =>
+                JobClient.getResourceIDAsync(Uuid,ParseId(input.ProjectType),ParseId(input.JobId)));
+
+        return new AssignResourceResponse
+        {
+            ResourceId = jobResource.ToString()
+        };
+    }
+
+
     [Action("Change job round status (experimental)", Description = "Updates status of the first job round.")]
     public async Task<JobRoundDto> UpdateJobRoundStatus(
         [ActionParameter] GetJobRequest job,
