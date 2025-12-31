@@ -219,7 +219,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         {
             briefDescription = request.BriefDescription ?? string.Empty,
             comment = request.Comment ?? string.Empty,
-            deliveryDeadline = request.Deadline ?? default,
+           // deliveryDeadline = request.Deadline ?? default,
             projectID = ParseId(projectId.ProjectId),
             projectType = ParseId(project.ProjectType),
             reference = request.Reference ?? string.Empty,
@@ -237,6 +237,11 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (!String.IsNullOrEmpty(pricelist))
         {
             await ExecuteWithRetry(() => ItemClient.setPricelistAsync(Uuid, response, ParseId(project.ProjectType), ParseId(pricelist)));
+        }
+
+        if (request.Deadline.HasValue)
+        {
+            await ExecuteWithRetry(() => ItemClient.setDeliveryDeadlineAsync(Uuid, request.Deadline.Value, ParseId(project.ProjectType), response));
         }
 
         return await GetItem(project, new GetItemRequest { ItemId = response.ToString() }, new OptionalCurrencyTypeRequest { });
@@ -276,6 +281,11 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (!String.IsNullOrEmpty(pricelist))
         {
             await ExecuteWithRetry(() => ItemClient.setPricelistAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType),  ParseId(pricelist)));
+        }
+
+        if (request.Deadline.HasValue)
+        {
+            await ExecuteWithRetry(() => ItemClient.setDeliveryDeadlineAsync(Uuid, request.Deadline.Value, ParseId(project.ProjectType), ParseId(item.ItemId)));
         }
 
         var itemRes = await ExecuteWithRetry(() => ItemClient.getItemObjectAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId)));
