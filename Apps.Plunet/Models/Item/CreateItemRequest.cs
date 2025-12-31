@@ -9,7 +9,7 @@ public class CreateItemRequest
     [Display("Brief description")]
     public string? BriefDescription { get; set; }
 
-    [Display("Delivery date")]
+    [Display("Deadline")]
     public DateTime? Deadline { get; set; }
 
     [Display("Comment")]
