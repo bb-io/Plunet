@@ -207,6 +207,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         [ActionParameter] ProjectTypeRequest project,
         [ActionParameter] ProjectIdRequest projectId,
         [ActionParameter] CreateItemRequest request,
+        [ActionParameter][Display("Pricelist ID")] string? pricelist,
         [ActionParameter] OptionalLanguageCombinationRequest languages)
     {
         if ((languages.SourceLanguageCode == null) != (languages.TargetLanguageCode == null))
@@ -233,6 +234,11 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
         await HandleLanguages(languages, ParseId(project.ProjectType), ParseId(projectId.ProjectId), response);
 
+        if (!String.IsNullOrEmpty(pricelist))
+        {
+            await ExecuteWithRetry(() => ItemClient.setPricelistAsync(Uuid, response, ParseId(project.ProjectType), ParseId(pricelist)));
+        }
+
         return await GetItem(project, new GetItemRequest { ItemId = response.ToString() }, new OptionalCurrencyTypeRequest { });
     }
 
@@ -246,6 +252,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     [Action("Update item", Description = "Update an existing item in Plunet")]
     public async Task<ItemResponse> UpdateItem([ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest item, [ActionParameter] CreateItemRequest request,
+        [ActionParameter][Display("Pricelist ID")] string? pricelist,
         [ActionParameter] OptionalLanguageCombinationRequest languages)
     {
         if ((languages.SourceLanguageCode == null) != (languages.TargetLanguageCode == null))
@@ -265,6 +272,11 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         };
 
         await ExecuteWithRetry(() => ItemClient.updateAsync(Uuid, itemIn, false));
+
+        if (!String.IsNullOrEmpty(pricelist))
+        {
+            await ExecuteWithRetry(() => ItemClient.setPricelistAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType),  ParseId(pricelist)));
+        }
 
         var itemRes = await ExecuteWithRetry(() => ItemClient.getItemObjectAsync(Uuid, ParseId(project.ProjectType), ParseId(item.ItemId)));
         await HandleLanguages(languages, ParseId(project.ProjectType), itemRes.projectID, ParseId(item.ItemId));
