@@ -121,7 +121,7 @@ public class ItemTests : TestBase
         };
 
         // Act
-        var result = await actions.CreateItem(project, projectId, request, languages);
+        var result = await actions.CreateItem(project, projectId, request, null ,languages);
 
         // Assert
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
