@@ -251,8 +251,7 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
             creationDate = DateTime.Now,
             currency = request.Currency,
             projectManagerMemo = request.ProjectManagerMemo,
-            referenceNumber = request.ReferenceNumber,
-            status = ParseId(request.Status)
+            referenceNumber = request.ReferenceNumber
         }, false));
 
         if (request.ProjectStatus is not null)
@@ -264,6 +263,9 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
         if (request.ProjectCategory is not null)
             await ExecuteWithRetry(() => QuoteClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, ParseId(quote.QuoteId)));
 
+        if (request.Status is not null)
+            await ExecuteWithRetry(() => QuoteClient.setStatusAsync(Uuid, ParseId(request.Status), ParseId(quote.QuoteId)));
+   
         return await GetQuote(quote);
     }
 
