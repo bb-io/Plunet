@@ -14,13 +14,13 @@ public class RequestResponse
 
     [Display("Order ID")] public string OrderId { get; set; }
 
-    [Display("First Order ID List")] public string FirstOrderIDList { get; set; }
+    [Display("First Order ID List")] public string? FirstOrderIDList { get; set; }
 
     [Display("Quotation date")] public DateTime QuotationDate { get; set; }
 
     [Display("Quote ID")] public string QuoteId { get; set; }
 
-    [Display("First Quote ID List")] public string FirstQuoteIDList { get; set; }
+    [Display("First Quote ID List")] public string? FirstQuoteIDList { get; set; }
 
     [Display("Request ID")] public string RequestId { get; set; }
 
