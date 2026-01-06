@@ -151,6 +151,8 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             PayableId = payableId?.ToString(),
             NumberOfSourceFiles = jobViewResponse.countSourceFiles,
             DueDate = jobViewResponse.dueDateSpecified ? jobViewResponse.dueDate : null,
+            ProjectId = jobViewResponse.projectID.ToString(),
+            ProjectType = jobViewResponse.projectType.ToString(),
             ItemId = jobViewResponse.itemID.ToString(),
             JobId = jobViewResponse.jobID.ToString(),
             ResourceId = jobViewResponse.resourceID.ToString(),
