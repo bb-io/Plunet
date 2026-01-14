@@ -14,9 +14,13 @@ public class RequestResponse
 
     [Display("Order ID")] public string OrderId { get; set; }
 
+    [Display("First Order ID List")] public string? FirstOrderIDList { get; set; }
+
     [Display("Quotation date")] public DateTime QuotationDate { get; set; }
 
     [Display("Quote ID")] public string QuoteId { get; set; }
+
+    [Display("First Quote ID List")] public string? FirstQuoteIDList { get; set; }
 
     [Display("Request ID")] public string RequestId { get; set; }
 
@@ -40,8 +44,10 @@ public class RequestResponse
         CreationDate = request.creationDate;
         DeliveryDate = request.deliveryDate;
         OrderId = request.orderID.ToString();
+        FirstOrderIDList = (request.orderIDList != null) ? request.orderIDList[0].ToString() : "0";
         QuotationDate = request.quotationDate;
         QuoteId = request.quoteID.ToString();
+        FirstQuoteIDList = (request.quoteIDList != null) ? request.quoteIDList[0].ToString() : "0";
         RequestId = request.requestID.ToString();
         Status = request.status.ToString();
         Subject = request.subject;
