@@ -120,21 +120,21 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         }));
 
         var customerId = customerIdResult.ToString();
-
-        if (request.Dossier != null)
+        try
+        {
+            if (request.Dossier != null)
         {
             await ExecuteWithRetry(() => CustomerClient.setDossierAsync(Uuid, customerIdResult, request.Dossier));
         }
-
-        if (request.AddressType != null)
+       
+            if (request.AddressType != null)
         {
             await SetCustomerAddress(new()
             {
                 CustomerId = customerId
             }, new(request));
         }
-        try
-        {
+        
             return await GetCustomerById(new CustomerRequest { CustomerId = customerId });
         }
         catch 
