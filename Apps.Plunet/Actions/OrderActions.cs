@@ -197,6 +197,9 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         if (request.Deadline is not null)
             await ExecuteWithRetry(() => OrderClient.setDeliveryDeadlineAsync(Uuid, request.Deadline.Value, orderId ));
 
+        if (request.OrderDate.HasValue)
+            await ExecuteWithRetry(() => OrderClient.setCreationDateAsync(Uuid, request.OrderDate.Value, orderId));
+
         return await GetOrder(new OrderRequest { OrderId = orderId.ToString() });
     }
 
