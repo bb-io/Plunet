@@ -23,6 +23,9 @@ public class CreateOrderByTemplateRequest
 
     public DateTime? Deadline { get; set; }
 
+    [Display("Order date")]
+    public DateTime? OrderDate { get; set; }
+
     [Display("Contact ID")]
     [DataSource(typeof(ContactIdDataHandler))]
     public string? ContactId { get; set; }
