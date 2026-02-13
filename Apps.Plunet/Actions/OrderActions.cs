@@ -198,7 +198,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             await ExecuteWithRetry(() => OrderClient.setDeliveryDeadlineAsync(Uuid, request.Deadline.Value, orderId ));
 
         if (request.OrderDate.HasValue)
-            await ExecuteWithRetry(() => OrderClient.setCreationDateAsync(Uuid, request.OrderDate.Value, orderId));
+            await ExecuteWithRetry(() => OrderClient.setOrderDateAsync(Uuid, request.OrderDate.Value, orderId));
 
         return await GetOrder(new OrderRequest { OrderId = orderId.ToString() });
     }
