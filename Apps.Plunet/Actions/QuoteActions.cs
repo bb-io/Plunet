@@ -242,6 +242,12 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
     public async Task<QuoteResponse> UpdateQuote([ActionParameter] GetQuoteRequest quote,
         [ActionParameter] CreateQuoteRequest request)
     {
+        if (request.Status is not null)
+            await ExecuteWithRetry(() => QuoteClient.setStatusAsync(Uuid, ParseId(request.Status), ParseId(quote.QuoteId)));
+
+        if (!string.IsNullOrWhiteSpace(request.ProjectName) ||  !string.IsNullOrWhiteSpace(request.CustomerId) ||
+            !string.IsNullOrWhiteSpace(request.Subject) ||    !string.IsNullOrWhiteSpace(request.Currency) ||
+            !string.IsNullOrWhiteSpace(request.ProjectManagerMemo) ||    !string.IsNullOrWhiteSpace(request.ReferenceNumber))
         await ExecuteWithRetry(() => QuoteClient.updateAsync(Uuid, new QuoteIN
         {
             quoteID = ParseId(quote.QuoteId),
@@ -251,8 +257,7 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
             creationDate = DateTime.Now,
             currency = request.Currency,
             projectManagerMemo = request.ProjectManagerMemo,
-            referenceNumber = request.ReferenceNumber
-        }, false));
+            referenceNumber = request.ReferenceNumber}, false));
 
         if (request.ProjectStatus is not null)
             await ExecuteWithRetry(() => QuoteClient.setProjectStatusAsync(Uuid, ParseId(quote.QuoteId), ParseId(request.ProjectStatus)));
@@ -263,9 +268,6 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
         if (request.ProjectCategory is not null)
             await ExecuteWithRetry(() => QuoteClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, ParseId(quote.QuoteId)));
 
-        if (request.Status is not null)
-            await ExecuteWithRetry(() => QuoteClient.setStatusAsync(Uuid, ParseId(request.Status), ParseId(quote.QuoteId)));
-   
         return await GetQuote(quote);
     }
 

@@ -420,6 +420,23 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         };
     }
 
+    [Action("Get job pricelists", Description = "Get pricelist details for a Plunet job")]
+    public async Task<GetItemPricelistResponse> GetJobPricelist(
+    [ActionParameter] ProjectTypeRequest project,
+    [ActionParameter] GetJobRequest request)
+    {
+        var result = await ExecuteWithRetryAcceptNull(() =>  JobClient.getPricelist_ListAsync(Uuid, ParseId(request.JobId), ParseId(project.ProjectType)));
+
+        var response = new GetItemPricelistResponse
+        {
+            Pricelists = result is not null && result.Length != 0 ?
+            result.Select(p => new PricelistDto(p)).ToList() : null
+        };
+
+        return response;
+    }
+
+
     [Action("Create job priceline", Description = "Add a new pricline to a job")]
     public async Task<PricelineResponse> CreateJobPriceline([ActionParameter] GetJobRequest job,
         [ActionParameter] JobPriceUnitRequest unit, [ActionParameter] PricelineRequest input)
