@@ -169,7 +169,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             customerID = ParseId(request.CustomerId),
             subject = request.Subject,
             projectManagerID = ParseId(request.ProjectManagerId),
-            orderDate = DateTime.Now,
+            orderDate = request.OrderDate.HasValue ? request.OrderDate.Value : DateTime.Now,
             deliveryDeadline = request.Deadline ?? default,
             currency = request.Currency,
             projectManagerMemo = request.ProjectManagerMemo,
@@ -197,6 +197,9 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         if (request.Deadline is not null)
             await ExecuteWithRetry(() => OrderClient.setDeliveryDeadlineAsync(Uuid, request.Deadline.Value, orderId ));
 
+        if (request.OrderDate.HasValue)
+            await ExecuteWithRetry(() => OrderClient.setOrderDateAsync(Uuid, request.OrderDate.Value, orderId));
+
         return await GetOrder(new OrderRequest { OrderId = orderId.ToString() });
     }
 
@@ -217,6 +220,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             ProjectName = request.ProjectName,
             Rate = request.Rate,
             ReferenceNumber = request.ReferenceNumber,
+            OrderDate = request.OrderDate,
          //   Status = request.Status,
             Subject = request.Subject,
             ProjectCategory = request.ProjectCategory,

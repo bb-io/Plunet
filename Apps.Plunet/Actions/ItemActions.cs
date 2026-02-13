@@ -175,6 +175,20 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         return item;
     }
 
+    [Action("Get item pricelists", Description = "Get pricelist details for a Plunet item")]
+    public async Task<GetItemPricelistResponse> GetItemPricelist([ActionParameter] ProjectTypeRequest project,
+        [ActionParameter] GetItemRequest request )
+    {
+        var result = await ExecuteWithRetryAcceptNull(() => ItemClient.getPricelist_ListAsync( Uuid, ParseId(request.ItemId), ParseId(project.ProjectType)));
+
+        var response = new GetItemPricelistResponse
+        {
+            Pricelists = result is not null && result.Length != 0 ? result?.Select(p => new PricelistDto(p)).ToList() : null
+        };
+
+        return response;
+    }
+
     private async Task GetDeliveryDate(ItemResponse item)
     {
         try
