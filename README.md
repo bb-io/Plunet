@@ -78,6 +78,7 @@ If you are unable to connect, please check the following:
 - **Delete item**
 - **Update item**
 - **Get item pricelines** returns all the pricelines attached to this item
+- **Get item pricelists**
 - **Create item priceline** Creates a new priceline entry for this item
 - **Delete item priceline** Deletes a priceline from an item
 - **Update item priceline** Updates a priceline on an item
