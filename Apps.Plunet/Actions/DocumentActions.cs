@@ -9,6 +9,7 @@ using Blackbird.Applications.Sdk.Utils.Extensions.Files;
 using Blackbird.Applications.Sdk.Common.Files;
 using Apps.Plunet.Models.Item;
 using Blackbird.Applications.Sdk.Common.Exceptions;
+using Apps.Plunet.Models.Job;
 
 namespace Apps.Plunet.Actions;
 
@@ -105,8 +106,8 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
 
         return new SearchFilesResponse { FilePaths = filePaths };
     }
-
-    [Action("Upload CAT report",
+    
+    [Action("Upload CAT report to item",
         Description = "Upload a report file into the report folder of the specified item.")]
     public async Task UploadCatReport([ActionParameter] GetItemRequest item,
         [ActionParameter] UploadCatReportRequest input)
@@ -120,5 +121,22 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
                     $"[PlunetSetCATReport] StatusCode {response.Result.statusCode}, warning code {response.Result.warning_StatusCodeList}," +
                     $"status message {response.Result.statusMessage} ",
                     []);
-    }      
+    }
+
+    [Action("Upload CAT report to job",
+        Description = "Upload a report file into the report folder of the specified job.")]
+    public async Task UploadCatReportJob([ActionParameter] GetJobRequest job,
+        [ActionParameter] UploadCatReportToJobRequest input)
+    {
+        var fileBytes = fileManagementClient.DownloadAsync(input.File).Result.GetByteData().Result;
+        var response = await ExecuteWithRetry(() => JobClient.setCatReport2Async(          
+            Uuid, fileBytes,
+            input.File.Name, fileBytes.Length,
+            ParseId(input.CatType), ParseId(job.ProjectType),
+            input.CopyResultsToJob, ParseId(job.JobId)));
+        InvocationContext.Logger?.LogError(
+                    $"[PlunetSetCATReport] StatusCode {response.Result.statusCode}, warning code {response.Result.warning_StatusCodeList}," +
+                    $"status message {response.Result.statusMessage} ",
+                    []);
+    }
 }

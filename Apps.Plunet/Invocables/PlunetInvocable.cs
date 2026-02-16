@@ -312,6 +312,8 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<DateTime> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataJob30Service.DateResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay))!.data;
+    protected async Task<Blackbird.Plugins.Plunet.DataJob30Service.setCatReport2Response> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataJob30Service.setCatReport2Response>> func, int maxRetries = 10, int delay = 1000)
+        => await ThrowOrHandleRetries(func, (x) => x.Result.statusMessage, (x) => false, false, maxRetries, delay);
 
 
     // Job round service

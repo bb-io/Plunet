@@ -422,10 +422,9 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
 
     [Action("Get job pricelists", Description = "Get pricelist details for a Plunet job")]
     public async Task<GetItemPricelistResponse> GetJobPricelist(
-    [ActionParameter] ProjectTypeRequest project,
     [ActionParameter] GetJobRequest request)
     {
-        var result = await ExecuteWithRetryAcceptNull(() =>  JobClient.getPricelist_ListAsync(Uuid, ParseId(request.JobId), ParseId(project.ProjectType)));
+        var result = await ExecuteWithRetryAcceptNull(() =>  JobClient.getPricelist_ListAsync(Uuid, ParseId(request.JobId), ParseId(request.ProjectType)));
 
         var response = new GetItemPricelistResponse
         {
