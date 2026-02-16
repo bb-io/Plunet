@@ -104,6 +104,7 @@ Note that when creating/updating items, the source and target languages can be s
 - **Get job rounds**
 - **Get job feedback**
 - **Get item independent jobs**
+- **Upload CAT report to job**
 
 ### Orders
 
