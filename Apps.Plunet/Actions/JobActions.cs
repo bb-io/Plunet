@@ -364,7 +364,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
 
     [Action("Update job", Description = "Update an existing job in Plunet")]
     public async Task<JobResponse> UpdateJob([ActionParameter] GetJobRequest request,
-        [ActionParameter] CreateJobRequest input, [ActionParameter] [Display("Pricelist ID")]string? pricelist)
+        [ActionParameter] CreateJobRequest input, [ActionParameter] [Display("Pricelist ID")]string? pricelist, [ActionParameter] ContactPersonRequest contactPerson)
     {
         var jobId = ParseId(request.JobId);
         var projectType = ParseId(request.ProjectType);
@@ -377,7 +377,8 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             jobID = jobId,
             projectType = projectType,
             status = ParseId(input.Status),
-            projectID = ParseId(input.ProjectId)
+            projectID = ParseId(input.ProjectId),
+            contactPersonID = ParseId(contactPerson.ResourceId)
         };
 
         if (input.DueDate.HasValue)
