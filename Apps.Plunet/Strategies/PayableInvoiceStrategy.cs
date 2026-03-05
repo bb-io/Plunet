@@ -6,17 +6,17 @@ using static Apps.Plunet.Constants.FolderConstants;
 
 namespace Apps.Plunet.Strategies;
 
-public class PayableInvoiceStrategy(IPlunetClientProvider plunet, PickerMode mode) : BaseStrategy(plunet, mode), IPlunetStrategy
+public class PayableInvoiceStrategy(FfClientProvider ffClientProvider, PickerMode mode) : BaseStrategy(ffClientProvider, mode), IPlunetStrategy
 {
-    public override bool CanHandle(PlunetPath path) => path.RootSegment.StartsWith(InvoiceDirections.Payable);
+    public override bool CanHandle(FfPath path) => path.RootSegment.StartsWith(InvoiceDirections.Payable);
 
-    public override async Task<IEnumerable<FileDataItem>> HandleAsync(PlunetPath path, CancellationToken ct)
+    public override async Task<IEnumerable<FileDataItem>> HandleAsync(FfPath path, CancellationToken ct)
     {
         int mainId = ParseId(path.RootSegment.Substring(InvoiceDirections.Payable.Length));
         return await ListContentAsync(path.Raw, mainId, FolderTypeConstants.Invoice[FolderTypeConstants.PayableInvoiceKey], path.Segments, ct);
     }
 
-    public override IEnumerable<FolderPathItem> ResolveFolderPath(PlunetPath path)
+    public override IEnumerable<FolderPathItem> ResolveFolderPath(FfPath path)
     {
         int mainId = ParseId(path.RootSegment.Substring(InvoiceDirections.Payable.Length));
 
@@ -39,5 +39,16 @@ public class PayableInvoiceStrategy(IPlunetClientProvider plunet, PickerMode mod
         }
 
         return breadcrumbs;
+    }
+
+    public override PathInfo ResolvePathInfo(FfPath path)
+    {
+        int mainId = ParseId(path.RootSegment.Substring(InvoiceDirections.Payable.Length));
+
+        return new PathInfo(
+            mainId,
+            FolderTypeConstants.Invoice[FolderTypeConstants.PayableInvoiceKey],
+            string.Join('/', path.Segments)
+        );
     }
 }

@@ -2,16 +2,17 @@
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Enums;
 using Apps.Plunet.Models.FFPicker;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Models.FileDataSourceItems;
 using static Apps.Plunet.Constants.FolderConstants;
 
 namespace Apps.Plunet.Strategies;
 
-public class QuoteStrategy(IPlunetClientProvider plunet, PickerMode mode) : BaseStrategy(plunet, mode), IPlunetStrategy
+public class QuoteStrategy(FfClientProvider ffClientProvider, PickerMode mode) : BaseStrategy(ffClientProvider, mode), IPlunetStrategy
 {
-    public override bool CanHandle(PlunetPath path) => path.RootSegment.StartsWith(EntityPrefixes.Quote);
+    public override bool CanHandle(FfPath path) => path.RootSegment.StartsWith(EntityPrefixes.Quote);
 
-    public override async Task<IEnumerable<FileDataItem>> HandleAsync(PlunetPath path, CancellationToken ct)
+    public override async Task<IEnumerable<FileDataItem>> HandleAsync(FfPath path, CancellationToken ct)
     {
         int mainId = ParseId(path.RootSegment.Substring(EntityPrefixes.Quote.Length));
 
@@ -42,7 +43,7 @@ public class QuoteStrategy(IPlunetClientProvider plunet, PickerMode mode) : Base
         };
     }
 
-    public override IEnumerable<FolderPathItem> ResolveFolderPath(PlunetPath path)
+    public override IEnumerable<FolderPathItem> ResolveFolderPath(FfPath path)
     {
         int mainId = ParseId(path.RootSegment.Substring(EntityPrefixes.Quote.Length));
 
@@ -82,13 +83,66 @@ public class QuoteStrategy(IPlunetClientProvider plunet, PickerMode mode) : Base
         return breadcrumbs;
     }
 
-    private async Task<IEnumerable<FileDataItem>> HandleQuoteItems(PlunetPath path, int quoteId, CancellationToken ct)
+    public override PathInfo ResolvePathInfo(FfPath path)
+    {
+        if (path.Segments.Length == 0)
+            throw new PluginMisconfigurationException($"The path '{path.Raw}' is not supported.");
+
+        int mainId = ParseId(path.RootSegment.Substring(EntityPrefixes.Quote.Length));
+        string[] segments = path.Segments;
+
+        for (int i = 0; i < segments.Length; i++)
+        {
+            var seg = segments[i];
+
+            if (i == 0 && FolderTypeConstants.Quote.TryGetValue(seg, out var quoteFt))
+            {
+                return new PathInfo(mainId, quoteFt, string.Join('/', segments.Skip(1)));
+            }
+
+            if (seg is QuoteRoute.Items or QuoteRoute.IndependentJobs or QuoteRoute.Item.Jobs)
+            {
+                continue;
+            }
+
+            if (seg.StartsWith(QuoteRoute.Item.Prefix))
+            {
+                mainId = ParseItemId(seg, QuoteRoute.Item.Prefix);
+
+                if (i + 1 < segments.Length && FolderTypeConstants.QuoteItem.TryGetValue(segments[i + 1], out var itemFt))
+                {
+                    return new PathInfo(mainId, itemFt, string.Join('/', segments.Skip(i + 2)));
+                }
+                continue;
+            }
+
+            if (seg.StartsWith(QuoteRoute.Job.ItemPrefix) || seg.StartsWith(QuoteRoute.Job.IndependentPrefix))
+            {
+                string prefix = seg.StartsWith(QuoteRoute.Job.ItemPrefix)
+                    ? QuoteRoute.Job.ItemPrefix
+                    : QuoteRoute.Job.IndependentPrefix;
+
+                mainId = ParseItemId(seg, prefix);
+
+                if (i + 1 < segments.Length && FolderTypeConstants.QuoteJob.TryGetValue(segments[i + 1], out var jobFt))
+                {
+                    return new PathInfo(mainId, jobFt, string.Join('/', segments.Skip(i + 2)));
+                }
+
+                return new PathInfo(mainId, FolderTypeConstants.QuoteJob["!_In"], string.Join('/', segments.Skip(i)));
+            }
+        }
+
+        throw new PluginMisconfigurationException($"The path '{path.Raw}' could not be resolved to a valid Plunet folder.");
+    }
+
+    private async Task<IEnumerable<FileDataItem>> HandleQuoteItems(FfPath path, int quoteId, CancellationToken ct)
     {
         var segments = path.Segments.Skip(1).ToArray();
 
         if (segments.Length == 0)
         {
-            var items = await Plunet.ItemClient.getAllItemsAsync(Plunet.Uuid, (int)ItemProjectType.Quote, quoteId);
+            var items = await FfClientProvider.ItemClient.getAllItemsAsync(FfClientProvider.Uuid, (int)ItemProjectType.Quote, quoteId);
 
             if (items.data is null || items.data.Length == 0) return [];
 
@@ -109,7 +163,7 @@ public class QuoteStrategy(IPlunetClientProvider plunet, PickerMode mode) : Base
         return await HandleQuoteItem(path, itemId, segments.Skip(1).ToArray(), ct);
     }
 
-    private async Task<IEnumerable<FileDataItem>> HandleQuoteItem(PlunetPath path, int itemId, string[] segments, CancellationToken ct)
+    private async Task<IEnumerable<FileDataItem>> HandleQuoteItem(FfPath path, int itemId, string[] segments, CancellationToken ct)
     {
         if (segments.Length == 0)
         {
@@ -133,11 +187,11 @@ public class QuoteStrategy(IPlunetClientProvider plunet, PickerMode mode) : Base
         return [];
     }
 
-    private async Task<IEnumerable<FileDataItem>> HandleItemDependentJobs(PlunetPath path, int itemId, string[] segments, CancellationToken ct)
+    private async Task<IEnumerable<FileDataItem>> HandleItemDependentJobs(FfPath path, int itemId, string[] segments, CancellationToken ct)
     {
         if (segments.Length == 0)
         {
-            var jobs = await Plunet.JobClient.getJobListOfItem_ForViewAsync(Plunet.Uuid, itemId, (int)ItemProjectType.Quote);
+            var jobs = await FfClientProvider.JobClient.getJobListOfItem_ForViewAsync(FfClientProvider.Uuid, itemId, (int)ItemProjectType.Quote);
 
             return jobs.data.Length == 0
                 ? []
@@ -155,13 +209,13 @@ public class QuoteStrategy(IPlunetClientProvider plunet, PickerMode mode) : Base
         return await HandleQuoteJob(path, jobId, segments.Skip(1).ToArray(), ct);
     }
 
-    private async Task<IEnumerable<FileDataItem>> HandleItemIndependentJobs(PlunetPath path, int quoteId, CancellationToken ct)
+    private async Task<IEnumerable<FileDataItem>> HandleItemIndependentJobs(FfPath path, int quoteId, CancellationToken ct)
     {
         var segments = path.Segments.Skip(1).ToArray();
 
         if (segments.Length == 0)
         {
-            var jobs = await Plunet.JobClient.getItemIndependentJobsAsync(Plunet.Uuid, (int)ItemProjectType.Quote, quoteId);
+            var jobs = await FfClientProvider.JobClient.getItemIndependentJobsAsync(FfClientProvider.Uuid, (int)ItemProjectType.Quote, quoteId);
             return jobs.data.Length == 0
                 ? []
                 : jobs.data.Select(job => new Folder
@@ -178,7 +232,7 @@ public class QuoteStrategy(IPlunetClientProvider plunet, PickerMode mode) : Base
         return await HandleQuoteJob(path, jobId, segments.Skip(1).ToArray(), ct);
     }
 
-    private async Task<IEnumerable<FileDataItem>> HandleQuoteJob(PlunetPath path, int jobId, string[] segments, CancellationToken ct)
+    private async Task<IEnumerable<FileDataItem>> HandleQuoteJob(FfPath path, int jobId, string[] segments, CancellationToken ct)
     {
         if (segments.Length == 0)
         {

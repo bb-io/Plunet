@@ -5,9 +5,11 @@ namespace Apps.Plunet.Strategies;
 
 public interface IPlunetStrategy
 {
-    bool CanHandle(PlunetPath path);
+    bool CanHandle(FfPath path);
 
-    Task<IEnumerable<FileDataItem>> HandleAsync(PlunetPath path, CancellationToken ct);
+    Task<IEnumerable<FileDataItem>> HandleAsync(FfPath path, CancellationToken ct);
 
-    IEnumerable<FolderPathItem> ResolveFolderPath(PlunetPath path);
+    IEnumerable<FolderPathItem> ResolveFolderPath(FfPath path);
+
+    PathInfo ResolvePathInfo(FfPath path);
 }

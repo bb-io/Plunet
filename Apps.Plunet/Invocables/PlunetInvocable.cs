@@ -26,6 +26,7 @@ using DataJobRound30Service;
 using Blackbird.Plugins.Plunet.DataQualityManager30;
 using DataResourceAddress30Service;
 using System.ServiceModel;
+using Apps.Plunet.Models.FFPicker;
 using PropertyResult = Blackbird.Plugins.Plunet.DataCustomFields30.PropertyResult;
 using Textmodule = Blackbird.Plugins.Plunet.DataCustomFields30.Textmodule;
 
@@ -70,6 +71,20 @@ public class PlunetInvocable : BaseInvocable
     {
         Uuid = GetAuthTokenWithRetry();
     }
+
+    protected FfClientProvider FfClientProvider => new(
+        Uuid,
+        OrderClient,
+        QuoteClient,
+        RequestClient,
+        ResourceClient,
+        CustomerClient,
+        OutgoingInvoiceClient,
+        PayableClient,
+        ItemClient,
+        JobClient,
+        DocumentClient
+    );
 
     private string GetAuthTokenWithRetry(int maxRetries = 2)
     {

@@ -1,10 +1,8 @@
-﻿using Tests.Plunet.Base;
-using Apps.Plunet.DataSourceHandlers;
-using Blackbird.Applications.Sdk.Common.Dynamic;
+﻿using Apps.Plunet.DataSourceHandlers;
 using Apps.Plunet.Models.Job;
-using Apps.Plunet.Webhooks.CallbackClients;
+using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Models.FileDataSourceItems;
-using Blackbird.Plugins.Plunet.DataJob30Service;
+using Tests.Plunet.Base;
 
 namespace Tests.Plunet;
 
@@ -196,7 +194,8 @@ public class DataSourceTests : TestBase
         var handler = new FilePickerDataSourceHandler(InvocationContext);
 
         // Act
-        var result = await handler.GetFolderContentAsync(new FolderContentDataSourceContext { FolderId = "q:104/vqi/qi:32:001/vqij" }, CancellationToken.None);
+        //var result = await handler.GetFolderContentAsync(new FolderContentDataSourceContext { FolderId = "q:104/vqi/qi:32:001/vqij/qij:1:INT/!_Out" }, CancellationToken.None);
+        var result = await handler.GetFolderContentAsync(new FolderContentDataSourceContext { FolderId = "o:663/voi/oi:499:001/voij/oij:303:REV/!_Out" }, CancellationToken.None);
 
         // Assert
         foreach (var item in result)

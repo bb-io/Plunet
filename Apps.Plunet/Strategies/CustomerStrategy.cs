@@ -6,17 +6,17 @@ using static Apps.Plunet.Constants.FolderConstants;
 
 namespace Apps.Plunet.Strategies;
 
-public class CustomerStrategy(IPlunetClientProvider plunet, PickerMode mode) : BaseStrategy(plunet, mode), IPlunetStrategy
+public class CustomerStrategy(FfClientProvider ffClientProvider, PickerMode mode) : BaseStrategy(ffClientProvider, mode), IPlunetStrategy
 {
-    public override bool CanHandle(PlunetPath path) => path.RootSegment.StartsWith(EntityPrefixes.Customer);
+    public override bool CanHandle(FfPath path) => path.RootSegment.StartsWith(EntityPrefixes.Customer);
 
-    public override async Task<IEnumerable<FileDataItem>> HandleAsync(PlunetPath path, CancellationToken ct)
+    public override async Task<IEnumerable<FileDataItem>> HandleAsync(FfPath path, CancellationToken ct)
     {
         int mainId = ParseId(path.RootSegment.Substring(EntityPrefixes.Customer.Length));
         return await ListContentAsync(path.Raw, mainId, FolderTypeConstants.Customer, path.Segments, ct);
     }
 
-    public override IEnumerable<FolderPathItem> ResolveFolderPath(PlunetPath path)
+    public override IEnumerable<FolderPathItem> ResolveFolderPath(FfPath path)
     {
         int mainId = ParseId(path.RootSegment.Substring(EntityPrefixes.Customer.Length));
 
@@ -38,5 +38,16 @@ public class CustomerStrategy(IPlunetClientProvider plunet, PickerMode mode) : B
         }
 
         return breadcrumbs;
+    }
+
+    public override PathInfo? ResolvePathInfo(FfPath path)
+    {
+        int mainId = ParseId(path.RootSegment.Substring(EntityPrefixes.Customer.Length));
+
+        return new PathInfo(
+            mainId,
+            FolderTypeConstants.Customer,
+            string.Join('/', path.Segments)
+        );
     }
 }

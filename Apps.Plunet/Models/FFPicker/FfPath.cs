@@ -1,6 +1,6 @@
 ﻿namespace Apps.Plunet.Models.FFPicker;
 
-public class PlunetPath(string raw, string rootSegment, string[] segments)
+public class FfPath(string raw, string rootSegment, string[] segments)
 {
     public string Raw { get; } = raw;
     public string RootSegment { get; } = rootSegment;

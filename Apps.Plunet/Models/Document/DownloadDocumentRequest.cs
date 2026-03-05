@@ -1,20 +1,14 @@
-﻿using Apps.Plunet.DataSourceHandlers.EnumHandlers;
+﻿using Apps.Plunet.DataSourceHandlers;
 using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dictionaries;
-using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Models.FileDataSourceItems;
 
 namespace Apps.Plunet.Models.Document;
 
 public class DownloadDocumentRequest
 {
-    [Display("Entity ID")]
-    public string MainId { get; set; }
 
-    [Display("Folder type")]
-    [StaticDataSource(typeof(FolderTypeDataHandler))]
-    public string FolderType { get; set; }
-
-    [Display("File path")]
-    public string FilePathName { get; set; }
+    [Display("File ID")]
+    [FileDataSource(typeof(FilePickerDataSourceHandler))]
+    public string FileId { get; set; }
 
 }

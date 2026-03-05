@@ -1,16 +1,17 @@
 ﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Models.Enums;
 using Apps.Plunet.Models.FFPicker;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.SDK.Extensions.FileManagement.Models.FileDataSourceItems;
 using static Apps.Plunet.Constants.FolderConstants;
 
 namespace Apps.Plunet.Strategies;
 
-public class RequestStrategy(IPlunetClientProvider plunet, PickerMode mode) : BaseStrategy(plunet, mode), IPlunetStrategy
+public class RequestStrategy(FfClientProvider ffClientProvider, PickerMode mode) : BaseStrategy(ffClientProvider, mode), IPlunetStrategy
 {
-    public override bool CanHandle(PlunetPath path) => path.RootSegment.StartsWith(EntityPrefixes.Request);
+    public override bool CanHandle(FfPath path) => path.RootSegment.StartsWith(EntityPrefixes.Request);
 
-    public override async Task<IEnumerable<FileDataItem>> HandleAsync(PlunetPath path, CancellationToken ct)
+    public override async Task<IEnumerable<FileDataItem>> HandleAsync(FfPath path, CancellationToken ct)
     {
         int mainId = ParseId(path.RootSegment.Substring(EntityPrefixes.Request.Length));
 
@@ -27,7 +28,7 @@ public class RequestStrategy(IPlunetClientProvider plunet, PickerMode mode) : Ba
         return [];
     }
 
-    public override IEnumerable<FolderPathItem> ResolveFolderPath(PlunetPath path)
+    public override IEnumerable<FolderPathItem> ResolveFolderPath(FfPath path)
     {
         int mainId = ParseId(path.RootSegment.Substring(EntityPrefixes.Request.Length));
 
@@ -49,5 +50,18 @@ public class RequestStrategy(IPlunetClientProvider plunet, PickerMode mode) : Ba
         }
 
         return breadcrumbs;
+    }
+
+    public override PathInfo ResolvePathInfo(FfPath path)
+    {
+        if (path.Segments.Length == 0) throw new PluginMisconfigurationException($"The path '{path.Raw}' is not supported here.");
+        
+        int mainId = ParseId(path.RootSegment.Substring(EntityPrefixes.Request.Length));
+
+        return new PathInfo(
+            mainId,
+            FolderTypeConstants.Request[path.Segments[0]],
+            string.Join('/', path.Segments.Skip(1))
+        );
     }
 }

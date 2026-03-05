@@ -8,19 +8,21 @@ using File = Blackbird.Applications.SDK.Extensions.FileManagement.Models.FileDat
 
 namespace Apps.Plunet.Strategies;
 
-public abstract class BaseStrategy(IPlunetClientProvider plunet, PickerMode mode) : IPlunetStrategy
+public abstract class BaseStrategy(FfClientProvider ffClientProvider, PickerMode mode) : IPlunetStrategy
 {
-    protected IPlunetClientProvider Plunet { get; } = plunet;
+    protected FfClientProvider FfClientProvider { get; } = ffClientProvider;
     protected PickerMode Mode { get; } = mode;
 
     protected bool IsFileMode => Mode == PickerMode.File;
     protected bool IsFolderMode => Mode == PickerMode.Folder;
 
-    public abstract bool CanHandle(PlunetPath path);
+    public abstract bool CanHandle(FfPath path);
 
-    public abstract Task<IEnumerable<FileDataItem>> HandleAsync(PlunetPath path, CancellationToken ct);
+    public abstract Task<IEnumerable<FileDataItem>> HandleAsync(FfPath path, CancellationToken ct);
 
-    public abstract IEnumerable<FolderPathItem> ResolveFolderPath(PlunetPath path);
+    public abstract IEnumerable<FolderPathItem> ResolveFolderPath(FfPath path);
+
+    public abstract PathInfo ResolvePathInfo(FfPath path);
 
     protected static IEnumerable<FileDataItem> MapToVirtualFolders(int?[]? ids, string nextPrefix)
     {
@@ -29,8 +31,8 @@ public abstract class BaseStrategy(IPlunetClientProvider plunet, PickerMode mode
 
     protected async Task<IEnumerable<FileDataItem>> ListContentAsync(string folderId, int mainId, int folderType, string[] subPaths, CancellationToken ct)
     {
-        var response = await Plunet.DocumentClient.getFileListAsync(Plunet.Uuid, mainId, folderType);
-        if (response?.data == null || response.data.Length == 0) return [];
+        var response = await FfClientProvider.DocumentClient.getFileListAsync(FfClientProvider.Uuid, mainId, folderType);
+        if (response?.data is null || response.data.Length == 0) return [];
 
         var normalizedPaths = response.data.Select(p => p.Replace("\\", "/").Trim('/')).ToList();
         string currentPrefix = subPaths.Length > 0 ? string.Join("/", subPaths).TrimEnd('/') + "/" : "";

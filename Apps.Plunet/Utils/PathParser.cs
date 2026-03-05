@@ -5,7 +5,7 @@ namespace Apps.Plunet.Utils;
 
 public static class PathParser
 {
-    public static PlunetPath Parse(string? folderId)
+    public static FfPath Parse(string? folderId)
     {
         var id = string.IsNullOrEmpty(folderId) ? FolderConstants.VirtualRoots.Home : folderId;
 
@@ -13,6 +13,6 @@ public static class PathParser
 
         var root = segments.Length > 0 ? segments[0] : id;
 
-        return new PlunetPath(id, root, segments.Skip(1).ToArray());
+        return new FfPath(id, root, segments.Skip(1).ToArray());
     }
 }
