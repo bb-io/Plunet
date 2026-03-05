@@ -2,6 +2,9 @@
 using Apps.Plunet.DataSourceHandlers;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Apps.Plunet.Models.Job;
+using Apps.Plunet.Webhooks.CallbackClients;
+using Blackbird.Applications.SDK.Extensions.FileManagement.Models.FileDataSourceItems;
+using Blackbird.Plugins.Plunet.DataJob30Service;
 
 namespace Tests.Plunet;
 
@@ -149,6 +152,71 @@ public class DataSourceTests : TestBase
         // Assert
         foreach (var item in result)
             Console.WriteLine($"{item.Value}: {item.DisplayName}");
+
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task FolderPickerDataSourceHandler_ReturnsVirtualFolders()
+    {
+        // Arrange
+        var handler = new FolderPickerDataSourceHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetFolderContentAsync(new FolderContentDataSourceContext { }, CancellationToken.None);
+
+        // Assert
+        foreach (var item in result)
+            Console.WriteLine($"{item.Id} | {item.DisplayName} | {item.IsSelectable}");
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(6, result.Count());
+    }
+
+    [TestMethod]
+    public async Task FolderPickerDataSourceHandler_ReturnsContent()
+    {
+        // Arrange
+        var handler = new FolderPickerDataSourceHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetFolderContentAsync(new FolderContentDataSourceContext { FolderId = "c:136" }, CancellationToken.None);
+
+        // Assert
+        foreach (var item in result)
+            Console.WriteLine($"{item.Id}: {item.DisplayName} | {item.IsSelectable}");
+
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task FilePickerDataSourceHandler_ReturnsContent()
+    {
+        // Arrange
+        var handler = new FilePickerDataSourceHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetFolderContentAsync(new FolderContentDataSourceContext { FolderId = "q:104/vqi/qi:32:001/vqij" }, CancellationToken.None);
+
+        // Assert
+        foreach (var item in result)
+            Console.WriteLine($"{item.Id} | {item.DisplayName} | {item.IsSelectable}");
+
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task FilePickerDataSourceHandler_ReturnsFolderPath()
+    {
+        // Arrange
+        var handler = new FilePickerDataSourceHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetFolderPathAsync(new FolderPathDataSourceContext { FileDataItemId = "q:104/vqi/qi:32:001/vqij/qij:1:INT" }, CancellationToken.None);
+
+        // Assert
+        foreach (var item in result)
+            Console.WriteLine($"{item.Id} | {item.DisplayName}");
 
         Assert.IsNotNull(result);
     }
