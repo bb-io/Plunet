@@ -191,7 +191,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         if (input.StartDate.HasValue)
             jobIn.startDate = input.StartDate.Value;
 
-        var response = await ExecuteWithRetry(() => JobClient.insert3Async(Uuid, jobIn, type.JobType));
+        var response = await ExecuteWithoutRetry(() => JobClient.insert3Async(Uuid, jobIn, type.JobType));
 
         string jobId = response.ToString();
         if (contactPerson.ResourceId is not null)
