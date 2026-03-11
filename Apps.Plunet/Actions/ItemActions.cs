@@ -248,8 +248,8 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         }
 
         var response = languages.SourceLanguageCode == null
-            ? await ExecuteWithRetry(() => ItemClient.insertLanguageIndependentItemAsync(Uuid, itemIn))
-            : await ExecuteWithRetry(() => ItemClient.insert2Async(Uuid, itemIn));
+            ? await ExecuteWithoutRetry(() => ItemClient.insertLanguageIndependentItemAsync(Uuid, itemIn))
+            : await ExecuteWithoutRetry(() => ItemClient.insert2Async(Uuid, itemIn));
 
         await HandleLanguages(languages, ParseId(project.ProjectType), ParseId(projectId.ProjectId), response);
 

@@ -180,8 +180,8 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         OrderClient.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
         OrderClient.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(5);
         var orderId = templateRequest.TemplateId == null
-            ? await ExecuteWithRetry(() => OrderClient.insert2Async(Uuid, orderIn))
-            : await ExecuteWithRetry(() => OrderClient.insert_byTemplateAsync(Uuid, orderIn, ParseId(templateRequest.TemplateId)));
+            ? await ExecuteWithoutRetry(() => OrderClient.insert2Async(Uuid, orderIn))
+            : await ExecuteWithoutRetry(() => OrderClient.insert_byTemplateAsync(Uuid, orderIn, ParseId(templateRequest.TemplateId)));
 
         //if (request.Status != null)
         //{
