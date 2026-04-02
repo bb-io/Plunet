@@ -26,11 +26,11 @@ public class ContactTests : TestBase
         var result = await actions.CreateContact(new CreateContactRequest 
         { 
             CustomerId= "9",
-            FirstName="Artem",
-            LastName = "Testing",
+            FirstName="Artem 3",
+            LastName = "Testing 3",
             Email = "art@gmail.com",
-            Phone = "+411111111111",
-            MobilePhone = "+411111111111",
+            Phone = "+4112341111123411",
+            MobilePhone = "+4123412311111",
         });
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         Assert.IsNotNull(result);
