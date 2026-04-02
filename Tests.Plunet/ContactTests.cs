@@ -13,7 +13,26 @@ public class ContactTests : TestBase
     {
         var actions = new ContactActions(InvocationContext);
 
-        var result = await actions.GetContactById(new ContactRequest { ContactId = "8" });
+        var result = await actions.GetContactById(new ContactRequest { ContactId = "167" });
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task CreateContact_WithValidInputs_IsSuccess()
+    {
+        var actions = new ContactActions(InvocationContext);
+
+        var result = await actions.CreateContact(new CreateContactRequest 
+        { 
+            CustomerId= "9",
+            FirstName="Artem",
+            LastName = "Testing",
+            Email = "art@gmail.com",
+            Phone = "+411111111111",
+            MobilePhone = "+411111111111",
+        });
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         Assert.IsNotNull(result);
     }
 

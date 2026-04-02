@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.Models.Customer;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
+using System.Net;
 
 namespace Apps.Plunet.Models.Contacts;
 
@@ -37,8 +38,8 @@ public class ContactObjectResponse : CustomerRequest
         Fax = customerContact.fax;
         FirstName = customerContact.name2;
         LastName = customerContact.name1;
-        MobilePhone = customerContact.mobilePhone;
-        Phone = customerContact.phone;
+        MobilePhone = WebUtility.HtmlDecode(customerContact.mobilePhone);
+        Phone = WebUtility.HtmlDecode(customerContact.phone);
         UserId = customerContact.userId.ToString();
         Status = customerContact.status;
         Supervisor = customerContact.supervisor1;
