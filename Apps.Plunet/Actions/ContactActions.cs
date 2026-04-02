@@ -66,19 +66,19 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
         var contactIdResult =  await ExecuteWithRetry(() => ContactClient.insert2Async(Uuid, new()
         {
             customerID = ParseId(request.CustomerId),
-            name1 = request.LastName,
-            name2 = request.FirstName,
-            email = request.Email,
-            phone = request.Phone,
-            mobilePhone = request.MobilePhone,
-            costCenter = request.CostCenter,
-            externalID = request.ExternalId,
-            fax = request.Fax,
-            addressID = ParseId(request.AddressId),
-            userId = ParseId(request.UserId),
-            supervisor1 = request.Supervisor1,
-            supervisor2 = request.Supervisor2,
-            status = ParseId(request.Status)
+            name1 = request.LastName ?? string.Empty,
+            name2 = request.FirstName ?? string.Empty,
+            email = request.Email ?? string.Empty,
+            phone = request.Phone ?? string.Empty,
+            mobilePhone = request.MobilePhone ?? string.Empty,
+            costCenter = request.CostCenter ?? string.Empty,
+            externalID = request.ExternalId ?? string.Empty,
+            fax = request.Fax ?? string.Empty,
+            addressID = ParseId(request.AddressId, 0),
+            userId = ParseId(request.UserId, 0),
+            supervisor1 = request.Supervisor1 ?? string.Empty,
+            supervisor2 = request.Supervisor2 ?? string.Empty,
+            status = ParseId(request.Status, 0)
         }));
 
         return await GetContactById(new ContactRequest { ContactId = contactIdResult.ToString()});
