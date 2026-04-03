@@ -10,6 +10,9 @@ namespace Apps.Plunet.Models.Item;
 public class UploadCatReportToJobRequest
 {
     public FileReference File { get; set; }
+
+    [Display("Path")]
+    public string? Path { get; set; }
     
     [Display("Overwrite existing pricelines")]
     public bool OverwriteExistingPricelines { get; set; }
