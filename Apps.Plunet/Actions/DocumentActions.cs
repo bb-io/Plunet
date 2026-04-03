@@ -113,8 +113,9 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         [ActionParameter] UploadCatReportRequest input)
     {
         var fileBytes = fileManagementClient.DownloadAsync(input.File).Result.GetByteData().Result;
+        var filePath = BuildFilePath(input.Path, input.File.Name);
         var response = await ExecuteWithRetry(() => ItemClient.setCatReport2Async(Uuid, fileBytes,
-            input.File.Name, fileBytes.Length,
+            filePath, fileBytes.Length,
             input.OverwriteExistingPricelines, ParseId(input.CatType), ParseId(input.ProjectType),
             input.CopyResultsToItem, ParseId(item.ItemId)));
         InvocationContext.Logger?.LogError(
@@ -129,14 +130,26 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
         [ActionParameter] UploadCatReportToJobRequest input)
     {
         var fileBytes = fileManagementClient.DownloadAsync(input.File).Result.GetByteData().Result;
+        var filePath = BuildFilePath(input.Path, input.File.Name);
         var response = await ExecuteWithRetry(() => JobClient.setCatReport2Async(          
             Uuid, fileBytes,
-            input.File.Name, fileBytes.Length,
+            filePath, fileBytes.Length,
             ParseId(input.CatType), ParseId(job.ProjectType),
             input.CopyResultsToJob, ParseId(job.JobId)));
         InvocationContext.Logger?.LogError(
                     $"[PlunetSetCATReport] StatusCode {response.Result.statusCode}, warning code {response.Result.warning_StatusCodeList}," +
                     $"status message {response.Result.statusMessage} ",
                     []);
+    }
+
+    private static string BuildFilePath(string? path, string fileName)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            return fileName;
+        }
+
+        var normalizedPath = path.Replace("/", "\\").Trim('\\');
+        return $"{normalizedPath}\\{fileName}";
     }
 }
