@@ -5,6 +5,7 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataCustomerContact30Service;
+using Newtonsoft.Json;
 
 namespace Apps.Plunet.Actions;
 
@@ -61,9 +62,14 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
     [Action("Create contact", Description = "Create a new contact in Plunet")]
     public async Task<ContactObjectResponse> CreateContact([ActionParameter] CreateContactRequest request)
     {
+        InvocationContext.Logger?.LogInformation(
+            "[Plunet CreateContact] Starting contact creation. Request: " +
+            JsonConvert.SerializeObject(request, Formatting.Indented),
+            []);
+
         ContactClient.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
         ContactClient.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(5);
-        var contactIdResult =  await ExecuteWithRetry(() => ContactClient.insert2Async(Uuid, new()
+        var payload = new CustomerContactIN
         {
             customerID = ParseId(request.CustomerId),
             name1 = request.LastName ?? string.Empty,
@@ -79,9 +85,40 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
             supervisor1 = request.Supervisor1 ?? string.Empty,
             supervisor2 = request.Supervisor2 ?? string.Empty,
             status = ParseId(request.Status, 0)
-        }));
+        };
 
-        return await GetContactById(new ContactRequest { ContactId = contactIdResult.ToString()});
+        InvocationContext.Logger?.LogInformation(
+            "[Plunet CreateContact] Payload prepared: " +
+            JsonConvert.SerializeObject(payload, Formatting.Indented),
+            []);
+
+        int contactIdResult;
+        try
+        {
+            contactIdResult = await ExecuteWithRetry(() => ContactClient.insert2Async(Uuid, payload));
+        }
+        catch (Exception ex)
+        {
+            InvocationContext.Logger?.LogError(
+                "[Plunet CreateContact] Error while creating contact via insert2Async. Payload: " +
+                JsonConvert.SerializeObject(payload, Formatting.Indented) +
+                ". Error: " + ex.Message,
+                []);
+            throw;
+        }
+
+        InvocationContext.Logger?.LogInformation(
+            "[Plunet CreateContact] Contact created in Plunet. Returned contact ID: " + contactIdResult,
+            []);
+
+        var createdContact = await GetContactById(new ContactRequest { ContactId = contactIdResult.ToString()});
+
+        InvocationContext.Logger?.LogInformation(
+            "[Plunet CreateContact] Retrieved created contact from Plunet: " +
+            JsonConvert.SerializeObject(createdContact, Formatting.Indented),
+            []);
+
+        return createdContact;
     }
 
     [Action("Update contact", Description = "Update Plunet contact")]

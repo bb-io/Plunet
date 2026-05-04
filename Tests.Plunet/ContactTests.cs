@@ -31,6 +31,7 @@ public class ContactTests : TestBase
             Email = "art@gmail.com",
             Phone = "+4112341111123411",
             MobilePhone = "<!& @6828fce71367962e &>",
+            Status="0"
         });
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         Assert.IsNotNull(result);
