@@ -157,6 +157,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             JobId = jobViewResponse.jobID.ToString(),
             ResourceId = jobViewResponse.resourceID.ToString(),
             JobType = jobViewResponse.jobTypeFull,
+            JobTypeShort = jobViewResponse.jobTypeShort,
             StartDate = jobViewResponse.startDateSpecified ? jobViewResponse.startDate : null,
             Status = jobViewResponse.status.ToString(),
             TotalPrice = jobMetricsResponse.totalPrice,

@@ -53,7 +53,7 @@ public class JobHooks : PlunetWebhookList<JobResponse>
         {
             return await Actions.GetJob(new GetJobRequest { JobId = id, ProjectType = projectType });
         }
-        catch (Exception e)
+        catch (Exception)
         {
             InvocationContext.Logger?.LogError($"[JobHooks] Error getting job with ID {id} and ProjectType {projectType}. Request: {doc}", []);
             throw;
@@ -73,10 +73,9 @@ public class JobHooks : PlunetWebhookList<JobResponse>
     public Task<WebhookResponse<JobResponse>> JobStatusChanged(WebhookRequest webhookRequest, 
         [WebhookParameter] NewStatusesOptionalRequest newStatusRequest,
         [WebhookParameter] GetJobOptionalRequest request,
-        [WebhookParameter] JobTypeOptionRequest jobtype) => HandleWebhook(webhookRequest, job => (newStatusRequest.Statuses == null || !newStatusRequest.Statuses.Any() || newStatusRequest.Statuses.Contains(job.Status))
-                                            && (request.JobId == null || request.JobId == job.JobId)
-                                            && (jobtype.JobType == null || jobtype.JobType == job.JobType));
-
+        [WebhookParameter] JobTypeOptionRequest jobtype) 
+        => HandleWebhook(webhookRequest, job 
+            => ShouldTriggerJobStatusChanged(job, newStatusRequest, request, jobtype));
 
     [Webhook("On job delivery date changed", typeof(JobDeliveryDateChangedEventHandler),
         Description = "Triggered when a job delivery date is changed")]
@@ -89,4 +88,36 @@ public class JobHooks : PlunetWebhookList<JobResponse>
     public Task<WebhookResponse<JobResponse>> JobStartDateChanged(WebhookRequest webhookRequest,
         [WebhookParameter] GetJobOptionalRequest request)
         => HandleWebhook(webhookRequest, job => request.JobId == null || request.JobId == job.JobId);
+
+    private static bool ShouldTriggerJobStatusChanged(
+        JobResponse job,
+        NewStatusesOptionalRequest newStatusRequest,
+        GetJobOptionalRequest request,
+        JobTypeOptionRequest jobtype)
+        => (newStatusRequest.Statuses == null || !newStatusRequest.Statuses.Any() || newStatusRequest.Statuses.Contains(job.Status))
+           && (request.JobId == null || request.JobId == job.JobId)
+           && MatchesJobType(jobtype.JobType, job);
+
+    private static bool MatchesJobType(string? configuredJobType, JobResponse job)
+    {
+        if (string.IsNullOrWhiteSpace(configuredJobType))
+        {
+            return true;
+        }
+
+        var filter = configuredJobType.Trim();
+        return IsSameJobType(filter, job.JobType) || IsSameJobType(filter, job.JobTypeShort);
+    }
+
+    private static bool IsSameJobType(string filter, string? jobType)
+    {
+        if (string.IsNullOrWhiteSpace(jobType))
+        {
+            return false;
+        }
+
+        var normalizedJobType = jobType.Trim();
+        return string.Equals(filter, normalizedJobType, StringComparison.OrdinalIgnoreCase)
+               || normalizedJobType.StartsWith($"{filter} |", StringComparison.OrdinalIgnoreCase);
+    }
 }
