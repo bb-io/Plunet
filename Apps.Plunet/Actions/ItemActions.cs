@@ -337,14 +337,19 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     [Action("Create item priceline", Description = "Add a new priceline to an item")]
     public async Task<PricelineResponse> CreateItemPriceline([ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest item, [ActionParameter] ItemPriceUnitRequest unit,
-        [ActionParameter] PricelineRequest input)
+        [ActionParameter] ItemPricelineRequest input)
     {
+        var projectType = ParseId(project.ProjectType);
+        var itemId = ParseId(item.ItemId);
+        var priceUnitId = ParseId(unit.PriceUnit);
+        var unitPrice = input.UnitPrice ?? await ResolveItemUnitPriceAsync(projectType, itemId, priceUnitId);
+
         var pricelineIn = new PriceLineIN
         {
             amount = input.Amount,
-            unit_price = input.UnitPrice,
+            unit_price = unitPrice,
             memo = input.Memo ?? string.Empty,
-            priceUnitID = ParseId(unit.PriceUnit),
+            priceUnitID = priceUnitId,
         };
 
         if (input.AmountPerUnit.HasValue)
@@ -356,12 +361,12 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (!string.IsNullOrEmpty(input.TaxType))
             pricelineIn.taxType = int.Parse(input.TaxType);
 
-        var response = await ExecuteWithRetryAcceptNull(() => ItemClient.insertPriceLineAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType), pricelineIn, false));
+        var response = await ExecuteWithRetryAcceptNull(() => ItemClient.insertPriceLineAsync(Uuid, itemId, projectType, pricelineIn, false));
         if (response == null)
         {
             throw new PluginApplicationException("Failed to insert priceline: API returned null. Please check your input and try again");
         }
-        var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, int.Parse(unit.PriceUnit), Language));
+        var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, priceUnitId, Language));
 
         return CreatePricelineResponse(response, priceUnit);
     }
@@ -376,14 +381,19 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     [Action("Update item priceline", Description = "Update an existing item priceline")]
     public async Task<PricelineResponse> UpdateItemPriceline([ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest item, [ActionParameter] ItemPriceUnitRequest unit,
-        [ActionParameter] PricelineIdRequest line, [ActionParameter] PricelineRequest input)
+        [ActionParameter] PricelineIdRequest line, [ActionParameter] ItemPricelineRequest input)
     {
+        var projectType = ParseId(project.ProjectType);
+        var itemId = ParseId(item.ItemId);
+        var priceUnitId = ParseId(unit.PriceUnit);
+        var unitPrice = input.UnitPrice ?? await ResolveItemUnitPriceAsync(projectType, itemId, priceUnitId);
+
         var pricelineIn = new PriceLineIN
         {
             amount = input.Amount,
-            unit_price = input.UnitPrice,
+            unit_price = unitPrice,
             memo = input.Memo ?? string.Empty,
-            priceUnitID = ParseId(unit.PriceUnit),
+            priceUnitID = priceUnitId,
             priceLineID = ParseId(line.Id),
         };
 
@@ -396,10 +406,51 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (!string.IsNullOrEmpty(input.TaxType))
             pricelineIn.taxType = int.Parse(input.TaxType);
 
-        var response = await ExecuteWithRetryAcceptNull(() => ItemClient.updatePriceLineAsync(Uuid, ParseId(item.ItemId), ParseId(project.ProjectType), pricelineIn));
+        var response = await ExecuteWithRetryAcceptNull(() => ItemClient.updatePriceLineAsync(Uuid, itemId, projectType, pricelineIn));
 
-        var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, int.Parse(unit.PriceUnit), Language));
+        var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, priceUnitId, Language));
         return CreatePricelineResponse(response, priceUnit);
+    }
+
+    private async Task<double> ResolveItemUnitPriceAsync(int projectType, int itemId, int priceUnitId)
+    {
+        var itemObject = await ExecuteWithRetry(() => ItemClient.getItemObjectAsync(Uuid, projectType, itemId));
+        Blackbird.Plugins.Plunet.DataItem30Service.Pricelist pricelist;
+        try
+        {
+            pricelist = await ExecuteWithRetry(() => ItemClient.getPricelistAsync(Uuid, itemId, projectType));
+        }
+        catch (PluginApplicationException)
+        {
+            throw new PluginApplicationException("Unable to resolve unit price because the item does not have an assigned pricelist.");
+        }
+
+        var pricelistEntries = await ExecuteWithRetryAcceptNull(() => ItemClient.getPricelistEntry_ListAsync(
+            Uuid,
+            pricelist.pricelistID,
+            itemObject.sourceLanguage ?? string.Empty,
+            itemObject.targetLanguage ?? string.Empty));
+
+        if (pricelistEntries == null || !pricelistEntries.Any())
+        {
+            throw new PluginApplicationException("Unable to resolve unit price because no pricelist entries were found for the item.");
+        }
+
+        var matchingEntries = pricelistEntries
+            .Where(entry => entry.priceUnitID == priceUnitId)
+            .ToArray();
+
+        if (matchingEntries.Length == 0)
+        {
+            throw new PluginApplicationException("Unable to resolve unit price because the item's pricelist does not contain an entry for the selected price unit.");
+        }
+
+        if (matchingEntries.Length > 1)
+        {
+            throw new PluginApplicationException("Unable to resolve unit price because multiple pricelist entries match the selected price unit. Provide Unit price explicitly.");
+        }
+
+        return matchingEntries[0].pricePerUnit;
     }
 
     private PricelineResponse CreatePricelineResponse(PriceLine line, PriceUnit? unit)

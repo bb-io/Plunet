@@ -13,6 +13,7 @@ using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataJob30Service;
 using Blackbird.Plugins.Plunet.DataResource30Service;
+using Blackbird.Plugins.Plunet.DataQualityManager30;
 using DataJobRound30Service;
 
 namespace Apps.Plunet.Actions;
@@ -549,9 +550,90 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
     public async Task<JobFeedbackResponse> GetJobFeedback([ActionParameter] GetJobRequest job)
     {
         var feedback = await ExecuteWithRetry(() => QualityManagerClient.getJobFeedbackAsync(Uuid, ParseId(job.JobId)));
+        return await BuildJobFeedbackResponse(feedback);
+    }
 
+    [Action("Set job feedback", Description = "Create or update feedback for a specific job")]
+    public async Task<JobFeedbackResponse> SetJobFeedback([ActionParameter] SendJobFeedbackRequest job,
+        [ActionParameter] SetJobFeedbackRequest input)
+    {
+        var ratings = BuildJobFeedbackRatings(input);
+
+        var feedback = new jobQualityIN
+        {
+            actionForUnfulfilledKOCriterion = input.ActionForUnfulfilledKoCriterion,
+            commentary = input.Commentary,
+            externalEditorUserID = input.ExternalEditorUserId,
+            jobID = ParseId(job.JobId),
+            jobQualityRatingClosed = input.IsJobQualityRatingClosed ?? false,
+            ratingList = ratings
+        };
+
+        await ExecuteWithRetry(() => QualityManagerClient.setJobFeedbackAsync(Uuid, feedback));
+        var updatedFeedback = await ExecuteWithRetry(() => QualityManagerClient.getJobFeedbackAsync(Uuid, ParseId(job.JobId)));
+
+        return await BuildJobFeedbackResponse(updatedFeedback);
+    }
+
+    [Action("Send job feedback", Description = "Send feedback for a specific job")]
+    public async Task SendJobFeedback([ActionParameter] SendJobFeedbackRequest job)
+    {
+        await ExecuteWithRetry(() => QualityManagerClient.sendJobFeedbackAsync(Uuid, ParseId(job.JobId)));
+    }
+
+    private JobQualityRating[]? BuildJobFeedbackRatings(SetJobFeedbackRequest input)
+    {
+        var criterionIds = input.CriterionIds?.ToList();
+        if (criterionIds == null || criterionIds.Count == 0)
+        {
+            return null;
+        }
+
+        var criticalAmounts = input.CriticalAmounts?.ToList() ?? [];
+        var hardAmounts = input.HardAmounts?.ToList() ?? [];
+        var minorAmounts = input.MinorAmounts?.ToList() ?? [];
+        var ratings = input.Ratings?.ToList() ?? [];
+
+        ValidateFeedbackInputLengths(criterionIds.Count, criticalAmounts.Count, hardAmounts.Count,
+            minorAmounts.Count, ratings.Count);
+
+        return criterionIds.Select((criterionId, index) => new JobQualityRating
+        {
+            criterionID = ParseId(criterionId),
+            lisaRating = new LISARating
+            {
+                amount_critical = criticalAmounts.ElementAtOrDefault(index),
+                amount_hard = hardAmounts.ElementAtOrDefault(index),
+                amount_minor = minorAmounts.ElementAtOrDefault(index)
+            },
+            rating = ratings.ElementAtOrDefault(index)
+        }).ToArray();
+    }
+
+    private static void ValidateFeedbackInputLengths(int criterionCount, int criticalCount, int hardCount,
+        int minorCount, int ratingCount)
+    {
+        var lengths = new Dictionary<string, int>
+        {
+            { "criterion IDs", criterionCount },
+            { "critical amounts", criticalCount },
+            { "hard amounts", hardCount },
+            { "minor amounts", minorCount },
+            { "ratings", ratingCount }
+        };
+
+        var invalidLengths = lengths.Where(x => x.Value != 0 && x.Value != criterionCount).ToList();
+        if (invalidLengths.Any())
+        {
+            throw new PluginMisconfigurationException(
+                "Feedback rating inputs must have the same number of entries as criterion IDs.");
+        }
+    }
+
+    private async Task<JobFeedbackResponse> BuildJobFeedbackResponse(JobQuality feedback)
+    {
         var ScoreList = new List<qualityScore>();
-        if (feedback.ratingList.Count() > 0)
+        if (feedback.ratingList?.Any() == true)
         {
             var criteria = await AdminClient.getJobFeedbackCriteriaAsync(Uuid);
 
@@ -576,12 +658,12 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             ModifiedAt = feedback.modifiedAt,
             Rating = feedback.rating,
             IsJobQualityRatingClosed = feedback.jobQualityRatingClosed,
+            ActionForUnfulfilledKoCriterion = feedback.actionForUnfulfilledKOCriterion,
             Commentary = feedback.commentary,
             JobID = feedback.jobID.ToString(),
             SubScores = ScoreList
-            
         };
-                
+
         return result;
     }
 

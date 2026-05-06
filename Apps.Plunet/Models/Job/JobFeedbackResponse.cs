@@ -4,7 +4,6 @@ namespace Apps.Plunet.Models.Job
 {
     public class JobFeedbackResponse
     {
-
         [Display("Job ID")]
         public string JobID { get; set; }
 
@@ -18,6 +17,9 @@ namespace Apps.Plunet.Models.Job
 
         [Display("Is job quality rating closed")]
         public bool IsJobQualityRatingClosed { get; set; }
+
+        [Display("Action for unfulfilled KO criterion")]
+        public string? ActionForUnfulfilledKoCriterion { get; set; }
 
         public string? Commentary { get; set; }
 
