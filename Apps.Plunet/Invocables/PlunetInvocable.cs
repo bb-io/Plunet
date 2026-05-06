@@ -568,6 +568,8 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay))!.data;
 
     // Quality Manager service
+    protected async Task ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataQualityManager30.Result>> func, int maxRetries = 10, int delay = 1000)
+        => await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
     protected async Task<JobQuality> ExecuteWithRetry(Func<Task<JobQualityResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<JobQuality?> ExecuteWithRetryAcceptNull(Func<Task<JobQualityResult>> func, int maxRetries = 10, int delay = 1000)

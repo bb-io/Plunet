@@ -103,6 +103,8 @@ Note that when creating/updating items, the source and target languages can be s
 - **Update job priceline**
 - **Get job rounds**
 - **Get job feedback**
+- **Set job feedback**
+- **Send job feedback**
 - **Get item independent jobs**
 - **Upload CAT report to job**
 
