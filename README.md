@@ -216,6 +216,8 @@ We set this limit to prevent issues that can arise from executing multiple paral
 
 All webhooks return all data for the entity they were invoked on. All _status changed_ events have an optional input field _new status_ which can be used to differentiate the new status after the event.
 
+> Note: Plunet does not support removing a single callback listener. When a bird is deleted or suspended, Blackbird checks existing listeners, deletes all registered callbacks, and then re-subscribes the remaining listeners. If another system or cleanup process deletes callback listeners broadly, it may also remove Blackbird's listener and require the webhook subscription to be re-added by supending and then publishing bird again.
+
 ### Customers
 
 - **On customer deleted**
