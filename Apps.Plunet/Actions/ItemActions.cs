@@ -407,13 +407,17 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             pricelineIn.taxType = int.Parse(input.TaxType);
 
         var response = await ExecuteWithRetryAcceptNull(() => ItemClient.updatePriceLineAsync(Uuid, itemId, projectType, pricelineIn));
+        if (response == null)
+        {
+            throw new PluginApplicationException("Failed to update priceline: API returned null. Please check your input and try again");
+        }
 
         var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, priceUnitId, Language));
         return CreatePricelineResponse(response, priceUnit);
     }
 
-    [Action("Apply price from pricelist", Description = "Apply the matching price from the item's assigned pricelist to an existing priceline")]
-    public async Task<PricelineResponse> ApplyPriceFromPricelist(
+    [Action("Get unit price from pricelist", Description = "Get the matching unit price from the item's assigned pricelist for an existing priceline")]
+    public async Task<PricelistUnitPriceResponse> GetUnitPriceFromPricelist(
         [ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest item,
         [ActionParameter] PricelineIdRequest line)
@@ -430,37 +434,33 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             throw new PluginApplicationException("The requested priceline could not be found on the item.");
         }
 
-        var resolvedUnitPrice = await ResolveItemUnitPriceAsync(
+        var resolvedEntry = await ResolveItemPricelistEntryAsync(
             projectType,
             itemId,
             existingPriceLine.priceUnitID,
             existingPriceLine.amount_perUnit);
 
-        var updatedPriceLine = new PriceLineIN
+        var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, existingPriceLine.priceUnitID, Language));
+
+        return new PricelistUnitPriceResponse
         {
-            amount = existingPriceLine.amount,
-            amount_perUnit = existingPriceLine.amount_perUnit,
-            memo = existingPriceLine.memo ?? string.Empty,
-            priceLineID = existingPriceLine.priceLineID,
-            priceUnitID = existingPriceLine.priceUnitID,
-            taxType = existingPriceLine.taxType,
-            time_perUnit = existingPriceLine.time_perUnit,
-            unit_price = resolvedUnitPrice
+            UnitPrice = resolvedEntry.Entry.pricePerUnit,
+            AmountPerUnit = resolvedEntry.Entry.amountPerUnit,
+            PriceUnitId = existingPriceLine.priceUnitID.ToString(),
+            PriceUnitDescription = priceUnit?.description ?? string.Empty,
+            PriceUnitService = priceUnit?.service ?? string.Empty,
+            PricelistId = resolvedEntry.Pricelist.pricelistID.ToString(),
+            PricelineId = existingPriceLine.priceLineID.ToString()
         };
-
-        var response = await ExecuteWithRetryAcceptNull(() => ItemClient.updatePriceLineAsync(Uuid, itemId, projectType, updatedPriceLine));
-        if (response == null)
-        {
-            throw new PluginApplicationException("Failed to apply the pricelist price because the priceline update returned null.");
-        }
-
-        await ExecuteWithRetry(() => ItemClient.updatePricesAsync(Uuid, projectType, itemId));
-
-        var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, response.priceUnitID, Language));
-        return CreatePricelineResponse(response, priceUnit);
     }
 
     private async Task<double> ResolveItemUnitPriceAsync(int projectType, int itemId, int priceUnitId, double? amountPerUnit = null)
+    {
+        var resolvedEntry = await ResolveItemPricelistEntryAsync(projectType, itemId, priceUnitId, amountPerUnit);
+        return resolvedEntry.Entry.pricePerUnit;
+    }
+
+    private async Task<(Blackbird.Plugins.Plunet.DataItem30Service.PricelistEntry Entry, Blackbird.Plugins.Plunet.DataItem30Service.Pricelist Pricelist)> ResolveItemPricelistEntryAsync(int projectType, int itemId, int priceUnitId, double? amountPerUnit = null)
     {
         var itemObject = await ExecuteWithRetry(() => ItemClient.getItemObjectAsync(Uuid, projectType, itemId));
         Blackbird.Plugins.Plunet.DataItem30Service.Pricelist pricelist;
@@ -501,7 +501,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
             if (amountMatches.Length == 1)
             {
-                return amountMatches[0].pricePerUnit;
+                return (amountMatches[0], pricelist);
             }
 
             if (amountMatches.Length > 1)
@@ -515,7 +515,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
             throw new PluginApplicationException("Unable to resolve unit price because multiple pricelist entries match the selected price unit. Provide Amount per unit or Unit price explicitly.");
         }
 
-        return matchingEntries[0].pricePerUnit;
+        return (matchingEntries[0], pricelist);
     }
 
     private PricelineResponse CreatePricelineResponse(PriceLine line, PriceUnit? unit)
