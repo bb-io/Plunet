@@ -1,6 +1,7 @@
 ﻿using Apps.Plunet.Actions;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Item;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Newtonsoft.Json;
 using Tests.Plunet.Base;
 
@@ -134,7 +135,7 @@ public class ItemTests : TestBase
         var actions = new ItemActions(InvocationContext);
 
         var result = await actions.CreateItemPriceline(new ProjectTypeRequest { ProjectType = "3" }, new GetItemRequest {ItemId= "43" }, new ItemPriceUnitRequest { Service= "Translation" ,PriceUnit="62"  },
-            new PricelineRequest { Amount=155, UnitPrice=155, TaxType="3" });
+            new ItemPricelineRequest { Amount=155, UnitPrice=155, TaxType="3" });
 
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
         Console.WriteLine(json);
@@ -146,11 +147,40 @@ public class ItemTests : TestBase
     {
         var actions = new ItemActions(InvocationContext);
 
-        var result = await actions.UpdateItemPriceline(new ProjectTypeRequest { ProjectType = "3" }, new GetItemRequest { ItemId = "43" }, new ItemPriceUnitRequest { Service = "Translation", PriceUnit = "62" },
-            new PricelineIdRequest { Id= "1234" },new PricelineRequest { Amount = 155, UnitPrice = 155, TaxType = "8" });
+        var result = await actions.UpdateItemPriceline(new ProjectTypeRequest { ProjectType = "1" }, new GetItemRequest { ItemId = "37" }, new ItemPriceUnitRequest { Service = "Calculate job due dates", PriceUnit = "113" },
+            new PricelineIdRequest { Id= "68" },new ItemPricelineRequest { Amount = 10 });
 
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
         Console.WriteLine(json);
         Assert.IsTrue(true);
+    }
+
+    [TestMethod]
+    public async Task Get_item_pricelines_works()
+    {
+        var actions = new ItemActions(InvocationContext);
+
+        var result = await actions.GetItemPricelines(
+            new ProjectTypeRequest { ProjectType = "1" },
+            new GetItemRequest { ItemId = "36" });
+
+        var json = JsonConvert.SerializeObject(result, Formatting.Indented);
+        Console.WriteLine(json);
+        Assert.IsNotNull(result.Pricelines);
+        Assert.IsTrue(result.Pricelines.Any());
+    }
+
+    [TestMethod]
+    public async Task Get_unit_price_from_pricelist_works()
+    {
+        var actions = new ItemActions(InvocationContext);
+
+        var result = await actions.GetUnitPriceFromPricelist(
+                new ProjectTypeRequest { ProjectType = "1" },
+                new GetItemRequest { ItemId = "37" },
+                new PricelineIdRequest { Id = "68" });
+
+        Console.WriteLine(Newtonsoft.Json.JsonConvert.SerializeObject(result));
+        Assert.IsTrue(result.UnitPrice > 0);
     }
 }
