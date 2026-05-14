@@ -13,14 +13,16 @@ using Apps.Plunet.Models.Job;
 
 namespace Apps.Plunet.Actions;
 
-[ActionList("Documenst")]
+[ActionList("Documents")]
 public class DocumentActions(InvocationContext invocationContext, IFileManagementClient fileManagementClient)
     : PlunetInvocable(invocationContext)
 {
     [Action("Upload file", Description = "Upload a file to an entity")]
     public async Task UploadFile([ActionParameter] UploadDocumentRequest request)
     {
-        var fileBytes = fileManagementClient.DownloadAsync(request.File).Result.GetByteData().Result;
+        var downloadResponse = await fileManagementClient.DownloadAsync(request.File);
+        var fileBytes = await downloadResponse.GetByteData();
+        
         try
         {
             await ExecuteWithRetry(() => DocumentClient.upload_DocumentAsync(Uuid, ParseId(request.MainId), ParseId(request.FolderType),
@@ -112,7 +114,9 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
     public async Task UploadCatReport([ActionParameter] GetItemRequest item,
         [ActionParameter] UploadCatReportRequest input)
     {
-        var fileBytes = fileManagementClient.DownloadAsync(input.File).Result.GetByteData().Result;
+        var downloadResponse = await fileManagementClient.DownloadAsync(input.File);
+        var fileBytes = await downloadResponse.GetByteData();
+        
         var filePath = BuildFilePath(input.Path, input.File.Name);
         var response = await ExecuteWithRetry(() => ItemClient.setCatReport2Async(Uuid, fileBytes,
             filePath, fileBytes.Length,
@@ -129,7 +133,9 @@ public class DocumentActions(InvocationContext invocationContext, IFileManagemen
     public async Task UploadCatReportJob([ActionParameter] GetJobRequest job,
         [ActionParameter] UploadCatReportToJobRequest input)
     {
-        var fileBytes = fileManagementClient.DownloadAsync(input.File).Result.GetByteData().Result;
+        var downloadResponse = await fileManagementClient.DownloadAsync(input.File);
+        var fileBytes = await downloadResponse.GetByteData();
+        
         var filePath = BuildFilePath(input.Path, input.File.Name);
         var response = await ExecuteWithRetry(() => JobClient.setCatReport2Async(          
             Uuid, fileBytes,

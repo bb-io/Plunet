@@ -89,7 +89,7 @@ public class JobHooks : PlunetWebhookList<JobResponse>
         [WebhookParameter] GetJobOptionalRequest request)
         => HandleWebhook(webhookRequest, job => request.JobId == null || request.JobId == job.JobId);
 
-    private static bool ShouldTriggerJobStatusChanged(
+    public static bool ShouldTriggerJobStatusChanged(
         JobResponse job,
         NewStatusesOptionalRequest newStatusRequest,
         GetJobOptionalRequest request,
