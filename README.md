@@ -13,7 +13,7 @@ Plunet is a translation business management software solution. Its features incl
 Before you can connect you need to make sure that:
 
 - You have a Plunet instance and have sufficient admin rights on this instance.
-- You have a Plunet API user created.
+- You have a Plunet API user created. Plunet API users are a separate Plunet license so ask your Plunet Account Management about testing or buying one.
 
 ## Connecting
 
@@ -33,6 +33,13 @@ If you are unable to connect, please check the following:
 1. The URL should look like `https://plunet-friend.plunet.com`. Without /PlunetAPI at the end.
 2. You must sure that your URL is accessible from the our servers. To check this, you can try to open the URL with '/PlunetAPI?wsdl' at the end in your browser (you should see an XML document that describes the API).
 3. Ensure that you don't have firewall rules that block the connection or whitelist of IP addresses that are allowed to connect to your Plunet instance (or if you do, make sure to whitelist the Blackbird IP addresses).
+
+- For optimal Plunet API performance:
+    - **API Super Lock** – Plunet Support to change the API User to a Super Lock API user to avoid DB locks.
+    - **Table Indexing** – Ask Plunet Support to check / add additional indexing in heavy tables like requests/quotes/orders (anfrage, auftrag angebot) and textmodul table (this could have lead to API timeouts). Also, change the engine of tables to InnoDB. Complaints modul table is not indexed by default (only if you use it).
+    - **Check Memory Allocation** – Ask Plunet Support to check the memory usage as the config can be changed to allocate the memory Tomcat can use.
+    - **Install VisualVM** – Ask Plunet Support to install this as it can allow you to generate thread dumps and look at the Tomcat memory / garbage collect.
+    - **Callbacks** – Ask Plunet Support to check / clean any unneeded callbacks from the DB.
 
 ## Actions
 
