@@ -1,31 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-    <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-		<Product>Plunet</Product>
-		<Description>The right translation management software</Description>
-		<Version>1.10.24</Version>
-		<AssemblyName>Apps.Plunet</AssemblyName>
-    </PropertyGroup>
-    <ItemGroup>
-        <PackageReference Include="Blackbird.Applications.SDK.Blueprints" Version="1.0.1" />
-        <PackageReference Include="Blackbird.Applications.SDK.Extensions.FileManagement" Version="1.1.0" />
-        <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.26" />
-        <PackageReference Include="MimeTypes" Version="2.5.2" PrivateAssets="all" />
-        <PackageReference Include="System.ServiceModel.Duplex" Version="4.10.3" />
-        <PackageReference Include="System.ServiceModel.Federation" Version="4.10.*" />
-        <PackageReference Include="System.ServiceModel.Http" Version="4.10.3" />
-        <PackageReference Include="System.ServiceModel.NetTcp" Version="4.10.3" />
-        <PackageReference Include="System.ServiceModel.Security" Version="4.10.3" />
-    </ItemGroup>
-	<ItemGroup>
-		<EmbeddedResource CopyToOutputDirectory="Always" Include="image\icon.png" />
-	</ItemGroup>
-	<ItemGroup>
-	  <Content Include="..\README.md">
-	    <Link>README.md</Link>
-	  </Content>
-	</ItemGroup>
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Product>Plunet</Product>
+    <Description>The right translation management software</Description>
+    <Version>1.10.25</Version>
+    <AssemblyName>Apps.Plunet</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Blackbird.Applications.SDK.Blueprints" Version="1.0.1" />
+    <PackageReference Include="Blackbird.Applications.SDK.Extensions.FileManagement" Version="1.1.0" />
+    <PackageReference Include="Blackbird.Applications.Sdk.Utils" Version="1.0.26" />
+    <PackageReference Include="MimeTypes" Version="2.5.2" PrivateAssets="all" />
+    <PackageReference Include="System.ServiceModel.Duplex" Version="4.10.3" />
+    <PackageReference Include="System.ServiceModel.Federation" Version="4.10.*" />
+    <PackageReference Include="System.ServiceModel.Http" Version="4.10.3" />
+    <PackageReference Include="System.ServiceModel.NetTcp" Version="4.10.3" />
+    <PackageReference Include="System.ServiceModel.Security" Version="4.10.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource CopyToOutputDirectory="Always" Include="image\icon.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\README.md">
+      <Link>README.md</Link>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="System.ServiceModel.Primitives" Version="8.*" />
+  </ItemGroup>
 </Project>
