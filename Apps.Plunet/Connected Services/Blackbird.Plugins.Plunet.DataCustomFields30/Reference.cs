@@ -286,7 +286,9 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
     {
         
         private string[] availableValuesField;
-        
+
+        private bool customerSpecificField;
+
         private System.DateTime dateValueField;
         
         private bool dateValueFieldSpecified;
@@ -294,7 +296,9 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         private string flagField;
         
         private string flag_MainTextModuleField;
-        
+
+        private bool jobTypeSpecificField;
+
         private string[] selectedValuesField;
         
         private string stringValueField;
@@ -319,6 +323,20 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
+        public bool customerSpecific
+        {
+            get
+            {
+                return this.customerSpecificField;
+            }
+            set
+            {
+                this.customerSpecificField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
         public System.DateTime dateValue
         {
             get
@@ -346,7 +364,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
         public string flag
         {
             get
@@ -360,7 +378,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=4)]
         public string flag_MainTextModule
         {
             get
@@ -372,9 +390,23 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
                 this.flag_MainTextModuleField = value;
             }
         }
-        
+
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("selectedValues", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=5)]
+        public bool jobTypeSpecific
+        {
+            get
+            {
+                return this.jobTypeSpecificField;
+            }
+            set
+            {
+                this.jobTypeSpecificField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlElementAttribute("selectedValues", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=6)]
         public string[] selectedValues
         {
             get
@@ -388,7 +420,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=5)]
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=7)]
         public string stringValue
         {
             get
@@ -402,7 +434,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=6)]
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=8)]
         public string textModuleLabel
         {
             get
@@ -416,7 +448,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=7)]
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=9)]
         public int textModuleType
         {
             get
