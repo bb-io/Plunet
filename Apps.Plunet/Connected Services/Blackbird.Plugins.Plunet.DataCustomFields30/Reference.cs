@@ -11,7 +11,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
 {
     
     
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ServiceModel.ServiceContractAttribute(Namespace="http://API.Integration/", ConfigurationName="Blackbird.Plugins.Plunet.DataCustomFields30.DataCustomFields30")]
     public interface DataCustomFields30
     {
@@ -21,6 +21,11 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         [return: System.ServiceModel.MessageParameterAttribute(Name="PropertyResult")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataCustomFields30.PropertyResult> getPropertyAsync(string UUID, string PropertyNameEnglish, int PropertyUsageArea, int MainID);
         
+        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataCustomFields30/setPropertyValueRequest", ReplyAction="http://API.Integration/DataCustomFields30/setPropertyValueResponse")]
+        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
+        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
+        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataCustomFields30.Result> setPropertyValueAsync(string UUID, string PropertyNameEnglish, int PropertyUsageArea, int PropertyValueID, int MainID);
+        
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataCustomFields30/setPropertyValueListRequest", ReplyAction="http://API.Integration/DataCustomFields30/setPropertyValueListResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(SupportFaults=true)]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataCustomFields30.setPropertyValueListResponse> setPropertyValueListAsync(Blackbird.Plugins.Plunet.DataCustomFields30.setPropertyValueListRequest request);
@@ -29,11 +34,6 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
         [return: System.ServiceModel.MessageParameterAttribute(Name="StringResult")]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataCustomFields30.StringResult> getPropertyValueTextAsync(string UUID, string PropertyNameEnglish, int PropertyValueID, string languageCode);
-        
-        [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataCustomFields30/setPropertyValueRequest", ReplyAction="http://API.Integration/DataCustomFields30/setPropertyValueResponse")]
-        [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
-        [return: System.ServiceModel.MessageParameterAttribute(Name="Result")]
-        System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataCustomFields30.Result> setPropertyValueAsync(string UUID, string PropertyNameEnglish, int PropertyUsageArea, int PropertyValueID, int MainID);
         
         [System.ServiceModel.OperationContractAttribute(Action="http://API.Integration/DataCustomFields30/setTextmoduleRequest", ReplyAction="http://API.Integration/DataCustomFields30/setTextmoduleResponse")]
         [System.ServiceModel.XmlSerializerFormatAttribute(Style=System.ServiceModel.OperationFormatStyle.Rpc, SupportFaults=true)]
@@ -47,7 +47,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class PropertyResult : Result
@@ -71,7 +71,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class Property
@@ -175,7 +175,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class TextmoduleIN
@@ -279,15 +279,13 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class Textmodule
     {
         
         private string[] availableValuesField;
-        
-        private bool customerSpecificField;
         
         private System.DateTime dateValueField;
         
@@ -296,8 +294,6 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         private string flagField;
         
         private string flag_MainTextModuleField;
-        
-        private bool jobTypeSpecificField;
         
         private string[] selectedValuesField;
         
@@ -323,20 +319,6 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         
         /// <remarks/>
         [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=1)]
-        public bool customerSpecific
-        {
-            get
-            {
-                return this.customerSpecificField;
-            }
-            set
-            {
-                this.customerSpecificField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
         public System.DateTime dateValue
         {
             get
@@ -364,7 +346,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=2)]
         public string flag
         {
             get
@@ -378,7 +360,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=4)]
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=3)]
         public string flag_MainTextModule
         {
             get
@@ -392,21 +374,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=5)]
-        public bool jobTypeSpecific
-        {
-            get
-            {
-                return this.jobTypeSpecificField;
-            }
-            set
-            {
-                this.jobTypeSpecificField = value;
-            }
-        }
-        
-        /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute("selectedValues", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=6)]
+        [System.Xml.Serialization.XmlElementAttribute("selectedValues", Form=System.Xml.Schema.XmlSchemaForm.Unqualified, IsNullable=true, Order=4)]
         public string[] selectedValues
         {
             get
@@ -420,7 +388,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=7)]
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=5)]
         public string stringValue
         {
             get
@@ -434,7 +402,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=8)]
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=6)]
         public string textModuleLabel
         {
             get
@@ -448,7 +416,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         }
         
         /// <remarks/>
-        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=9)]
+        [System.Xml.Serialization.XmlElementAttribute(Form=System.Xml.Schema.XmlSchemaForm.Unqualified, Order=7)]
         public int textModuleType
         {
             get
@@ -466,7 +434,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(PropertyResult))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(StringResult))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(TextmoduleResult))]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class Result
@@ -538,7 +506,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class StringResult : Result
@@ -562,7 +530,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
     }
     
     /// <remarks/>
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.Diagnostics.DebuggerStepThroughAttribute()]
     [System.Xml.Serialization.XmlTypeAttribute(Namespace="http://API.Integration/")]
     public partial class TextmoduleResult : Result
@@ -586,7 +554,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(WrapperName="setPropertyValueList", WrapperNamespace="http://API.Integration/", IsWrapped=true)]
     public partial class setPropertyValueListRequest
@@ -624,7 +592,7 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
     [System.ServiceModel.MessageContractAttribute(WrapperName="setPropertyValueListResponse", WrapperNamespace="http://API.Integration/", IsWrapped=true)]
     public partial class setPropertyValueListResponse
@@ -643,13 +611,13 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         }
     }
     
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     public interface DataCustomFields30Channel : Blackbird.Plugins.Plunet.DataCustomFields30.DataCustomFields30, System.ServiceModel.IClientChannel
     {
     }
     
     [System.Diagnostics.DebuggerStepThroughAttribute()]
-    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "8.0.0")]
+    [System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.Tools.ServiceModel.Svcutil", "2.1.0")]
     public partial class DataCustomFields30Client : System.ServiceModel.ClientBase<Blackbird.Plugins.Plunet.DataCustomFields30.DataCustomFields30>, Blackbird.Plugins.Plunet.DataCustomFields30.DataCustomFields30
     {
         
@@ -698,6 +666,11 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
             return base.Channel.getPropertyAsync(UUID, PropertyNameEnglish, PropertyUsageArea, MainID);
         }
         
+        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataCustomFields30.Result> setPropertyValueAsync(string UUID, string PropertyNameEnglish, int PropertyUsageArea, int PropertyValueID, int MainID)
+        {
+            return base.Channel.setPropertyValueAsync(UUID, PropertyNameEnglish, PropertyUsageArea, PropertyValueID, MainID);
+        }
+        
         [System.ComponentModel.EditorBrowsableAttribute(System.ComponentModel.EditorBrowsableState.Advanced)]
         System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataCustomFields30.setPropertyValueListResponse> Blackbird.Plugins.Plunet.DataCustomFields30.DataCustomFields30.setPropertyValueListAsync(Blackbird.Plugins.Plunet.DataCustomFields30.setPropertyValueListRequest request)
         {
@@ -720,11 +693,6 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
             return base.Channel.getPropertyValueTextAsync(UUID, PropertyNameEnglish, PropertyValueID, languageCode);
         }
         
-        public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataCustomFields30.Result> setPropertyValueAsync(string UUID, string PropertyNameEnglish, int PropertyUsageArea, int PropertyValueID, int MainID)
-        {
-            return base.Channel.setPropertyValueAsync(UUID, PropertyNameEnglish, PropertyUsageArea, PropertyValueID, MainID);
-        }
-        
         public System.Threading.Tasks.Task<Blackbird.Plugins.Plunet.DataCustomFields30.Result> setTextmoduleAsync(string UUID, Blackbird.Plugins.Plunet.DataCustomFields30.TextmoduleIN TextmoduleIN, int ID, string languageCode)
         {
             return base.Channel.setTextmoduleAsync(UUID, TextmoduleIN, ID, languageCode);
@@ -739,13 +707,6 @@ namespace Blackbird.Plugins.Plunet.DataCustomFields30
         {
             return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginOpen(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndOpen));
         }
-        
-        #if !NET6_0_OR_GREATER
-        public virtual System.Threading.Tasks.Task CloseAsync()
-        {
-            return System.Threading.Tasks.Task.Factory.FromAsync(((System.ServiceModel.ICommunicationObject)(this)).BeginClose(null, null), new System.Action<System.IAsyncResult>(((System.ServiceModel.ICommunicationObject)(this)).EndClose));
-        }
-        #endif
         
         private static System.ServiceModel.Channels.Binding GetBindingForEndpoint(EndpointConfiguration endpointConfiguration)
         {
