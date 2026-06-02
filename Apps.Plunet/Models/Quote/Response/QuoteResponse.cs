@@ -51,6 +51,11 @@ public class QuoteResponse
     [Display("Language combinations")]
     public IEnumerable<LanguageCombination> LanguageCombinations { get; set; }
 
+    public QuoteResponse(string quoteId)
+    {
+        QuoteId = quoteId;
+    }
+
     public QuoteResponse(Blackbird.Plugins.Plunet.DataQuote30Service.Quote quote)
     {
         Currency = quote.currency;

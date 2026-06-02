@@ -1,4 +1,4 @@
-﻿using Apps.Plunet.Actions;
+using Apps.Plunet.Actions;
 using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Order;
@@ -27,17 +27,26 @@ public class QuoteHooks(InvocationContext invocationContext) : PlunetWebhookList
 
     protected override async Task<QuoteResponse> GetEntity(XDocument doc)
     {
-        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlIdTagName, StringComparison.OrdinalIgnoreCase))?.Value;
+        var id = ParseId(doc);
         return await Actions.GetQuote(new GetQuoteRequest { QuoteId = id });
     }
 
+    private Task<QuoteResponse> GetEntityIdOnly(XDocument doc)
+        => Task.FromResult(new QuoteResponse(ParseId(doc) ?? string.Empty));
+
+    private string? ParseId(XDocument doc)
+        => doc.Elements().Descendants()
+            .FirstOrDefault(x => x.Name.LocalName.Equals(XmlIdTagName, StringComparison.OrdinalIgnoreCase))?.Value;
+
     [Webhook("On quote deleted", typeof(QuoteDeleteEventHandler), Description = "Triggered when a quote is deleted")]
-    public Task<WebhookResponse<QuoteResponse>> QuoteDeleted(WebhookRequest webhookRequest)
-        => HandleWebhook(webhookRequest, quote => true);
+    public Task<WebhookResponse<QuoteResponse>> QuoteDeleted(WebhookRequest webhookRequest,
+        [WebhookParameter] QuoteWebhookRequest request)
+        => HandleWebhook(webhookRequest, _ => true, PickGetter(request));
 
     [Webhook("On quote created", typeof(QuoteCreatedEventHandler), Description = "Triggered when a quote is created")]
-    public Task<WebhookResponse<QuoteResponse>> QuoteCreated(WebhookRequest webhookRequest)
-        => HandleWebhook(webhookRequest, quote => true);
+    public Task<WebhookResponse<QuoteResponse>> QuoteCreated(WebhookRequest webhookRequest,
+        [WebhookParameter] QuoteWebhookRequest request)
+        => HandleWebhook(webhookRequest, _ => true, PickGetter(request));
 
     [Webhook("On quote status changed", typeof(QuoteChangedEventHandler),
         Description = "Triggered when a quote status is changed")]
@@ -45,10 +54,15 @@ public class QuoteHooks(InvocationContext invocationContext) : PlunetWebhookList
         [WebhookParameter] [Display("Quote status")] [StaticDataSource(typeof(QuoteStatusDataHandler))] string? newStatus,
         [WebhookParameter] [Display("Project category")] string? category,
         [WebhookParameter] [Display("Project status"), StaticDataSource(typeof(ProjectStatusDataHandler))] string? projectStatus,
-        [WebhookParameter] GetQuoteOptionalRequest quoteOptionalRequest)
+        [WebhookParameter] GetQuoteOptionalRequest quoteOptionalRequest,
+        [WebhookParameter] QuoteWebhookRequest request)
         => HandleWebhook(webhookRequest,
-            quote => (newStatus == null || newStatus == quote.Status) &&
-                     (category == null || category == quote.ProjectCategory) && 
-                     (projectStatus == null || projectStatus == quote.ProjectStatus) &&
-                     (quoteOptionalRequest.QuoteId == null || quoteOptionalRequest.QuoteId == quote.QuoteId));
+            quote => (request.ReturnIdOnly == true || (newStatus == null || newStatus == quote.Status)) &&
+                     (request.ReturnIdOnly == true || (category == null || category == quote.ProjectCategory)) &&
+                     (request.ReturnIdOnly == true || (projectStatus == null || projectStatus == quote.ProjectStatus)) &&
+                     (quoteOptionalRequest.QuoteId == null || quoteOptionalRequest.QuoteId == quote.QuoteId),
+            PickGetter(request));
+
+    private Func<XDocument, Task<QuoteResponse>> PickGetter(QuoteWebhookRequest request)
+        => request.ReturnIdOnly == true ? GetEntityIdOnly : GetEntity;
 }
