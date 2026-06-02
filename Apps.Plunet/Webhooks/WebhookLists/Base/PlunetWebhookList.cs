@@ -19,17 +19,20 @@ public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) 
 
     private string WsdlServiceUrl => $"{Creds.GetUrl()}/{ServiceName}";
 
-    protected async Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
+    protected Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
+        => HandleWebhook(webhookRequest, preflightComparisonCheck, GetEntity);
+
+    protected async Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck, Func<XDocument, Task<T>> entityGetter)
     {
-        try 
+        try
         {
-            return webhookRequest.HttpMethod == HttpMethod.Get 
+            return webhookRequest.HttpMethod == HttpMethod.Get
                 ? await GeneratePreflightResponse(webhookRequest)
-                : await GenerateTriggerResponse(webhookRequest, preflightComparisonCheck);
+                : await GenerateTriggerResponse(webhookRequest, preflightComparisonCheck, entityGetter);
         }
         catch (Exception ex)
         {
-            var errorMessage = "[Plunet webhook] Got an error while processing the webhook request. " 
+            var errorMessage = "[Plunet webhook] Got an error while processing the webhook request. "
                 + $"Request method: {webhookRequest.HttpMethod?.Method}"
                 + $"Request body: {webhookRequest.Body}"
                 + $"Service: {ServiceName}"
@@ -41,7 +44,7 @@ public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) 
         }
     }
 
-    private async Task<WebhookResponse<T>> GenerateTriggerResponse(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
+    private async Task<WebhookResponse<T>> GenerateTriggerResponse(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck, Func<XDocument, Task<T>> entityGetter)
     {
         var doc = XDocument.Parse(webhookRequest.Body.ToString() ?? string.Empty);
         var httpResponseMessage = new HttpResponseMessage()
@@ -51,7 +54,7 @@ public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) 
 
         httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Soap);
 
-        var entity = await GetEntity(doc);
+        var entity = await entityGetter(doc);
         return new()
         {
             HttpResponseMessage = httpResponseMessage,
