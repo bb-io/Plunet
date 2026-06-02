@@ -17,9 +17,9 @@ public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) 
 
     protected abstract Task<T> GetEntity(XDocument doc);
 
-    private string WsdlServiceUrl => $"{Creds.GetUrl()}/{ServiceName}";
+    protected string WsdlServiceUrl => $"{Creds.GetUrl()}/{ServiceName}";
 
-    protected async Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
+    protected virtual async Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
     {
         try 
         {
@@ -41,7 +41,7 @@ public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) 
         }
     }
 
-    private async Task<WebhookResponse<T>> GenerateTriggerResponse(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
+    protected virtual async Task<WebhookResponse<T>> GenerateTriggerResponse(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
     {
         var doc = XDocument.Parse(webhookRequest.Body.ToString() ?? string.Empty);
         var httpResponseMessage = new HttpResponseMessage()
