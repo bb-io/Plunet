@@ -27,18 +27,18 @@ public class SetJobFeedbackRequest
     [StaticDataSource(typeof(JobFeedbackRatingDataHandler))]
     public int? Rating { get; set; }
 
-    [Display("Criterion IDs (advanced)")]
+    [Display("Criterion IDs")]
     public IEnumerable<string>? CriterionIds { get; set; }
 
-    [Display("Critical amounts (advanced)")]
+    [Display("Critical amounts")]
     public IEnumerable<double>? CriticalAmounts { get; set; }
 
-    [Display("Hard amounts (advanced)")]
+    [Display("Hard amounts")]
     public IEnumerable<double>? HardAmounts { get; set; }
 
-    [Display("Minor amounts (advanced)")]
+    [Display("Minor amounts")]
     public IEnumerable<double>? MinorAmounts { get; set; }
 
-    [Display("Criterion ratings (advanced)")]
+    [Display("Criterion ratings")]
     public IEnumerable<int>? Ratings { get; set; }
 }

@@ -153,8 +153,10 @@ public class JobTests : TestBase
             },
             new SetJobFeedbackRequest
             {
-                CriterionId = "1",
-                Rating = 1,
+                //CriterionId = "1",
+                CriterionIds = ["1", "2", "9", "10","11"],
+                //Rating = 1,
+                Ratings = [3, 3, 3, 3, 3],
                 Commentary = "Automated test feedback"
             });
 
