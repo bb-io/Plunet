@@ -28,6 +28,7 @@ public class SetJobFeedbackRequest
     public int? Rating { get; set; }
 
     [Display("Criterion IDs")]
+    [DataSource(typeof(JobFeedbackCriteriaDataHandler))]
     public IEnumerable<string>? CriterionIds { get; set; }
 
     [Display("Critical amounts")]
@@ -40,5 +41,6 @@ public class SetJobFeedbackRequest
     public IEnumerable<double>? MinorAmounts { get; set; }
 
     [Display("Criterion ratings")]
+    [StaticDataSource(typeof(JobFeedbackRatingDataHandler))]
     public IEnumerable<int>? Ratings { get; set; }
 }
