@@ -124,4 +124,44 @@ public class JobTests : TestBase
         // Act
         await actions.SelectJobRoundResources(job, round, request);
     }
+
+    [TestMethod]
+    public async Task GetJobCriteria_ReturnsJob()
+    {
+        // Arrange
+        var action = new JobActions(InvocationContext);
+
+        // Act
+        var result = await action.GetJobFeedbackCriteria();
+
+        // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task SetJobFeedback_ReturnsJob()
+    {
+        // Arrange
+        var action = new JobActions(InvocationContext);
+
+        // Act
+        var result = await action.SetJobFeedback(
+            new SendJobFeedbackRequest
+            {
+                JobId = "60"
+            },
+            new SetJobFeedbackRequest
+            {
+                //CriterionId = "1",
+                CriterionIds = ["1", "2", "9", "10","11"],
+                //Rating = 1,
+                Ratings = [3, 3, 3, 3, 3],
+                Commentary = "Automated test feedback"
+            });
+
+        // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        Assert.IsNotNull(result);
+    }
 }
