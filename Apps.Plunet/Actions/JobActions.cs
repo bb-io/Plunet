@@ -554,7 +554,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         return await BuildJobFeedbackResponse(feedback);
     }
 
-    [Action("Get job feedback criteria", Description = "Get available criteria for job feedback ratings")]
+    [Action("Search job feedback criteria", Description = "Get available criteria for job feedback ratings")]
     public async Task<JobFeedbackCriteriaResponse> GetJobFeedbackCriteria()
     {
         var criteria = await AdminClient.getJobFeedbackCriteriaAsync(Uuid);

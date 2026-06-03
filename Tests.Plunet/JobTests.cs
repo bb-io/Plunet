@@ -126,7 +126,7 @@ public class JobTests : TestBase
     }
 
     [TestMethod]
-    public async Task GetJobCriteria_ReturnsJobRounds()
+    public async Task GetJobCriteria_ReturnsJob()
     {
         // Arrange
         var action = new JobActions(InvocationContext);
@@ -140,7 +140,7 @@ public class JobTests : TestBase
     }
 
     [TestMethod]
-    public async Task SetJobFeedback_ReturnsJobRounds()
+    public async Task SetJobFeedback_ReturnsJob()
     {
         // Arrange
         var action = new JobActions(InvocationContext);
