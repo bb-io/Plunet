@@ -6,6 +6,7 @@ using Apps.Plunet.Models.Item;
 using Apps.Plunet.Models.Job;
 using Apps.Plunet.Models.Request.Request;
 using Apps.Plunet.Models.Resource.Response;
+using Apps.Plunet.Utils;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
@@ -553,11 +554,31 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         return await BuildJobFeedbackResponse(feedback);
     }
 
+    [Action("Get job feedback criteria", Description = "Get available criteria for job feedback ratings")]
+    public async Task<JobFeedbackCriteriaResponse> GetJobFeedbackCriteria()
+    {
+        var criteria = await AdminClient.getJobFeedbackCriteriaAsync(Uuid);
+        var criteriaData = criteria.data ?? [];
+
+        return new JobFeedbackCriteriaResponse
+        {
+            Criteria = criteriaData.Select(x => new JobFeedbackCriterionDto
+            {
+                CriterionId = x.id.ToString(),
+                Name = x.label ?? string.Empty,
+                Active = x.active,
+                KoValue = x.koValue,
+                Weighting = x.weighting,
+                Tooltip = x.tooltip ?? string.Empty
+            })
+        };
+    }
+
     [Action("Set job feedback", Description = "Create or update feedback for a specific job")]
     public async Task<JobFeedbackResponse> SetJobFeedback([ActionParameter] SendJobFeedbackRequest job,
         [ActionParameter] SetJobFeedbackRequest input)
     {
-        var ratings = BuildJobFeedbackRatings(input);
+        var ratings = JobFeedbackMapper.BuildRatings(input, value => ParseId(value));
 
         var feedback = new jobQualityIN
         {
@@ -579,55 +600,6 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
     public async Task SendJobFeedback([ActionParameter] SendJobFeedbackRequest job)
     {
         await ExecuteWithRetry(() => QualityManagerClient.sendJobFeedbackAsync(Uuid, ParseId(job.JobId)));
-    }
-
-    private JobQualityRating[]? BuildJobFeedbackRatings(SetJobFeedbackRequest input)
-    {
-        var criterionIds = input.CriterionIds?.ToList();
-        if (criterionIds == null || criterionIds.Count == 0)
-        {
-            return null;
-        }
-
-        var criticalAmounts = input.CriticalAmounts?.ToList() ?? [];
-        var hardAmounts = input.HardAmounts?.ToList() ?? [];
-        var minorAmounts = input.MinorAmounts?.ToList() ?? [];
-        var ratings = input.Ratings?.ToList() ?? [];
-
-        ValidateFeedbackInputLengths(criterionIds.Count, criticalAmounts.Count, hardAmounts.Count,
-            minorAmounts.Count, ratings.Count);
-
-        return criterionIds.Select((criterionId, index) => new JobQualityRating
-        {
-            criterionID = ParseId(criterionId),
-            lisaRating = new LISARating
-            {
-                amount_critical = criticalAmounts.ElementAtOrDefault(index),
-                amount_hard = hardAmounts.ElementAtOrDefault(index),
-                amount_minor = minorAmounts.ElementAtOrDefault(index)
-            },
-            rating = ratings.ElementAtOrDefault(index)
-        }).ToArray();
-    }
-
-    private static void ValidateFeedbackInputLengths(int criterionCount, int criticalCount, int hardCount,
-        int minorCount, int ratingCount)
-    {
-        var lengths = new Dictionary<string, int>
-        {
-            { "criterion IDs", criterionCount },
-            { "critical amounts", criticalCount },
-            { "hard amounts", hardCount },
-            { "minor amounts", minorCount },
-            { "ratings", ratingCount }
-        };
-
-        var invalidLengths = lengths.Where(x => x.Value != 0 && x.Value != criterionCount).ToList();
-        if (invalidLengths.Any())
-        {
-            throw new PluginMisconfigurationException(
-                "Feedback rating inputs must have the same number of entries as criterion IDs.");
-        }
     }
 
     private async Task<JobFeedbackResponse> BuildJobFeedbackResponse(JobQuality feedback)
