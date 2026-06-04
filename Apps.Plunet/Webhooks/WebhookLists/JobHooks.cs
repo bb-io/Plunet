@@ -2,8 +2,6 @@
 using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Job;
-using Apps.Plunet.Models.Quote.Request;
-using Apps.Plunet.Models.Quote.Response;
 using Apps.Plunet.Webhooks.Handlers.Impl.Jobs;
 using Apps.Plunet.Webhooks.Models;
 using Apps.Plunet.Webhooks.WebhookLists.Base;
@@ -42,13 +40,13 @@ public class JobHooks : PlunetWebhookList<JobResponse>
             InvocationContext.Logger?.LogError($"[JobHooks] Could not find {XmlIdTagName} in the webhook request. Request: {doc}", []);
             throw new PluginApplicationException($"Could not find {XmlIdTagName} in the webhook request.");
         }
-        
+
         if(string.IsNullOrEmpty(projectType))
         {
             InvocationContext.Logger?.LogError($"[JobHooks] Could not find {XmlProjectTagName} in the webhook request. Request: {doc}", []);
             throw new PluginApplicationException($"Could not find {XmlProjectTagName} in the webhook request.");
         }
-        
+
         try
         {
             return await Actions.GetJob(new GetJobRequest { JobId = id, ProjectType = projectType });
@@ -60,43 +58,64 @@ public class JobHooks : PlunetWebhookList<JobResponse>
         }
     }
 
+    private Task<JobResponse> GetEntityIdOnly(XDocument doc)
+        => Task.FromResult(new JobResponse(ParseId(doc) ?? string.Empty));
+
+    private string? ParseId(XDocument doc)
+        => doc.Elements().Descendants()
+            .FirstOrDefault(x => x.Name.LocalName.Equals(XmlIdTagName, StringComparison.OrdinalIgnoreCase))?.Value;
+
+    private Func<XDocument, Task<JobResponse>> PickGetter(JobWebhookRequest request)
+        => request.ReturnIdOnly == true ? GetEntityIdOnly : GetEntity;
+
     [Webhook("On job deleted", typeof(JobDeleteEventHandler), Description = "Triggered when a job is deleted")]
-    public Task<WebhookResponse<JobResponse>> JobDeleted(WebhookRequest webhookRequest)
-        => HandleWebhook(webhookRequest, job => true);
+    public Task<WebhookResponse<JobResponse>> JobDeleted(WebhookRequest webhookRequest,
+        [WebhookParameter] JobWebhookRequest request)
+        => HandleWebhook(webhookRequest, _ => true, PickGetter(request));
 
     [Webhook("On job created", typeof(JobCreatedEventHandler), Description = "Triggered when a job is created")]
-    public Task<WebhookResponse<JobResponse>> JobCreated(WebhookRequest webhookRequest)
-        => HandleWebhook(webhookRequest, job => true);
+    public Task<WebhookResponse<JobResponse>> JobCreated(WebhookRequest webhookRequest,
+        [WebhookParameter] JobWebhookRequest request)
+        => HandleWebhook(webhookRequest, _ => true, PickGetter(request));
 
     [Webhook("On job status changed", typeof(JobChangedEventHandler),
         Description = "Triggered when a job status is changed")]
-    public Task<WebhookResponse<JobResponse>> JobStatusChanged(WebhookRequest webhookRequest, 
+    public Task<WebhookResponse<JobResponse>> JobStatusChanged(WebhookRequest webhookRequest,
         [WebhookParameter] NewStatusesOptionalRequest newStatusRequest,
         [WebhookParameter] GetJobOptionalRequest request,
-        [WebhookParameter] JobTypeOptionRequest jobtype) 
-        => HandleWebhook(webhookRequest, job 
-            => ShouldTriggerJobStatusChanged(job, newStatusRequest, request, jobtype));
+        [WebhookParameter] JobTypeOptionRequest jobtype,
+        [WebhookParameter] JobWebhookRequest jobWebhookRequest)
+        => HandleWebhook(webhookRequest,
+            job => ShouldTriggerJobStatusChanged(job, newStatusRequest, request, jobtype, jobWebhookRequest),
+            PickGetter(jobWebhookRequest));
 
     [Webhook("On job delivery date changed", typeof(JobDeliveryDateChangedEventHandler),
         Description = "Triggered when a job delivery date is changed")]
     public Task<WebhookResponse<JobResponse>> JobDeliveryDateChanged(WebhookRequest webhookRequest,
-        [WebhookParameter] GetJobOptionalRequest request)
-        => HandleWebhook(webhookRequest, job => request.JobId == null || request.JobId == job.JobId);
+        [WebhookParameter] GetJobOptionalRequest request,
+        [WebhookParameter] JobWebhookRequest jobWebhookRequest)
+        => HandleWebhook(webhookRequest,
+            job => request.JobId == null || request.JobId == job.JobId,
+            PickGetter(jobWebhookRequest));
 
     [Webhook("On job start date changed", typeof(JobStartDateChangedEventHandler),
         Description = "Triggered when a job start date is changed")]
     public Task<WebhookResponse<JobResponse>> JobStartDateChanged(WebhookRequest webhookRequest,
-        [WebhookParameter] GetJobOptionalRequest request)
-        => HandleWebhook(webhookRequest, job => request.JobId == null || request.JobId == job.JobId);
+        [WebhookParameter] GetJobOptionalRequest request,
+        [WebhookParameter] JobWebhookRequest jobWebhookRequest)
+        => HandleWebhook(webhookRequest,
+            job => request.JobId == null || request.JobId == job.JobId,
+            PickGetter(jobWebhookRequest));
 
     public static bool ShouldTriggerJobStatusChanged(
         JobResponse job,
         NewStatusesOptionalRequest newStatusRequest,
         GetJobOptionalRequest request,
-        JobTypeOptionRequest jobtype)
-        => (newStatusRequest.Statuses == null || !newStatusRequest.Statuses.Any() || newStatusRequest.Statuses.Contains(job.Status))
+        JobTypeOptionRequest jobtype,
+        JobWebhookRequest? jobWebhookRequest = null)
+        => (jobWebhookRequest?.ReturnIdOnly == true || newStatusRequest.Statuses == null || !newStatusRequest.Statuses.Any() || newStatusRequest.Statuses.Contains(job.Status))
            && (request.JobId == null || request.JobId == job.JobId)
-           && MatchesJobType(jobtype.JobType, job);
+           && (jobWebhookRequest?.ReturnIdOnly == true || MatchesJobType(jobtype.JobType, job));
 
     private static bool MatchesJobType(string? configuredJobType, JobResponse job)
     {

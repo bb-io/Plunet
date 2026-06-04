@@ -66,5 +66,12 @@ namespace Apps.Plunet.Models.Job
 
         [Display("Percentage completed")]
         public double PercentageComplated { get; set; }
+
+        public JobResponse(string jobId)
+        {
+            JobId = jobId;
+        }
+
+        public JobResponse() { }
     }
 }
