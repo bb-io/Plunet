@@ -141,17 +141,39 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         }
 
         if (matchingJobIds.Count == 0)
-            return new JobResponse();
+            return new JobResponse
+            {
+                Comment = string.Empty,
+                ContactPersonId = string.Empty,
+                CreationDate = default,
+                Currency = string.Empty,
+                DeliveryDate = default,
+                DeliveryNote = string.Empty,
+                Description = string.Empty,
+                PayableId = string.Empty,
+                NumberOfSourceFiles = 0,
+                DueDate = null,
+                ProjectId = string.Empty,
+                ProjectType = project.ProjectType,
+                ItemId = request.ItemId,
+                JobId = string.Empty,
+                JobNumber = string.Empty,
+                JobType = string.Empty,
+                JobTypeShort = string.Empty,
+                ResourceId = string.Empty,
+                StartDate = null,
+                Status = string.Empty,
+                TotalPrice = 0,
+                PercentageComplated = 0
+            };
 
-        if (matchingJobIds.Count > 1)
-            throw new PluginMisconfigurationException(
-                $"Multiple jobs were found for item ID {request.ItemId} with job number {expectedJobNumber}.");
-
-        return await GetJob(new GetJobRequest
+        var job = await GetJob(new GetJobRequest
         {
             JobId = matchingJobIds[0].ToString(),
             ProjectType = project.ProjectType
         });
+
+        return job;
     }
 
     [Action("Get Job", Description = "Get details for a Plunet job")]
