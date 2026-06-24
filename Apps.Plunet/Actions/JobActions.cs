@@ -29,7 +29,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             ? await ExecuteWithRetry(() => ItemClient.getJobsAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)))
             : await ExecuteWithRetry(() => ItemClient.getJobsWithStatusAsync(Uuid, ParseId(status.Status), ParseId(project.ProjectType), ParseId(request.ItemId)));
 
-        return result.Where(x => x.HasValue).Select(x => x!.Value);
+        return result?.Where(x => x.HasValue).Select(x => x!.Value) ?? Enumerable.Empty<int>();
     }
 
     [Action("Get item jobs", Description = "Get all jobs related to a Plunet item")]
