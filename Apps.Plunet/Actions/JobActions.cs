@@ -141,8 +141,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         }
 
         if (matchingJobIds.Count == 0)
-            throw new PluginMisconfigurationException(
-                $"No job was found for item ID {request.ItemId} with job number {expectedJobNumber}.");
+            return new JobResponse();
 
         if (matchingJobIds.Count > 1)
             throw new PluginMisconfigurationException(
