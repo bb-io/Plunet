@@ -100,6 +100,7 @@ Note that when creating/updating items, the source and target languages can be s
 
 - **Get item jobs** returns a list of jobs attached to a certain item
 - **Get job**
+- **Find job by job number**
 - **Create job**
 - **Delete job**
 - **Update job**
