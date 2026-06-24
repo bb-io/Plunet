@@ -29,7 +29,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             ? await ExecuteWithRetry(() => ItemClient.getJobsAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)))
             : await ExecuteWithRetry(() => ItemClient.getJobsWithStatusAsync(Uuid, ParseId(status.Status), ParseId(project.ProjectType), ParseId(request.ItemId)));
 
-        return result.Where(x => x.HasValue).Select(x => x!.Value);
+        return result?.Where(x => x.HasValue).Select(x => x!.Value) ?? Enumerable.Empty<int>();
     }
 
     [Action("Get item jobs", Description = "Get all jobs related to a Plunet item")]
@@ -141,18 +141,39 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         }
 
         if (matchingJobIds.Count == 0)
-            throw new PluginMisconfigurationException(
-                $"No job was found for item ID {request.ItemId} with job number {expectedJobNumber}.");
+            return new JobResponse
+            {
+                Comment = string.Empty,
+                ContactPersonId = string.Empty,
+                CreationDate = default,
+                Currency = string.Empty,
+                DeliveryDate = default,
+                DeliveryNote = string.Empty,
+                Description = string.Empty,
+                PayableId = string.Empty,
+                NumberOfSourceFiles = 0,
+                DueDate = null,
+                ProjectId = string.Empty,
+                ProjectType = string.Empty,
+                ItemId = string.Empty,
+                JobId = string.Empty,
+                JobNumber = string.Empty,
+                JobType = string.Empty,
+                JobTypeShort = string.Empty,
+                ResourceId = string.Empty,
+                StartDate = null,
+                Status = string.Empty,
+                TotalPrice = 0,
+                PercentageComplated = 0
+            };
 
-        if (matchingJobIds.Count > 1)
-            throw new PluginMisconfigurationException(
-                $"Multiple jobs were found for item ID {request.ItemId} with job number {expectedJobNumber}.");
-
-        return await GetJob(new GetJobRequest
+        var job = await GetJob(new GetJobRequest
         {
             JobId = matchingJobIds[0].ToString(),
             ProjectType = project.ProjectType
         });
+
+        return job;
     }
 
     [Action("Get Job", Description = "Get details for a Plunet job")]

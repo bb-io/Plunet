@@ -52,6 +52,22 @@ public class JobTests : TestBase
     }
 
     [TestMethod]
+    public async Task Find_job_by_job_number_returns_created_job()
+    {
+        var actions = new JobActions(InvocationContext);
+
+        var result = await actions.FindJobByJobNumber(
+            new ProjectTypeRequest { ProjectType = "1" },
+            new GetItemRequest { ItemId = "21" },
+            new OptionalJobStatusRequest { },
+            new JobNumberRequest { JobNumber = "009" });
+
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        Assert.IsNotNull(result);
+        Assert.IsFalse(string.IsNullOrEmpty(result.JobId));
+    }
+
+    [TestMethod]
     public async Task Create_job_priceline_works()
     {
         var actions = new JobActions(InvocationContext);
