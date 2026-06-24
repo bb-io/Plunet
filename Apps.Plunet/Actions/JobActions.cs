@@ -22,24 +22,26 @@ namespace Apps.Plunet.Actions;
 [ActionList("Jobs")]
 public class JobActions(InvocationContext invocationContext) : PlunetInvocable(invocationContext)
 {
+    private async Task<IEnumerable<int>> GetItemJobIds(ProjectTypeRequest project, GetItemRequest request,
+        OptionalJobStatusRequest status)
+    {
+        var result = string.IsNullOrWhiteSpace(status.Status)
+            ? await ExecuteWithRetry(() => ItemClient.getJobsAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)))
+            : await ExecuteWithRetry(() => ItemClient.getJobsWithStatusAsync(Uuid, ParseId(status.Status), ParseId(project.ProjectType), ParseId(request.ItemId)));
+
+        return result.Where(x => x.HasValue).Select(x => x!.Value);
+    }
+
     [Action("Get item jobs", Description = "Get all jobs related to a Plunet item")]
     public async Task<ItemJobsResponse> GetItemJobs([ActionParameter] ProjectTypeRequest project,
         [ActionParameter] GetItemRequest request, [ActionParameter] OptionalJobStatusRequest status,
         [ActionParameter] JobTypeOptionRequest? jobType)
     {
-        var result = status.Status == null
-            ? await ExecuteWithRetry(() => ItemClient.getJobsAsync(Uuid, ParseId(project.ProjectType), ParseId(request.ItemId)))
-            : await ExecuteWithRetry(() => ItemClient.getJobsWithStatusAsync(Uuid, ParseId(status.Status), ParseId(project.ProjectType), ParseId(request.ItemId)));
-
         var jobs = new List<JobResponse>();
-
-        if (result != null)
+        foreach (var id in await GetItemJobIds(project, request, status))
         {
-            foreach (var id in result.Where(x => x.HasValue).Select(x => x.Value))
-            {
-                var job = await GetJob(new GetJobRequest { JobId = id.ToString(), ProjectType = project.ProjectType });
-                jobs.Add(job);
-            }
+            var job = await GetJob(new GetJobRequest { JobId = id.ToString(), ProjectType = project.ProjectType });
+            jobs.Add(job);
         }
 
         if (!string.IsNullOrWhiteSpace(jobType?.JobType))
@@ -120,6 +122,39 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         return itemJobsResponse.Jobs.First();
     }
 
+    [Action("Find job by job number", Description = "Get a Plunet job from an item by job number")]
+    public async Task<JobResponse> FindJobByJobNumber([ActionParameter] ProjectTypeRequest project,
+        [ActionParameter] GetItemRequest request, [ActionParameter] OptionalJobStatusRequest status,
+        [ActionParameter] JobNumberRequest jobNumberRequest)
+    {
+        var projectType = ParseId(project.ProjectType);
+        var expectedJobNumber = jobNumberRequest.JobNumber.Trim();
+        var matchingJobIds = new List<int>();
+
+        foreach (var jobId in await GetItemJobIds(project, request, status))
+        {
+            var jobNumber = await ExecuteWithRetry(() => JobClient.getJobNumberAsync(Uuid, projectType, jobId));
+            if (string.Equals(jobNumber, expectedJobNumber, StringComparison.Ordinal))
+            {
+                matchingJobIds.Add(jobId);
+            }
+        }
+
+        if (matchingJobIds.Count == 0)
+            throw new PluginMisconfigurationException(
+                $"No job was found for item ID {request.ItemId} with job number {expectedJobNumber}.");
+
+        if (matchingJobIds.Count > 1)
+            throw new PluginMisconfigurationException(
+                $"Multiple jobs were found for item ID {request.ItemId} with job number {expectedJobNumber}.");
+
+        return await GetJob(new GetJobRequest
+        {
+            JobId = matchingJobIds[0].ToString(),
+            ProjectType = project.ProjectType
+        });
+    }
+
     [Action("Get Job", Description = "Get details for a Plunet job")]
     public async Task<JobResponse> GetJob([ActionParameter] GetJobRequest request)
     {
@@ -133,6 +168,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         var deliveryDate = await ExecuteWithRetry(() => JobClient.getDeliveryDateAsync(Uuid, type, id));
         var deliveryNote = await ExecuteWithRetry(() => JobClient.getDeliveryNoteAsync(Uuid, type, id));
         var description = await ExecuteWithRetry(() => JobClient.getDescriptionAsync(Uuid, type, id));
+        var jobNumber = await ExecuteWithRetry(() => JobClient.getJobNumberAsync(Uuid, type, id));
         var payableId = await ExecuteWithRetryAcceptNull(() => JobClient.getPayableIDAsync(Uuid, id, type));
 
         var jobViewResponse = await ExecuteWithRetry(() => JobClient.getJob_ForViewAsync(Uuid, id, type));
@@ -157,6 +193,7 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             ProjectType = jobViewResponse.projectType.ToString(),
             ItemId = jobViewResponse.itemID.ToString(),
             JobId = jobViewResponse.jobID.ToString(),
+            JobNumber = jobNumber,
             ResourceId = jobViewResponse.resourceID.ToString(),
             JobType = jobViewResponse.jobTypeFull,
             JobTypeShort = jobViewResponse.jobTypeShort,

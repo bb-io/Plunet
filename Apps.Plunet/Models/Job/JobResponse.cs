@@ -46,6 +46,9 @@ namespace Apps.Plunet.Models.Job
         [Display("Job ID")]
         public string JobId { get; set; }
 
+        [Display("Job number")]
+        public string JobNumber { get; set; }
+
         [Display("Job type")]
         public string JobType { get; set; }
 
