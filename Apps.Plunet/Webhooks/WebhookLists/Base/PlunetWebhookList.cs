@@ -55,6 +55,16 @@ public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) 
         httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Soap);
 
         var entity = await entityGetter(doc);
+        if (entity is null)
+        {
+            return new()
+            {
+                HttpResponseMessage = httpResponseMessage,
+                Result = null,
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
+        }
+        
         return new()
         {
             HttpResponseMessage = httpResponseMessage,
