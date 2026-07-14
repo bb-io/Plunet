@@ -1,16 +1,11 @@
 ﻿using Apps.Plunet.Actions;
 using Apps.Plunet.Constants;
-using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Job;
 using Apps.Plunet.Webhooks.Handlers.Impl.Jobs;
-using Apps.Plunet.Webhooks.Models;
 using Apps.Plunet.Webhooks.WebhookLists.Base;
-using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
-using Blackbird.Applications.Sdk.Common.Dictionaries;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
@@ -50,6 +45,11 @@ public class JobHooks : PlunetWebhookList<JobResponse>
         try
         {
             return await Actions.GetJob(new GetJobRequest { JobId = id, ProjectType = projectType });
+        }
+        catch (Exception ex) when (ex.Message.Contains("can't find the requested job", StringComparison.OrdinalIgnoreCase))
+        {
+            InvocationContext.Logger?.LogError($"[JobHooks] Job {id} (ProjectType {projectType}) no longer exists when handling callback - skipping. Request: {doc}", []);
+            return null!;
         }
         catch (Exception)
         {
