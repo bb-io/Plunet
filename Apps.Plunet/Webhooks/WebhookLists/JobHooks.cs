@@ -6,40 +6,29 @@ using Apps.Plunet.Webhooks.WebhookLists.Base;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
-using Blackbird.Applications.Sdk.Common.Exceptions;
+using Apps.Plunet.Extensions;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
 [WebhookList]
-public class JobHooks : PlunetWebhookList<JobResponse>
+public class JobHooks(InvocationContext invocationContext) : PlunetWebhookList<JobResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackJob30";
     protected override string TriggerResponse => SoapResponses.OtherOk;
 
-    private const string XmlIdTagName = "JobID";
+    protected override string XmlIdTagName => "JobID";
+    
     private const string XmlProjectTagName = "ProjectType";
 
-    private JobActions Actions { get; set; }
+    private JobActions Actions { get; set; } = new(invocationContext);
 
-    public JobHooks(InvocationContext invocationContext) : base(invocationContext)
+    protected override async Task<JobResponse?> GetEntity(XDocument doc, string id)
     {
-        Actions = new JobActions(invocationContext);
-    }
-
-    protected override async Task<JobResponse> GetEntity(XDocument doc)
-    {
-        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value;
-        var projectType = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlProjectTagName, StringComparison.OrdinalIgnoreCase))?.Value;
-        if(string.IsNullOrEmpty(id))
-        {
-            InvocationContext.Logger?.LogError($"[JobHooks] Could not find {XmlIdTagName} in the webhook request. Request: {doc}", []);
-            throw new PluginApplicationException($"Could not find {XmlIdTagName} in the webhook request.");
-        }
-
-        if(string.IsNullOrEmpty(projectType))
+        string? projectType = doc.GetElementValue(XmlProjectTagName);
+        if (string.IsNullOrWhiteSpace(projectType))
         {
             InvocationContext.Logger?.LogError($"[JobHooks] Could not find {XmlProjectTagName} in the webhook request. Request: {doc}", []);
-            throw new PluginApplicationException($"Could not find {XmlProjectTagName} in the webhook request.");
+            return null;
         }
 
         try
@@ -58,14 +47,10 @@ public class JobHooks : PlunetWebhookList<JobResponse>
         }
     }
 
-    private Task<JobResponse> GetEntityIdOnly(XDocument doc)
-        => Task.FromResult(new JobResponse(ParseId(doc) ?? string.Empty));
+    private static Task<JobResponse?> GetEntityIdOnly(XDocument doc, string id)
+        => Task.FromResult<JobResponse?>(new JobResponse(id));
 
-    private string? ParseId(XDocument doc)
-        => doc.Elements().Descendants()
-            .FirstOrDefault(x => x.Name.LocalName.Equals(XmlIdTagName, StringComparison.OrdinalIgnoreCase))?.Value;
-
-    private Func<XDocument, Task<JobResponse>> PickGetter(JobWebhookRequest request)
+    private Func<XDocument, string, Task<JobResponse?>> PickGetter(JobWebhookRequest request)
         => request.ReturnIdOnly == true ? GetEntityIdOnly : GetEntity;
 
     [Webhook("On job deleted", typeof(JobDeleteEventHandler), Description = "Triggered when a job is deleted")]

@@ -1,17 +1,14 @@
 ﻿using Apps.Plunet.Actions;
 using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
-using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Models.Item;
 using Apps.Plunet.Webhooks.Handlers.Impl.Items;
-using Apps.Plunet.Webhooks.Models;
 using Apps.Plunet.Webhooks.WebhookLists.Base;
 using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
-using Blackbird.Plugins.Plunet.DataCustomer30Service;
 using System.Xml.Linq;
+using Apps.Plunet.Extensions;
 using Apps.Plunet.Models;
 using Apps.Plunet.Webhooks.Models.Parameters;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
@@ -21,7 +18,7 @@ namespace Apps.Plunet.Webhooks.WebhookLists;
 [WebhookList]
 public class ItemHooks(InvocationContext invocationContext) : PlunetWebhookList<ItemResponse>(invocationContext)
 {
-    private const string XmlIdTagName = "ItemID";
+    protected override string XmlIdTagName => "ItemID";
     private const string XmlProjectTypeTagName = "ProjectType";
     
     protected override string ServiceName => "CallbackItem30";
@@ -29,13 +26,25 @@ public class ItemHooks(InvocationContext invocationContext) : PlunetWebhookList<
 
     private ItemActions Actions { get; set; } = new(invocationContext);
 
-    protected override async Task<ItemResponse> GetEntity(XDocument doc)
+    protected override async Task<ItemResponse?> GetEntity(XDocument doc, string id)
     {
+        string? projectType = doc.GetElementValue(XmlProjectTypeTagName);
+        if (string.IsNullOrWhiteSpace(projectType))
+        {
+            string errorMessage =
+                $"[ItemHooks] No {XmlProjectTypeTagName} in the callback body " +
+                $"for item {id} - skipping. " +
+                $"Body: {doc.ToString(SaveOptions.DisableFormatting)}";
+            InvocationContext.Logger?.LogError(errorMessage, []);
+            return null;
+        }
+        
         try
         {
-            var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName == XmlIdTagName)?.Value!;
-            var projectType = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlProjectTypeTagName, StringComparison.OrdinalIgnoreCase))?.Value!;
-            return await Actions.GetItem(new ProjectTypeRequest { ProjectType = projectType }, new GetItemRequest { ItemId = id }, new OptionalCurrencyTypeRequest { });
+            return await Actions.GetItem(
+                new ProjectTypeRequest { ProjectType = projectType }, 
+                new GetItemRequest { ItemId = id }, 
+                new OptionalCurrencyTypeRequest { });
         }
         catch (Exception ex)
         {

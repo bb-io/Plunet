@@ -20,13 +20,12 @@ public class RequestHooks(InvocationContext invocationContext) : PlunetWebhookLi
     protected override string ServiceName => "CallbackRequest30";
     protected override string TriggerResponse => SoapResponses.OtherOk;
 
-    private const string XmlIdTagName = "RequestID";
+    protected override string XmlIdTagName => "RequestID";
 
     private RequestActions Actions { get; set; } = new(invocationContext);
 
-    protected override async Task<RequestResponse> GetEntity(XDocument doc)
+    protected override async Task<RequestResponse?> GetEntity(XDocument doc, string id)
     {
-        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlIdTagName, StringComparison.OrdinalIgnoreCase))?.Value;
         return await Actions.GetRequest(id);
     }
 
