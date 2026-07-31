@@ -10,7 +10,7 @@ using Apps.Plunet.Extensions;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
-[WebhookList]
+[WebhookList("Jobs")]
 public class JobHooks(InvocationContext invocationContext) : PlunetWebhookList<JobResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackJob30";

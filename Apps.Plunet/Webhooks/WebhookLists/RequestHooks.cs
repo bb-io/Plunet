@@ -14,7 +14,7 @@ using Apps.Plunet.Webhooks.Models.Parameters;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
-[WebhookList]
+[WebhookList("Requests")]
 public class RequestHooks(InvocationContext invocationContext) : PlunetWebhookList<RequestResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackRequest30";

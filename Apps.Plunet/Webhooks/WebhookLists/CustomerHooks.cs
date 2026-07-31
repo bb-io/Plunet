@@ -12,7 +12,7 @@ using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
-[WebhookList]
+[WebhookList("Customers")]
 public class CustomerHooks(InvocationContext invocationContext) : PlunetWebhookList<GetCustomerResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackCustomer30";

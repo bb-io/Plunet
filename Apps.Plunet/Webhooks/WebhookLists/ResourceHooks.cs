@@ -13,7 +13,7 @@ using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
-[WebhookList]
+[WebhookList("Resources")]
 public class ResourceHooks(InvocationContext invocationContext) : PlunetWebhookList<ResourceResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackResource30";

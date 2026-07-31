@@ -15,7 +15,7 @@ using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
-[WebhookList]
+[WebhookList("Items")]
 public class ItemHooks(InvocationContext invocationContext) : PlunetWebhookList<ItemResponse>(invocationContext)
 {
     protected override string XmlIdTagName => "ItemID";
