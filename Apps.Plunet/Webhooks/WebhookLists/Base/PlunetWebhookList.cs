@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Xml.Linq;
+using Apps.Plunet.Extensions;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Utils;
 using Blackbird.Applications.Sdk.Common.Invocation;
@@ -15,14 +16,19 @@ public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) 
 
     protected abstract string TriggerResponse { get; }
 
-    protected abstract Task<T> GetEntity(XDocument doc);
+    protected abstract Task<T?> GetEntity(XDocument doc, string id);
 
     private string WsdlServiceUrl => $"{Creds.GetUrl()}/{ServiceName}";
+    
+    protected abstract string XmlIdTagName { get; }
 
     protected Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck)
         => HandleWebhook(webhookRequest, preflightComparisonCheck, GetEntity);
 
-    protected async Task<WebhookResponse<T>> HandleWebhook(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck, Func<XDocument, Task<T>> entityGetter)
+    protected async Task<WebhookResponse<T>> HandleWebhook(
+        WebhookRequest webhookRequest, 
+        Func<T, bool> preflightComparisonCheck, 
+        Func<XDocument, string, Task<T?>> entityGetter)
     {
         try
         {
@@ -44,17 +50,42 @@ public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) 
         }
     }
 
-    private async Task<WebhookResponse<T>> GenerateTriggerResponse(WebhookRequest webhookRequest, Func<T, bool> preflightComparisonCheck, Func<XDocument, Task<T>> entityGetter)
+    private async Task<WebhookResponse<T>> GenerateTriggerResponse(
+        WebhookRequest webhookRequest, 
+        Func<T, bool> preflightComparisonCheck, 
+        Func<XDocument, string, Task<T?>> entityGetter)
     {
-        var doc = XDocument.Parse(webhookRequest.Body.ToString() ?? string.Empty);
-        var httpResponseMessage = new HttpResponseMessage()
-        {
-            Content = new StringContent(TriggerResponse)
-        };
-
+        var httpResponseMessage = new HttpResponseMessage { Content = new StringContent(TriggerResponse) };
         httpResponseMessage.Content.Headers.ContentType = new MediaTypeHeaderValue(MediaTypeNames.Application.Soap);
+        
+        var body = webhookRequest.Body?.ToString();
+        if (string.IsNullOrWhiteSpace(body))
+        {
+            return new()
+            {
+                HttpResponseMessage = httpResponseMessage,
+                Result = null,
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
+        }
+        
+        var doc = XDocument.Parse(body);
+        string? id = doc.GetElementValue(XmlIdTagName);
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            InvocationContext.Logger?.LogError(
+                $"[Plunet webhook] No {XmlIdTagName} in the callback body for {ServiceName}. Body: {doc.ToString(SaveOptions.DisableFormatting)}", 
+                []);
 
-        var entity = await entityGetter(doc);
+            return new()
+            {
+                HttpResponseMessage = httpResponseMessage,
+                Result = null,
+                ReceivedWebhookRequestType = WebhookRequestType.Preflight
+            };
+        }
+
+        var entity = await entityGetter(doc, id);
         if (entity is null)
         {
             return new()

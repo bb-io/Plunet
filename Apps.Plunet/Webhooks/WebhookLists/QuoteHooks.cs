@@ -1,14 +1,11 @@
 using Apps.Plunet.Actions;
 using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
-using Apps.Plunet.Models.Order;
 using Apps.Plunet.Models.Quote.Request;
 using Apps.Plunet.Models.Quote.Response;
 using Apps.Plunet.Webhooks.Handlers.Impl.Quotes;
-using Apps.Plunet.Webhooks.Models;
 using Apps.Plunet.Webhooks.WebhookLists.Base;
 using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
@@ -16,27 +13,23 @@ using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
-[WebhookList]
+[WebhookList("Quotes")]
 public class QuoteHooks(InvocationContext invocationContext) : PlunetWebhookList<QuoteResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackQuote30";
     protected override string TriggerResponse => SoapResponses.OtherOk;
 
-    private const string XmlIdTagName = "QuoteID";
+    protected override string XmlIdTagName => "QuoteID";
+    
     private QuoteActions Actions { get; set; } = new(invocationContext);
 
-    protected override async Task<QuoteResponse> GetEntity(XDocument doc)
+    protected override async Task<QuoteResponse?> GetEntity(XDocument doc, string id)
     {
-        var id = ParseId(doc);
         return await Actions.GetQuote(new GetQuoteRequest { QuoteId = id });
     }
 
-    private Task<QuoteResponse> GetEntityIdOnly(XDocument doc)
-        => Task.FromResult(new QuoteResponse(ParseId(doc) ?? string.Empty));
-
-    private string? ParseId(XDocument doc)
-        => doc.Elements().Descendants()
-            .FirstOrDefault(x => x.Name.LocalName.Equals(XmlIdTagName, StringComparison.OrdinalIgnoreCase))?.Value;
+    private static Task<QuoteResponse?> GetEntityIdOnly(XDocument doc, string id) 
+        => Task.FromResult<QuoteResponse?>(new QuoteResponse(id));
 
     [Webhook("On quote deleted", typeof(QuoteDeleteEventHandler), Description = "Triggered when a quote is deleted")]
     public Task<WebhookResponse<QuoteResponse>> QuoteDeleted(WebhookRequest webhookRequest,
@@ -63,6 +56,6 @@ public class QuoteHooks(InvocationContext invocationContext) : PlunetWebhookList
                      (quoteOptionalRequest.QuoteId == null || quoteOptionalRequest.QuoteId == quote.QuoteId),
             PickGetter(request));
 
-    private Func<XDocument, Task<QuoteResponse>> PickGetter(QuoteWebhookRequest request)
+    private Func<XDocument, string, Task<QuoteResponse?>> PickGetter(QuoteWebhookRequest request)
         => request.ReturnIdOnly == true ? GetEntityIdOnly : GetEntity;
 }

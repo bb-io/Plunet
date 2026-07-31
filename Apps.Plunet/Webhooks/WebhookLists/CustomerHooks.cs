@@ -3,10 +3,8 @@ using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Customer;
 using Apps.Plunet.Webhooks.Handlers.Impl.Customers;
-using Apps.Plunet.Webhooks.Models;
 using Apps.Plunet.Webhooks.WebhookLists.Base;
 using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
@@ -14,25 +12,19 @@ using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
-[WebhookList]
-public class CustomerHooks : PlunetWebhookList<GetCustomerResponse>
+[WebhookList("Customers")]
+public class CustomerHooks(InvocationContext invocationContext) : PlunetWebhookList<GetCustomerResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackCustomer30";
 
     protected override string TriggerResponse => SoapResponses.CustomerAndResourceOk;
 
-    private const string XmlIdTagName = "CustomerID";
+    protected override string XmlIdTagName => "CustomerID";
 
-    private CustomerActions Actions { get; set; }
+    private CustomerActions Actions { get; set; } = new(invocationContext);
 
-    public CustomerHooks(InvocationContext invocationContext) : base(invocationContext)
+    protected override async Task<GetCustomerResponse?> GetEntity(XDocument doc, string id)
     {
-        Actions = new CustomerActions(invocationContext);
-    }
-
-    protected override async Task<GetCustomerResponse> GetEntity(XDocument doc)
-    {
-        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlIdTagName, StringComparison.OrdinalIgnoreCase))?.Value;
         return await Actions.GetCustomerById(new CustomerRequest { CustomerId = id });
     }
 

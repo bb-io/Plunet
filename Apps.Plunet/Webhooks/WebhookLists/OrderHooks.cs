@@ -2,37 +2,28 @@
 using Apps.Plunet.Constants;
 using Apps.Plunet.DataSourceHandlers.EnumHandlers;
 using Apps.Plunet.Models.Order;
-using Apps.Plunet.Models.Request.Response;
 using Apps.Plunet.Webhooks.Handlers.Impl.Orders;
-using Apps.Plunet.Webhooks.Models;
 using Apps.Plunet.Webhooks.WebhookLists.Base;
 using Blackbird.Applications.Sdk.Common;
-using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
 using System.Xml.Linq;
-using Apps.Plunet.DataSourceHandlers;
 using Blackbird.Applications.Sdk.Common.Dictionaries;
 
 namespace Apps.Plunet.Webhooks.WebhookLists;
 
-[WebhookList]
-public class OrderHooks : PlunetWebhookList<OrderResponse>
+[WebhookList("Orders")]
+public class OrderHooks(InvocationContext invocationContext) : PlunetWebhookList<OrderResponse>(invocationContext)
 {
     protected override string ServiceName => "CallbackOrder30";
     protected override string TriggerResponse => SoapResponses.OtherOk;
+    
+    protected override string XmlIdTagName => "OrderID";
+    
+    private OrderActions Actions { get; set; } = new(invocationContext);
 
-    private const string XmlIdTagName = "OrderID";
-    private OrderActions Actions { get; set; }
-
-    public OrderHooks(InvocationContext invocationContext) : base(invocationContext)
+    protected override async Task<OrderResponse?> GetEntity(XDocument doc, string id)
     {
-        Actions = new OrderActions(invocationContext);
-    }
-
-    protected override async Task<OrderResponse> GetEntity(XDocument doc)
-    {
-        var id = doc.Elements().Descendants().FirstOrDefault(x => x.Name.LocalName.Equals(XmlIdTagName, StringComparison.OrdinalIgnoreCase))?.Value;
         return await Actions.GetOrder(new OrderRequest { OrderId = id });
     }
 
