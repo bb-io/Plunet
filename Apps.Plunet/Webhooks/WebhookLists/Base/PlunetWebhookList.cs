@@ -85,7 +85,19 @@ public abstract class PlunetWebhookList<T>(InvocationContext invocationContext) 
             };
         }
 
-        var entity = await entityGetter(doc, id);
+        T? entity;
+        try
+        {
+            entity = await entityGetter(doc, id);
+        }
+        catch (Exception ex) when (ex.IsCantFindError())
+        {
+            InvocationContext.Logger?.LogError(
+                $"[Plunet webhook] Entity {id} no longer exists when handling the {ServiceName} callback, skipping. " +
+                $"Body: {doc.ToString(SaveOptions.DisableFormatting)}; Exception: {ex.Message}", []);
+            entity = null;
+        }
+
         if (entity is null)
         {
             return new()
