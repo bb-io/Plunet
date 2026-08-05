@@ -46,7 +46,7 @@ public class ItemHooks(InvocationContext invocationContext) : PlunetWebhookList<
                 new GetItemRequest { ItemId = id }, 
                 new OptionalCurrencyTypeRequest { });
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!ex.IsCantFindError())
         {
             var errorMessage = "[Plunet webhook] Got an error while getting the item entity. " 
                 + $"Request body: {doc.Document?.ToString(SaveOptions.DisableFormatting)}"
@@ -73,8 +73,8 @@ public class ItemHooks(InvocationContext invocationContext) : PlunetWebhookList<
         [WebhookParameter] GetItemOptionalRequest itemRequest, 
         [WebhookParameter] AdditionalFiltersRequests additionalFiltersRequests)
         => HandleWebhook(webhookRequest, item => (newStatus == null || newStatus == item.Status) 
-                                                 && (additionalFiltersRequests.DescriptionContains == null || item.BriefDescription
-                                                     .Contains(additionalFiltersRequests.DescriptionContains, StringComparison.OrdinalIgnoreCase))
+                                                 && (additionalFiltersRequests.DescriptionContains == null || (item.BriefDescription?
+                                                     .Contains(additionalFiltersRequests.DescriptionContains, StringComparison.OrdinalIgnoreCase) ?? false))
                                                  && (projectRequest.ProjectId == null || projectRequest.ProjectId == item.ProjectId) 
                                                  && (itemRequest.ItemId == null || itemRequest.ItemId == item.ItemId));
 

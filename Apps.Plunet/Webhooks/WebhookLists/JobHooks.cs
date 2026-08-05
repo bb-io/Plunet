@@ -35,12 +35,7 @@ public class JobHooks(InvocationContext invocationContext) : PlunetWebhookList<J
         {
             return await Actions.GetJob(new GetJobRequest { JobId = id, ProjectType = projectType });
         }
-        catch (Exception ex) when (ex.Message.Contains("can't find the requested job", StringComparison.OrdinalIgnoreCase))
-        {
-            InvocationContext.Logger?.LogError($"[JobHooks] Job {id} (ProjectType {projectType}) no longer exists when handling callback - skipping. Request: {doc}", []);
-            return null!;
-        }
-        catch (Exception)
+        catch (Exception ex) when (!ex.IsCantFindError())
         {
             InvocationContext.Logger?.LogError($"[JobHooks] Error getting job with ID {id} and ProjectType {projectType}. Request: {doc}", []);
             throw;
