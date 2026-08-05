@@ -46,7 +46,7 @@ public class ItemHooks(InvocationContext invocationContext) : PlunetWebhookList<
                 new GetItemRequest { ItemId = id }, 
                 new OptionalCurrencyTypeRequest { });
         }
-        catch (Exception ex)
+        catch (Exception ex) when (!ex.IsCantFindError())
         {
             var errorMessage = "[Plunet webhook] Got an error while getting the item entity. " 
                 + $"Request body: {doc.Document?.ToString(SaveOptions.DisableFormatting)}"
