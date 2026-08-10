@@ -15,10 +15,17 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
     [Action("Get customer contacts", Description = "Get all the contacts of the customer")]
     public async Task<GetContactsResponse> GetCustomerContacts([ActionParameter] CustomerRequest input)
     {
-        var contacts = await ExecuteWithRetryAcceptNull(() => ContactClient.getAllContactObjectsAsync(Uuid, ParseId(input.CustomerId)));
+        var contacts = await ExecuteWithRetryAcceptNull(() =>
+            ContactClient.getAllContactObjectsAsync(Uuid, ParseId(input.CustomerId)));
+        var completeContacts = new List<ContactObjectResponse>();
+        foreach (var contact in contacts ?? Array.Empty<CustomerContact>())
+        {
+            completeContacts.Add(new ContactObjectResponse(await GetCompleteContact(contact.customerContactID)));
+        }
+
         return new()
         {
-            CustomerContacts = contacts is null ? new List<ContactObjectResponse>() : contacts.Select(x => new ContactObjectResponse(x))
+            CustomerContacts = completeContacts
         };
     }
     
@@ -41,14 +48,34 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
             return null;
         }
         
-        return new(contact);
+        return new(await GetCompleteContact(contact.customerContactID));
     }
 
     [Action("Get contact", Description = "Get the Plunet contact")]
     public async Task<ContactObjectResponse> GetContactById([ActionParameter] ContactRequest request)
     {
-        var contact = await ExecuteWithRetry(() => ContactClient.getContactObjectAsync(Uuid, ParseId(request.ContactId)));
-        return new(contact);
+        var contactId = ParseId(request.ContactId);
+        return new(await GetCompleteContact(contactId));
+    }
+
+    private async Task<CustomerContact> GetCompleteContact(int contactId)
+    {
+        return new CustomerContact
+        {
+            customerContactID = contactId,
+            customerID = await ExecuteWithRetryAcceptNull(() => ContactClient.getCustomerIDAsync(Uuid, contactId)) ?? 0,
+            costCenter = await ExecuteWithRetryAcceptNull(() => ContactClient.getCostCenterAsync(Uuid, contactId)),
+            email = await ExecuteWithRetryAcceptNull(() => ContactClient.getEmailAsync(Uuid, contactId)),
+            externalID = await ExecuteWithRetryAcceptNull(() => ContactClient.getExternalIDAsync(Uuid, contactId)),
+            fax = await ExecuteWithRetryAcceptNull(() => ContactClient.getFaxAsync(Uuid, contactId)),
+            name1 = await ExecuteWithRetryAcceptNull(() => ContactClient.getName1Async(Uuid, contactId)),
+            name2 = await ExecuteWithRetryAcceptNull(() => ContactClient.getName2Async(Uuid, contactId)),
+            mobilePhone = await ExecuteWithRetryAcceptNull(() => ContactClient.getMobilePhoneAsync(Uuid, contactId)),
+            phone = await ExecuteWithRetryAcceptNull(() => ContactClient.getPhoneAsync(Uuid, contactId)),
+            status = await ExecuteWithRetryAcceptNull(() => ContactClient.getStatusAsync(Uuid, contactId)) ?? 0,
+            userId = await ExecuteWithRetryAcceptNull(() => ContactClient.getUserIdAsync(Uuid, contactId)) ?? 0,
+            supervisor1 = await ExecuteWithRetryAcceptNull(() => ContactClient.getSupervisor1Async(Uuid, contactId))
+        };
     }
 
     [Action("Get contact by external ID", Description = "Get the Plunet contact by an external ID rather than a Plunet iD")]

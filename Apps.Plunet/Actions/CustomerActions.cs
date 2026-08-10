@@ -66,18 +66,33 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
     [Action("Get customer", Description = "Get the Plunet customer")]
     public async Task<GetCustomerResponse> GetCustomerById([ActionParameter] CustomerRequest input)
     {
-        var customer = await ExecuteWithRetry(() => CustomerClient.getCustomerObjectAsync(Uuid, ParseId(input.CustomerId)));
+        var customerId = ParseId(input.CustomerId);
+        var customer = await ExecuteWithRetry(() => CustomerClient.getCustomerObjectAsync(Uuid, customerId));
         if (customer == null)
         {
             throw new PluginApplicationException($"Customer with ID {input.CustomerId} not found. Please check the input and try again");
         }
 
-        var paymentInfo = await ExecuteWithRetry(() => CustomerClient.getPaymentInformationAsync(Uuid, ParseId(input.CustomerId)));
-        var createdby = await ExecuteWithRetryAcceptNull(() => CustomerClient.getCreatedByResourceIDAsync(Uuid, ParseId(input.CustomerId)));
-        var accountManagerResult = await ExecuteWithRetryAcceptNull(() => CustomerClient.getAccountManagerIDAsync(Uuid, ParseId(input.CustomerId)));
-        var addresses = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getAllAddressesAsync(Uuid, ParseId(input.CustomerId)))?? Array.Empty<int?>();
+        customer.academicTitle = await ExecuteWithRetryAcceptNull(() => CustomerClient.getAcademicTitleAsync(Uuid, customerId));
+        customer.currency = await ExecuteWithRetryAcceptNull(() => CustomerClient.getCurrencyAsync(Uuid, customerId));
+        customer.email = await ExecuteWithRetryAcceptNull(() => CustomerClient.getEmailAsync(Uuid, customerId));
+        customer.externalID = await ExecuteWithRetryAcceptNull(() => CustomerClient.getExternalIDAsync(Uuid, customerId));
+        customer.fax = await ExecuteWithRetryAcceptNull(() => CustomerClient.getFaxAsync(Uuid, customerId));
+        customer.fullName = await ExecuteWithRetryAcceptNull(() => CustomerClient.getFullNameAsync(Uuid, customerId));
+        customer.mobilePhone = await ExecuteWithRetryAcceptNull(() => CustomerClient.getMobilePhoneAsync(Uuid, customerId));
+        customer.name1 = await ExecuteWithRetryAcceptNull(() => CustomerClient.getName1Async(Uuid, customerId));
+        customer.name2 = await ExecuteWithRetryAcceptNull(() => CustomerClient.getName2Async(Uuid, customerId));
+        customer.phone = await ExecuteWithRetryAcceptNull(() => CustomerClient.getPhoneAsync(Uuid, customerId));
+        customer.skypeID = await ExecuteWithRetryAcceptNull(() => CustomerClient.getSkypeIDAsync(Uuid, customerId));
+        customer.status = await ExecuteWithRetryAcceptNull(() => CustomerClient.getStatusAsync(Uuid, customerId)) ?? 0;
+        customer.website = await ExecuteWithRetryAcceptNull(() => CustomerClient.getWebsiteAsync(Uuid, customerId));
+
+        var paymentInfo = await ExecuteWithRetry(() => CustomerClient.getPaymentInformationAsync(Uuid, customerId));
+        var createdby = await ExecuteWithRetryAcceptNull(() => CustomerClient.getCreatedByResourceIDAsync(Uuid, customerId));
+        var accountManagerResult = await ExecuteWithRetryAcceptNull(() => CustomerClient.getAccountManagerIDAsync(Uuid, customerId));
+        var addresses = await ExecuteWithRetryAcceptNull(() => CustomerAddressClient.getAllAddressesAsync(Uuid, customerId)) ?? Array.Empty<int?>();
         var addressesInfo = new List<GetAddressResponse>();
-        var dossier = await ExecuteWithRetryAcceptNull(() => CustomerClient.getDossierAsync(Uuid, ParseId(input.CustomerId)));
+        var dossier = await ExecuteWithRetryAcceptNull(() => CustomerClient.getDossierAsync(Uuid, customerId));
         foreach (var addressId in addresses)
         {
             addressesInfo.Add(await GetAddressInfo(addressId));

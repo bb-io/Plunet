@@ -13,7 +13,7 @@ public class ContactTests : TestBase
     {
         var actions = new ContactActions(InvocationContext);
 
-        var result = await actions.GetContactById(new ContactRequest { ContactId = "167" });
+        var result = await actions.GetContactById(new ContactRequest { ContactId = "22849" });
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         Assert.IsNotNull(result);
     }
@@ -51,6 +51,20 @@ public class ContactTests : TestBase
 
         // Act
         var result = await actions.UpdateContact(contact, request);
+
+        // Assert
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerContacts_IsSuccess()
+    {
+        // Arrange
+        var actions = new ContactActions(InvocationContext);
+
+        // Act
+        var result = await actions.GetCustomerContacts(new Apps.Plunet.Models.Customer.CustomerRequest { CustomerId= "5434" });
 
         // Assert
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
