@@ -110,9 +110,17 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
 
     [Action("Find order from order number (not ID)",
         Description = "Get order details given an order number")]
-    public async Task<OrderResponse> GetOrderFromOrderNumber([ActionParameter] OrderNumberRequest input) 
+    public async Task<OrderResponse> GetOrderFromOrderNumber([ActionParameter] OrderNumberRequest input)
     {
-        var order = await ExecuteWithRetry(() => OrderClient.getOrderObject2Async(Uuid, input.OrderNumber));
+        var order = await ExecuteWithRetryAcceptNull(() => OrderClient.getOrderObject2Async(Uuid, input.OrderNumber));
+        if (order is null)
+            return new(new Order
+            {
+                currency = string.Empty,
+                orderDisplayName = string.Empty,
+                projectName = string.Empty,
+                subject = string.Empty
+            }, Array.Empty<LanguageCombination>());
 
         var languageCombinations = await ExecuteWithRetry(() => OrderClient.getLanguageCombinationAsync(Uuid, order.orderID));
 
