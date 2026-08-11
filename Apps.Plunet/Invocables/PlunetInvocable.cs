@@ -506,6 +506,8 @@ public class PlunetInvocable : BaseInvocable
         => await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
     protected async Task<Order> ExecuteWithRetry(Func<Task<OrderResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
+    protected async Task<Order?> ExecuteWithRetryAcceptNull(Func<Task<OrderResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<int?[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataOrder30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<int?[]?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataOrder30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)

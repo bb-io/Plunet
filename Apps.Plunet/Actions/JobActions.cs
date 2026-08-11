@@ -666,13 +666,14 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
         if (feedback.ratingList?.Any() == true)
         {
             var criteria = await AdminClient.getJobFeedbackCriteriaAsync(Uuid);
+            var criteriaData = criteria.data ?? [];
 
             foreach (var item in feedback.ratingList)
             {
+                var criterion = criteriaData.FirstOrDefault(x => x.id == item.criterionID);
                 var subRating = new qualityScore
                 {
-                    Name = criteria.data.FirstOrDefault(x => x.id == item.criterionID) is null ? "" :
-                    criteria.data.FirstOrDefault(x => x.id == item.criterionID)!.label,
+                    Name = criterion?.label ?? string.Empty,
                     Critical = item.lisaRating.amount_critical,
                     Hard = item.lisaRating.amount_hard,
                     Minor = item.lisaRating.amount_minor,
