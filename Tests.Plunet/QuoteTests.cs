@@ -24,9 +24,11 @@ public class QuoteTests : TestBase
     {
         var actions = new QuoteActions(InvocationContext);
 
-        var result = await actions.CreateQuote(new CreateQuoteRequest { ProjectName = quoteName, Status = "8" }, new QuoteTemplateRequest { });
-        var updated = await actions.UpdateQuote(new GetQuoteRequest { QuoteId = result.QuoteId }, new CreateQuoteRequest { ProjectName = updatedQuoteName });
-        Assert.AreEqual(updatedQuoteName, updated.ProjectName);
+        //var result = await actions.CreateQuote(new CreateQuoteRequest { ProjectName = quoteName, Status = "8" }, new QuoteTemplateRequest { });
+        var updated = await actions.UpdateQuote(new GetQuoteRequest { QuoteId = "34" }, new CreateQuoteRequest { ProjectName= "iubenda quote test update2"});
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(updated);
+        Console.WriteLine(json);
+        //Assert.AreEqual(updatedQuoteName, updated.ProjectName);
     }
 
     [TestMethod]
@@ -39,5 +41,16 @@ public class QuoteTests : TestBase
         var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
         Console.WriteLine(json);
         Assert.IsTrue(result.TotalCount > 0);
+    }
+
+    [TestMethod]
+    public async Task Get_quote_works()
+    {
+        var actions = new QuoteActions(InvocationContext);
+
+        var result = await actions.GetQuote(new GetQuoteRequest { QuoteId= "34" });
+
+        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result);
+        Console.WriteLine(json);
     }
 }

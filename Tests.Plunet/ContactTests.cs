@@ -13,7 +13,7 @@ public class ContactTests : TestBase
     {
         var actions = new ContactActions(InvocationContext);
 
-        var result = await actions.GetContactById(new ContactRequest { ContactId = "22849" });
+        var result = await actions.GetContactById(new ContactRequest { ContactId = "67" });
         Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
         Assert.IsNotNull(result);
     }
@@ -25,7 +25,7 @@ public class ContactTests : TestBase
 
         var result = await actions.CreateContact(new CreateContactRequest 
         { 
-            CustomerId= "9",
+            CustomerId= "67",
             FirstName="Artem 4",
             LastName = "Testing 4",
             Email = "art@gmail.com",
@@ -42,10 +42,12 @@ public class ContactTests : TestBase
     {
         // Arrange
         var actions = new ContactActions(InvocationContext);
-        var contact = new ContactRequest { ContactId = "165" };
+        var contact = new ContactRequest { ContactId = "67" };
         var request = new CreateContactRequest 
         {
-            CustomerId = "3",
+            FirstName= "Saul",
+            LastName = "Goodman",
+            CustomerId = "10",
             Email = "saul.goodman@bcs.com"
         };
 
