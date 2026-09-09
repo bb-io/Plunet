@@ -100,6 +100,27 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         return new(customer, paymentInfo, addressesInfo, dossier, accountManagerResult, createdby);
     }
 
+    [Action("Get customer by external ID", Description = "Get a Plunet customer by external ID")]
+    public async Task<GetCustomerResponse> GetCustomerByExternalId(
+        [ActionParameter] GetCustomerByExternalIdRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.ExternalId))
+        {
+            throw new PluginMisconfigurationException("External ID cannot be empty.");
+        }
+
+        var customerId = await ExecuteWithRetryAcceptNull(() =>
+            CustomerClient.seekByExternalIDAsync(Uuid, request.ExternalId));
+
+        if (customerId is null)
+        {
+            throw new PluginApplicationException(
+                $"Customer with external ID '{request.ExternalId}' was not found. Please check the input and try again.");
+        }
+
+        return await GetCustomerById(new CustomerRequest { CustomerId = customerId.Value.ToString() });
+    }
+
     [Action("Delete customer", Description = "Delete a Plunet customer")]
     public async Task DeleteCustomerById([ActionParameter] CustomerRequest input)
     {
