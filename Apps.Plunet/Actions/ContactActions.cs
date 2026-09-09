@@ -158,8 +158,8 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
         await ExecuteWithRetry(() => ContactClient.updateAsync(Uuid, new()
         {
             customerContactID = ParseId(contact.ContactId),
-            name1 = request.FirstName ?? contactToUpdate.FirstName,
-            name2 = request.LastName ?? contactToUpdate.LastName,
+            name1 = request.LastName ?? contactToUpdate.LastName,
+            name2 = request.FirstName ?? contactToUpdate.FirstName,
             email = request.Email ?? contactToUpdate.Email,
             phone = request.Phone ?? contactToUpdate.Phone,
             mobilePhone = request.MobilePhone ?? contactToUpdate.MobilePhone,

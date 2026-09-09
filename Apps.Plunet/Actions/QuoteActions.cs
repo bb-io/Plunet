@@ -242,22 +242,33 @@ public class QuoteActions(InvocationContext invocationContext) : PlunetInvocable
     public async Task<QuoteResponse> UpdateQuote([ActionParameter] GetQuoteRequest quote,
         [ActionParameter] CreateQuoteRequest request)
     {
-        if (request.Status is not null)
+        if (!string.IsNullOrWhiteSpace(request.Status))
             await ExecuteWithRetry(() => QuoteClient.setStatusAsync(Uuid, ParseId(request.Status), ParseId(quote.QuoteId)));
 
-        if (!string.IsNullOrWhiteSpace(request.ProjectName) ||  !string.IsNullOrWhiteSpace(request.CustomerId) ||
-            !string.IsNullOrWhiteSpace(request.Subject) ||    !string.IsNullOrWhiteSpace(request.Currency) ||
-            !string.IsNullOrWhiteSpace(request.ProjectManagerMemo) ||    !string.IsNullOrWhiteSpace(request.ReferenceNumber))
-        await ExecuteWithRetry(() => QuoteClient.updateAsync(Uuid, new QuoteIN
+        if (!string.IsNullOrWhiteSpace(request.ProjectName) || !string.IsNullOrWhiteSpace(request.CustomerId) ||
+            !string.IsNullOrWhiteSpace(request.Subject) || !string.IsNullOrWhiteSpace(request.Currency) ||
+            !string.IsNullOrWhiteSpace(request.ProjectManagerMemo) || !string.IsNullOrWhiteSpace(request.ReferenceNumber))
         {
-            quoteID = ParseId(quote.QuoteId),
-            projectName = request.ProjectName,
-            customerID = ParseId(request.CustomerId),
-            subject = request.Subject,
-            creationDate = DateTime.Now,
-            currency = request.Currency,
-            projectManagerMemo = request.ProjectManagerMemo,
-            referenceNumber = request.ReferenceNumber}, false));
+            var quoteId = ParseId(quote.QuoteId);
+            var customerId = !string.IsNullOrWhiteSpace(request.CustomerId)
+                ? ParseId(request.CustomerId)
+                : await ExecuteWithRetryAcceptNull(() => QuoteClient.getCustomerIDAsync(Uuid, quoteId)) ?? -1;
+            var status = !string.IsNullOrWhiteSpace(request.Status)
+                ? ParseId(request.Status)
+                : (await ExecuteWithRetry(() => QuoteClient.getQuoteObjectAsync(Uuid, quoteId))).status;
+
+            await ExecuteWithRetry(() => QuoteClient.updateAsync(Uuid, new QuoteIN
+            {
+                quoteID = quoteId,
+                projectName = request.ProjectName,
+                customerID = customerId,
+                subject = request.Subject,
+                currency = request.Currency,
+                projectManagerMemo = request.ProjectManagerMemo,
+                referenceNumber = request.ReferenceNumber,
+                status = status
+            }, false));
+        }
 
         if (request.ProjectStatus is not null)
             await ExecuteWithRetry(() => QuoteClient.setProjectStatusAsync(Uuid, ParseId(quote.QuoteId), ParseId(request.ProjectStatus)));
