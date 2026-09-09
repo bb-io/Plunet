@@ -23,12 +23,25 @@ public class CustomerTests : TestBase
     }
 
     [TestMethod]
+    public async Task GetCustomerByexternalId_IsSuccess()
+    {
+        var action = new CustomerActions(InvocationContext);
+        var response = await action.GetCustomerByExternalId(new GetCustomerByExternalIdRequest
+        {
+            ExternalId = "BB-CUSTOMER-EXT-001"
+        });
+
+        Assert.IsNotNull(response);
+        Console.WriteLine(JsonConvert.SerializeObject(response, Formatting.Indented));
+    }
+
+    [TestMethod]
     public async Task SearchCustomers_IsSuccess()
     {
         var action = new CustomerActions(InvocationContext);
         var response = await action.SearchCustomers(new SearchCustomerRequest
         {
-            //OnlyReturnIds = true,
+            OnlyReturnIds = false,
             Limit = 10
         });
 
