@@ -132,6 +132,8 @@ Note that when creating/updating items, the source and target languages can be s
 - **Get order**
 - **Find order from order number**
 - **Create order**
+- **Create order by template**
+- **Create order confirmation**
 - **Delete order**
 - **Update order**
 - **Add language combination to order**
