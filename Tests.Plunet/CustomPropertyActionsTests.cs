@@ -6,7 +6,7 @@ using Tests.Plunet.Base;
 namespace Tests.Plunet;
 
 [TestClass]
-internal class CustomPropertyActionsTests : TestBase
+public class CustomPropertyActionsTests : TestBase
 {
     [TestMethod]
     public async Task GetTextModule_IsSuccess()
