@@ -25,6 +25,27 @@ public class OrderTests : TestBase
         // Assert
         Assert.IsNotNull(result.OrderId);
     }
+    
+    [TestMethod]
+    public async Task CreateOrderConfirmation_ReturnsConfirmationFilePath()
+    {
+        // Arrange
+        var actions = new OrderActions(InvocationContext);
+        var orderInput = new OrderRequest { OrderId = "573" };
+        var createInput = new CreateOrderConfirmationRequest
+        {
+            FormatId = "0",
+            TemplateName = "English"
+        };
+
+        // Act
+        var result = await actions.CreateOrderConfirmation(orderInput, createInput);
+
+        // Assert
+        Console.WriteLine(result.OrderConfirmationFileLocation);
+        Assert.IsNotNull(result.OrderConfirmationFileLocation);
+        Assert.IsNotEmpty(result.OrderConfirmationFileLocation);
+    }
 
     [TestMethod]
     public async Task SearchOrders_IsSuccess()

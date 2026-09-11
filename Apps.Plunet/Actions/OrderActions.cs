@@ -7,7 +7,6 @@ using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
-using Blackbird.Applications.SDK.Extensions.FileManagement.Models.FileDataSourceItems;
 using Blackbird.Plugins.Plunet.DataOrder30Service;
 
 namespace Apps.Plunet.Actions;
@@ -236,6 +235,20 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         };
 
         return await CreateOrder(createOrderRequest, new OrderTemplateRequest { TemplateId = templateId });
+    }
+
+    [Action("Create order confirmation", Description = "Create an order confirmation")]
+    public async Task<CreateOrderConfirmationResponse> CreateOrderConfirmation(
+        [ActionParameter] OrderRequest orderInput,
+        [ActionParameter] CreateOrderConfirmationRequest createInput)
+    {
+        var result = await ExecuteWithRetryAcceptNull(() => OrderClient.createOrderConfirmationAsync(
+            Uuid,
+            createInput.TemplateName,
+            ParseId(createInput.FormatId),
+            ParseId(orderInput.OrderId)));
+
+        return new CreateOrderConfirmationResponse { OrderConfirmationFileLocation = result };
     }
 
     [Action("Delete order", Description = "Delete a Plunet order")]
