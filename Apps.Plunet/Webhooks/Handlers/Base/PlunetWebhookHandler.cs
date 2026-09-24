@@ -6,12 +6,13 @@ using Apps.Plunet.Webhooks.CallbackClients.Base;
 using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Applications.Sdk.Common.Webhooks;
+using Blackbird.Plugins.Plunet.DataAdmin30Service;
 using EventType = Apps.Plunet.Webhooks.Models.EventType;
 
 namespace Apps.Plunet.Webhooks.Handlers.Base;
 
 public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
-    : PlunetInvocable(invocationContext), IWebhookEventHandler
+    : PlunetInvocable(invocationContext), IWebhookEventHandler, IAsyncValidatableWebhookEventHandler
 {
     protected abstract IPlunetWebhookClient Client { get; }
     protected abstract EventType EventType { get; }
@@ -55,4 +56,43 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
             await Logout();
         }
     }
+
+    public async Task<WebhookSubscriptionValidationResponse> ValidateSubscription(
+        IEnumerable<AuthenticationCredentialsProvider> creds,
+        Dictionary<string, string> values)
+    {
+        if (!values.TryGetValue(CredsNames.WebhookUrlKey, out var webhookUrl) ||
+            string.IsNullOrWhiteSpace(webhookUrl))
+        {
+            return Invalid("The webhook URL is missing, so the Plunet webhook subscription cannot be validated.");
+        }
+
+        try
+        {
+            var dataAdminClient = Clients.GetAdminClient(creds.GetInstanceUrl());
+            var callbacks = await ExecuteWithRetryAcceptNull(() =>
+                dataAdminClient.getListOfRegisteredCallbacksAsync(Uuid));
+
+            return IsCallbackRegistered(callbacks, EventType, webhookUrl)
+                ? new WebhookSubscriptionValidationResponse { IsValid = true }
+                : Invalid("The Plunet webhook subscription no longer exists. Recreate the Bird to subscribe again.");
+        }
+        catch (Exception exception)
+        {
+            return Invalid($"Could not verify the Plunet webhook subscription: {exception.Message}");
+        }
+    }
+
+    internal static bool IsCallbackRegistered(IEnumerable<Callback>? callbacks, EventType eventType,
+        string webhookUrl)
+    {
+        var callbackUrl = webhookUrl + "?wsdl";
+
+        return callbacks?.Any(callback =>
+            callback.eventType == (int)eventType &&
+            string.Equals(callback.serverAddress, callbackUrl, StringComparison.Ordinal)) == true;
+    }
+
+    private static WebhookSubscriptionValidationResponse Invalid(string message)
+        => new() { IsValid = false, Message = message };
 }
