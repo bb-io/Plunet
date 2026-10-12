@@ -482,6 +482,8 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<Blackbird.Plugins.Plunet.DataItem30Service.PriceLine?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.PriceLineResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
+    protected async Task<Blackbird.Plugins.Plunet.DataItem30Service.PriceLine> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.PriceLineResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<int?[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<int> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)

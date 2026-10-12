@@ -1,22 +1,19 @@
 ﻿using Blackbird.Applications.Sdk.Common.Authentication;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Microsoft.Extensions.Configuration;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace Tests.Plunet.Base;
+
 public class TestBase
 {
-    public IEnumerable<AuthenticationCredentialsProvider> Creds { get; set; }
+    protected IEnumerable<AuthenticationCredentialsProvider> Creds { get; set; }
 
-    public InvocationContext InvocationContext { get; set; }
+    protected InvocationContext InvocationContext { get; set; }
 
-    public FileManager FileManager { get; set; }
+    protected FileManager FileManager { get; set; }
 
-    public TestBase()
+    protected TestBase()
     {
         var config = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
         Creds = config.GetSection("ConnectionDefinition").GetChildren().Select(x => new AuthenticationCredentialsProvider(x.Key, x.Value)).ToList();
@@ -28,5 +25,10 @@ public class TestBase
         };
 
         FileManager = new FileManager(folderLocation);
+    }
+
+    protected static void PrintJsonResult(object result)
+    {
+        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
     }
 }

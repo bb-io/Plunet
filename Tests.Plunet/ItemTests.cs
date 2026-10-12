@@ -1,7 +1,6 @@
 ﻿using Apps.Plunet.Actions;
 using Apps.Plunet.Models;
 using Apps.Plunet.Models.Item;
-using Blackbird.Applications.Sdk.Common.Exceptions;
 using Newtonsoft.Json;
 using Tests.Plunet.Base;
 
@@ -23,7 +22,7 @@ public class ItemTests : TestBase
         var result = await actions.GetItem(project, request, currency);
 
         // Assert
-        Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
+        PrintJsonResult(result);
         Assert.IsNotNull(result.OrderId);
     }
 
@@ -130,16 +129,25 @@ public class ItemTests : TestBase
     }
 
     [TestMethod]
-    public async Task Create_item_priceline_works()
+    public async Task CreateItemPriceline_ReturnsCreatedPriceline()
     {
+        // Arrange
         var actions = new ItemActions(InvocationContext);
+        var projectType = new ProjectTypeRequest { ProjectType = "3" };
+        var itemRequest = new GetItemRequest { ItemId = "98" };
+        var priceUnitRequest = new ItemPriceUnitRequest { Service = "Translation", PriceUnit = "40" };
+        var priceLineRequest = new ItemPricelineRequest
+        {
+            Amount = 10, 
+            UnitPrice = 0
+        };
+        
+        // Act
+        var result = await actions.CreateItemPriceline(projectType, itemRequest, priceUnitRequest, priceLineRequest);
 
-        var result = await actions.CreateItemPriceline(new ProjectTypeRequest { ProjectType = "3" }, new GetItemRequest {ItemId= "43" }, new ItemPriceUnitRequest { Service= "Translation" ,PriceUnit="62"  },
-            new ItemPricelineRequest { Amount=155, UnitPrice=155, TaxType="3" });
-
-        var json = Newtonsoft.Json.JsonConvert.SerializeObject(result, Newtonsoft.Json.Formatting.Indented);
-        Console.WriteLine(json);
-        Assert.IsTrue(true);
+        // Assert
+        PrintJsonResult(result);
+        Assert.IsNotNull(result);
     }
 
     [TestMethod]
