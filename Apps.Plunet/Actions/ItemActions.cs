@@ -9,7 +9,6 @@ using Blackbird.Applications.Sdk.Common.Actions;
 using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 using Blackbird.Plugins.Plunet.DataItem30Service;
-using PriceUnit = Blackbird.Plugins.Plunet.DataItem30Service.PriceUnit;
 
 namespace Apps.Plunet.Actions;
 
@@ -324,7 +323,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         foreach (var priceLine in response)
         {
             var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, priceLine.priceUnitID, Language));
-            result.Add(CreatePricelineResponse(priceLine, priceUnit));
+            result.Add(new PricelineResponse(priceLine, priceUnit));
         }
 
         return new PricelinesResponse
@@ -335,8 +334,10 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
     }
 
     [Action("Create item priceline", Description = "Add a new priceline to an item")]
-    public async Task<PricelineResponse> CreateItemPriceline([ActionParameter] ProjectTypeRequest project,
-        [ActionParameter] GetItemRequest item, [ActionParameter] ItemPriceUnitRequest unit,
+    public async Task<PricelineResponse> CreateItemPriceline(
+        [ActionParameter] ProjectTypeRequest project,
+        [ActionParameter] GetItemRequest item, 
+        [ActionParameter] ItemPriceUnitRequest unit,
         [ActionParameter] ItemPricelineRequest input)
     {
         var projectType = ParseId(project.ProjectType);
@@ -361,14 +362,10 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (!string.IsNullOrEmpty(input.TaxType))
             pricelineIn.taxType = int.Parse(input.TaxType);
 
-        var response = await ExecuteWithRetryAcceptNull(() => ItemClient.insertPriceLineAsync(Uuid, itemId, projectType, pricelineIn, false));
-        if (response == null)
-        {
-            throw new PluginApplicationException("Failed to insert priceline: API returned null. Please check your input and try again");
-        }
+        var response = await ExecuteWithRetry(() => ItemClient.insertPriceLineAsync(Uuid, itemId, projectType, pricelineIn, false));
         var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, priceUnitId, Language));
 
-        return CreatePricelineResponse(response, priceUnit);
+        return new PricelineResponse(response, priceUnit);
     }
 
     [Action("Delete item priceline", Description = "Delete a priceline from an item")]
@@ -406,14 +403,9 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
         if (!string.IsNullOrEmpty(input.TaxType))
             pricelineIn.taxType = int.Parse(input.TaxType);
 
-        var response = await ExecuteWithRetryAcceptNull(() => ItemClient.updatePriceLineAsync(Uuid, itemId, projectType, pricelineIn));
-        if (response == null)
-        {
-            throw new PluginApplicationException("Failed to update priceline: API returned null. Please check your input and try again");
-        }
-
+        var response = await ExecuteWithRetry(() => ItemClient.updatePriceLineAsync(Uuid, itemId, projectType, pricelineIn));
         var priceUnit = await ExecuteWithRetry(() => ItemClient.getPriceUnitAsync(Uuid, priceUnitId, Language));
-        return CreatePricelineResponse(response, priceUnit);
+        return new PricelineResponse(response, priceUnit);
     }
 
     [Action("Get unit price from pricelist", Description = "Get the matching unit price from the item's assigned pricelist for an existing priceline")]
@@ -517,26 +509,7 @@ public class ItemActions(InvocationContext invocationContext) : PlunetInvocable(
 
         return (matchingEntries[0], pricelist);
     }
-
-    private PricelineResponse CreatePricelineResponse(PriceLine line, PriceUnit? unit)
-    {
-
-        return new PricelineResponse
-        {
-            Amount = line.amount,
-            AmountPerUnit = line.amount_perUnit,
-            Memo = line.memo ?? string.Empty,
-            Id = line.priceLineID.ToString(),
-            UnitPrice = line.unit_price,
-            Sequence = line.sequence,
-            TaxType = line.taxType.ToString() ?? string.Empty,
-            TimePerUnit = line.time_perUnit,
-            PriceUnitId = line.priceUnitID.ToString(),
-            PriceUnitDescription = unit?.description ?? "",
-            PriceUnitService = unit?.service ?? ""
-        };
-    }
-
+    
     [Action("Get language CAT code", Description = "Get language CAT code")]
     public async Task<string> GetLanguageCatCodeAsync([ActionParameter] LanguageCatCodeRequest input)
     {
