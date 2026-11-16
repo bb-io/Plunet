@@ -425,7 +425,8 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
 
     [Action("Update job", Description = "Update an existing job in Plunet")]
     public async Task<JobResponse> UpdateJob([ActionParameter] GetJobRequest request,
-        [ActionParameter] CreateJobRequest input, [ActionParameter] [Display("Pricelist ID")]string? pricelist, [ActionParameter] ContactPersonRequest contactPerson)
+        [ActionParameter] CreateJobRequest input, [ActionParameter] [Display("Pricelist ID")]string? pricelist,
+        [ActionParameter] ContactPersonRequest contactPerson, [ActionParameter] UpdateJobOptionalRequest optionalInput)
     {
         var jobId = ParseId(request.JobId);
         var projectType = ParseId(request.ProjectType);
@@ -449,6 +450,11 @@ public class JobActions(InvocationContext invocationContext) : PlunetInvocable(i
             jobIn.startDate = input.StartDate.Value;
 
         await ExecuteWithRetry(() => JobClient.updateAsync(Uuid, jobIn, false));
+
+        if (optionalInput.Comment is not null)
+        {
+            await ExecuteWithRetry(() => JobClient.setCommentAsync(Uuid, projectType, jobId, optionalInput.Comment));
+        }
 
         if (!String.IsNullOrEmpty(pricelist))
         {
