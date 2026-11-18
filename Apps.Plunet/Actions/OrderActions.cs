@@ -91,8 +91,6 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
 
         var contact = await ExecuteWithRetryAcceptNull(() => OrderClient.getCustomerContactIDAsync(Uuid, ParseId(request.OrderId)));
 
-        var status = await ExecuteWithRetry(() => OrderClient.getProjectStatusAsync(Uuid, ParseId(request.OrderId)));
-
         var projectCategory = await ExecuteWithRetryAcceptNull(() => OrderClient.getProjectCategoryAsync(Uuid, Language, ParseId(request.OrderId)));
 
         var projectStatus = await ExecuteWithRetry(() => OrderClient.getProjectStatusAsync(Uuid, ParseId(request.OrderId)));
@@ -101,7 +99,7 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
         {
             TotalPrice = totalOrderPrice,
             ContactId = contact?.ToString(),
-            Status = status.ToString(),
+            Status = projectStatus.ToString(),
             ProjectCategory = projectCategory ?? string.Empty,
             ProjectStatus = projectStatus.ToString()
         };
