@@ -33,20 +33,7 @@ public class DataSourceTests : TestBase
         }
         Assert.IsTrue(result.Count > 0);
     }
-
-    //[TestMethod]
-    //public async Task Project_manager_returns_values()
-    //{
-    //    var handler = new ProjectManagerIdDataHandler(InvocationContext);
-
-    //    var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
-    //    foreach (var item in result)
-    //    {
-    //        Console.WriteLine($"{item.Key}: {item.Value}");
-    //    }
-    //    Assert.IsTrue(result.Count > 0);
-    //}
-
+    
     [TestMethod]
     public async Task Countries_returns_values()
     {
@@ -150,6 +137,34 @@ public class DataSourceTests : TestBase
         foreach (var item in result)
             Console.WriteLine($"{item.Value}: {item.DisplayName}");
 
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task QuoteIdDataHandler_ReturnsQuoteIds()
+    {
+        // Arrange
+        var handler = new QuoteIdDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task OrderIdDataHandler_ReturnsOrderIds()
+    {
+        // Arrange
+        var handler = new OrderIdDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
         Assert.IsNotNull(result);
     }
 }
