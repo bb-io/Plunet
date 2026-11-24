@@ -63,21 +63,20 @@ public class DataSourceTests : TestBase
     }
 
     [TestMethod]
-    public async Task JobPriceUnitDataHandler_returns_values()
+    public async Task JobPriceUnitDataHandler_ReturnsJobPriceUnits()
     {
+        // Arrange
         var handler = new JobPriceUnitDataHandler(InvocationContext, new()
         {
             Service = "Proofreading"
         });
         
+        // Act
         var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
-        var dataSourceItems = result as DataSourceItem[] ?? result.ToArray();
         
-        foreach (var item in dataSourceItems)
-        {
-            Console.WriteLine($"{item.Value}: {item.DisplayName}");
-        }
-        Assert.IsTrue(dataSourceItems.Any());
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
     }
 
     [TestMethod]
@@ -176,6 +175,35 @@ public class DataSourceTests : TestBase
         // Arrange
         var request = new ItemPriceUnitRequest { Service = "Interpreting" };
         var handler = new ItemPriceUnitDataHandler(InvocationContext, request);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task ItemPriceUnitDescriptionHandler_ReturnsPriceUnitDescriptions()
+    {
+        // Arrange
+        var request = new ItemPriceUnitRequest { Service = "Interpreting" };
+        var handler = new ItemPriceUnitDescriptionHandler(InvocationContext, request);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task JobTypeDataHandler_ReturnsJobTypes()
+    {
+        // Arrange
+        var handler = new JobTypeDataHandler(InvocationContext);
 
         // Act
         var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);

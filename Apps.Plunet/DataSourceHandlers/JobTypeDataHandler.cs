@@ -1,28 +1,19 @@
-﻿using Apps.Plunet.Constants;
-using Apps.Plunet.Invocables;
+﻿using Apps.Plunet.Invocables;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
-namespace Apps.Plunet.DataSourceHandlers
+namespace Apps.Plunet.DataSourceHandlers;
+
+public class JobTypeDataHandler(InvocationContext invocationContext) : PlunetInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
-    public class JobTypeDataHandler : PlunetInvocable, IAsyncDataSourceHandler
+    public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        public JobTypeDataHandler(InvocationContext invocationContext) : base(invocationContext)
-        {
-        }
+        var response = await ExecuteWithRetry(() => AdminClient.getAvailableServicesAsync(Uuid, Language));
 
-        public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
-            CancellationToken cancellationToken)
-        {
-            var response = await AdminClient.getAvailableServicesAsync(Uuid, Language);
-
-            if (response.statusMessage != ApiResponses.Ok)
-                throw new(response.statusMessage);
-
-            return response.data
-                .Where(service => context.SearchString == null ||
-                                   service.name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-                .ToDictionary(x => x.abbreviation.ToString(), x => x.name);
-        }
+        return response
+            .Where(service => context.SearchString == null ||
+                              service.name.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
+            .Select(x => new DataSourceItem(x.abbreviation.ToString(), x.name))
+            .ToList();
     }
 }
