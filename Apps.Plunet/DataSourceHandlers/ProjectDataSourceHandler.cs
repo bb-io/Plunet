@@ -2,6 +2,7 @@
 using Apps.Plunet.Models.Item;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
 namespace Apps.Plunet.DataSourceHandlers;
@@ -12,7 +13,7 @@ public class ProjectDataSourceHandler(InvocationContext invocationContext, [Acti
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(actionContext.ProjectType))
-            throw new("Please fill in the type first");
+            throw new PluginMisconfigurationException("Please fill in the type first");
 
         if (actionContext.ProjectType == "3") // order
         {
