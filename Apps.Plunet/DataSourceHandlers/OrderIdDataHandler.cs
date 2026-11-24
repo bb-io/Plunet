@@ -1,4 +1,5 @@
-﻿using Apps.Plunet.Invocables;
+﻿using Apps.Plunet.Extensions;
+using Apps.Plunet.Invocables;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
@@ -8,15 +9,15 @@ public class OrderIdDataHandler(InvocationContext invocationContext) : PlunetInv
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        var orderIds = await ExecuteWithRetry(() => OrderClient.searchAsync(Uuid, new()
+        var orderIds = await ExecuteWithRetryAcceptNull(() => OrderClient.searchAsync(Uuid, new()
         {                
             projectName = context.SearchString ?? ""
         }));
 
-        if (orderIds.Length == 0)
+        if (orderIds is null || orderIds.Length == 0)
             return [];
 
         var orders = await ExecuteWithRetry(() => OrderClient.getOrderObjectListAsync(Uuid, orderIds));
-        return orders.Select(x => new DataSourceItem(x.orderID.ToString(), x.projectName)).ToList();
+        return orders.Select(x => new DataSourceItem(x.orderID.ToString(), x.ToDisplayName())).ToList();
     }
 }

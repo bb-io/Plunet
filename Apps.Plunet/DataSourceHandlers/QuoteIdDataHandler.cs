@@ -1,4 +1,5 @@
-﻿using Apps.Plunet.Invocables;
+﻿using Apps.Plunet.Extensions;
+using Apps.Plunet.Invocables;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
@@ -8,14 +9,14 @@ public class QuoteIdDataHandler(InvocationContext invocationContext) : PlunetInv
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        var quoteIds = await ExecuteWithRetry(() => QuoteClient.searchAsync(Uuid, new()));
-        if (quoteIds.Length == 0)
+        var quoteIds = await ExecuteWithRetryAcceptNull(() => QuoteClient.searchAsync(Uuid, new()));
+        if (quoteIds is null || quoteIds.Length == 0)
             return [];
         
         var quotes = await ExecuteWithRetry(() => QuoteClient.getQuoteObjectListAsync(Uuid, quoteIds));
         return quotes
-            .Where(x => context.SearchString == null || x.projectName.Contains(context.SearchString))
-            .Select(x => new DataSourceItem(x.quoteID.ToString(), x.projectName))
+            .Where(x => context.SearchString == null || x.ToDisplayName().Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
+            .Select(x => new DataSourceItem(x.quoteID.ToString(), x.ToDisplayName()))
             .ToList();
     }
 }
