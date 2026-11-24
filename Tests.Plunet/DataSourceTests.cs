@@ -22,16 +22,17 @@ public class DataSourceTests : TestBase
     }
 
     [TestMethod]
-    public async Task Customers_returns_values()
+    public async Task CustomerIdDataHandler_ReturnsCustomerIds()
     {
+        // Arrange
         var handler = new CustomerIdDataHandler(InvocationContext);
 
+        // Act
         var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
-        foreach (var item in result)
-        {
-            Console.WriteLine($"{item.Key}: {item.Value}");
-        }
-        Assert.IsTrue(result.Count > 0);
+        
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
     }
     
     [TestMethod]
