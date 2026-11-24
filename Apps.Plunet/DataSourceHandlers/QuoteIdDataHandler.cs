@@ -9,8 +9,8 @@ public class QuoteIdDataHandler(InvocationContext invocationContext) : PlunetInv
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        var quoteIds = await ExecuteWithRetryAcceptNull(() => QuoteClient.searchAsync(Uuid, new()));
-        if (quoteIds is null || quoteIds.Length == 0)
+        var quoteIds = await ExecuteWithRetry(() => QuoteClient.searchAsync(Uuid, new()));
+        if (quoteIds.Length == 0)
             return [];
         
         var quotes = await ExecuteWithRetry(() => QuoteClient.getQuoteObjectListAsync(Uuid, quoteIds));

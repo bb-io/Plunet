@@ -9,7 +9,7 @@ public class OrderIdDataHandler(InvocationContext invocationContext) : PlunetInv
 {
     public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        var orderIds = await ExecuteWithRetryAcceptNull(() => OrderClient.searchAsync(Uuid, new()
+        var orderIds = await ExecuteWithRetry(() => OrderClient.searchAsync(Uuid, new()
         {                
             projectName = context.SearchString ?? ""
         }));
