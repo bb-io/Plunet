@@ -1,5 +1,6 @@
 ﻿using Tests.Plunet.Base;
 using Apps.Plunet.DataSourceHandlers;
+using Apps.Plunet.Models.Item;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Apps.Plunet.Models.Job;
 
@@ -160,6 +161,21 @@ public class DataSourceTests : TestBase
     {
         // Arrange
         var handler = new OrderIdDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task ItemPriceUnitDataHandler_ReturnsPriceUnits()
+    {
+        // Arrange
+        var request = new ItemPriceUnitRequest { Service = "Interpreting" };
+        var handler = new ItemPriceUnitDataHandler(InvocationContext, request);
 
         // Act
         var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);

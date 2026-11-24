@@ -389,7 +389,8 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<Language[]> ExecuteWithRetry(Func<Task<LanguageListResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
-
+    protected async Task<Blackbird.Plugins.Plunet.DataAdmin30Service.PriceUnit[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataAdmin30Service.PriceUnitListResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data ?? [];
 
     // Customer service
     protected async Task ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataCustomer30Service.Result>> func, int maxRetries = 10, int delay = 1000)
