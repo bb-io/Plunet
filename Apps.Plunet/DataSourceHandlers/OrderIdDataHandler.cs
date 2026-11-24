@@ -1,41 +1,22 @@
-﻿using Apps.Plunet.Constants;
-using Apps.Plunet.Invocables;
-using Blackbird.Applications.Sdk.Common.Authentication;
+﻿using Apps.Plunet.Invocables;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
-namespace Apps.Plunet.DataSourceHandlers
+namespace Apps.Plunet.DataSourceHandlers;
+
+public class OrderIdDataHandler(InvocationContext invocationContext) : PlunetInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
-    public class OrderIdDataHandler : PlunetInvocable, IAsyncDataSourceHandler
+    public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        private IEnumerable<AuthenticationCredentialsProvider> Creds =>
-        InvocationContext.AuthenticationCredentialsProviders.ToList();
+        var orderIds = await ExecuteWithRetry(() => OrderClient.searchAsync(Uuid, new()
+        {                
+            projectName = context.SearchString ?? ""
+        }));
 
-        public OrderIdDataHandler(InvocationContext invocationContext) : base(invocationContext)
-        {
-        }
+        if (orderIds.Length == 0)
+            return [];
 
-        public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
-            CancellationToken cancellationToken)
-        {
-
-            var response = await OrderClient.searchAsync(Uuid, new()
-            {                
-                projectName = context.SearchString ?? ""
-            });
-
-            if (response.statusMessage != ApiResponses.Ok)
-                throw new(response.statusMessage);
-
-            var orders = await OrderClient.getOrderObjectListAsync(Uuid, response.data);
-
-            if (orders.OrderListResult.statusMessage != ApiResponses.Ok)
-                throw new(orders.OrderListResult.statusMessage);
-
-            return orders.OrderListResult.data
-                .Take(20)
-                .ToDictionary(x => x.orderID.ToString(), x => x.projectName);
-
-        }
+        var orders = await ExecuteWithRetry(() => OrderClient.getOrderObjectListAsync(Uuid, orderIds));
+        return orders.Select(x => new DataSourceItem(x.orderID.ToString(), x.projectName)).ToList();
     }
 }
