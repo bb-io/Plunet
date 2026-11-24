@@ -1,28 +1,19 @@
-﻿using Apps.Plunet.Constants;
-using Apps.Plunet.Invocables;
+﻿using Apps.Plunet.Invocables;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
-namespace Apps.Plunet.DataSourceHandlers
+namespace Apps.Plunet.DataSourceHandlers;
+
+public class QuoteTemplateDataHandler(InvocationContext invocationContext) : PlunetInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
-    public class QuoteTemplateDataHandler : PlunetInvocable, IAsyncDataSourceHandler
+    public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        public QuoteTemplateDataHandler(InvocationContext invocationContext) : base(invocationContext)
-        {
-        }
+        var response = await ExecuteWithRetry(() => QuoteClient.getTemplateListAsync(Uuid));
 
-        public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
-            CancellationToken cancellationToken)
-        {
-            var response = await QuoteClient.getTemplateListAsync(Uuid);
-
-            if (response.statusMessage != ApiResponses.Ok)
-                throw new(response.statusMessage);
-
-            return response.data
-                .Where(x => context.SearchString == null ||
-                            x.templateName.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-                .ToDictionary(x => x.templateID.ToString(), x => x.templateName);
-        }
+        return response
+            .Where(x => context.SearchString == null ||
+                        x.templateName.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
+            .Select(x => new DataSourceItem(x.templateID.ToString(), x.templateName))
+            .ToList();
     }
 }
