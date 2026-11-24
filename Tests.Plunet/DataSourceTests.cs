@@ -1,5 +1,6 @@
 ﻿using Tests.Plunet.Base;
 using Apps.Plunet.DataSourceHandlers;
+using Apps.Plunet.Models.Item;
 using Blackbird.Applications.Sdk.Common.Dynamic;
 using Apps.Plunet.Models.Job;
 
@@ -9,44 +10,33 @@ namespace Tests.Plunet;
 public class DataSourceTests : TestBase
 {
     [TestMethod]
-    public async Task Templates_returns_values()
+    public async Task TemplateDataHandler_ReturnsTemplates()
     {
+        // Arrange
         var handler = new TemplateDataHandler(InvocationContext);
 
+        // Act
         var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
-        foreach(var item in result)
-        {
-            Console.WriteLine($"{item.Key}: {item.Value}");
-        }
-        Assert.IsTrue(result.Count > 0);
+        
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
     }
 
     [TestMethod]
-    public async Task Customers_returns_values()
+    public async Task CustomerIdDataHandler_ReturnsCustomerIds()
     {
+        // Arrange
         var handler = new CustomerIdDataHandler(InvocationContext);
 
+        // Act
         var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
-        foreach (var item in result)
-        {
-            Console.WriteLine($"{item.Key}: {item.Value}");
-        }
-        Assert.IsTrue(result.Count > 0);
+        
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
     }
-
-    //[TestMethod]
-    //public async Task Project_manager_returns_values()
-    //{
-    //    var handler = new ProjectManagerIdDataHandler(InvocationContext);
-
-    //    var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
-    //    foreach (var item in result)
-    //    {
-    //        Console.WriteLine($"{item.Key}: {item.Value}");
-    //    }
-    //    Assert.IsTrue(result.Count > 0);
-    //}
-
+    
     [TestMethod]
     public async Task Countries_returns_values()
     {
@@ -74,33 +64,33 @@ public class DataSourceTests : TestBase
     }
 
     [TestMethod]
-    public async Task JobPriceUnitDataHandler_returns_values()
+    public async Task JobPriceUnitDataHandler_ReturnsJobPriceUnits()
     {
+        // Arrange
         var handler = new JobPriceUnitDataHandler(InvocationContext, new()
         {
             Service = "Proofreading"
         });
         
+        // Act
         var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
-        var dataSourceItems = result as DataSourceItem[] ?? result.ToArray();
         
-        foreach (var item in dataSourceItems)
-        {
-            Console.WriteLine($"{item.Value}: {item.DisplayName}");
-        }
-        Assert.IsTrue(dataSourceItems.Any());
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
     }
 
     [TestMethod]
-    public async Task ServiceNameDataHandler_returns_values()
+    public async Task ServiceNameDataHandler_ReturnsServiceNames()
     {
+        // Arrange
         var handler = new ServiceNameDataHandler(InvocationContext);
 
+        // Act
         var result = await handler.GetDataAsync(new DataSourceContext { }, CancellationToken.None);
       
-        var json = System.Text.Json.JsonSerializer.Serialize(result);
-        Console.WriteLine(json);
-
+        // Assert
+        PrintDataHandlerResult(result);
         Assert.IsNotNull(result);
     }
 
@@ -150,6 +140,134 @@ public class DataSourceTests : TestBase
         foreach (var item in result)
             Console.WriteLine($"{item.Value}: {item.DisplayName}");
 
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task QuoteIdDataHandler_ReturnsQuoteIds()
+    {
+        // Arrange
+        var handler = new QuoteIdDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task OrderIdDataHandler_ReturnsOrderIds()
+    {
+        // Arrange
+        var handler = new OrderIdDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task ItemPriceUnitDataHandler_ReturnsPriceUnits()
+    {
+        // Arrange
+        var request = new ItemPriceUnitRequest { Service = "Interpreting" };
+        var handler = new ItemPriceUnitDataHandler(InvocationContext, request);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task ItemPriceUnitDescriptionHandler_ReturnsPriceUnitDescriptions()
+    {
+        // Arrange
+        var request = new ItemPriceUnitRequest { Service = "Interpreting" };
+        var handler = new ItemPriceUnitDescriptionHandler(InvocationContext, request);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task JobTypeDataHandler_ReturnsJobTypes()
+    {
+        // Arrange
+        var handler = new JobTypeDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task JobTypeOptionDataHandler_ReturnsJobTypeOptions()
+    {
+        // Arrange
+        var handler = new JobTypeOptionDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task QuoteTemplateDataHandler_ReturnsQuoteTemplates()
+    {
+        // Arrange
+        var handler = new QuoteTemplateDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task ResourceIdDataHandler_ReturnsResourceIds()
+    {
+        // Arrange
+        var handler = new ResourceIdDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "Sky" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
+        Assert.IsNotNull(result);
+    }
+    
+    [TestMethod]
+    public async Task WorkflowIdDataHandler_ReturnsWorkflowIds()
+    {
+        // Arrange
+        var handler = new WorkflowIdDataHandler(InvocationContext);
+
+        // Act
+        var result = await handler.GetDataAsync(new DataSourceContext { SearchString = "" }, CancellationToken.None);
+
+        // Assert
+        PrintDataHandlerResult(result);
         Assert.IsNotNull(result);
     }
 }

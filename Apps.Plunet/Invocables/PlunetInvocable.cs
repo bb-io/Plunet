@@ -308,8 +308,6 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, true, maxRetries, delay))?.data;
     protected async Task<Blackbird.Plugins.Plunet.DataJob30Service.Pricelist[]?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataJob30Service.PricelistListResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
-    protected async Task<string?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataJob30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<string> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataJob30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<DateTime> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataJob30Service.DateResult>> func, int maxRetries = 10, int delay = 1000)
@@ -325,12 +323,8 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<int?[]> ExecuteWithRetry(Func<Task<DataJobRound30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
-    protected async Task<int?[]?> ExecuteWithRetryAcceptNull(Func<Task<DataJobRound30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<int> ExecuteWithRetry(Func<Task<DataJobRound30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
-    protected async Task<int?> ExecuteWithRetryAcceptNull(Func<Task<DataJobRound30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, true, maxRetries, delay))?.data;
 
 
     // Quote service
@@ -339,7 +333,7 @@ public class PlunetInvocable : BaseInvocable
     protected async Task<Quote> ExecuteWithRetry(Func<Task<QuoteResult>> func, int maxRetries = 10, int delay = 1000)
      => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<int?[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
-    => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<int?[]?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<int> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataQuote30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
@@ -348,21 +342,21 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, true, maxRetries, delay))?.data;
     protected async Task<string?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataQuote30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
-
-
+    protected async Task<Quote[]> ExecuteWithRetry(Func<Task<getQuoteObjectListResponse>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.QuoteListResult.statusMessage, (x) => x.QuoteListResult.data != null, false, maxRetries, delay))!.QuoteListResult.data;
+    protected async Task<Blackbird.Plugins.Plunet.DataQuote30Service.Template[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataQuote30Service.TemplateListResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data ?? [];
+    
+    
     // Request service
     protected async Task ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataRequest30Service.Result>> func, int maxRetries = 10, int delay = 1000)
         => await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
     protected async Task<Request> ExecuteWithRetry(Func<Task<RequestResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
-    protected async Task<int?[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataRequest30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<int?[]?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataRequest30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<int> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataRequest30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
     => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
-    protected async Task<int?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataRequest30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, true, maxRetries, delay))?.data;
     protected async Task<string> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataRequest30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
     => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
 
@@ -374,15 +368,15 @@ public class PlunetInvocable : BaseInvocable
     => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfo> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataResource30Service.PaymentInfoResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
-    protected async Task<int?[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<int?[]?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<int> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
     protected async Task<int?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataResource30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, true, maxRetries, delay))?.data;
-
+    protected async Task<Resource[]> ExecuteWithRetry(Func<Task<getAllResourceObjects2Response>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.ResourceListResult.statusMessage, (x) => x.ResourceListResult.data != null, false, maxRetries, delay))!.ResourceListResult.data ?? [];
+    
 
     // Resource address service
     protected async Task ExecuteWithRetry(Func<Task<DataResourceAddress30Service.Result>> func, int maxRetries = 10, int delay = 1000)
@@ -402,8 +396,14 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<Language[]> ExecuteWithRetry(Func<Task<LanguageListResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
-
-
+    protected async Task<Blackbird.Plugins.Plunet.DataAdmin30Service.PriceUnit[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataAdmin30Service.PriceUnitListResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data ?? [];
+    protected async Task<Service[]> ExecuteWithRetry(Func<Task<ServiceListResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data ?? [];
+    protected async Task<Blackbird.Plugins.Plunet.DataAdmin30Service.Workflow[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataAdmin30Service.WorkflowListResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data ?? [];
+    
+    
     // Customer service
     protected async Task ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataCustomer30Service.Result>> func, int maxRetries = 10, int delay = 1000)
         => await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
@@ -419,7 +419,8 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, true, maxRetries, delay))?.data;
     protected async Task<string?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataCustomer30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
     => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
-
+    protected async Task<Customer[]> ExecuteWithRetry(Func<Task<getAllCustomerObjects2Response>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.CustomerListResult.statusMessage, (x) => x.CustomerListResult.data != null, false, maxRetries, delay))!.CustomerListResult.data ?? [];
 
     // Customer address service
     protected async Task<int> ExecuteWithRetry(Func<Task<DataCustomerAddress30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
@@ -434,13 +435,9 @@ public class PlunetInvocable : BaseInvocable
     // Customer contact service
     protected async Task ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataCustomerContact30Service.Result>> func, int maxRetries = 10, int delay = 1000)
         => await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
-    protected async Task<CustomerContact> ExecuteWithRetry(Func<Task<CustomerContactResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<CustomerContact[]?> ExecuteWithRetryAcceptNull(Func<Task<CustomerContactListResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<string?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataCustomerContact30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
-    protected async Task<int?[]?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataCustomerContact30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<int?[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataCustomerContact30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
@@ -451,8 +448,6 @@ public class PlunetInvocable : BaseInvocable
 
 
     // Document service
-    protected async Task ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataDocument30Service.Result>> func, int maxRetries = 10, int delay = 1000)
-        => await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
     protected async Task ExecuteWithRetry(Func<Task<upload_DocumentResponse>> func, int maxRetries = 10, int delay = 1000)
         => await ThrowOrHandleRetries(func, (x) => x.Result.statusMessage, (x) => false, false, maxRetries, delay);
     protected async Task<FileResult> ExecuteWithRetry(Func<Task<FileResult>> func, int maxRetries = 10, int delay = 1000)
@@ -480,8 +475,6 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<Blackbird.Plugins.Plunet.DataItem30Service.PriceUnit> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.PriceUnitResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
-    protected async Task<Blackbird.Plugins.Plunet.DataItem30Service.PriceLine?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.PriceLineResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<Blackbird.Plugins.Plunet.DataItem30Service.PriceLine> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.PriceLineResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
     protected async Task<int?[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
@@ -490,14 +483,6 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
     protected async Task<int> ExecuteWithoutRetry(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.IntegerResult>> func, int maxRetries = 0, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
-    protected async Task<int?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, true, maxRetries, delay))?.data;
-    protected async Task<string?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
-    protected async Task<string[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.StringArrayResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
-    protected async Task<string[]?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.StringArrayResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<Blackbird.Plugins.Plunet.DataItem30Service.setCatReport2Response> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataItem30Service.setCatReport2Response>> func, int maxRetries = 10, int delay = 1000)
         => await ThrowOrHandleRetries(func, (x) => x.Result.statusMessage, (x) => false, false, maxRetries, delay);
 
@@ -512,12 +497,8 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<int?[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataOrder30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
-    protected async Task<int?[]?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataOrder30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<string[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataOrder30Service.StringArrayResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
-    protected async Task<string[]?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataOrder30Service.StringArrayResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<int> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataOrder30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
     protected async Task<int> ExecuteWithoutRetry(Func<Task<Blackbird.Plugins.Plunet.DataOrder30Service.IntegerResult>> func, int maxRetries = 0, int delay = 1000)
@@ -526,8 +507,12 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, true, maxRetries, delay))?.data;
     protected async Task<string?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataOrder30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
-
-
+    protected async Task<Order[]> ExecuteWithRetry(Func<Task<getOrderObjectListResponse>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.OrderListResult.statusMessage, (x) => x.OrderListResult.data != null, false, maxRetries, delay))!.OrderListResult.data;
+    protected async Task<Blackbird.Plugins.Plunet.DataOrder30Service.Template[]> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataOrder30Service.TemplateListResult>> func, int maxRetries = 10, int delay = 1000)
+        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data ?? [];
+    
+    
     // Invoice service
     protected async Task<Invoice> ExecuteWithRetry(Func<Task<InvoiceResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
@@ -539,14 +524,6 @@ public class PlunetInvocable : BaseInvocable
         => await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
     protected async Task<int?[]> ExecuteWithRetry(Func<Task<DataOutgoingInvoice30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
-    protected async Task<int?[]?> ExecuteWithRetryAcceptNull(Func<Task<DataOutgoingInvoice30Service.IntegerArrayResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
-    protected async Task<int> ExecuteWithRetry(Func<Task<DataOutgoingInvoice30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
-    protected async Task<int?> ExecuteWithRetryAcceptNull(Func<Task<DataOutgoingInvoice30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, true, maxRetries, delay))?.data;
-    protected async Task<string?> ExecuteWithRetryAcceptNull(Func<Task<DataOutgoingInvoice30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
 
 
     // Payable service
@@ -560,8 +537,6 @@ public class PlunetInvocable : BaseInvocable
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<int> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataPayable30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, false, maxRetries, delay))!.data;
-    protected async Task<int?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataPayable30Service.IntegerResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != 0, true, maxRetries, delay))?.data;
     protected async Task<string?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataPayable30Service.StringResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
     protected async Task<Blackbird.Plugins.Plunet.DataPayable30Service.TaxListResult?> ExecuteWithRetryAcceptNull(Func<Task<Blackbird.Plugins.Plunet.DataPayable30Service.TaxListResult>> func, int maxRetries = 10, int delay = 1000)
@@ -573,12 +548,10 @@ public class PlunetInvocable : BaseInvocable
     protected async Task<bool> ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataPayable30Service.BooleanResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay))!.data;
 
+    
     // Quality Manager service
     protected async Task ExecuteWithRetry(Func<Task<Blackbird.Plugins.Plunet.DataQualityManager30.Result>> func, int maxRetries = 10, int delay = 1000)
         => await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => false, false, maxRetries, delay);
     protected async Task<JobQuality> ExecuteWithRetry(Func<Task<JobQualityResult>> func, int maxRetries = 10, int delay = 1000)
         => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, false, maxRetries, delay))!.data;
-    protected async Task<JobQuality?> ExecuteWithRetryAcceptNull(Func<Task<JobQualityResult>> func, int maxRetries = 10, int delay = 1000)
-        => (await ThrowOrHandleRetries(func, (x) => x.statusMessage, (x) => x.data != null, true, maxRetries, delay))?.data;
-
 }

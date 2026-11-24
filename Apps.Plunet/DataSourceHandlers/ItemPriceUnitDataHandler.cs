@@ -1,35 +1,25 @@
-﻿using Apps.Plunet.Constants;
-using Apps.Plunet.Invocables;
+﻿using Apps.Plunet.Invocables;
 using Apps.Plunet.Models.Item;
 using Blackbird.Applications.Sdk.Common;
 using Blackbird.Applications.Sdk.Common.Dynamic;
+using Blackbird.Applications.Sdk.Common.Exceptions;
 using Blackbird.Applications.Sdk.Common.Invocation;
 
-namespace Apps.Plunet.DataSourceHandlers
+namespace Apps.Plunet.DataSourceHandlers;
+
+public class ItemPriceUnitDataHandler(InvocationContext invocationContext, [ActionParameter] ItemPriceUnitRequest request)
+    : PlunetInvocable(invocationContext), IAsyncDataSourceItemHandler
 {
-    public class ItemPriceUnitDataHandler : PlunetInvocable, IAsyncDataSourceHandler
+    public async Task<IEnumerable<DataSourceItem>> GetDataAsync(DataSourceContext context, CancellationToken cancellationToken)
     {
-        private ItemPriceUnitRequest request;
-        public ItemPriceUnitDataHandler(InvocationContext invocationContext, [ActionParameter] ItemPriceUnitRequest context) : base(invocationContext)
-        {
-            request = context;
-        }
+        if (string.IsNullOrWhiteSpace(request.Service))
+            throw new PluginMisconfigurationException("Please fill in the service first");
 
-        public async Task<Dictionary<string, string>> GetDataAsync(DataSourceContext context,
-            CancellationToken cancellationToken)
-        {
-            if (string.IsNullOrWhiteSpace(request.Service))
-                throw new("Please fill in the service first");
-
-            var response = await AdminClient.getAvailablePriceUnitsAsync(Uuid, Language, request.Service);
-
-            if (response.statusMessage != ApiResponses.Ok)
-                throw new(response.statusMessage);
-
-            return response.data
-                .Where(unit => context.SearchString == null ||
-                                   unit.description.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
-                .ToDictionary(x => x.priceUnitID.ToString(), x => x.description);
-        }
+        var response = await ExecuteWithRetry(() => AdminClient.getAvailablePriceUnitsAsync(Uuid, Language, request.Service));
+        return response
+            .Where(unit => context.SearchString == null ||
+                           unit.description.Contains(context.SearchString, StringComparison.OrdinalIgnoreCase))
+            .Select(x => new DataSourceItem(x.priceUnitID.ToString(), x.description))
+            .ToList();
     }
 }
