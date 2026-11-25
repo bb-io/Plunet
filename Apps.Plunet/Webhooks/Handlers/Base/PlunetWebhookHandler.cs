@@ -1,6 +1,4 @@
-﻿using Apps.Plunet.Api;
-using Apps.Plunet.Constants;
-using Apps.Plunet.Extensions;
+﻿using Apps.Plunet.Constants;
 using Apps.Plunet.Invocables;
 using Apps.Plunet.Webhooks.CallbackClients.Base;
 using Blackbird.Applications.Sdk.Common.Authentication;
@@ -27,8 +25,7 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
     public async Task UnsubscribeAsync(IEnumerable<AuthenticationCredentialsProvider> creds,
         Dictionary<string, string> values)
     {
-        var dataAdminClient = Clients.GetAdminClient(creds.GetInstanceUrl());
-        var callbacks = await ExecuteWithRetryAcceptNull(() => dataAdminClient.getListOfRegisteredCallbacksAsync(Uuid));
+        var callbacks = await ExecuteWithRetryAcceptNull(() => AdminClient.getListOfRegisteredCallbacksAsync(Uuid));
         if (callbacks is null)
         {
             return;
@@ -69,9 +66,7 @@ public abstract class PlunetWebhookHandler(InvocationContext invocationContext)
 
         try
         {
-            var dataAdminClient = Clients.GetAdminClient(creds.GetInstanceUrl());
-            var callbacks = await ExecuteWithRetryAcceptNull(() =>
-                dataAdminClient.getListOfRegisteredCallbacksAsync(Uuid));
+            var callbacks = await ExecuteWithRetryAcceptNull(() => AdminClient.getListOfRegisteredCallbacksAsync(Uuid));
 
             return IsCallbackRegistered(callbacks, EventType, webhookUrl)
                 ? new WebhookSubscriptionValidationResponse { IsValid = true }
