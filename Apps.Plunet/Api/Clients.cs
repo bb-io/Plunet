@@ -1,4 +1,6 @@
-﻿using System.ServiceModel;
+﻿using System.Collections.Concurrent;
+using System.Runtime.Loader;
+using System.ServiceModel;
 using System.ServiceModel.Channels;
 using Apps.Plunet.DataOutgoingInvoice30Service;
 using Blackbird.Applications.Sdk.Common.Exceptions;
@@ -26,6 +28,31 @@ public static class Clients
 {
     // 30 minutes timeout in milliseconds
     private const int ExtendedTimeoutMs = 1800000;
+    
+    private static readonly ConcurrentDictionary<(Type Type, string Url), ICommunicationObject> CachedClients = new();
+
+    static Clients()
+    {
+        AssemblyLoadContext.GetLoadContext(typeof(Clients).Assembly)!.Unloading += _ => AbortAll();
+    }
+
+    public static TClient GetCached<TClient>(string url, Func<string, TClient> createClient)
+        where TClient : class, ICommunicationObject
+    {
+        var key = (typeof(TClient), url.TrimEnd('/'));
+        var client = (TClient)CachedClients.GetOrAdd(key, _ => createClient(url));
+        
+        if (client.State is not (CommunicationState.Faulted or CommunicationState.Closing or CommunicationState.Closed))
+            return client;
+        
+        client.Abort();
+        
+        var freshClient = createClient(url);
+        if (!CachedClients.TryUpdate(key, freshClient, client))
+            freshClient.Abort();
+
+        return (TClient)CachedClients[key];
+    }
 
     public static PlunetAPIClient GetAuthClient(string url) => GetClient<PlunetAPIClient>(url, "PlunetAPI");
 
@@ -114,8 +141,7 @@ public static class Clients
 
             var httpBindingElement = new HttpTransportBindingElement
             {
-                // Common HTTP transport settings
-                AllowCookies = true,
+                AllowCookies = false,   // Clients are cached and shared so never carry cookies between callers
                 MaxBufferSize = int.MaxValue,
                 MaxReceivedMessageSize = int.MaxValue
             };
@@ -126,9 +152,7 @@ public static class Clients
             binding.ReceiveTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
             binding.OpenTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
             binding.CloseTimeout = TimeSpan.FromMilliseconds(ExtendedTimeoutMs);
-
-
-
+            
             var constructor = typeof(TClient).GetConstructor(new Type[] { typeof(Binding), typeof(EndpointAddress) });
             if (constructor != null)
             {
@@ -148,5 +172,13 @@ public static class Clients
 
             throw new InvalidOperationException($"Cannot find constructor with (Binding, EndpointAddress) in {typeof(TClient).Name}");
         }
+    }
+
+    private static void AbortAll()
+    {
+        foreach (var client in CachedClients.Values)
+            client.Abort();
+        
+        CachedClients.Clear();
     }
 }

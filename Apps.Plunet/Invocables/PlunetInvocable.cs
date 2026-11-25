@@ -47,24 +47,24 @@ public class PlunetInvocable : BaseInvocable
         Uuid = await AuthClient.loginAsync(Creds.GetUsername(), Creds.GetPassword());
     }
 
-    protected PlunetAPIClient AuthClient => Clients.GetAuthClient(Creds.GetInstanceUrl());
-    protected DataJobRound30Client JobRoundClient => Clients.GetJobRoundClient(Creds.GetInstanceUrl());
-    protected DataCustomer30Client CustomerClient => Clients.GetCustomerClient(Creds.GetInstanceUrl());
-    protected DataCustomerContact30Client ContactClient => Clients.GetContactClient(Creds.GetInstanceUrl());
-    protected DataAdmin30Client AdminClient => Clients.GetAdminClient(Creds.GetInstanceUrl());
-    protected DataDocument30Client DocumentClient => Clients.GetDocumentClient(Creds.GetInstanceUrl());
-    protected DataItem30Client ItemClient => Clients.GetItemClient(Creds.GetInstanceUrl());
-    protected DataOrder30Client OrderClient => Clients.GetOrderClient(Creds.GetInstanceUrl());
-    protected DataPayable30Client PayableClient => Clients.GetPayableClient(Creds.GetInstanceUrl());
-    protected DataResource30Client ResourceClient => Clients.GetResourceClient(Creds.GetInstanceUrl());
-    protected DataRequest30Client RequestClient => Clients.GetRequestClient(Creds.GetInstanceUrl());
-    protected DataQuote30Client QuoteClient =>ConfigureTimeout(Clients.GetQuoteClient(Creds.GetInstanceUrl()));
-    protected DataJob30Client JobClient => Clients.GetJobClient(Creds.GetInstanceUrl());
-    protected DataOutgoingInvoice30Client OutgoingInvoiceClient => Clients.GetOutgoingInvoiceClient(Creds.GetInstanceUrl());
-    protected DataResourceAddress30Client ResourceAddressClient => Clients.GetResourceAddressClient(Creds.GetInstanceUrl());
-    protected DataCustomerAddress30Client CustomerAddressClient => Clients.GetCustomerAddressClient(Creds.GetInstanceUrl());
-    protected DataCustomFields30Client CustomFieldsClient => Clients.GetCustomFieldsClient(Creds.GetInstanceUrl());
-    protected DataQualityManager30Client QualityManagerClient => Clients.GetQualityManagerClient(Creds.GetInstanceUrl());
+    protected PlunetAPIClient AuthClient => Clients.GetCached(Url, Clients.GetAuthClient);
+    protected DataJobRound30Client JobRoundClient => Clients.GetCached(Url, Clients.GetJobRoundClient);
+    protected DataCustomer30Client CustomerClient => Clients.GetCached(Url, Clients.GetCustomerClient);
+    protected DataCustomerContact30Client ContactClient => Clients.GetCached(Url, Clients.GetContactClient);
+    protected DataAdmin30Client AdminClient => Clients.GetCached(Url, Clients.GetAdminClient);
+    protected DataDocument30Client DocumentClient => Clients.GetCached(Url, Clients.GetDocumentClient);
+    protected DataItem30Client ItemClient => Clients.GetCached(Url, Clients.GetItemClient);
+    protected DataOrder30Client OrderClient => Clients.GetCached(Url, Clients.GetOrderClient);
+    protected DataPayable30Client PayableClient => Clients.GetCached(Url, Clients.GetPayableClient);
+    protected DataResource30Client ResourceClient => Clients.GetCached(Url, Clients.GetResourceClient);
+    protected DataRequest30Client RequestClient => Clients.GetCached(Url, Clients.GetRequestClient);
+    protected DataQuote30Client QuoteClient => Clients.GetCached(Url, url => ConfigureTimeout(Clients.GetQuoteClient(url)));
+    protected DataJob30Client JobClient => Clients.GetCached(Url, Clients.GetJobClient);
+    protected DataOutgoingInvoice30Client OutgoingInvoiceClient => Clients.GetCached(Url, Clients.GetOutgoingInvoiceClient);
+    protected DataResourceAddress30Client ResourceAddressClient => Clients.GetCached(Url, Clients.GetResourceAddressClient);
+    protected DataCustomerAddress30Client CustomerAddressClient => Clients.GetCached(Url, Clients.GetCustomerAddressClient);
+    protected DataCustomFields30Client CustomFieldsClient => Clients.GetCached(Url, Clients.GetCustomFieldsClient);
+    protected DataQualityManager30Client QualityManagerClient => Clients.GetCached(Url, Clients.GetQualityManagerClient);
 
     public PlunetInvocable(InvocationContext invocationContext) : base(invocationContext)
     {
@@ -106,12 +106,6 @@ public class PlunetInvocable : BaseInvocable
     {
         await using var plunetApiClient = Clients.GetAuthClient(Url);
         await plunetApiClient.logoutAsync(Uuid);
-    }
-
-    public async Task<Callback[]> GetSubscribedWebhooks()
-    {
-        var res = await AdminClient.getListOfRegisteredCallbacksAsync(Uuid);
-        return res.data;
     }
 
     protected int ParseId(string? value, int defaultValue = -1)
