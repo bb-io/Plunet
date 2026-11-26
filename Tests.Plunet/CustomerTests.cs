@@ -23,6 +23,23 @@ public class CustomerTests : TestBase
     }
 
     [TestMethod]
+    public async Task GetProjectManager_IsSuccess()
+    {
+        var action = new CustomerActions(InvocationContext);
+        var response = await action.GetProjectManager(new CustomerRequest
+        {
+            CustomerId = "1"
+        });
+
+        Assert.IsNotNull(response);
+        if (response.ProjectManagerId is not null)
+        {
+            Assert.IsFalse(string.IsNullOrWhiteSpace(response.ProjectManagerName));
+        }
+        Console.WriteLine(JsonConvert.SerializeObject(response, Formatting.Indented));
+    }
+
+    [TestMethod]
     public async Task GetCustomerByexternalId_IsSuccess()
     {
         var action = new CustomerActions(InvocationContext);
