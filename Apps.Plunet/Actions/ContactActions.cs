@@ -94,8 +94,6 @@ public class ContactActions(InvocationContext invocationContext) : PlunetInvocab
             JsonConvert.SerializeObject(request, Formatting.Indented),
             []);
 
-        ContactClient.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
-        ContactClient.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(5);
         var payload = new CustomerContactIN
         {
             customerID = ParseId(request.CustomerId),

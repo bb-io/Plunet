@@ -60,6 +60,7 @@ If you are unable to connect, please check the following:
   - Name 1 & Name 2
   - Status
 - **Get customer**
+- **Get project manager** returns the resource ID and name of the project manager assigned to a customer
 - **Get customer by external ID** returns the customer identified by the specified external ID
 - **Delete customer**
 - **Create customer**

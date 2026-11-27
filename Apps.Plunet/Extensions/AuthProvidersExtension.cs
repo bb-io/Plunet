@@ -1,7 +1,6 @@
 ﻿using Apps.Plunet.Api;
 using Apps.Plunet.Constants;
 using Blackbird.Applications.Sdk.Common.Authentication;
-using Blackbird.Applications.Sdk.Utils.Extensions.String;
 
 namespace Apps.Plunet.Extensions;
 
@@ -9,7 +8,7 @@ public static class AuthProvidersExtension
 {
     public static string GetAuthToken(this IEnumerable<AuthenticationCredentialsProvider> source)
     {
-        using var plunetApiClient = Clients.GetAuthClient(source.GetInstanceUrl());
+        var plunetApiClient = Clients.GetCached(source.GetInstanceUrl(), Clients.GetAuthClient);
         var uuid = plunetApiClient.loginAsync(source.GetUsername(), source.GetPassword())
             .GetAwaiter().GetResult();
 
@@ -20,11 +19,6 @@ public static class AuthProvidersExtension
     {
         return source.FirstOrDefault(x => x.KeyName == CredsNames.UrlNameKey)
             ?.Value ?? string.Empty;
-    }
-    public static Uri? GetInstanceUri(this IEnumerable<AuthenticationCredentialsProvider> source)
-    {
-        return source.FirstOrDefault(x => x.KeyName == CredsNames.UrlNameKey)
-            ?.Value.ToUri();
     }
 
     public static string GetUsername(this IEnumerable<AuthenticationCredentialsProvider> source)

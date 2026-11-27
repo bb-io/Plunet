@@ -181,17 +181,10 @@ public class OrderActions(InvocationContext invocationContext) : PlunetInvocable
             rate = request.Rate ?? default,
             referenceNumber = request.ReferenceNumber           
         };
-
-        OrderClient.Endpoint.Binding.SendTimeout = TimeSpan.FromMinutes(5);
-        OrderClient.Endpoint.Binding.ReceiveTimeout = TimeSpan.FromMinutes(5);
+        
         var orderId = templateRequest.TemplateId == null
             ? await ExecuteWithoutRetry(() => OrderClient.insert2Async(Uuid, orderIn))
             : await ExecuteWithoutRetry(() => OrderClient.insert_byTemplateAsync(Uuid, orderIn, ParseId(templateRequest.TemplateId)));
-
-        //if (request.Status != null)
-        //{
-        //    await ExecuteWithRetry(() => OrderClient.setProjectStatusAsync(Uuid, orderId, ParseId(request.Status)));
-        //}
 
         if (request.ProjectCategory != null)
             await ExecuteWithRetry(() => OrderClient.setProjectCategoryAsync(Uuid, request.ProjectCategory, Language, orderId));

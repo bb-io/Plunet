@@ -100,6 +100,27 @@ public class CustomerActions(InvocationContext invocationContext) : PlunetInvoca
         return new(customer, paymentInfo, addressesInfo, dossier, accountManagerResult, createdby);
     }
 
+    [Action("Get project manager", Description = "Get the project manager assigned to a Plunet customer")]
+    public async Task<GetProjectManagerResponse> GetProjectManager([ActionParameter] CustomerRequest input)
+    {
+        var projectManagerId = await ExecuteWithRetryAcceptNull(() =>
+            CustomerClient.getProjectManagerIDAsync(Uuid, ParseId(input.CustomerId)));
+
+        if (!projectManagerId.HasValue || projectManagerId.Value == 0)
+        {
+            return new();
+        }
+
+        var projectManager = await ExecuteWithRetry(() =>
+            ResourceClient.getResourceObjectAsync(Uuid, projectManagerId.Value));
+
+        return new()
+        {
+            ProjectManagerId = projectManagerId.ToString(),
+            ProjectManagerName = projectManager.fullName
+        };
+    }
+
     [Action("Get customer by external ID", Description = "Get a Plunet customer by external ID")]
     public async Task<GetCustomerResponse> GetCustomerByExternalId(
         [ActionParameter] GetCustomerByExternalIdRequest request)
